@@ -1,14 +1,46 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, TrendingUp, Loader2, User, Users, ChevronDown, ListChecks, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  TrendingUp,
+  Loader2,
+  User,
+  Users,
+  ChevronDown,
+  ListChecks,
+  Trash2,
+  Target,
+  Lightbulb,
+  Sparkles,
+  CheckCircle2,
+  Crown,
+  Lock,
+  Clock,
+  DollarSign,
+  Rocket,
+  ArrowRight,
+  BarChart3,
+  Zap,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { DataThresholdGate } from "@/components/data-threshold-gate";
-import { DATA_THRESHOLDS, RESPONDENT_ROLE_LABELS } from "@/lib/constants";
+import {
+  DATA_THRESHOLDS,
+  RESPONDENT_ROLE_LABELS,
+  INDUSTRY_BENCHMARKS,
+  INDUSTRY_BENCHMARK_OVERALL,
+  TIER_IMPACT_STATS,
+  AI_ADOPTION_STATS,
+  DIMENSION_LEADER_INSIGHTS,
+  getGapLabel,
+  getTierImpactIndex,
+} from "@/lib/constants";
 import { RadarChart } from "@/components/charts/radar-chart";
 import { Heatmap } from "@/components/charts/heatmap";
 import { MaturityGauge } from "@/components/charts/maturity-gauge";
@@ -16,11 +48,27 @@ import {
   calculateOverallScore,
   getRiskAreas,
   getAutomationOpportunities,
+  getOrgRecommendations,
+  getScoreDistribution,
 } from "@/lib/scoring";
 import { DIMENSION_LABELS, DIMENSIONS, getTierForScore, type Dimension } from "@/lib/constants";
 import type { DimensionScores } from "@/lib/types";
 import { getTemplate } from "@/lib/assessment-templates";
 import { toast } from "sonner";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  ReferenceLine,
+  Legend,
+} from "recharts";
 
 interface Respondent {
   id: string;
@@ -36,6 +84,22 @@ interface Respondent {
   raw_answers: Record<string, number>;
 }
 
+interface RoleScores {
+  role: string;
+  roleLabel: string;
+  scores: DimensionScores;
+  overall: number;
+  count: number;
+}
+
+interface HistoricalAssessment {
+  assessment_id: string;
+  completed_at: string;
+  overall_score: number;
+  dimension_scores: DimensionScores;
+  response_count: number;
+}
+
 interface AggregatedData {
   org_scores: DimensionScores;
   department_scores: { department: string; scores: DimensionScores }[];
@@ -44,6 +108,8 @@ interface AggregatedData {
   my_scores: DimensionScores | null;
   template_id: string;
   respondents?: Respondent[];
+  role_scores?: RoleScores[];
+  historical_assessments?: HistoricalAssessment[];
 }
 
 const container = {
@@ -54,6 +120,16 @@ const item = {
   hidden: { opacity: 0, y: 8 },
   show: { opacity: 1, y: 0 },
 };
+
+const tooltipStyle = {
+  backgroundColor: "var(--popover)",
+  border: "1px solid var(--border)",
+  borderRadius: 8,
+  fontSize: 12,
+  color: "var(--foreground)",
+};
+
+const DISTRIBUTION_COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#10b981"];
 
 export default function AssessmentResultsPage() {
   const { id } = useParams<{ id: string }>();
@@ -78,6 +154,63 @@ export default function AssessmentResultsPage() {
     setError(null);
     loadData().finally(() => setLoading(false));
   }, [id]);
+
+  const computedData = useMemo(() => {
+    if (!data) return null;
+
+    const { org_scores, department_scores, respondents } = data;
+    const overallScore = calculateOverallScore(org_scores);
+    const tier = getTierForScore(overallScore);
+    const risks = getRiskAreas(org_scores);
+    const opportunities = getAutomationOpportunities(department_scores);
+    const recommendations = getOrgRecommendations(org_scores);
+    const overallGap = getGapLabel(overallScore, INDUSTRY_BENCHMARK_OVERALL);
+    const currentTierIdx = getTierImpactIndex(tier.tier);
+
+    const roleScoresMap = new Map<string, { scores: DimensionScores[]; count: number }>();
+    if (respondents) {
+      for (const r of respondents) {
+        const role = r.respondent_role ?? "unknown";
+        if (!roleScoresMap.has(role)) {
+          roleScoresMap.set(role, { scores: [], count: 0 });
+        }
+        const entry = roleScoresMap.get(role)!;
+        entry.scores.push(r.scores);
+        entry.count++;
+      }
+    }
+
+    const roleScores: RoleScores[] = Array.from(roleScoresMap.entries()).map(([role, { scores, count }]) => {
+      const avgScores: DimensionScores = {
+        confidence: scores.reduce((a, s) => a + s.confidence, 0) / count,
+        practice: scores.reduce((a, s) => a + s.practice, 0) / count,
+        tools: scores.reduce((a, s) => a + s.tools, 0) / count,
+        responsible: scores.reduce((a, s) => a + s.responsible, 0) / count,
+        culture: scores.reduce((a, s) => a + s.culture, 0) / count,
+      };
+      return {
+        role,
+        roleLabel: (RESPONDENT_ROLE_LABELS as Record<string, string>)[role] ?? role,
+        scores: avgScores,
+        overall: calculateOverallScore(avgScores),
+        count,
+      };
+    }).sort((a, b) => b.overall - a.overall);
+
+    const distribution = respondents ? getScoreDistribution(respondents) : [];
+
+    return {
+      overallScore,
+      tier,
+      risks,
+      opportunities,
+      recommendations,
+      overallGap,
+      currentTierIdx,
+      roleScores,
+      distribution,
+    };
+  }, [data]);
 
   if (loading) {
     return (
@@ -108,18 +241,29 @@ export default function AssessmentResultsPage() {
     );
   }
 
-  const { org_scores, department_scores, response_count, department_count, my_scores, template_id, respondents } = data;
+  const { org_scores, department_scores, response_count, department_count, my_scores, template_id, respondents, historical_assessments } = data;
   const template = getTemplate(template_id);
   const meetsThreshold = response_count >= DATA_THRESHOLDS.ASSESSMENT_MIN_RESPONSES;
 
-  const overallScore = meetsThreshold ? calculateOverallScore(org_scores) : 0;
-  const risks = meetsThreshold ? getRiskAreas(org_scores) : [];
-  const opportunities = meetsThreshold ? getAutomationOpportunities(department_scores) : [];
+  if (!computedData) return null;
+
+  const {
+    overallScore,
+    tier,
+    risks,
+    opportunities,
+    recommendations,
+    overallGap,
+    currentTierIdx,
+    roleScores,
+    distribution,
+  } = computedData;
 
   const myOverall = my_scores ? calculateOverallScore(my_scores) : null;
   const myTier = myOverall !== null ? getTierForScore(myOverall) : null;
 
   const roleLabels = RESPONDENT_ROLE_LABELS as Record<string, string>;
+  const topPriorityRecs = recommendations.filter((r) => r.priority === "critical" || r.priority === "high");
 
   return (
     <motion.div variants={container} initial="hidden" animate="show">
@@ -145,8 +289,154 @@ export default function AssessmentResultsPage() {
 
       {meetsThreshold && (
         <>
+          {/* Executive Summary with Benchmarks */}
+          <motion.div variants={item} className="mt-8 grid gap-4 lg:grid-cols-[340px_1fr]">
+            <div className="relative overflow-hidden rounded-xl border border-border bg-card p-8 text-center">
+              <p className="mb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                Organisation Score
+              </p>
+              <p className="text-5xl font-bold tracking-tight">
+                {overallScore.toFixed(1)}
+                <span className="text-lg text-muted-foreground"> / 5</span>
+              </p>
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border px-4 py-1.5 text-sm font-semibold">
+                Tier {tier.tier}: {tier.label}
+              </div>
+
+              <div className="mt-4 rounded-lg bg-foreground/5 px-4 py-2.5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Industry benchmark
+                </p>
+                <p className="mt-0.5 text-lg font-bold">{INDUSTRY_BENCHMARK_OVERALL}</p>
+                <p className={`mt-0.5 text-xs font-medium ${overallGap.color}`}>
+                  {overallGap.delta > 0 ? "+" : ""}
+                  {overallGap.delta.toFixed(1)} — {overallGap.label}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {DIMENSIONS.map((dim: Dimension) => {
+                const gap = getGapLabel(org_scores[dim], INDUSTRY_BENCHMARKS[dim]);
+                return (
+                  <div key={dim} className="rounded-xl border border-border bg-card p-4">
+                    <p className="mb-1 text-[11px] font-medium text-muted-foreground">
+                      {DIMENSION_LABELS[dim]}
+                    </p>
+                    <div className="flex items-end gap-1.5">
+                      <p className="text-2xl font-bold">{org_scores[dim].toFixed(1)}</p>
+                      <p className="mb-0.5 text-xs text-muted-foreground">/ 5</p>
+                    </div>
+                    <Progress value={(org_scores[dim] / 5) * 100} className="mt-2 h-1.5" />
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-blue-400/40"
+                          style={{ width: `${(INDUSTRY_BENCHMARKS[dim] / 5) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-[9px] text-muted-foreground">
+                        {INDUSTRY_BENCHMARKS[dim]}
+                      </span>
+                    </div>
+                    <p className={`mt-1.5 text-[10px] font-medium ${gap.color}`}>{gap.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* AI Impact Stats Banner */}
+          <motion.div variants={item} className="mt-6">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              {AI_ADOPTION_STATS.map((s, i) => {
+                const icons = [Clock, TrendingUp, DollarSign, Rocket];
+                const Icon = icons[i];
+                return (
+                  <div key={s.label} className="rounded-xl border border-border bg-card p-4">
+                    <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-brand/10">
+                      <Icon className="h-4 w-4 text-brand" />
+                    </div>
+                    <p className="text-2xl font-bold tracking-tight">{s.stat}</p>
+                    <p className="text-xs font-medium">{s.label}</p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground">{s.source}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Tier Progression Journey */}
+          <motion.div variants={item} className="mt-6">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+              <Target className="h-4 w-4" />
+              Growth Journey
+            </h2>
+            <Card className="border-border bg-card">
+              <CardContent className="pt-5">
+                <div className="grid gap-0 sm:grid-cols-4">
+                  {TIER_IMPACT_STATS.map((t, i) => {
+                    const isCurrent = i === currentTierIdx;
+                    const isPast = i < currentTierIdx;
+                    const isFuture = i > currentTierIdx;
+
+                    return (
+                      <div key={t.tier} className="relative">
+                        {i < TIER_IMPACT_STATS.length - 1 && (
+                          <div
+                            className={`absolute left-[calc(50%+20px)] top-4 hidden h-px w-[calc(100%-40px)] sm:block ${
+                              isPast ? "bg-brand" : "bg-border"
+                            }`}
+                          />
+                        )}
+                        <div className="flex flex-col items-center text-center px-2 py-3">
+                          <div
+                            className={`relative z-10 mb-2 flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold ${
+                              isCurrent
+                                ? "border-brand bg-brand text-brand-foreground"
+                                : isPast
+                                  ? "border-brand bg-brand/10 text-brand"
+                                  : "border-border bg-card text-muted-foreground"
+                            }`}
+                          >
+                            {isPast ? (
+                              <CheckCircle2 className="h-4 w-4" />
+                            ) : isCurrent ? (
+                              <Crown className="h-3.5 w-3.5" />
+                            ) : (
+                              <Lock className="h-3 w-3" />
+                            )}
+                          </div>
+                          <p
+                            className={`text-xs font-semibold ${
+                              isCurrent ? "text-brand" : isFuture ? "text-muted-foreground" : ""
+                            }`}
+                          >
+                            {t.tier}
+                          </p>
+                          <p className="mt-0.5 text-[10px] text-muted-foreground">{t.label}</p>
+                          <p
+                            className={`mt-1 text-xs font-bold ${
+                              isCurrent ? "text-brand" : isFuture ? "text-muted-foreground/60" : ""
+                            }`}
+                          >
+                            {t.stat}
+                          </p>
+                          <p className="mt-0.5 text-[9px] leading-tight text-muted-foreground/60">
+                            {t.description}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Your Results (Personal) */}
           {my_scores && myOverall !== null && myTier && (
-            <motion.div variants={item} className="mt-8">
+            <motion.div variants={item} className="mt-6">
               <Card className="border-border bg-card">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-sm font-semibold">
@@ -185,8 +475,11 @@ export default function AssessmentResultsPage() {
             </motion.div>
           )}
 
+          {/* Organisation Overview Section */}
           <motion.div variants={item} className="mt-8">
-            <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider">Organisation Overview</h2>
+            <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Organisation Overview
+            </h2>
           </motion.div>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -213,6 +506,161 @@ export default function AssessmentResultsPage() {
             </motion.div>
           </div>
 
+          {/* Score Distribution */}
+          {distribution.length > 0 && (
+            <motion.div variants={item} className="mt-4">
+              <Card className="border-border bg-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                    <BarChart3 className="h-4 w-4" />
+                    Score Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={distribution}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis
+                        dataKey="range"
+                        tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                      />
+                      <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
+                      <Tooltip
+                        contentStyle={tooltipStyle}
+                        formatter={(value, name) => [
+                          name === "count" ? `${value} respondents` : `${value}%`,
+                          name === "count" ? "Count" : "Percentage",
+                        ]}
+                      />
+                      <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                        {distribution.map((_, idx) => (
+                          <Cell key={idx} fill={DISTRIBUTION_COLORS[idx]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div className="mt-3 flex justify-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-red-500" /> Low (0-2)
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-yellow-500" /> Medium (2-3)
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-green-500" /> High (3-5)
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Historical Trend Tracking */}
+          {historical_assessments && historical_assessments.length > 1 && (
+            <motion.div variants={item} className="mt-4">
+              <Card className="border-border bg-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                    <TrendingUp className="h-4 w-4 text-brand" />
+                    Progress Over Time
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <LineChart
+                      data={historical_assessments.map((h) => ({
+                        date: new Date(h.completed_at).toLocaleDateString("en-GB", {
+                          month: "short",
+                          year: "2-digit",
+                        }),
+                        overall: h.overall_score,
+                        confidence: h.dimension_scores.confidence,
+                        practice: h.dimension_scores.practice,
+                        tools: h.dimension_scores.tools,
+                        responsible: h.dimension_scores.responsible,
+                        culture: h.dimension_scores.culture,
+                        responses: h.response_count,
+                      }))}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                      />
+                      <YAxis
+                        domain={[0, 5]}
+                        tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                      />
+                      <Tooltip
+                        contentStyle={tooltipStyle}
+                        formatter={(value: number, name: string) => [
+                          value.toFixed(2),
+                          name === "overall" ? "Overall Score" : DIMENSION_LABELS[name as Dimension] ?? name,
+                        ]}
+                      />
+                      <ReferenceLine
+                        y={INDUSTRY_BENCHMARK_OVERALL}
+                        stroke="var(--muted-foreground)"
+                        strokeDasharray="5 5"
+                        label={{
+                          value: "Benchmark",
+                          position: "right",
+                          fill: "var(--muted-foreground)",
+                          fontSize: 10,
+                        }}
+                      />
+                      <Legend
+                        iconType="circle"
+                        iconSize={8}
+                        wrapperStyle={{ fontSize: 10, color: "var(--muted-foreground)" }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="overall"
+                        name="Overall"
+                        stroke="var(--brand)"
+                        strokeWidth={2}
+                        dot={{ r: 4, fill: "var(--brand)" }}
+                        activeDot={{ r: 6 }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="confidence"
+                        name="Confidence"
+                        stroke="#8884d8"
+                        strokeWidth={1}
+                        strokeDasharray="3 3"
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="practice"
+                        name="Practice"
+                        stroke="#82ca9d"
+                        strokeWidth={1}
+                        strokeDasharray="3 3"
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="tools"
+                        name="Tools"
+                        stroke="#ffc658"
+                        strokeWidth={1}
+                        strokeDasharray="3 3"
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  <div className="mt-3 text-center text-xs text-muted-foreground">
+                    Tracking {historical_assessments.length} assessments over time
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Department Heatmap */}
           {department_scores.length > 0 && (
             <motion.div variants={item} className="mt-4">
               <Card className="border-border bg-card">
@@ -226,7 +674,131 @@ export default function AssessmentResultsPage() {
             </motion.div>
           )}
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          {/* Role-Based Analysis */}
+          {roleScores.length > 0 && (
+            <motion.div variants={item} className="mt-4">
+              <Card className="border-border bg-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                    <Users className="h-4 w-4" />
+                    Role-Based Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {roleScores.map((rs) => {
+                      const roleTier = getTierForScore(rs.overall);
+                      return (
+                        <div
+                          key={rs.role}
+                          className="flex items-center justify-between rounded-lg border border-border p-4"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium">{rs.roleLabel}</p>
+                              <Badge variant="secondary" className="text-[10px]">
+                                {rs.count} respondent{rs.count !== 1 ? "s" : ""}
+                              </Badge>
+                            </div>
+                            <div className="mt-2 grid grid-cols-5 gap-2">
+                              {DIMENSIONS.map((dim: Dimension) => (
+                                <div key={dim}>
+                                  <p className="text-[9px] text-muted-foreground">
+                                    {DIMENSION_LABELS[dim].split(" ")[0]}
+                                  </p>
+                                  <p className="text-xs font-semibold">{rs.scores[dim].toFixed(1)}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="ml-4 text-right">
+                            <p className="text-2xl font-bold">{rs.overall.toFixed(1)}</p>
+                            <span
+                              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                              style={{ backgroundColor: `${roleTier.color}15`, color: roleTier.color }}
+                            >
+                              Tier {roleTier.tier}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Market Leader Comparison */}
+          <motion.div variants={item} className="mt-6">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+              <Sparkles className="h-4 w-4" />
+              How You Compare to Market Leaders
+            </h2>
+            <div className="space-y-3">
+              {DIMENSIONS.map((dim: Dimension) => {
+                const gap = getGapLabel(org_scores[dim], INDUSTRY_BENCHMARKS[dim]);
+                const info = DIMENSION_LEADER_INSIGHTS[dim];
+
+                return (
+                  <Card
+                    key={dim}
+                    className={`border-border bg-card transition-all ${
+                      gap.delta < -0.5 ? "ring-1 ring-amber-500/20" : ""
+                    }`}
+                  >
+                    <CardContent className="pt-5">
+                      <div className="flex items-start gap-4">
+                        <div className="flex shrink-0 flex-col items-center gap-1 rounded-lg bg-foreground/5 px-3 py-2.5">
+                          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">You</p>
+                          <p className="text-xl font-bold">{org_scores[dim].toFixed(1)}</p>
+                          <div className="h-px w-6 bg-border" />
+                          <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Leaders</p>
+                          <p className="text-xl font-bold text-brand">{INDUSTRY_BENCHMARKS[dim].toFixed(1)}</p>
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="mb-1.5 flex items-center gap-2">
+                            <p className="text-sm font-semibold">{DIMENSION_LABELS[dim]}</p>
+                            <Badge
+                              variant="secondary"
+                              className={`text-[9px] ${
+                                gap.delta >= 0
+                                  ? "bg-green-500/10 text-green-500"
+                                  : gap.delta >= -0.5
+                                    ? "bg-blue-400/10 text-blue-400"
+                                    : "bg-amber-500/10 text-amber-500"
+                              }`}
+                            >
+                              {gap.delta > 0 ? "+" : ""}
+                              {gap.delta.toFixed(1)}
+                            </Badge>
+                          </div>
+
+                          <p className="text-sm leading-relaxed text-muted-foreground">
+                            Companies like{" "}
+                            <span className="font-medium text-foreground">{info.leaders}</span>{" "}
+                            {info.insight}
+                          </p>
+
+                          <div className="mt-2.5 flex items-start gap-2 rounded-lg bg-foreground/5 px-3 py-2">
+                            <TrendingUp className="mt-0.5 h-3 w-3 shrink-0 text-brand" />
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-medium text-foreground">Why it matters:</span>{" "}
+                              {info.benefit}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Risk & Opportunities */}
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
             <motion.div variants={item}>
               <Card className="border-border bg-card">
                 <CardHeader>
@@ -241,11 +813,15 @@ export default function AssessmentResultsPage() {
                   ) : (
                     <div className="space-y-3">
                       {risks.map((r) => (
-                        <div key={r.dimension} className="flex items-center justify-between rounded-lg border border-border p-3">
+                        <div
+                          key={r.dimension}
+                          className="flex items-center justify-between rounded-lg border border-border p-3"
+                        >
                           <div>
                             <p className="text-sm font-medium">{DIMENSION_LABELS[r.dimension]}</p>
                             <p className="text-xs text-muted-foreground">
-                              Score: {r.score.toFixed(1)} — {r.severity === "critical" ? "Critical gap" : "Needs attention"}
+                              Score: {r.score.toFixed(1)} vs {INDUSTRY_BENCHMARKS[r.dimension]} benchmark —{" "}
+                              {r.severity === "critical" ? "Critical gap" : "Needs attention"}
                             </p>
                           </div>
                           <span
@@ -279,7 +855,10 @@ export default function AssessmentResultsPage() {
                   ) : (
                     <div className="space-y-3">
                       {opportunities.map((o) => (
-                        <div key={o.department} className="flex items-center justify-between rounded-lg border border-border p-3">
+                        <div
+                          key={o.department}
+                          className="flex items-center justify-between rounded-lg border border-border p-3"
+                        >
                           <div>
                             <p className="text-sm font-medium">{o.department}</p>
                             <p className="text-xs text-muted-foreground">
@@ -300,13 +879,76 @@ export default function AssessmentResultsPage() {
               </Card>
             </motion.div>
           </div>
+
+          {/* Actionable Recommendations */}
+          <motion.div variants={item} className="mt-6">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+              <Lightbulb className="h-4 w-4" />
+              Action Plan
+            </h2>
+            <div className="space-y-3">
+              {recommendations.map((rec, i) => (
+                <Card
+                  key={rec.dimension}
+                  className={`border-border bg-card ${
+                    i === 0 ? "ring-1 ring-brand/20" : ""
+                  }`}
+                >
+                  <CardContent className="pt-5">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold">{rec.label}</p>
+                        {i === 0 && (
+                          <Badge variant="secondary" className="bg-brand/10 text-brand text-[10px]">
+                            Start here
+                          </Badge>
+                        )}
+                        <Badge
+                          variant="secondary"
+                          className={`text-[9px] ${
+                            rec.priority === "critical"
+                              ? "bg-red-500/10 text-red-500"
+                              : rec.priority === "high"
+                                ? "bg-amber-500/10 text-amber-500"
+                                : rec.priority === "medium"
+                                  ? "bg-blue-400/10 text-blue-400"
+                                  : "bg-green-500/10 text-green-500"
+                          }`}
+                        >
+                          {rec.priority}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{rec.score.toFixed(1)}</span>
+                        <ArrowRight className="h-3 w-3 text-muted-foreground/50" />
+                        <span className="text-xs font-medium text-brand">{rec.benchmark}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{rec.recommendation}</p>
+                    <div className="mt-3 rounded-lg bg-brand/5 px-3 py-2">
+                      <div className="flex items-start gap-2">
+                        <Zap className="mt-0.5 h-3 w-3 shrink-0 text-brand" />
+                        <p className="text-xs">
+                          <span className="font-medium text-foreground">Quick win:</span>{" "}
+                          <span className="text-muted-foreground">{rec.quickWin}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </motion.div>
         </>
       )}
 
+      {/* Individual Responses */}
       {respondents && respondents.length > 0 && (
         <>
           <motion.div variants={item} className="mt-8">
-            <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider">Individual Responses</h2>
+            <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Individual Responses
+            </h2>
           </motion.div>
 
           <motion.div variants={item}>
@@ -320,7 +962,7 @@ export default function AssessmentResultsPage() {
               <CardContent className="p-0">
                 <div className="divide-y divide-border">
                   {respondents.map((r) => {
-                    const tier = getTierForScore(r.overall_score);
+                    const respondentTier = getTierForScore(r.overall_score);
                     const respondentKey = `${r.user_id}_${r.submitted_at}`;
                     const isExpanded = expandedUserId === respondentKey;
                     const initials = r.name
@@ -353,9 +995,9 @@ export default function AssessmentResultsPage() {
                           <div className="flex items-center gap-2">
                             <span
                               className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
-                              style={{ backgroundColor: `${tier.color}15`, color: tier.color }}
+                              style={{ backgroundColor: `${respondentTier.color}15`, color: respondentTier.color }}
                             >
-                              {r.overall_score.toFixed(1)} · Tier {tier.tier}
+                              {r.overall_score.toFixed(1)} · Tier {respondentTier.tier}
                             </span>
                           </div>
 
@@ -387,20 +1029,16 @@ export default function AssessmentResultsPage() {
                                         <span className="text-xs text-muted-foreground">
                                           {DIMENSION_LABELS[dim]}
                                         </span>
-                                        <span className="text-xs font-semibold">
-                                          {r.scores[dim].toFixed(1)}
-                                        </span>
+                                        <span className="text-xs font-semibold">{r.scores[dim].toFixed(1)}</span>
                                       </div>
-                                      <Progress
-                                        value={(r.scores[dim] / 5) * 100}
-                                        className="h-1.5"
-                                      />
+                                      <Progress value={(r.scores[dim] / 5) * 100} className="h-1.5" />
                                     </div>
                                   ))}
                                 </div>
 
                                 <p className="mt-3 text-xs text-muted-foreground sm:hidden">
-                                  {roleLabels[r.respondent_role ?? ""] ?? r.department} · Submitted {new Date(r.submitted_at).toLocaleDateString()}
+                                  {roleLabels[r.respondent_role ?? ""] ?? r.department} · Submitted{" "}
+                                  {new Date(r.submitted_at).toLocaleDateString()}
                                 </p>
 
                                 <div className="mt-4">
@@ -425,10 +1063,18 @@ export default function AssessmentResultsPage() {
                                     <button
                                       onClick={async (e) => {
                                         e.stopPropagation();
-                                        if (!id || !window.confirm("Remove this response? It will be excluded from all readiness scores.")) return;
+                                        if (
+                                          !id ||
+                                          !window.confirm(
+                                            "Remove this response? It will be excluded from all readiness scores."
+                                          )
+                                        )
+                                          return;
                                         setDeletingResponseId(r.id);
                                         try {
-                                          const res = await fetch(`/api/assessment/${id}/responses/${r.id}`, { method: "DELETE" });
+                                          const res = await fetch(`/api/assessment/${id}/responses/${r.id}`, {
+                                            method: "DELETE",
+                                          });
                                           if (!res.ok) {
                                             const err = await res.json().catch(() => ({}));
                                             toast.error(err.error || "Failed to delete response");
@@ -469,7 +1115,7 @@ export default function AssessmentResultsPage() {
                                           <div className="mt-4 space-y-6">
                                             {DIMENSIONS.map((dim: Dimension) => {
                                               const dimQuestions = template.questions.filter(
-                                                (q) => q.dimension === dim,
+                                                (q) => q.dimension === dim
                                               );
                                               if (dimQuestions.length === 0) return null;
 
@@ -482,7 +1128,7 @@ export default function AssessmentResultsPage() {
                                                     {dimQuestions.map((q) => {
                                                       const answerValue = r.raw_answers[q.id];
                                                       const selectedOption = q.options.find(
-                                                        (o) => o.value === answerValue,
+                                                        (o) => o.value === answerValue
                                                       );
                                                       const level =
                                                         answerValue == null
