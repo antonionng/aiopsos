@@ -30,6 +30,7 @@ import {
   Shield,
   Sparkles,
   Target,
+  Trash2,
   TrendingUp,
   Users,
   X,
@@ -39,6 +40,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
 import { isEmployee, type UserRole } from "@/lib/role-helpers";
 import { ASSESSMENT_TEMPLATES, TEMPLATE_IDS } from "@/lib/assessment-templates";
@@ -85,6 +94,8 @@ export default function AssessmentListPage() {
   const [creating, setCreating] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [personalResults, setPersonalResults] = useState<PersonalResults | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Assessment | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function loadRole() {
@@ -100,7 +111,7 @@ export default function AssessmentListPage() {
     }
     loadRole();
 
-    fetch("/api/user/results")
+    fetch("/api/user/results", { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => { if (!data.error) setPersonalResults(data); })
       .catch(() => {});
@@ -108,7 +119,7 @@ export default function AssessmentListPage() {
 
   const fetchAssessments = useCallback(async () => {
     try {
-      const res = await fetch("/api/assessment");
+      const res = await fetch("/api/assessment", { cache: "no-store" });
       const data = await res.json();
       setAssessments(data.assessments ?? []);
     } catch {
@@ -151,6 +162,24 @@ export default function AssessmentListPage() {
     setTimeout(() => setCopiedId(null), 2000);
   }
 
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/assessment", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: deleteTarget.id }),
+      });
+      if (res.ok) {
+        setAssessments((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+      }
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
+    }
+  }
+
   if (loading || userRole === null) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
@@ -177,6 +206,10 @@ export default function AssessmentListPage() {
       handleCreate={handleCreate}
       copiedId={copiedId}
       copyShareLink={copyShareLink}
+      deleteTarget={deleteTarget}
+      setDeleteTarget={setDeleteTarget}
+      deleting={deleting}
+      handleDelete={handleDelete}
     />
   );
 }
@@ -193,6 +226,10 @@ function AdminAssessmentView({
   handleCreate,
   copiedId,
   copyShareLink,
+  deleteTarget,
+  setDeleteTarget,
+  deleting,
+  handleDelete,
 }: {
   assessments: Assessment[];
   pickerOpen: boolean;
@@ -201,6 +238,10 @@ function AdminAssessmentView({
   handleCreate: (tid: string) => void;
   copiedId: string | null;
   copyShareLink: (id: string) => void;
+  deleteTarget: Assessment | null;
+  setDeleteTarget: (a: Assessment | null) => void;
+  deleting: boolean;
+  handleDelete: () => void;
 }) {
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
@@ -330,6 +371,14 @@ function AdminAssessmentView({
                     <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                   </Link>
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={() => setDeleteTarget(a)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
           </div>
@@ -382,6 +431,31 @@ function AdminAssessmentView({
           </div>
         )}
       </div>
+
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete assessment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>&ldquo;{deleteTarget?.title}&rdquo;</strong>?
+              This will permanently remove all responses and invites associated with this assessment. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
@@ -536,11 +610,16 @@ function EmployeeAssessmentView({
         </motion.div>
       ) : (
         <motion.div variants={item} className="mb-8">
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12">
-            <BrainCircuit className="mb-4 h-10 w-10 text-muted-foreground" />
-            <h3 className="mb-1 text-sm font-semibold">No assessment available yet</h3>
-            <p className="text-sm text-muted-foreground">
-              Your admin hasn&apos;t created an assessment yet. Check back soon.
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-14 text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+              <BrainCircuit className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <h3 className="mb-1 text-base font-semibold">No assessment available yet</h3>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Your admin hasn&apos;t created an assessment yet. Once it&apos;s ready, you&apos;ll be able to measure your AI maturity and get personalised recommendations.
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground/70">
+              Assessments take about 5 minutes and your responses are anonymous.
             </p>
           </div>
         </motion.div>
