@@ -23,9 +23,14 @@ export default async function AssessLayout({
     .single();
 
   if (link?.organisations) {
-    const org = link.organisations as { name: string; logo_url: string | null };
-    orgName = org.name;
-    logoUrl = org.logo_url;
+    const orgs = link.organisations as unknown as
+      | { name: string; logo_url: string | null }
+      | { name: string; logo_url: string | null }[];
+    const org = Array.isArray(orgs) ? orgs[0] : orgs;
+    if (org) {
+      orgName = org.name;
+      logoUrl = org.logo_url;
+    }
   }
 
   return (

@@ -95,7 +95,7 @@ ${customInstructions ? `Additional instructions from the admin:\n${customInstruc
       model: getLanguageModel("gpt-4o"),
       system: systemPrompt,
       prompt: userPrompt,
-      maxTokens: 4000,
+      maxOutputTokens: 4000,
     });
 
     return NextResponse.json({

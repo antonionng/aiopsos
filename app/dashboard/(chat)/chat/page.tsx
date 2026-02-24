@@ -123,9 +123,11 @@ export default function ChatPage() {
     [model, activePersona?.system_prompt, currentConvId, pendingSearchResults]
   );
 
-  const { messages, sendMessage, status, setMessages, stop, reload } = useChat({
+  const chat = useChat({
     transport,
   });
+  const { messages, sendMessage, status, setMessages, stop } = chat;
+  const reload = (chat as unknown as { reload?: (query?: string) => void }).reload;
 
   const isLoading = status === "submitted" || status === "streaming";
   const isStreaming = status === "streaming";
@@ -311,21 +313,7 @@ export default function ChatPage() {
       }
     }
 
-    const parts: Array<{ type: "text"; text: string } | { type: "image"; image: string }> = [];
-    if (content) parts.push({ type: "text", text: content });
-    if (attachments) {
-      for (const att of attachments) {
-        if (att.file_type.startsWith("image/")) {
-          parts.push({ type: "image", image: att.url });
-        }
-      }
-    }
-
-    if (parts.length === 1 && parts[0].type === "text") {
-      sendMessage({ text: content });
-    } else {
-      sendMessage({ parts });
-    }
+    sendMessage({ text: content });
 
     // Clear search results after sending
     if (pendingSearchResults) {
@@ -333,7 +321,7 @@ export default function ChatPage() {
     }
   }
 
-  function handleWebSearchToggle(_query?: string) {
+  function handleWebSearchToggle() {
     setWebSearchEnabled((prev) => !prev);
   }
 
@@ -508,7 +496,7 @@ export default function ChatPage() {
   }
 
   function handleRegenerate() {
-    reload();
+    reload?.();
   }
 
   function handleFeedback(messageId: string, rating: "up" | "down") {
@@ -538,7 +526,7 @@ export default function ChatPage() {
       truncated[messageIndex] = edited;
       return truncated;
     });
-    setTimeout(() => reload(), 50);
+    setTimeout(() => reload?.(), 50);
   }
 
   async function handleShare() {

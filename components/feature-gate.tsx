@@ -414,7 +414,7 @@ function UpgradePreview({
   const config = FEATURE_CONFIGS[featureKey as string];
 
   useEffect(() => {
-    fetch("/api/org/assessment-summary")
+    fetch("/api/org/assessment-summary", { cache: "no-store" })
       .then((r) => r.json())
       .then((res) => {
         if (res.data) setAssessmentData(res.data);

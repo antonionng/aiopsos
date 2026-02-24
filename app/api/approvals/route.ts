@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     .eq("id", user.id)
     .single();
 
-  sendApprovalRequestEmail(
+  await sendApprovalRequestEmail(
     profile.org_id,
     requester?.name ?? "A team member",
     content_preview || ""
@@ -127,7 +127,7 @@ export async function PATCH(req: Request) {
       .single();
 
     if (requester) {
-      sendApprovalDecisionEmail(
+      await sendApprovalDecisionEmail(
         requester.email,
         requester.name,
         reviewer?.name ?? "A reviewer",

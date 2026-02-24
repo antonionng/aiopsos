@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { calculateDimensionScores, calculateOverallScore } from "@/lib/scoring";
-import { getTierForScore } from "@/lib/constants";
+import { getTierForScore, DIMENSION_LABELS, DIMENSIONS, RESPONDENT_ROLE_LABELS, type Dimension } from "@/lib/constants";
 import { getTemplate } from "@/lib/assessment-templates";
 import {
   sendWelcomeEmail,
-  sendAssessmentResultsEmail,
   sendAdminAssessmentCompletedEmail,
   sendAdminNewMemberEmail,
 } from "@/lib/email";
@@ -38,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     const { data: assessment } = await supabaseAdmin
       .from("assessments")
-      .select("id, org_id")
+      .select("id, org_id, created_by")
       .eq("id", assessment_id)
       .single();
 
@@ -186,10 +185,64 @@ export async function POST(req: NextRequest) {
       .eq("id", orgId)
       .single();
 
-    sendWelcomeEmail(email, name, org?.name);
-    sendAssessmentResultsEmail(email, name, scores, overall, tier.label);
-    sendAdminAssessmentCompletedEmail(orgId, org?.name ?? "Organisation", name, email, overall, tier.label, department);
-    sendAdminNewMemberEmail(orgId, org?.name ?? "Organisation", name, email, department);
+    let fallbackNotify: { email: string; name: string } | undefined;
+    if (assessment.created_by) {
+      const { data: creator } = await supabaseAdmin
+        .from("user_profiles")
+        .select("email, name")
+        .eq("id", assessment.created_by)
+        .single();
+      if (creator?.email) fallbackNotify = { email: creator.email, name: creator.name || "Admin" };
+    }
+
+    const sorted = DIMENSIONS.slice().sort(
+      (a, b) => scores[b] - scores[a]
+    ) as Dimension[];
+    const strongest = sorted[0];
+    const weakest = sorted[sorted.length - 1];
+    const insights: string[] = [];
+    insights.push(
+      `Your strongest area is ${DIMENSION_LABELS[strongest]} (${scores[strongest].toFixed(1)}/5).`
+    );
+    if (scores[weakest] < 2) {
+      insights.push(
+        `${DIMENSION_LABELS[weakest]} needs attention at ${scores[weakest].toFixed(1)}/5 — this is your biggest growth opportunity.`
+      );
+    } else {
+      insights.push(
+        `${DIMENSION_LABELS[weakest]} scored ${scores[weakest].toFixed(1)}/5 — room to improve here.`
+      );
+    }
+    const avg = Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length;
+    if (avg >= 3.5) {
+      insights.push(
+        "Your organisation is well positioned to adopt advanced AI workflows and agent orchestration."
+      );
+    } else if (avg >= 2) {
+      insights.push(
+        "You have a solid foundation — targeted training and process integration will accelerate your AI journey."
+      );
+    } else {
+      insights.push(
+        "Starting your AI journey is the first step — explore your dashboard for a tailored adoption roadmap."
+      );
+    }
+
+    await sendWelcomeEmail(email, name, org?.name, {
+      scores,
+      overall,
+      tierLabel: tier.label,
+      insights,
+    });
+    await sendAdminAssessmentCompletedEmail(orgId, org?.name ?? "Organisation", name, email, overall, tier.label, department, {
+      scores,
+      respondentRole: respondent_role
+        ? (RESPONDENT_ROLE_LABELS[respondent_role as keyof typeof RESPONDENT_ROLE_LABELS] ?? respondent_role)
+        : undefined,
+      toolsUsed: tools_used ?? undefined,
+      fallbackNotify,
+    });
+    await sendAdminNewMemberEmail(orgId, org?.name ?? "Organisation", name, email, department);
 
     return NextResponse.json({
       success: true,

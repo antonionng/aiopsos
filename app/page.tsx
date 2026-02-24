@@ -19,7 +19,7 @@ const fadeUp = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" },
+    transition: { delay: i * 0.08, duration: 0.5, ease: "easeOut" as const },
   }),
 };
 
@@ -93,13 +93,13 @@ const FOOTER_LINKS = {
     { label: "Analytics", href: "/dashboard/analytics" },
   ],
   Resources: [
-    { label: "Documentation", href: "#" },
-    { label: "Changelog", href: "#" },
-    { label: "Status", href: "#" },
+    { label: "Documentation", href: "/docs" },
+    { label: "Changelog", href: "/changelog" },
+    { label: "Status", href: "/status" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
   ],
   Legal: [
     { label: "Terms of Service", href: "/terms" },

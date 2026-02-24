@@ -85,14 +85,18 @@ export async function GET(req: NextRequest) {
         { status: 500 }
       );
     }
-    users = (minimalData ?? []).map((u) => ({
-      ...u,
+    users = ((minimalData ?? []) as unknown as Record<string, unknown>[]).map((u) => ({
+      id: u.id as string,
+      name: (u.name as string) ?? null,
+      email: u.email as string,
+      role: u.role as string,
+      org_id: (u.org_id as string) ?? null,
       job_title: null,
       avatar_url: null,
       plan_override: null,
     }));
   } else {
-    users = fullData ?? [];
+    users = (fullData ?? []) as unknown as typeof users;
   }
 
   const orgMap = new Map((allOrgs ?? []).map((o) => [o.id, o.name]));

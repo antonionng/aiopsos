@@ -3,12 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import {
   sendWelcomeEmail,
-  sendAssessmentResultsEmail,
   sendAdminAssessmentCompletedEmail,
   sendAdminNewMemberEmail,
 } from "@/lib/email";
 import { calculateOverallScore } from "@/lib/scoring";
-import { getTierForScore } from "@/lib/constants";
+import { getTierForScore, DIMENSION_LABELS, DIMENSIONS, RESPONDENT_ROLE_LABELS, type Dimension } from "@/lib/constants";
 
 export async function POST(
   req: NextRequest,
@@ -20,7 +19,7 @@ export async function POST(
 
     const { data: link, error: linkError } = await supabaseAdmin
       .from("assessment_links")
-      .select("id, org_id")
+      .select("id, org_id, created_by")
       .eq("token", token)
       .single();
 
@@ -204,6 +203,16 @@ export async function POST(
       .eq("id", link.org_id)
       .single();
 
+    let fallbackNotify: { email: string; name: string } | undefined;
+    if (link.created_by) {
+      const { data: creator } = await supabaseAdmin
+        .from("user_profiles")
+        .select("email, name")
+        .eq("id", link.created_by)
+        .single();
+      if (creator?.email) fallbackNotify = { email: creator.email, name: creator.name || "Admin" };
+    }
+
     const scores = {
       confidence: Number(pending.confidence_score),
       practice: Number(pending.practice_score),
@@ -214,10 +223,54 @@ export async function POST(
     const overall = calculateOverallScore(scores);
     const tier = getTierForScore(overall);
 
-    sendWelcomeEmail(email, name, org?.name);
-    sendAssessmentResultsEmail(email, name, scores, overall, tier.label);
-    sendAdminAssessmentCompletedEmail(link.org_id, org?.name ?? "Organisation", name, email, overall, tier.label, department);
-    sendAdminNewMemberEmail(link.org_id, org?.name ?? "Organisation", name, email, department);
+    const sorted = DIMENSIONS.slice().sort(
+      (a, b) => scores[b] - scores[a]
+    ) as Dimension[];
+    const strongest = sorted[0];
+    const weakest = sorted[sorted.length - 1];
+    const insights: string[] = [];
+    insights.push(
+      `Your strongest area is ${DIMENSION_LABELS[strongest]} (${scores[strongest].toFixed(1)}/5).`
+    );
+    if (scores[weakest] < 2) {
+      insights.push(
+        `${DIMENSION_LABELS[weakest]} needs attention at ${scores[weakest].toFixed(1)}/5 — this is your biggest growth opportunity.`
+      );
+    } else {
+      insights.push(
+        `${DIMENSION_LABELS[weakest]} scored ${scores[weakest].toFixed(1)}/5 — room to improve here.`
+      );
+    }
+    const avg = Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length;
+    if (avg >= 3.5) {
+      insights.push(
+        "Your organisation is well positioned to adopt advanced AI workflows and agent orchestration."
+      );
+    } else if (avg >= 2) {
+      insights.push(
+        "You have a solid foundation — targeted training and process integration will accelerate your AI journey."
+      );
+    } else {
+      insights.push(
+        "Starting your AI journey is the first step — explore your dashboard for a tailored adoption roadmap."
+      );
+    }
+
+    await sendWelcomeEmail(email, name, org?.name, {
+      scores,
+      overall,
+      tierLabel: tier.label,
+      insights,
+    });
+    await sendAdminAssessmentCompletedEmail(link.org_id, org?.name ?? "Organisation", name, email, overall, tier.label, department, {
+      scores,
+      respondentRole: pending.respondent_role
+        ? (RESPONDENT_ROLE_LABELS[pending.respondent_role as keyof typeof RESPONDENT_ROLE_LABELS] ?? pending.respondent_role)
+        : undefined,
+      toolsUsed: pending.tools_used ?? undefined,
+      fallbackNotify,
+    });
+    await sendAdminNewMemberEmail(link.org_id, org?.name ?? "Organisation", name, email, department);
 
     const response = NextResponse.json({ success: true, redirect: "/dashboard/my-results" });
 

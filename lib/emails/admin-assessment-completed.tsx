@@ -1,4 +1,6 @@
 import * as React from "react";
+import { DIMENSION_LABELS, DIMENSIONS } from "@/lib/constants";
+import type { DimensionScores } from "@/lib/types";
 
 interface AdminAssessmentCompletedEmailProps {
   adminName: string;
@@ -9,6 +11,9 @@ interface AdminAssessmentCompletedEmailProps {
   tierLabel: string;
   orgName: string;
   resultsUrl: string;
+  dimensionScores?: DimensionScores;
+  respondentRole?: string;
+  toolsUsed?: string[];
 }
 
 export function AdminAssessmentCompletedEmail({
@@ -20,6 +25,9 @@ export function AdminAssessmentCompletedEmail({
   tierLabel,
   orgName,
   resultsUrl,
+  dimensionScores,
+  respondentRole,
+  toolsUsed,
 }: AdminAssessmentCompletedEmailProps) {
   return (
     <div
@@ -151,6 +159,85 @@ export function AdminAssessmentCompletedEmail({
                   </td>
                 </tr>
               )}
+              {respondentRole && (
+                <tr>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      fontSize: "13px",
+                      color: "#888888",
+                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    Role
+                  </td>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: "#ffffff",
+                      textAlign: "right" as const,
+                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    {respondentRole}
+                  </td>
+                </tr>
+              )}
+              {toolsUsed && toolsUsed.length > 0 && (
+                <tr>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      fontSize: "13px",
+                      color: "#888888",
+                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    Tools used
+                  </td>
+                  <td
+                    style={{
+                      padding: "8px 0",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: "#ffffff",
+                      textAlign: "right" as const,
+                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    {toolsUsed.join(", ")}
+                  </td>
+                </tr>
+              )}
+              {dimensionScores &&
+                DIMENSIONS.map((dim) => (
+                  <tr key={dim}>
+                    <td
+                      style={{
+                        padding: "8px 0",
+                        fontSize: "13px",
+                        color: "#888888",
+                        borderTop: "1px solid rgba(255,255,255,0.06)",
+                      }}
+                    >
+                      {DIMENSION_LABELS[dim]}
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 0",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: "#ffffff",
+                        textAlign: "right" as const,
+                        borderTop: "1px solid rgba(255,255,255,0.06)",
+                      }}
+                    >
+                      {Number(dimensionScores[dim]).toFixed(1)} / 5
+                    </td>
+                  </tr>
+                ))}
               <tr>
                 <td
                   style={{

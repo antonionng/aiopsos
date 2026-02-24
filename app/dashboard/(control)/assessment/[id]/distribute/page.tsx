@@ -87,7 +87,7 @@ export default function DistributePage() {
     async function load() {
       try {
         const [assessRes, orgRes] = await Promise.all([
-          fetch("/api/assessment"),
+          fetch("/api/assessment", { cache: "no-store" }),
           fetch("/api/organisation"),
         ]);
         const assessData = await assessRes.json();

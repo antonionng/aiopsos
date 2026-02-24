@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, TrendingUp, Loader2, User, Users, ChevronDown, ListChecks } from "lucide-react";
+import { AlertTriangle, TrendingUp, Loader2, User, Users, ChevronDown, ListChecks, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -20,8 +20,10 @@ import {
 import { DIMENSION_LABELS, DIMENSIONS, getTierForScore, type Dimension } from "@/lib/constants";
 import type { DimensionScores } from "@/lib/types";
 import { getTemplate } from "@/lib/assessment-templates";
+import { toast } from "sonner";
 
 interface Respondent {
+  id: string;
   user_id: string;
   name: string;
   email: string;
@@ -60,20 +62,21 @@ export default function AssessmentResultsPage() {
   const [error, setError] = useState<string | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [answersUserId, setAnswersUserId] = useState<string | null>(null);
+  const [deletingResponseId, setDeletingResponseId] = useState<string | null>(null);
+
+  async function loadData() {
+    if (!id) return;
+    const r = await fetch(`/api/assessment/${id}/aggregated`, { cache: "no-store" });
+    const d = await r.json();
+    if (d.error) setError(d.error);
+    else setData(d);
+  }
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/assessment/${id}/aggregated`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.error) {
-          setError(d.error);
-        } else {
-          setData(d);
-        }
-      })
-      .catch(() => setError("Failed to load results"))
-      .finally(() => setLoading(false));
+    setLoading(true);
+    setError(null);
+    loadData().finally(() => setLoading(false));
   }, [id]);
 
   if (loading) {
@@ -318,7 +321,8 @@ export default function AssessmentResultsPage() {
                 <div className="divide-y divide-border">
                   {respondents.map((r) => {
                     const tier = getTierForScore(r.overall_score);
-                    const isExpanded = expandedUserId === r.user_id;
+                    const respondentKey = `${r.user_id}_${r.submitted_at}`;
+                    const isExpanded = expandedUserId === respondentKey;
                     const initials = r.name
                       .split(" ")
                       .map((n) => n[0])
@@ -327,9 +331,9 @@ export default function AssessmentResultsPage() {
                       .toUpperCase();
 
                     return (
-                      <div key={r.user_id}>
+                      <div key={respondentKey}>
                         <button
-                          onClick={() => setExpandedUserId(isExpanded ? null : r.user_id)}
+                          onClick={() => setExpandedUserId(isExpanded ? null : respondentKey)}
                           className="flex w-full items-center gap-4 px-6 py-4 text-left transition-colors hover:bg-muted/50"
                         >
                           <Avatar size="sm">
@@ -399,26 +403,62 @@ export default function AssessmentResultsPage() {
                                   {roleLabels[r.respondent_role ?? ""] ?? r.department} · Submitted {new Date(r.submitted_at).toLocaleDateString()}
                                 </p>
 
-                                {r.raw_answers && Object.keys(r.raw_answers).length > 0 && (
-                                  <div className="mt-4">
+                                <div className="mt-4">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    {r.raw_answers && Object.keys(r.raw_answers).length > 0 && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setAnswersUserId(answersUserId === respondentKey ? null : respondentKey);
+                                        }}
+                                        className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
+                                      >
+                                        <ListChecks className="h-3.5 w-3.5" />
+                                        {answersUserId === respondentKey ? "Hide Answers" : "View Answers"}
+                                        <ChevronDown
+                                          className={`h-3 w-3 transition-transform duration-200 ${
+                                            answersUserId === respondentKey ? "rotate-180" : ""
+                                          }`}
+                                        />
+                                      </button>
+                                    )}
                                     <button
-                                      onClick={(e) => {
+                                      onClick={async (e) => {
                                         e.stopPropagation();
-                                        setAnswersUserId(answersUserId === r.user_id ? null : r.user_id);
+                                        if (!id || !window.confirm("Remove this response? It will be excluded from all readiness scores.")) return;
+                                        setDeletingResponseId(r.id);
+                                        try {
+                                          const res = await fetch(`/api/assessment/${id}/responses/${r.id}`, { method: "DELETE" });
+                                          if (!res.ok) {
+                                            const err = await res.json().catch(() => ({}));
+                                            toast.error(err.error || "Failed to delete response");
+                                            return;
+                                          }
+                                          toast.success("Response removed");
+                                          await loadData();
+                                          setExpandedUserId(null);
+                                          setAnswersUserId(null);
+                                        } catch {
+                                          toast.error("Failed to delete response");
+                                        } finally {
+                                          setDeletingResponseId(null);
+                                        }
                                       }}
-                                      className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
+                                      disabled={deletingResponseId === r.id}
+                                      className="inline-flex items-center gap-1.5 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
                                     >
-                                      <ListChecks className="h-3.5 w-3.5" />
-                                      {answersUserId === r.user_id ? "Hide Answers" : "View Answers"}
-                                      <ChevronDown
-                                        className={`h-3 w-3 transition-transform duration-200 ${
-                                          answersUserId === r.user_id ? "rotate-180" : ""
-                                        }`}
-                                      />
+                                      {deletingResponseId === r.id ? (
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                      ) : (
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      )}
+                                      {deletingResponseId === r.id ? "Removing…" : "Delete response"}
                                     </button>
+                                  </div>
 
+                                  {r.raw_answers && Object.keys(r.raw_answers).length > 0 && (
                                     <AnimatePresence>
-                                      {answersUserId === r.user_id && (
+                                      {answersUserId === respondentKey && (
                                         <motion.div
                                           initial={{ height: 0, opacity: 0 }}
                                           animate={{ height: "auto", opacity: 1 }}
@@ -490,8 +530,8 @@ export default function AssessmentResultsPage() {
                                         </motion.div>
                                       )}
                                     </AnimatePresence>
-                                  </div>
-                                )}
+                                  )}
+                                </div>
                               </div>
                             </motion.div>
                           )}

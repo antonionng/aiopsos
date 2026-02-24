@@ -40,6 +40,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/assess/") ||
     request.nextUrl.pathname.startsWith("/assessment/") ||
     request.nextUrl.pathname.startsWith("/api/public/") ||
+    request.nextUrl.pathname === "/api/assessment/public-submit" ||
+    /^\/api\/assessment\/[^/]+\/public-info$/.test(request.nextUrl.pathname) ||
     request.nextUrl.pathname.startsWith("/terms") ||
     request.nextUrl.pathname.startsWith("/privacy") ||
     request.nextUrl.pathname.startsWith("/cookies");

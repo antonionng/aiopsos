@@ -215,7 +215,7 @@ export default function MyResultsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/user/results")
+    fetch("/api/user/results", { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
         if (data.error) setError(data.error);

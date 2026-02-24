@@ -253,18 +253,10 @@ export const MessageBubble = memo(function MessageBubble({
                     {children}
                   </ol>
                 ),
-                li: ({ children, ordered }) => {
-                  if (ordered) {
-                    return (
-                      <li className="pl-1 text-sm leading-relaxed">
-                        {children}
-                      </li>
-                    );
-                  }
+                li: ({ children }) => {
                   return (
                     <li className="text-sm leading-relaxed">
-                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand/50 inline-block" />
-                      <span className="ml-2">{children}</span>
+                      {children}
                     </li>
                   );
                 },

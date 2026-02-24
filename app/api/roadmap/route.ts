@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (profile) {
-        sendRoadmapReadyEmail(
+        await sendRoadmapReadyEmail(
           profile.email,
           profile.name,
           orgName || "Organisation",

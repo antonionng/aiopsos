@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { calculateOverallScore, getRiskAreas } from "@/lib/scoring";
 import { getTierForScore, DIMENSION_LABELS, type Dimension } from "@/lib/constants";
 import type { DimensionScores } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 const DIMENSION_RECOMMENDATIONS: Record<Dimension, { low: string; mid: string }> = {
   confidence: {
@@ -77,7 +80,7 @@ export async function GET() {
     .maybeSingle();
 
   if (profile?.org_id) {
-    const { data: orgResponses } = await supabase
+    const { data: orgResponses } = await supabaseAdmin
       .from("assessment_responses")
       .select("confidence_score, practice_score, tools_score, responsible_score, culture_score")
       .eq("assessment_id", response.assessment_id);
@@ -102,5 +105,5 @@ export async function GET() {
     recommendations,
     submitted_at: response.submitted_at,
     orgAverages,
-  });
+  }, { headers: { "Cache-Control": "no-store" } });
 }

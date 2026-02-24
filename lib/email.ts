@@ -13,10 +13,18 @@ import { ApprovalDecisionEmail } from "./emails/approval-decision";
 import { RoadmapReadyEmail } from "./emails/roadmap-ready";
 import type { DimensionScores } from "./types";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-const FROM = process.env.EMAIL_FROM || "AIOPSOS <noreply@aiopsos.com>";
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+function getEmailConfig() {
+  return {
+    apiKey: process.env.RESEND_API_KEY,
+    from: process.env.EMAIL_FROM || "AIOPSOS <noreply@aiopsos.com>",
+  };
+}
+
+function getResend() {
+  return new Resend(getEmailConfig().apiKey);
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -38,13 +46,38 @@ export async function getOrgAdminEmails(
 // User-facing emails
 // ---------------------------------------------------------------------------
 
-export async function sendWelcomeEmail(to: string, name: string, orgName?: string) {
+export async function sendWelcomeEmail(
+  to: string,
+  name: string,
+  orgName?: string,
+  scoreData?: {
+    scores: DimensionScores;
+    overall: number;
+    tierLabel: string;
+    insights: string[];
+  }
+) {
   try {
-    await resend.emails.send({
-      from: FROM,
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) {
+      console.warn("[email] RESEND_API_KEY is not set; skipping welcome email");
+      return;
+    }
+    await getResend().emails.send({
+      from,
       to,
-      subject: "Welcome to AIOPSOS",
-      react: WelcomeEmail({ name, orgName, dashboardUrl: `${BASE_URL}/dashboard` }),
+      subject: scoreData
+        ? `Welcome to AIOPSOS — Your AI Readiness Score: ${scoreData.overall.toFixed(1)}/5`
+        : "Welcome to AIOPSOS",
+      react: WelcomeEmail({
+        name,
+        orgName,
+        dashboardUrl: `${BASE_URL}/dashboard`,
+        scores: scoreData?.scores,
+        overall: scoreData?.overall,
+        tierLabel: scoreData?.tierLabel,
+        insights: scoreData?.insights,
+      }),
     });
   } catch (error) {
     console.error("Failed to send welcome email:", error);
@@ -53,8 +86,9 @@ export async function sendWelcomeEmail(to: string, name: string, orgName?: strin
 
 export async function sendTeamInviteEmail(to: string, name: string, inviterName: string) {
   try {
-    await resend.emails.send({
-      from: FROM,
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
       to,
       subject: `You're invited to join AIOPSOS`,
       react: InviteEmail({ name, inviterName, loginUrl: `${BASE_URL}/auth/login` }),
@@ -72,8 +106,9 @@ export async function sendAssessmentResultsEmail(
   tierLabel: string
 ) {
   try {
-    await resend.emails.send({
-      from: FROM,
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
       to,
       subject: `Your AI Maturity Score: ${overall.toFixed(1)} / 5`,
       react: AssessmentResultsEmail({
@@ -97,8 +132,9 @@ export async function sendApprovalDecisionEmail(
   comment?: string
 ) {
   try {
-    await resend.emails.send({
-      from: FROM,
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
       to,
       subject: decision === "approved" ? "Your request was approved" : "Your request was declined",
       react: ApprovalDecisionEmail({
@@ -121,8 +157,9 @@ export async function sendRoadmapReadyEmail(
   phaseCount: number
 ) {
   try {
-    await resend.emails.send({
-      from: FROM,
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
       to,
       subject: "Your 90-Day AI Adoption Roadmap is Ready",
       react: RoadmapReadyEmail({
@@ -149,8 +186,9 @@ export async function sendAssessmentInviteEmail(
   assessUrl: string
 ) {
   try {
-    await resend.emails.send({
-      from: FROM,
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
       to,
       subject: `${orgName} needs your input — ${assessmentTitle} (5 min)`,
       react: AssessmentInviteEmail({ recipientName, orgName, assessmentTitle, assessUrl }),
@@ -170,8 +208,9 @@ export async function sendAssessmentReminderEmail(
   totalInvited: number
 ) {
   try {
-    await resend.emails.send({
-      from: FROM,
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
       to,
       subject: `Reminder: ${orgName} ${assessmentTitle}`,
       react: AssessmentReminderEmail({
@@ -198,8 +237,9 @@ export async function sendScoreCardEmail(
   shareUrl: string
 ) {
   try {
-    await resend.emails.send({
-      from: FROM,
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
       to,
       subject: `Your AI Readiness Score: ${overallScore.toFixed(1)} / 5`,
       react: ScoreCardEmail({
@@ -228,16 +268,69 @@ export async function sendAdminAssessmentCompletedEmail(
   respondentEmail: string,
   overall: number,
   tierLabel: string,
-  department?: string
+  department?: string,
+  options?: {
+    scores?: DimensionScores;
+    respondentRole?: string;
+    toolsUsed?: string[];
+    /** When org has no admin/manager, send to this recipient so the link/assessment creator still gets notified */
+    fallbackNotify?: { email: string; name: string };
+  }
 ) {
   try {
-    const admins = await getOrgAdminEmails(orgId);
-    if (admins.length === 0) return;
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) {
+      console.warn("[email] RESEND_API_KEY is not set; skipping admin assessment completed email");
+      return;
+    }
 
-    await Promise.allSettled(
-      admins.map((admin) =>
+    const admins = await getOrgAdminEmails(orgId);
+    let recipients = admins.length > 0 ? admins : (options?.fallbackNotify ? [options.fallbackNotify] : []);
+
+    // Fallback: org owner
+    if (recipients.length === 0) {
+      const { data: org } = await supabaseAdmin
+        .from("organisations")
+        .select("owner_id")
+        .eq("id", orgId)
+        .single();
+
+      if (org?.owner_id) {
+        const { data: owner } = await supabaseAdmin
+          .from("user_profiles")
+          .select("email, name")
+          .eq("id", org.owner_id)
+          .single();
+
+        if (owner?.email) {
+          recipients = [{ email: owner.email, name: owner.name || "Owner" }];
+        }
+      }
+    }
+
+    // Fallback: platform-level NOTIFY_EMAIL
+    if (recipients.length === 0 && process.env.NOTIFY_EMAIL) {
+      recipients = [{ email: process.env.NOTIFY_EMAIL, name: "Notify" }];
+    }
+
+    if (recipients.length === 0) {
+      console.warn(
+        `[email] No admin/manager, org owner, or fallbackNotify for org ${orgId}; not sending assessment completed email`
+      );
+      return;
+    }
+
+    console.log(
+      `[email] Sending assessment completed email to ${recipients.length} recipient(s):`,
+      recipients.map((r) => r.email).join(", ")
+    );
+    console.log("[email] Using from:", from);
+
+    const resend = getResend();
+    const results = await Promise.allSettled(
+      recipients.map((admin) =>
         resend.emails.send({
-          from: FROM,
+          from,
           to: admin.email,
           subject: `New assessment completed by ${respondentName}`,
           react: AdminAssessmentCompletedEmail({
@@ -249,10 +342,26 @@ export async function sendAdminAssessmentCompletedEmail(
             tierLabel,
             orgName,
             resultsUrl: `${BASE_URL}/dashboard/analytics`,
+            dimensionScores: options?.scores,
+            respondentRole: options?.respondentRole,
+            toolsUsed: options?.toolsUsed,
           }),
         })
       )
     );
+
+    results.forEach((result, i) => {
+      if (result.status === "rejected") {
+        console.error(`[email] Admin assessment completed send failed (recipient ${recipients[i]?.email}):`, result.reason);
+      } else if (result.value?.error) {
+        console.error(
+          `[email] Resend API error for ${recipients[i]?.email}:`,
+          JSON.stringify(result.value.error)
+        );
+      } else {
+        console.log(`[email] Assessment completed email sent to ${recipients[i]?.email}`);
+      }
+    });
   } catch (error) {
     console.error("Failed to send admin assessment notification:", error);
   }
@@ -266,13 +375,14 @@ export async function sendAdminNewMemberEmail(
   department?: string
 ) {
   try {
+    const { from } = getEmailConfig();
     const admins = await getOrgAdminEmails(orgId);
     if (admins.length === 0) return;
 
     await Promise.allSettled(
       admins.map((admin) =>
-        resend.emails.send({
-          from: FROM,
+        getResend().emails.send({
+          from,
           to: admin.email,
           subject: `${memberName} has joined ${orgName}`,
           react: AdminNewMemberEmail({
@@ -297,13 +407,14 @@ export async function sendApprovalRequestEmail(
   contentPreview: string
 ) {
   try {
+    const { from } = getEmailConfig();
     const reviewers = await getOrgAdminEmails(orgId);
     if (reviewers.length === 0) return;
 
     await Promise.allSettled(
       reviewers.map((reviewer) =>
-        resend.emails.send({
-          from: FROM,
+        getResend().emails.send({
+          from,
           to: reviewer.email,
           subject: `Approval request from ${requesterName}`,
           react: ApprovalRequestEmail({

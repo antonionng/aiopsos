@@ -1,4 +1,4 @@
-import { streamText } from "ai";
+import { streamText, type ModelMessage } from "ai";
 import { getLanguageModel, calculateCost, calculateCustomerCharge, canUseModel } from "@/lib/model-router";
 import { checkInput } from "@/lib/guardrails";
 import { createClient } from "@/lib/supabase/server";
@@ -67,7 +67,9 @@ export async function POST(req: Request) {
     });
   }
 
-  const messages = rawMessages.map((msg: Record<string, unknown>) => ({
+  type ChatMessage = { role: string; content: string | ContentPart[] };
+
+  const messages: ChatMessage[] = rawMessages.map((msg: Record<string, unknown>) => ({
     role: msg.role as string,
     content: extractContent(msg),
   }));
@@ -231,10 +233,10 @@ export async function POST(req: Request) {
   const result = streamText({
     model: languageModel,
     system: systemPrompt,
-    messages,
+    messages: messages as unknown as ModelMessage[],
     onFinish: async ({ text, usage }) => {
       if (!user || !orgId) return;
-      const tokenUsage = usage as Record<string, number> | undefined;
+      const tokenUsage = usage as unknown as Record<string, number> | undefined;
       const inputTokens = tokenUsage?.promptTokens ?? tokenUsage?.inputTokens ?? 0;
       const outputTokens = tokenUsage?.completionTokens ?? tokenUsage?.outputTokens ?? 0;
       const rawCost = calculateCost(modelId, inputTokens, outputTokens);

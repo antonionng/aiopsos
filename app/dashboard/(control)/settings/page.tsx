@@ -964,14 +964,13 @@ export default function SettingsPage() {
                       <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                     </div>
                   ) : teamMembers.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-center">
-                      <Users className="mb-3 h-8 w-8 text-muted-foreground" />
-                      <p className="text-sm font-medium">No team members yet</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Invite your first team member to get started.
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        Collaboration features unlock with Pro and Enterprise plans.
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10">
+                        <Users className="h-6 w-6 text-brand" />
+                      </div>
+                      <p className="text-sm font-semibold">No team members yet</p>
+                      <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                        Invite colleagues to collaborate on assessments, share AI insights, and work together on your AI adoption journey.
                       </p>
                       {canManageTeam && (
                         <Button

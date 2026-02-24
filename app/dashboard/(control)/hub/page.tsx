@@ -197,7 +197,7 @@ export default function ControlHubPage() {
         });
       });
 
-    fetch("/api/user/results")
+    fetch("/api/user/results", { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
         if (!data.error) setPersonalResults(data);

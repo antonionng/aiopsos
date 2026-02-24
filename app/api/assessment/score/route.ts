@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { calculateDimensionScores, calculateOverallScore } from "@/lib/scoring";
-import { getTierForScore } from "@/lib/constants";
+import { getTierForScore, RESPONDENT_ROLE_LABELS } from "@/lib/constants";
 import { getTemplate } from "@/lib/assessment-templates";
 import {
   sendAssessmentResultsEmail,
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
   const { data: assessment } = await supabase
     .from("assessments")
-    .select("template_id")
+    .select("template_id, created_by")
     .eq("id", assessment_id)
     .single();
 
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (userProfile) {
-    sendAssessmentResultsEmail(userProfile.email, userProfile.name, scores, overall, tier.label);
+    await sendAssessmentResultsEmail(userProfile.email, userProfile.name, scores, overall, tier.label);
 
     const { data: org } = await supabase
       .from("organisations")
@@ -77,13 +77,42 @@ export async function POST(req: NextRequest) {
       .eq("id", userProfile.org_id)
       .single();
 
-    sendAdminAssessmentCompletedEmail(
+    let departmentLabel: string | undefined;
+    if (profile.department_id) {
+      const { data: dept } = await supabase
+        .from("departments")
+        .select("name")
+        .eq("id", profile.department_id)
+        .single();
+      if (dept?.name) departmentLabel = dept.name;
+    }
+
+    let fallbackNotify: { email: string; name: string } | undefined;
+    if (assessment?.created_by) {
+      const { data: creator } = await supabase
+        .from("user_profiles")
+        .select("email, name")
+        .eq("id", assessment.created_by)
+        .single();
+      if (creator?.email) fallbackNotify = { email: creator.email, name: creator.name || "Admin" };
+    }
+
+    await sendAdminAssessmentCompletedEmail(
       userProfile.org_id,
       org?.name ?? "Organisation",
       userProfile.name,
       userProfile.email,
       overall,
-      tier.label
+      tier.label,
+      departmentLabel,
+      {
+        scores,
+        respondentRole: respondent_role
+          ? (RESPONDENT_ROLE_LABELS[respondent_role as keyof typeof RESPONDENT_ROLE_LABELS] ?? respondent_role)
+          : undefined,
+        toolsUsed: tools_used ?? undefined,
+        fallbackNotify,
+      }
     );
   }
 

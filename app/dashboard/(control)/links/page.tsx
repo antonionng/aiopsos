@@ -202,21 +202,44 @@ export default function LinksPage() {
         )}
 
         {!loading && links.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16">
-            <LinkIcon className="mb-4 h-10 w-10 text-muted-foreground" />
-            <h3 className="mb-1 text-sm font-semibold">
-              No assessment links yet
-            </h3>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Create your first link to share with your team.
-            </p>
-            <Button
-              className="bg-brand text-brand-foreground hover:bg-brand/90"
-              onClick={() => setOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              New Link
-            </Button>
+          <div className="space-y-6">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-14 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10">
+                <LinkIcon className="h-7 w-7 text-brand" />
+              </div>
+              <h3 className="mb-1 text-base font-semibold">Create your first assessment link</h3>
+              <p className="mb-5 max-w-md text-sm text-muted-foreground">
+                Generate a shareable link that anyone can use to take your AI readiness assessment — no login required. Perfect for team-wide rollouts.
+              </p>
+              <Button
+                className="bg-brand text-brand-foreground hover:bg-brand/90"
+                onClick={() => setOpen(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                New Link
+              </Button>
+            </div>
+
+            <div>
+              <h2 className="mb-3 text-sm font-semibold">Why use assessment links?</h2>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  { icon: Globe, title: "No login needed", desc: "Share a link via email, Slack, or QR code. Respondents can start immediately without creating an account." },
+                  { icon: BarChart3, title: "Track responses", desc: "See how many people have completed the assessment from each link and monitor participation in real time." },
+                  { icon: Share2, title: "Multiple campaigns", desc: "Create separate links for different teams, events, or time periods. Each link tracks responses independently." },
+                ].map((c) => (
+                  <Card key={c.title} className="border-border bg-card">
+                    <CardContent className="pt-5">
+                      <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/5">
+                        <c.icon className="h-4 w-4 text-foreground" />
+                      </div>
+                      <h3 className="mb-1 text-sm font-semibold">{c.title}</h3>
+                      <p className="text-xs leading-relaxed text-muted-foreground">{c.desc}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 

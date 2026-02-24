@@ -45,7 +45,7 @@ export const profileUpdateSchema = z.object({
   job_title: z.string().max(200).optional(),
   bio: z.string().max(2000).optional(),
   skills: z.string().max(1000).optional(),
-  preferences: z.record(z.string()).optional(),
+  preferences: z.record(z.string(), z.string()).optional(),
 });
 
 export const approvalActionSchema = z.object({

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { calculateOverallScore } from "@/lib/scoring";
 import type { DimensionScores } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const supabase = await createClient();
@@ -20,21 +23,20 @@ export async function GET() {
   if (!profile?.org_id)
     return NextResponse.json({ data: null });
 
-  const { data: latestAssessment } = await supabase
+  const { data: orgAssessments } = await supabaseAdmin
     .from("assessments")
     .select("id")
-    .eq("org_id", profile.org_id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
+    .eq("org_id", profile.org_id);
 
-  if (!latestAssessment)
+  if (!orgAssessments || orgAssessments.length === 0)
     return NextResponse.json({ data: null });
 
-  const { data: responses } = await supabase
+  const assessmentIds = orgAssessments.map((a) => a.id);
+
+  const { data: responses } = await supabaseAdmin
     .from("assessment_responses")
     .select("confidence_score, practice_score, tools_score, responsible_score, culture_score, department_id, departments(name, type)")
-    .eq("assessment_id", latestAssessment.id);
+    .in("assessment_id", assessmentIds);
 
   if (!responses || responses.length === 0)
     return NextResponse.json({ data: null });
@@ -89,7 +91,6 @@ export async function GET() {
 
   return NextResponse.json({
     data: {
-      assessment_id: latestAssessment.id,
       overallScore,
       dimensionScores: orgScores,
       departmentCount: deptMap.size,

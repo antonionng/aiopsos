@@ -18,7 +18,17 @@ import {
   BarChart3,
   Users,
   TrendingUp,
+  Brain,
+  Zap,
+  Wrench,
+  ShieldCheck,
+  Lightbulb,
+  Map,
+  FileText,
+  Share2,
+  Trophy,
 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -212,24 +222,62 @@ export default function PublicTakeAssessmentPage() {
   );
 }
 
+function useCountUp(target: number, duration = 1.4, delay = 0.5) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const start = performance.now();
+      function tick(now: number) {
+        const elapsed = (now - start) / 1000;
+        const t = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setValue(eased * target);
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }, delay * 1000);
+    return () => clearTimeout(timeout);
+  }, [target, duration, delay]);
+  return value;
+}
+
 function ScoreRing({
   score,
-  size = 120,
-  strokeWidth = 8,
+  size = 160,
+  strokeWidth = 10,
   animated = true,
+  tierColor,
 }: {
   score: number;
   size?: number;
   strokeWidth?: number;
   animated?: boolean;
+  tierColor?: string;
 }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = (score / 5) * circumference;
+  const displayValue = useCountUp(score, 1.4, animated ? 0.5 : 0);
+  const gradientId = `score-gradient-${size}`;
 
   return (
     <div className="relative inline-flex items-center justify-center">
+      <div
+        className="absolute rounded-full"
+        style={{
+          width: size + 32,
+          height: size + 32,
+          background: `radial-gradient(circle, ${tierColor ?? "hsl(var(--brand))"}20 0%, transparent 70%)`,
+          filter: "blur(20px)",
+        }}
+      />
       <svg width={size} height={size} className="-rotate-90">
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={tierColor ?? "hsl(var(--brand))"} stopOpacity="1" />
+            <stop offset="100%" stopColor={tierColor ?? "hsl(var(--brand))"} stopOpacity="0.4" />
+          </linearGradient>
+        </defs>
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -238,30 +286,30 @@ function ScoreRing({
           stroke="currentColor"
           strokeWidth={strokeWidth}
           className="text-border"
+          opacity={0.3}
         />
         <motion.circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="currentColor"
+          stroke={`url(#${gradientId})`}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
-          className="text-brand"
           strokeDasharray={circumference}
           initial={animated ? { strokeDashoffset: circumference } : undefined}
           animate={{ strokeDashoffset: circumference - progress }}
-          transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+          transition={{ duration: 1.4, ease: "easeOut", delay: 0.3 }}
         />
       </svg>
       <motion.div
         className="absolute text-center"
         initial={animated ? { opacity: 0, scale: 0.5 } : undefined}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
       >
-        <span className="text-3xl font-bold tracking-tight">
-          {score.toFixed(1)}
+        <span className="text-4xl font-bold tracking-tight">
+          {displayValue.toFixed(1)}
         </span>
         <span className="text-sm text-muted-foreground">/5</span>
       </motion.div>
@@ -369,7 +417,7 @@ function SignupPhase({
         transition={{ delay: 0.4 }}
         className="mb-8 flex flex-col items-center"
       >
-        <ScoreRing score={overall} />
+        <ScoreRing score={overall} tierColor={tier.color} />
 
         <motion.div
           initial={{ opacity: 0, y: 4 }}
@@ -620,6 +668,14 @@ function SignupPhase({
   );
 }
 
+const DIMENSION_ICONS: Record<string, typeof Brain> = {
+  confidence: Brain,
+  practice: Zap,
+  tools: Wrench,
+  responsible: ShieldCheck,
+  culture: Users,
+};
+
 function ResultsPhase({
   scores,
   overall,
@@ -640,126 +696,237 @@ function ResultsPhase({
       transition={{ duration: 0.5 }}
       className="mx-auto max-w-2xl"
     >
+      {/* Logo */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="mb-8 flex justify-center"
+      >
+        <Image
+          src="/logo.png"
+          alt="AIOPSOS"
+          width={120}
+          height={48}
+          unoptimized
+          className="opacity-80"
+        />
+      </motion.div>
+
+      {/* Celebratory header */}
       <div className="mb-10 text-center">
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 200, damping: 12 }}
-          className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand/10"
+          transition={{ type: "spring", stiffness: 180, damping: 12 }}
+          className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full"
+          style={{
+            background: `linear-gradient(135deg, ${tier.color}30, ${tier.color}10)`,
+            boxShadow: `0 0 40px ${tier.color}20`,
+          }}
         >
-          <Unlock className="h-8 w-8 text-brand" />
+          <Trophy className="h-10 w-10" style={{ color: tier.color }} />
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mb-2 text-2xl font-bold tracking-[-0.02em]"
+          className="mb-2 text-3xl font-bold tracking-[-0.03em]"
         >
-          Welcome, {name.split(" ")[0]}!
+          Congratulations, {name.split(" ")[0]}!
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-sm text-muted-foreground"
+          className="text-base text-muted-foreground"
         >
-          Your full AI readiness results are unlocked.
+          Your AI Readiness Score is ready
         </motion.p>
       </div>
 
+      {/* Score ring with glow */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="mb-8 flex flex-col items-center"
+        className="mb-10 flex flex-col items-center"
       >
-        <ScoreRing score={overall} animated={false} />
-        <div
-          className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
+        <ScoreRing score={overall} size={180} strokeWidth={12} tierColor={tier.color} />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.6, type: "spring", stiffness: 200 }}
+          className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
           style={{
-            backgroundColor: `${tier.color}15`,
+            backgroundColor: `${tier.color}18`,
             color: tier.color,
+            border: `1px solid ${tier.color}30`,
           }}
         >
-          <Sparkles className="h-3.5 w-3.5" />
+          <Sparkles className="h-4 w-4" />
           Tier {tier.tier}: {tier.label}
+        </motion.div>
+      </motion.div>
+
+      {/* Dimension cards with icons and colour accents */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="mb-10"
+      >
+        <h3 className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Breakdown by Dimension
+        </h3>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {DIMENSIONS.map((dim, i) => {
+            const DimIcon = DIMENSION_ICONS[dim] ?? Building2;
+            const dimTier = getTierForScore(scores[dim]);
+            return (
+              <motion.div
+                key={dim}
+                initial={{ opacity: 0, y: 16, scale: 0.93 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  delay: 0.6 + i * 0.1,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 18,
+                }}
+                className="group relative overflow-hidden rounded-xl border bg-card p-4 transition-colors"
+                style={{ borderColor: `${dimTier.color}30` }}
+              >
+                <div
+                  className="absolute inset-0 opacity-[0.04]"
+                  style={{
+                    background: `linear-gradient(135deg, ${dimTier.color}, transparent)`,
+                  }}
+                />
+                <div className="relative">
+                  <div className="mb-2 flex items-center gap-2">
+                    <div
+                      className="flex h-6 w-6 items-center justify-center rounded-md"
+                      style={{ backgroundColor: `${dimTier.color}18` }}
+                    >
+                      <DimIcon className="h-3.5 w-3.5" style={{ color: dimTier.color }} />
+                    </div>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      {DIMENSION_LABELS[dim]}
+                    </p>
+                  </div>
+                  <div className="flex items-end gap-1.5">
+                    <span className="text-2xl font-bold" style={{ color: dimTier.color }}>
+                      {scores[dim].toFixed(1)}
+                    </span>
+                    <span className="mb-0.5 text-xs text-muted-foreground">/5</span>
+                  </div>
+                  <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-muted/50">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: dimTier.color }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(scores[dim] / 5) * 100}%` }}
+                      transition={{ delay: 0.8 + i * 0.1, duration: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.div>
 
-      {/* Unlocked dimension cards */}
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {DIMENSIONS.map((dim, i) => (
-          <motion.div
-            key={dim}
-            initial={{ opacity: 0, y: 12, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{
-              delay: 0.4 + i * 0.12,
-              type: "spring",
-              stiffness: 200,
-              damping: 18,
-            }}
-            className="rounded-xl border border-border bg-card p-4"
-          >
-            <p className="text-xs text-muted-foreground">
-              {DIMENSION_LABELS[dim]}
-            </p>
-            <div className="mt-1 flex items-end gap-2">
-              <span className="text-2xl font-bold">
-                {scores[dim].toFixed(1)}
-              </span>
-              <span className="mb-0.5 text-xs text-muted-foreground">/5</span>
-            </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-              <motion.div
-                className="h-full rounded-full bg-brand"
-                initial={{ width: 0 }}
-                animate={{ width: `${(scores[dim] / 5) * 100}%` }}
-                transition={{ delay: 0.6 + i * 0.12, duration: 0.8 }}
-              />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Insights teaser */}
+      {/* Key Insights */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1 }}
-        className="mb-8 rounded-2xl border border-brand/20 bg-brand/5 p-6"
+        transition={{ delay: 1.2 }}
+        className="mb-10 overflow-hidden rounded-2xl border border-brand/15 bg-gradient-to-br from-brand/[0.06] to-transparent p-6"
       >
-        <h3 className="mb-3 text-sm font-semibold">Key Insights</h3>
-        <ul className="space-y-2 text-sm text-muted-foreground">
+        <div className="mb-4 flex items-center gap-2">
+          <Lightbulb className="h-4 w-4 text-brand" />
+          <h3 className="text-sm font-semibold">Key Insights</h3>
+        </div>
+        <ul className="space-y-3">
           {getInsights(scores).map((insight, i) => (
             <motion.li
               key={i}
-              initial={{ opacity: 0, x: -8 }}
+              initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.2 + i * 0.15 }}
-              className="flex items-start gap-2"
+              transition={{ delay: 1.4 + i * 0.15 }}
+              className="flex items-start gap-3 rounded-lg border border-border/50 bg-card/50 px-4 py-3 text-sm text-muted-foreground"
             >
-              <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" />
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
               {insight}
             </motion.li>
           ))}
         </ul>
       </motion.div>
 
+      {/* What's Next */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.8 }}
+        className="mb-10"
+      >
+        <h3 className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          What&apos;s Next
+        </h3>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            {
+              icon: Map,
+              title: "Personalised Roadmap",
+              desc: "A tailored 90-day AI adoption plan",
+            },
+            {
+              icon: FileText,
+              title: "AI Policy Generator",
+              desc: "Generate compliant AI usage policies",
+            },
+            {
+              icon: Share2,
+              title: "Team Benchmarking",
+              desc: "See how your team compares",
+            },
+          ].map(({ icon: Icon, title, desc }, i) => (
+            <motion.div
+              key={title}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.0 + i * 0.1 }}
+              className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card/50 p-4 text-center"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10">
+                <Icon className="h-5 w-5 text-brand" />
+              </div>
+              <p className="text-xs font-semibold">{title}</p>
+              <p className="text-[11px] leading-tight text-muted-foreground">
+                {desc}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* CTA */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4 }}
+        transition={{ delay: 2.3 }}
         className="text-center"
       >
         <Button
           onClick={onDashboard}
           size="lg"
-          className="bg-brand text-brand-foreground hover:bg-brand/90"
+          className="h-12 px-8 bg-brand text-brand-foreground hover:bg-brand/90 text-base font-semibold shadow-lg"
+          style={{ boxShadow: `0 4px 24px ${tier.color}25` }}
         >
           Explore Your Dashboard
-          <ArrowRight className="ml-2 h-4 w-4" />
+          <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
         <p className="mt-3 text-xs text-muted-foreground">
           Access personalised recommendations, roadmaps, and AI routing.

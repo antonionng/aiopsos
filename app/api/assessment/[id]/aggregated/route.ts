@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { RESPONDENT_ROLE_LABELS } from "@/lib/constants";
 import { canViewOrgData, type UserRole } from "@/lib/role-helpers";
 import { calculateOverallScore } from "@/lib/scoring";
 import type { DimensionScores } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(
   _req: NextRequest,
@@ -33,13 +36,15 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { data: responses, error } = await supabase
+  const { data: responses, error } = await supabaseAdmin
     .from("assessment_responses")
-    .select("confidence_score, practice_score, tools_score, responsible_score, culture_score, department_id, respondent_role, user_id, submitted_at, raw_answers, departments(name)")
+    .select("id, confidence_score, practice_score, tools_score, responsible_score, culture_score, department_id, respondent_role, user_id, submitted_at, raw_answers, departments(name)")
     .eq("assessment_id", id);
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
+
+  const noCache = { "Cache-Control": "no-store" };
 
   if (!responses || responses.length === 0) {
     return NextResponse.json({
@@ -48,7 +53,7 @@ export async function GET(
       response_count: 0,
       department_count: 0,
       my_scores: null,
-    });
+    }, { headers: noCache });
   }
 
   function avg(arr: number[]) {
@@ -57,7 +62,9 @@ export async function GET(
       : 0;
   }
 
-  function extractScores(r: (typeof responses)[number]): DimensionScores {
+  type ResponseRow = NonNullable<typeof responses>[number];
+
+  function extractScores(r: ResponseRow): DimensionScores {
     return {
       confidence: Number(r.confidence_score),
       practice: Number(r.practice_score),
@@ -108,7 +115,7 @@ export async function GET(
     const userIds = [...new Set(responses.map((r) => r.user_id).filter(Boolean))];
 
     const { data: profiles } = userIds.length > 0
-      ? await supabase
+      ? await supabaseAdmin
           .from("user_profiles")
           .select("id, name, email, avatar_url")
           .in("id", userIds)
@@ -128,6 +135,7 @@ export async function GET(
         ?? "General";
 
       return {
+        id: r.id,
         user_id: r.user_id,
         name: userProfile?.name ?? "Unknown",
         email: userProfile?.email ?? "",
@@ -150,5 +158,5 @@ export async function GET(
     my_scores: myScores,
     template_id: assessment.template_id ?? "org-wide",
     ...(respondents ? { respondents } : {}),
-  });
+  }, { headers: noCache });
 }

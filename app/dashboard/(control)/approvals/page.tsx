@@ -134,10 +134,13 @@ export default function ApprovalsPage() {
           <TabsContent value="pending" className="mt-4 space-y-3">
             {pending.length === 0 ? (
               <Card className="border-border bg-card">
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Shield className="mb-3 h-10 w-10 text-muted-foreground/30" />
-                  <p className="text-sm text-muted-foreground">
-                    No pending approvals. All clear.
+                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-green-500/10">
+                    <Shield className="h-6 w-6 text-green-500" />
+                  </div>
+                  <p className="text-sm font-medium">All clear</p>
+                  <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                    No content is waiting for approval. New requests will appear here when team members submit AI-generated content for review.
                   </p>
                 </CardContent>
               </Card>
@@ -159,8 +162,14 @@ export default function ApprovalsPage() {
           <TabsContent value="resolved" className="mt-4 space-y-3">
             {resolved.length === 0 ? (
               <Card className="border-border bg-card">
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <p className="text-sm text-muted-foreground">No resolved requests yet.</p>
+                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-muted">
+                    <CheckCircle2 className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium">No resolved requests yet</p>
+                  <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                    Approved and rejected requests will appear here so you can review the history of content decisions.
+                  </p>
                 </CardContent>
               </Card>
             ) : (

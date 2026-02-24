@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DATA_THRESHOLDS } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
+import { isEmployee, type UserRole } from "@/lib/role-helpers";
 import type { RoadmapPhase } from "@/lib/types";
 import type { DimensionScores } from "@/lib/types";
 
@@ -105,9 +107,23 @@ function RoadmapContent() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
 
   useEffect(() => {
-    fetch("/api/org/assessment-summary")
+    async function loadRole() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (profile) setUserRole(profile.role as UserRole);
+    }
+    loadRole();
+
+    fetch("/api/org/assessment-summary", { cache: "no-store" })
       .then((r) => r.json())
       .then((res) => {
         if (res.data) {
@@ -156,12 +172,16 @@ function RoadmapContent() {
     return phase.milestones.length > 0 ? (completed / phase.milestones.length) * 100 : 0;
   }
 
-  if (loading) {
+  if (loading || userRole === null) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
+  }
+
+  if (isEmployee(userRole)) {
+    return <EmployeeRoadmapView />;
   }
 
   if (!summary) {
@@ -370,6 +390,75 @@ function RoadmapContent() {
           ))}
         </div>
       )}
+    </motion.div>
+  );
+}
+
+function EmployeeRoadmapView() {
+  return (
+    <motion.div variants={container} initial="hidden" animate="show">
+      <motion.div variants={item} className="mb-2">
+        <h1 className="mb-1">90-Day Roadmap</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Your organisation&apos;s adoption roadmap is managed by your admin.
+          They use assessment data to build a phased plan with milestones
+          tailored to your team&apos;s maturity level.
+        </p>
+      </motion.div>
+
+      <motion.div variants={item} className="mt-6">
+        <Card className="border-border bg-card">
+          <CardContent className="pt-6 pb-6">
+            <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left sm:gap-5">
+              <div className="mb-4 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand/10 sm:mb-0">
+                <Route className="h-7 w-7 text-brand" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold">Admin-managed feature</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  The 90-Day Roadmap provides a phased adoption programme with milestones,
+                  objectives, and deliverables customised to your organisation&apos;s AI
+                  maturity scores. Your admin generates and tracks progress on this roadmap.
+                </p>
+                <p className="mt-3 text-xs text-muted-foreground/70">
+                  Make sure you&apos;ve completed your readiness assessment to contribute to the data.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link href="/dashboard/my-results">
+                    <Button size="sm" className="gap-1.5 bg-brand text-brand-foreground hover:bg-brand/90">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      View My Results
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </Link>
+                  <Link href="/dashboard/hub">
+                    <Button size="sm" variant="outline" className="gap-1.5">
+                      Back to Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item} className="mt-6">
+        <h2 className="mb-3 text-sm font-semibold">Why this matters</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {INSIGHT_CARDS.map((card) => (
+            <Card key={card.title} className="border-border bg-card">
+              <CardContent className="pt-5">
+                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-foreground/5">
+                  <card.icon className="h-4 w-4 text-foreground" />
+                </div>
+                <h3 className="mb-2 text-sm font-semibold">{card.title}</h3>
+                <p className="text-xs leading-relaxed text-muted-foreground">{card.body}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </motion.div>
     </motion.div>
   );
 }

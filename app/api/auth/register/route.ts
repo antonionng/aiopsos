@@ -80,6 +80,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const { error: ownerError } = await supabaseAdmin
+      .from("organisations")
+      .update({ owner_id: authData.user.id })
+      .eq("id", org.id);
+
+    if (ownerError) {
+      console.error("Failed to set org owner:", ownerError.message);
+    }
+
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -88,7 +97,7 @@ export async function POST(req: NextRequest) {
       console.error("Post-signup sign-in failed:", signInError.message);
     }
 
-    sendWelcomeEmail(email, name, orgName);
+    await sendWelcomeEmail(email, name, orgName);
 
     return NextResponse.json({ success: true });
   } catch (err) {
