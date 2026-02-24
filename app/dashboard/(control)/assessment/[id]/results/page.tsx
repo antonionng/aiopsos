@@ -593,8 +593,8 @@ export default function AssessmentResultsPage() {
                       />
                       <Tooltip
                         contentStyle={tooltipStyle}
-                        formatter={(value: number, name: string) => [
-                          value.toFixed(2),
+                        formatter={(value, name) => [
+                          typeof value === "number" ? value.toFixed(2) : value,
                           name === "overall" ? "Overall Score" : DIMENSION_LABELS[name as Dimension] ?? name,
                         ]}
                       />
