@@ -37,7 +37,7 @@ export async function getOrgAdminEmails(
     .from("user_profiles")
     .select("email, name")
     .eq("org_id", orgId)
-    .in("role", ["admin", "manager"]);
+    .in("role", ["admin", "manager", "super_admin"]);
 
   return data ?? [];
 }
