@@ -1,4 +1,4 @@
-import { DIMENSIONS, getTierForScore, type Dimension } from "./constants";
+import { DIMENSIONS, getTierForScore, INDUSTRY_BENCHMARKS, DIMENSION_LABELS, type Dimension } from "./constants";
 import type { AssessmentResponse, DimensionScores } from "./types";
 
 export interface AssessmentQuestion {
@@ -293,4 +293,97 @@ export function getAutomationOpportunities(
     practiceLevel: (d.scores.confidence + d.scores.practice) / 2,
     tier: getTierForScore(calculateOverallScore(d.scores)),
   }));
+}
+
+export interface OrgRecommendation {
+  dimension: Dimension;
+  label: string;
+  score: number;
+  benchmark: number;
+  gap: number;
+  priority: "critical" | "high" | "medium" | "low";
+  recommendation: string;
+  quickWin: string;
+  impact: string;
+}
+
+const DIMENSION_RECOMMENDATIONS: Record<Dimension, { recommendation: string; quickWin: string; impact: string }> = {
+  confidence: {
+    recommendation: "Implement structured AI literacy training. Start with foundational workshops covering prompt engineering, output verification, and common AI use cases for each role.",
+    quickWin: "Run a 30-minute lunch-and-learn on 'Getting Better Results from AI' this week.",
+    impact: "Teams with high AI confidence ship 37% faster and produce higher-quality outputs.",
+  },
+  practice: {
+    recommendation: "Encourage daily AI tool usage through team challenges and integrated workflows. Set up AI-assisted templates for common tasks like meeting summaries, code reviews, and email drafts.",
+    quickWin: "Challenge each team member to use AI for one routine task daily this week.",
+    impact: "Daily AI users save an average of 6.2 hours per week on routine tasks.",
+  },
+  tools: {
+    recommendation: "Expand AI tool access and reduce approval friction. Audit current tool availability by role and identify gaps. Create a fast-track approval process for vetted AI tools.",
+    quickWin: "Survey teams on which AI tools they wish they had access to.",
+    impact: "Proper AI tooling reduces context-switching by 45% and increases output quality.",
+  },
+  responsible: {
+    recommendation: "Develop and communicate clear AI usage guidelines. Create a simple one-page AI policy covering data handling, acceptable use cases, and escalation procedures.",
+    quickWin: "Share a list of 'Do and Don't' examples for AI use in Slack or Teams.",
+    impact: "Organisations with strong AI governance see 60% fewer compliance incidents.",
+  },
+  culture: {
+    recommendation: "Create an AI champions network and regular knowledge sharing sessions. Identify early adopters in each team, give them dedicated time to experiment, and create channels for sharing wins.",
+    quickWin: "Create a #ai-tips Slack channel and seed it with 3 useful prompts today.",
+    impact: "Teams with strong AI culture see 3x faster adoption rates across departments.",
+  },
+};
+
+export function getOrgRecommendations(scores: DimensionScores): OrgRecommendation[] {
+  return DIMENSIONS
+    .map((dim) => {
+      const score = scores[dim];
+      const benchmark = INDUSTRY_BENCHMARKS[dim];
+      const gap = score - benchmark;
+      const { recommendation, quickWin, impact } = DIMENSION_RECOMMENDATIONS[dim];
+
+      let priority: OrgRecommendation["priority"];
+      if (gap < -1.5) priority = "critical";
+      else if (gap < -0.5) priority = "high";
+      else if (gap < 0) priority = "medium";
+      else priority = "low";
+
+      return {
+        dimension: dim,
+        label: DIMENSION_LABELS[dim],
+        score,
+        benchmark,
+        gap,
+        priority,
+        recommendation,
+        quickWin,
+        impact,
+      };
+    })
+    .sort((a, b) => a.gap - b.gap);
+}
+
+export function getScoreDistribution(
+  responses: { overall_score: number }[]
+): { range: string; count: number; percentage: number }[] {
+  const ranges = [
+    { range: "0-1", min: 0, max: 1 },
+    { range: "1-2", min: 1, max: 2 },
+    { range: "2-3", min: 2, max: 3 },
+    { range: "3-4", min: 3, max: 4 },
+    { range: "4-5", min: 4, max: 5 },
+  ];
+
+  const total = responses.length;
+  return ranges.map(({ range, min, max }) => {
+    const count = responses.filter(
+      (r) => r.overall_score >= min && (max === 5 ? r.overall_score <= max : r.overall_score < max)
+    ).length;
+    return {
+      range,
+      count,
+      percentage: total > 0 ? Number(((count / total) * 100).toFixed(1)) : 0,
+    };
+  });
 }

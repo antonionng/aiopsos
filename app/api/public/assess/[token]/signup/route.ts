@@ -199,7 +199,7 @@ export async function POST(
 
     const { data: org } = await supabaseAdmin
       .from("organisations")
-      .select("name")
+      .select("name, logo_url")
       .eq("id", link.org_id)
       .single();
 
@@ -261,13 +261,14 @@ export async function POST(
       overall,
       tierLabel: tier.label,
       insights,
-    });
+    }, org?.logo_url ?? undefined);
     await sendAdminAssessmentCompletedEmail(link.org_id, org?.name ?? "Organisation", name, email, overall, tier.label, department, {
       scores,
       respondentRole: pending.respondent_role
         ? (RESPONDENT_ROLE_LABELS[pending.respondent_role as keyof typeof RESPONDENT_ROLE_LABELS] ?? pending.respondent_role)
         : undefined,
       toolsUsed: pending.tools_used ?? undefined,
+      logoUrl: org?.logo_url ?? undefined,
       fallbackNotify,
     });
     await sendAdminNewMemberEmail(link.org_id, org?.name ?? "Organisation", name, email, department);

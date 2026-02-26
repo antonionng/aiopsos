@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Nia avatar">
+  <rect width="96" height="96" rx="18" fill="#232039"/>
+  <circle cx="48" cy="50" r="24" fill="#d8a57b"/>
+  <path d="M22 44c0-16 11-28 26-28 13 0 24 9 26 21-6-4-11-6-17-6-8 0-15 4-21 13z" fill="#111827"/>
+  <circle cx="40.5" cy="50" r="2.3" fill="#111827"/>
+  <circle cx="55.5" cy="50" r="2.3" fill="#111827"/>
+  <path d="M40 60c2 2.5 4.5 3.5 8 3.5s6-1 8-3.5" fill="none" stroke="#7a4f32" stroke-width="2.1" stroke-linecap="round"/>
+  <path d="M21 96c2-16 12-24 27-24 14 0 24 8 27 24" fill="#6366f1"/>
+</svg>

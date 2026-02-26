@@ -5,6 +5,7 @@ interface WelcomeEmailProps {
   name: string;
   orgName?: string;
   dashboardUrl: string;
+  logoUrl?: string;
   scores?: DimensionScores;
   overall?: number;
   tierLabel?: string;
@@ -23,6 +24,7 @@ export function WelcomeEmail({
   name,
   orgName,
   dashboardUrl,
+  logoUrl,
   scores,
   overall,
   tierLabel,
@@ -30,6 +32,8 @@ export function WelcomeEmail({
 }: WelcomeEmailProps) {
   const hasScores = scores && overall !== undefined && tierLabel;
   const baseUrl = dashboardUrl.replace(/\/dashboard$/, "");
+  const firstName = name.split(" ")[0];
+  const brandName = orgName || "AIOPSOS";
 
   return (
     <div
@@ -46,20 +50,26 @@ export function WelcomeEmail({
           margin: "0 auto",
         }}
       >
-        {/* Logo */}
-        <p
-          style={{
-            fontSize: "16px",
-            fontWeight: 800,
-            letterSpacing: "-0.03em",
-            marginBottom: "40px",
-            color: "#ffffff",
-          }}
-        >
-          AIOPSOS
-        </p>
+        {/* Header branding — org logo or name */}
+        <div style={{ marginBottom: "40px" }}>
+          {logoUrl ? (
+            <img src={logoUrl} alt={brandName} style={{ height: "32px", maxWidth: "180px", objectFit: "contain" }} />
+          ) : (
+            <p
+              style={{
+                fontSize: "16px",
+                fontWeight: 800,
+                letterSpacing: "-0.03em",
+                color: "#ffffff",
+                margin: 0,
+              }}
+            >
+              {brandName}
+            </p>
+          )}
+        </div>
 
-        {/* Welcome header */}
+        {/* Headline — assessment-first or signup */}
         <h1
           style={{
             fontSize: "30px",
@@ -70,7 +80,11 @@ export function WelcomeEmail({
             color: "#ffffff",
           }}
         >
-          Welcome to AIOPSOS, {name.split(" ")[0]}.
+          {hasScores
+            ? `Thanks for completing your assessment, ${firstName}!`
+            : orgName
+              ? `Thanks for joining ${orgName}`
+              : `Welcome to ${brandName}`}
         </h1>
 
         <p
@@ -81,14 +95,28 @@ export function WelcomeEmail({
             margin: "0 0 32px",
           }}
         >
-          {orgName
-            ? `You've joined ${orgName} on AIOPSOS — the enterprise AI control layer. Here's everything you need to get started.`
-            : "You're now on AIOPSOS — the enterprise AI control layer. Here's everything you need to get started."}
+          {hasScores
+            ? orgName
+              ? `Your AI readiness results for ${orgName} are ready. You've taken the first step — here's how you scored.`
+              : "Your AI readiness results are ready. You've taken the first step — here's how you scored."
+            : orgName
+              ? `You're now part of ${orgName} on AIOPSOS. Here's everything you need to get started.`
+              : "You're now on AIOPSOS. Here's everything you need to get started."}
         </p>
 
         {/* Score section — only if assessment data is available */}
         {hasScores && (
           <>
+            <p
+              style={{
+                fontSize: "14px",
+                lineHeight: 1.6,
+                color: "#aaaaaa",
+                margin: "0 0 20px",
+              }}
+            >
+              Here's how you scored across the five dimensions.
+            </p>
             {/* Overall score card */}
             <div
               style={{
@@ -380,7 +408,7 @@ export function WelcomeEmail({
               letterSpacing: "-0.01em",
             }}
           >
-            Go to Your Dashboard →
+            View your full results →
           </a>
         </div>
 

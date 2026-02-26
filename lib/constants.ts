@@ -246,7 +246,7 @@ export const PLAN_FEATURES: Record<PlanType, PlanFeatures> = {
     webSearch: false,
     imageGeneration: false,
     deepResearch: false,
-    aiPolicies: false,
+    aiPolicies: true,
   },
   pro: {
     knowledgeBase: true,
@@ -292,3 +292,98 @@ export const DATA_THRESHOLDS = {
   RECOMMENDATION_MIN_RESPONSES: 5,
   ANALYTICS_MIN_REQUESTS: 10,
 } as const;
+
+// --- Industry Benchmarks ---
+
+export const INDUSTRY_BENCHMARKS: Record<Dimension, number> = {
+  confidence: 3.8,
+  practice: 3.5,
+  tools: 4.1,
+  responsible: 3.6,
+  culture: 3.4,
+};
+
+export const INDUSTRY_BENCHMARK_OVERALL = 3.7;
+
+export const TIER_IMPACT_STATS = [
+  {
+    tier: "Tier 0-1",
+    label: "Getting Started",
+    stat: "Baseline",
+    description: "Sporadic usage, no measurable productivity impact yet.",
+  },
+  {
+    tier: "Tier 2",
+    label: "Repeatable",
+    stat: "+15% efficiency",
+    description: "Early adopters saving 2-4 hours/week. Foundation being built.",
+  },
+  {
+    tier: "Tier 3",
+    label: "Embedded",
+    stat: "+35% efficiency",
+    description: "AI in core workflows. Teams consistently saving 5-8 hours/week.",
+  },
+  {
+    tier: "Tier 4-5",
+    label: "Automated",
+    stat: "+55% efficiency",
+    description: "AI-native operations. Entire processes automated. Major competitive edge.",
+  },
+] as const;
+
+export const AI_ADOPTION_STATS = [
+  { stat: "6.2 hrs", label: "saved per week", source: "by employees who use AI daily" },
+  { stat: "40%", label: "productivity gain", source: "reported by Tier 4+ organisations" },
+  { stat: "£4,200", label: "annual value", source: "per employee at mature AI adoption" },
+  { stat: "3x", label: "faster adoption", source: "with proper tools and culture in place" },
+] as const;
+
+export const DIMENSION_LEADER_INSIGHTS: Record<
+  Dimension,
+  { leaders: string; insight: string; benefit: string }
+> = {
+  confidence: {
+    leaders: "Google, Microsoft, Stripe",
+    insight: "invest in structured AI literacy programmes — every employee gets hands-on training, not just engineers.",
+    benefit: "Teams with high AI confidence ship 37% faster and produce higher-quality outputs.",
+  },
+  practice: {
+    leaders: "Shopify, Klarna, Duolingo",
+    insight: "have made AI a daily habit — from auto-generated PR reviews to AI-drafted customer responses in every workflow.",
+    benefit: "Daily AI users save an average of 6.2 hours per week on routine tasks.",
+  },
+  tools: {
+    leaders: "Amazon, Netflix, Spotify",
+    insight: "give every team access to the right AI tools for their role, not a one-size-fits-all solution.",
+    benefit: "Proper AI tooling reduces context-switching by 45% and increases output quality.",
+  },
+  responsible: {
+    leaders: "Anthropic, OpenAI, DeepMind",
+    insight: "embed governance into the workflow itself — guardrails, data policies, and review processes are automated, not optional.",
+    benefit: "Organisations with strong AI governance see 60% fewer compliance incidents.",
+  },
+  culture: {
+    leaders: "GitLab, Notion, Linear",
+    insight: "celebrate AI experimentation openly — they have dedicated channels, demo days, and no-blame policies for AI experiments.",
+    benefit: "Teams with strong AI culture see 3x faster adoption rates across departments.",
+  },
+};
+
+export function getGapLabel(
+  score: number,
+  benchmark: number
+): { label: string; color: string; delta: number } {
+  const delta = score - benchmark;
+  if (delta >= 0.5) return { label: "Above benchmark", color: "text-green-500", delta };
+  if (delta >= -0.2) return { label: "Near benchmark", color: "text-blue-400", delta };
+  if (delta >= -1) return { label: "Below benchmark", color: "text-amber-500", delta };
+  return { label: "Significant gap", color: "text-red-400", delta };
+}
+
+export function getTierImpactIndex(tierNumber: number): number {
+  if (tierNumber <= 1) return 0;
+  if (tierNumber === 2) return 1;
+  if (tierNumber === 3) return 2;
+  return 3;
+}

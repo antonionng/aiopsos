@@ -55,7 +55,8 @@ export async function sendWelcomeEmail(
     overall: number;
     tierLabel: string;
     insights: string[];
-  }
+  },
+  logoUrl?: string
 ) {
   try {
     const { apiKey, from } = getEmailConfig();
@@ -63,16 +64,22 @@ export async function sendWelcomeEmail(
       console.warn("[email] RESEND_API_KEY is not set; skipping welcome email");
       return;
     }
+    const subject = scoreData
+      ? (orgName
+          ? `Thanks for completing your assessment — Your AI Readiness Score: ${scoreData.overall.toFixed(1)}/5`
+          : `Your AI Readiness Score: ${scoreData.overall.toFixed(1)}/5`)
+      : orgName
+        ? `Thanks for joining ${orgName}`
+        : "Welcome to AIOPSOS";
     await getResend().emails.send({
       from,
       to,
-      subject: scoreData
-        ? `Welcome to AIOPSOS — Your AI Readiness Score: ${scoreData.overall.toFixed(1)}/5`
-        : "Welcome to AIOPSOS",
+      subject,
       react: WelcomeEmail({
         name,
         orgName,
         dashboardUrl: `${BASE_URL}/dashboard`,
+        logoUrl,
         scores: scoreData?.scores,
         overall: scoreData?.overall,
         tierLabel: scoreData?.tierLabel,
@@ -273,6 +280,7 @@ export async function sendAdminAssessmentCompletedEmail(
     scores?: DimensionScores;
     respondentRole?: string;
     toolsUsed?: string[];
+    logoUrl?: string;
     /** When org has no admin/manager, send to this recipient so the link/assessment creator still gets notified */
     fallbackNotify?: { email: string; name: string };
   }
@@ -332,7 +340,7 @@ export async function sendAdminAssessmentCompletedEmail(
         resend.emails.send({
           from,
           to: admin.email,
-          subject: `New assessment completed by ${respondentName}`,
+          subject: `New assessment completed — ${orgName}`,
           react: AdminAssessmentCompletedEmail({
             adminName: admin.name,
             respondentName,
@@ -342,6 +350,7 @@ export async function sendAdminAssessmentCompletedEmail(
             tierLabel,
             orgName,
             resultsUrl: `${BASE_URL}/dashboard/analytics`,
+            logoUrl: options?.logoUrl,
             dimensionScores: options?.scores,
             respondentRole: options?.respondentRole,
             toolsUsed: options?.toolsUsed,

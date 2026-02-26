@@ -35,11 +35,12 @@ import { getRecommendationSummary } from "@/lib/recommendation-engine";
 import { DEPARTMENT_TYPES, DEPARTMENT_LABELS, ALL_MODELS, DATA_THRESHOLDS } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
 import { isEmployee, type UserRole } from "@/lib/role-helpers";
-import type { ModelRouting, ControlLayer } from "@/lib/types";
+import type { ModelRouting, ControlLayer, DimensionScores } from "@/lib/types";
 import type { DepartmentType } from "@/lib/constants";
 
 interface DeptInput {
   type: DepartmentType;
+  departmentName: string;
   dataSensitivity: "low" | "medium" | "high" | "critical";
   maturityScore: number;
 }
@@ -48,7 +49,19 @@ interface AssessmentSummary {
   responseCount: number;
   departmentCount: number;
   overallScore: number;
-  departmentScores: { department: string; type: string; maturityScore: number }[];
+  departmentScores: {
+    department: string;
+    type: string;
+    maturityScore: number;
+    scores?: DimensionScores;
+  }[];
+}
+
+function deriveDataSensitivity(responsibleScore: number): "low" | "medium" | "high" | "critical" {
+  if (responsibleScore >= 4) return "high";
+  if (responsibleScore >= 3) return "medium";
+  if (responsibleScore >= 2) return "low";
+  return "low";
 }
 
 const container = {
@@ -141,9 +154,10 @@ function RecommendContent() {
         if (res.data?.departmentScores?.length > 0) {
           setSummary(res.data);
           const mapped: DeptInput[] = res.data.departmentScores.map(
-            (d: { department: string; type: string; maturityScore: number }) => ({
+            (d: { department: string; type: string; maturityScore: number; scores?: DimensionScores }) => ({
               type: (DEPARTMENT_TYPES.includes(d.type as DepartmentType) ? d.type : "operations") as DepartmentType,
-              dataSensitivity: "medium" as const,
+              departmentName: d.department,
+              dataSensitivity: deriveDataSensitivity(d.scores?.responsible ?? 3),
               maturityScore: d.maturityScore,
             }),
           );
@@ -170,7 +184,13 @@ function RecommendContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          departments: departments.map((d) => ({ ...d, primaryTasks: [] })),
+          departments: departments.map((d) => ({
+            type: d.type,
+            departmentName: d.departmentName,
+            dataSensitivity: d.dataSensitivity,
+            maturityScore: d.maturityScore,
+            primaryTasks: [] as string[],
+          })),
         }),
       });
       if (!res.ok) throw new Error("Failed to generate recommendations");
@@ -250,9 +270,10 @@ function RecommendContent() {
           <CardContent>
             <div className="space-y-4">
               {departments.map((dept, i) => (
-                <div key={i} className="grid grid-cols-3 gap-3 rounded-lg border border-border p-3">
+                <div key={`${dept.departmentName}-${i}`} className="grid grid-cols-3 gap-3 rounded-lg border border-border p-3">
+                  <p className="col-span-3 text-xs font-medium text-muted-foreground">{dept.departmentName}</p>
                   <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Department</Label>
+                    <Label className="text-xs text-muted-foreground">Department Type</Label>
                     <Select value={dept.type} onValueChange={(v) => updateDept(i, "type", v)}>
                       <SelectTrigger className="bg-surface"><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -339,10 +360,10 @@ function RecommendContent() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {routing.map((r) => (
-                  <div key={r.department_type} className="rounded-lg border border-border p-4">
+                {routing.map((r, i) => (
+                  <div key={`${r.department_type}-${i}`} className="rounded-lg border border-border p-4">
                     <div className="mb-2 flex items-center justify-between">
-                      <h3 className="text-sm font-semibold">{DEPARTMENT_LABELS[r.department_type]}</h3>
+                      <h3 className="text-sm font-semibold">{r.department_name ?? DEPARTMENT_LABELS[r.department_type]}</h3>
                       <div className="flex gap-2">
                         <Badge variant="secondary" className="bg-brand/10 text-brand">
                           {getModelLabel(r.primary_model)}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Maya avatar">
+  <rect width="96" height="96" rx="18" fill="#1d2330"/>
+  <circle cx="48" cy="50" r="24" fill="#f4c9a6"/>
+  <path d="M24 40c2-16 14-24 24-24s22 8 24 24v6H24z" fill="#4f46e5"/>
+  <circle cx="40" cy="49" r="2.4" fill="#1f2937"/>
+  <circle cx="56" cy="49" r="2.4" fill="#1f2937"/>
+  <path d="M40 60c2.5 3 5 4 8 4s5.5-1 8-4" fill="none" stroke="#8b5e3c" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M24 96c2-16 12-24 24-24s22 8 24 24" fill="#8b5cf6"/>
+</svg>

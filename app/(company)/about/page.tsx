@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Target, Users, Sparkles } from "lucide-react";
+import { useState } from "react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -11,6 +13,64 @@ const fadeUp = {
     transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
   }),
 };
+
+function FounderSection() {
+  const [imageError, setImageError] = useState(false);
+  return (
+    <motion.section variants={fadeUp} custom={3}>
+      <h2 className="mb-8 text-2xl font-semibold tracking-[-0.02em]">
+        Leadership
+      </h2>
+      <div className="rounded-2xl border border-border bg-card p-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+          <div className="shrink-0">
+            {imageError ? (
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted text-2xl font-bold text-muted-foreground sm:h-28 sm:w-28">
+                AG
+              </div>
+            ) : (
+              <Image
+                src="/antonio.jpg"
+                alt="Antonio Giugno"
+                width={112}
+                height={112}
+                className="h-24 w-24 rounded-full object-cover sm:h-28 sm:w-28"
+                onError={() => setImageError(true)}
+              />
+            )}
+          </div>
+          <div>
+            <h3 className="mb-1 text-xl font-semibold">Antonio Giugno</h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Founder & AI Architect
+            </p>
+            <p className="leading-relaxed text-muted-foreground">
+              Antonio is a leading AI architect and trainer with deep experience
+              helping organisations navigate the shift from experimental AI use to
+              strategic, embedded adoption. He has built and scaled multiple
+              enterprise AI applications for long term clients. His work spans
+              enterprise AI strategy, multi-model orchestration, and building the
+              frameworks that turn AI potential into measurable business
+              outcomes.
+            </p>
+            <p className="mt-4 leading-relaxed text-muted-foreground">
+              Antonio founded AIOPSOS with a core conviction: that equitable AI
+              access is essential. Every organisation, regardless of scale or
+              resources, should have the tools and structure to benefit from what
+              AI can deliver.
+            </p>
+            <p className="mt-4 leading-relaxed text-muted-foreground">
+              He serves on the board of multiple tech companies and is a strong
+              advocate for responsible AI adoption: right-sized models,
+              governance, and measurable outcomes. Dad of four. Passionate about
+              applied AI in robotics.
+            </p>
+          </div>
+        </div>
+      </div>
+    </motion.section>
+  );
+}
 
 const VALUES = [
   {
@@ -89,38 +149,7 @@ export default function AboutPage() {
       </motion.section>
 
       {/* Founder */}
-      <motion.section variants={fadeUp} custom={3}>
-        <h2 className="mb-8 text-2xl font-semibold tracking-[-0.02em]">
-          Leadership
-        </h2>
-        <div className="rounded-2xl border border-border bg-card p-8">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-muted text-2xl font-bold text-muted-foreground">
-              AG
-            </div>
-            <div>
-              <h3 className="mb-1 text-xl font-semibold">Antonio Giugno</h3>
-              <p className="mb-4 text-sm text-muted-foreground">
-                Founder & AI Architect
-              </p>
-              <p className="leading-relaxed text-muted-foreground">
-                Antonio is a leading AI architect and trainer with deep
-                experience helping organisations navigate the shift from
-                experimental AI use to strategic, embedded adoption. His work
-                spans enterprise AI strategy, multi-model orchestration, and
-                building the frameworks that turn AI potential into measurable
-                business outcomes.
-              </p>
-              <p className="mt-4 leading-relaxed text-muted-foreground">
-                Antonio founded AIOPSOS with a core conviction: that equitable
-                AI access is essential. Every organisation — regardless of scale
-                or resources — should have the tools and structure to benefit
-                from what AI can deliver.
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.section>
+      <FounderSection />
     </motion.div>
   );
 }

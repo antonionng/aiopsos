@@ -81,6 +81,7 @@ export interface Recommendation {
 
 export interface ModelRouting {
   department_type: DepartmentType;
+  department_name?: string;
   primary_model: string;
   secondary_model: string;
   use_case: string;

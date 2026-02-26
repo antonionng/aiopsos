@@ -150,6 +150,90 @@ export async function GET(
     });
   }
 
+  const roleMap = new Map<string, { scores: DimensionScores[]; count: number }>();
+  for (const r of responses) {
+    const role = r.respondent_role ?? "unknown";
+    if (!roleMap.has(role)) {
+      roleMap.set(role, { scores: [], count: 0 });
+    }
+    const entry = roleMap.get(role)!;
+    entry.scores.push(extractScores(r));
+    entry.count++;
+  }
+
+  const roleScores = Array.from(roleMap.entries()).map(([role, { scores, count }]) => {
+    const avgScores: DimensionScores = {
+      confidence: avg(scores.map((s) => s.confidence)),
+      practice: avg(scores.map((s) => s.practice)),
+      tools: avg(scores.map((s) => s.tools)),
+      responsible: avg(scores.map((s) => s.responsible)),
+      culture: avg(scores.map((s) => s.culture)),
+    };
+    return {
+      role,
+      roleLabel: roleLabels[role] ?? role,
+      scores: avgScores,
+      overall: calculateOverallScore(avgScores),
+      count,
+    };
+  }).sort((a, b) => b.overall - a.overall);
+
+  let historicalAssessments: {
+    assessment_id: string;
+    completed_at: string;
+    overall_score: number;
+    dimension_scores: DimensionScores;
+    response_count: number;
+  }[] = [];
+
+  const { data: allAssessments } = await supabaseAdmin
+    .from("assessments")
+    .select("id, created_at")
+    .eq("org_id", profile.org_id)
+    .order("created_at", { ascending: true });
+
+  if (allAssessments && allAssessments.length > 1) {
+    const assessmentIds = allAssessments.map((a) => a.id);
+    
+    const { data: allResponses } = await supabaseAdmin
+      .from("assessment_responses")
+      .select("assessment_id, confidence_score, practice_score, tools_score, responsible_score, culture_score, submitted_at")
+      .in("assessment_id", assessmentIds);
+
+    if (allResponses && allResponses.length > 0) {
+      const responsesByAssessment = new Map<string, typeof allResponses>();
+      for (const r of allResponses) {
+        if (!responsesByAssessment.has(r.assessment_id)) {
+          responsesByAssessment.set(r.assessment_id, []);
+        }
+        responsesByAssessment.get(r.assessment_id)!.push(r);
+      }
+
+      historicalAssessments = allAssessments
+        .filter((a) => responsesByAssessment.has(a.id) && responsesByAssessment.get(a.id)!.length > 0)
+        .map((a) => {
+          const aResponses = responsesByAssessment.get(a.id)!;
+          const dimScores: DimensionScores = {
+            confidence: avg(aResponses.map((r) => Number(r.confidence_score))),
+            practice: avg(aResponses.map((r) => Number(r.practice_score))),
+            tools: avg(aResponses.map((r) => Number(r.tools_score))),
+            responsible: avg(aResponses.map((r) => Number(r.responsible_score))),
+            culture: avg(aResponses.map((r) => Number(r.culture_score))),
+          };
+          const latestResponse = aResponses.reduce((latest, r) => 
+            new Date(r.submitted_at) > new Date(latest.submitted_at) ? r : latest
+          );
+          return {
+            assessment_id: a.id,
+            completed_at: latestResponse.submitted_at,
+            overall_score: calculateOverallScore(dimScores),
+            dimension_scores: dimScores,
+            response_count: aResponses.length,
+          };
+        });
+    }
+  }
+
   return NextResponse.json({
     org_scores: orgScores,
     department_scores: departmentScores,
@@ -157,6 +241,8 @@ export async function GET(
     department_count: deptMap.size,
     my_scores: myScores,
     template_id: assessment.template_id ?? "org-wide",
+    role_scores: roleScores,
+    historical_assessments: historicalAssessments,
     ...(respondents ? { respondents } : {}),
   }, { headers: noCache });
 }

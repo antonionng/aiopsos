@@ -2,8 +2,23 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { ArrowRight, Check, X, Sparkles, Users } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  Check,
+  X,
+  Sparkles,
+  Users,
+  Menu,
+  Search,
+  Plus,
+  MessageSquare,
+  FolderPlus,
+  Paperclip,
+  Send,
+  Bot,
+} from "lucide-react";
 import {
   SUBSCRIPTION_PLANS,
   PLAN_FEATURES,
@@ -25,19 +40,19 @@ const fadeUp = {
 
 const CAPABILITIES = [
   {
-    title: "Assess AI maturity",
+    title: "Run one AI workspace for the company",
     description:
-      "Understand where each department sits across five layers of AI readiness, from basic access through to strategic leverage. No guesswork, just data.",
+      "Manage every AI model, policy, document, and project in one shared workspace. Give each team the same platform with controls that fit how they actually work.",
   },
   {
-    title: "Embed AI into workflows",
+    title: "Tailor AI by department, not one-size-fits-all",
     description:
-      "Route the right model to every team with shared standards, prompt libraries, and defined use cases. Move beyond ad-hoc prompting to structured adoption.",
+      "Route the right model to each function and apply role-specific guardrails. Engineering, finance, legal, and operations each get policies and workflows built for their needs.",
   },
   {
-    title: "Measure real impact",
+    title: "Ground AI in your docs and projects",
     description:
-      "See adoption rates, workflow penetration, and cycle-time compression in one place. Understand what your AI investment is actually delivering.",
+      "Embed internal documents directly into AI workflows, organise work by project, and collaborate with your team in context. Turn usage into consistent, measurable output.",
   },
 ];
 
@@ -84,6 +99,75 @@ const TRUST = [
   "SSO-ready authentication",
 ];
 
+const WORKSPACE_QUICK_ACTIONS = [
+  "Summarise our AI readiness scores",
+  "Draft a project status update",
+  "What models should our team use?",
+  "Help me write a business case for AI",
+];
+
+const PROJECT_THREAD = [
+  {
+    speaker: "Maya",
+    role: "human" as const,
+    text: "AIOPSOS, draft a customer support launch brief using our Q2 project docs.",
+  },
+  {
+    speaker: "AIOPSOS",
+    role: "ai" as const,
+    text: "Draft ready. I included rollout phases, owners, and risk controls from your policy set.",
+  },
+  {
+    speaker: "Luca",
+    role: "human" as const,
+    text: "Great. Add an operations timeline and suggest staffing impact by week.",
+  },
+  {
+    speaker: "AIOPSOS",
+    role: "ai" as const,
+    text: "Updated with a 6-week timeline and staffing estimates. Finance guardrails are applied.",
+  },
+  {
+    speaker: "Nia",
+    role: "human" as const,
+    text: "Looks good. I need a compliance summary before sign-off.",
+  },
+  {
+    speaker: "AIOPSOS",
+    role: "ai" as const,
+    text: "Compliance summary generated and attached. Ready for final approval and engineering handoff.",
+  },
+] as const;
+
+const COLLAB_STATUSES = ["Draft", "In review", "Approved"] as const;
+
+const COLLAB_PEOPLE = [
+  {
+    name: "Maya",
+    team: "Product",
+    avatarPath: "/avatars/maya.svg",
+    aiTask: "Reviewing AI-generated brief",
+  },
+  {
+    name: "Luca",
+    team: "Operations",
+    avatarPath: "/avatars/luca.svg",
+    aiTask: "Testing workflow suggestions",
+  },
+  {
+    name: "Nia",
+    team: "Finance",
+    avatarPath: "/avatars/nia.svg",
+    aiTask: "Checking policy compliance output",
+  },
+  {
+    name: "Jon",
+    team: "Engineering",
+    avatarPath: "/avatars/jon.svg",
+    aiTask: "Refining implementation with AI",
+  },
+];
+
 const FOOTER_LINKS = {
   Product: [
     { label: "Assessment", href: "/dashboard/assessment" },
@@ -109,6 +193,19 @@ const FOOTER_LINKS = {
 };
 
 export default function Home() {
+  const reduceMotion = useReducedMotion();
+  const [statusIdx, setStatusIdx] = useState(0);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const timer = window.setInterval(() => {
+      setStatusIdx((prev) => (prev + 1) % COLLAB_STATUSES.length);
+    }, 2200);
+    return () => window.clearInterval(timer);
+  }, [reduceMotion]);
+
+  const activeStatus = COLLAB_STATUSES[statusIdx];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -169,9 +266,9 @@ export default function Home() {
             custom={1}
             className="mb-6 text-5xl font-bold leading-[1.08] tracking-[-0.04em] text-foreground sm:text-6xl lg:text-[4.5rem]"
           >
-            From AI access
+            Your company&apos;s
             <br />
-            to AI impact.
+            AI workspace.
           </motion.h1>
 
           <motion.p
@@ -179,9 +276,10 @@ export default function Home() {
             custom={2}
             className="mx-auto mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground"
           >
-            Most organisations have AI tools. Few have a strategy. AIOPSOS helps
-            you assess maturity, embed AI into real workflows, and measure
-            efficiency gains across every department.
+            Most teams have AI access but no shared operating model. AIOPSOS gives
+            companies one workspace to manage models, enforce tailored policies,
+            embed internal documents, run projects, and collaborate with AI across
+            every department.
           </motion.p>
 
           <motion.div variants={fadeUp} custom={3}>
@@ -199,37 +297,306 @@ export default function Home() {
       {/* Capabilities */}
       <section id="capabilities" className="py-28">
         <div className="mx-auto max-w-6xl px-6">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
-          >
-            <motion.h2
-              variants={fadeUp}
-              custom={0}
-              className="mb-16 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
-            >
-              How structured AI adoption works
-            </motion.h2>
+          <div>
+            <h2 className="mb-6 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
+              How the AI workspace works
+            </h2>
+
+            <p className="mb-10 max-w-2xl text-muted-foreground">
+              A practical interface for teams to manage models, policies, knowledge, and
+              project collaboration in one place.
+            </p>
+
+            <div className="mb-12 overflow-hidden rounded-2xl border border-border bg-black/70">
+              <div className="flex h-11 items-center justify-between border-b border-white/10 px-4 sm:px-5">
+                <div className="flex items-center gap-3">
+                  <Menu className="h-4 w-4 text-white/60" />
+                  <Image src="/logo.png" alt="AIOPSOS" width={56} height={24} className="h-5 w-auto opacity-90" unoptimized />
+                </div>
+                <div className="h-2 w-2 rounded-full bg-emerald-400/80" />
+              </div>
+              <div className="grid min-h-[420px] gap-0 lg:grid-cols-[240px_minmax(0,1fr)]">
+                <div className="border-b border-white/10 p-4 lg:border-b-0 lg:border-r">
+                  <p className="mb-3 text-xs font-medium text-white/80">Conversations</p>
+                  <div className="mb-3 rounded-md border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/50">
+                    <Search className="mr-2 inline h-3.5 w-3.5" />
+                    Search conversations...
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <button className="flex w-full items-center gap-2 rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-left text-white/80">
+                      <FolderPlus className="h-3.5 w-3.5" />
+                      Create a project
+                    </button>
+                    <button className="flex w-full items-center gap-2 rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-left text-white/80">
+                      <Plus className="h-3.5 w-3.5" />
+                      New conversation
+                    </button>
+                    <div className="rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-white/60">
+                      Weekly launch prep
+                    </div>
+                    <div className="rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-white/60">
+                      Q2 AI policy draft
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col p-4 sm:p-6">
+                  <div className="mb-5 flex flex-wrap items-center gap-2">
+                    {["GPT-4o Mini", "Company docs", "Search", "Prompts"].map((chip) => (
+                      <span
+                        key={chip}
+                        className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/75"
+                      >
+                        {chip}
+                      </span>
+                    ))}
+                    <div className="ml-auto flex items-center gap-2">
+                      {COLLAB_PEOPLE.slice(0, 3).map((person, i) => (
+                        <motion.div
+                          key={person.name}
+                          className="relative h-7 w-7 overflow-hidden rounded-full border border-white/30"
+                          animate={
+                            reduceMotion
+                              ? undefined
+                              : { y: [0, -1, 0], opacity: [0.9, 1, 0.9] }
+                          }
+                          transition={{ duration: 1.6, repeat: Infinity, delay: i * 0.2 }}
+                        >
+                          <Image
+                            src={person.avatarPath}
+                            alt={`${person.name} avatar`}
+                            width={28}
+                            height={28}
+                            className="h-full w-full object-cover"
+                          />
+                          <motion.span
+                            className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-black/80 bg-emerald-400"
+                            animate={reduceMotion ? undefined : { opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-1 flex-col items-center justify-center px-2 pb-6 pt-3 text-center">
+                    <MessageSquare className="mb-4 h-9 w-9 rounded-xl border border-white/10 bg-white/[0.04] p-2 text-white/70" />
+                    <h3 className="mb-2 text-2xl font-semibold tracking-tight text-white/90">
+                      How can I help you today?
+                    </h3>
+                    <p className="mb-6 text-sm text-white/55">
+                      Ask anything about your work, projects, or data.
+                    </p>
+                    <div className="grid w-full max-w-xl gap-2 sm:grid-cols-2">
+                      {WORKSPACE_QUICK_ACTIONS.map((prompt, i) => (
+                        <motion.div
+                          key={prompt}
+                          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-xs text-white/60"
+                          animate={reduceMotion ? undefined : { opacity: [0.72, 1, 0.72] }}
+                          transition={{ duration: 2.2, repeat: Infinity, delay: i * 0.25 }}
+                        >
+                          {prompt}
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    <div className="mt-5 w-full max-w-2xl rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left">
+                      <p className="mb-2 text-[11px] uppercase tracking-wide text-white/45">
+                        Active thread: Customer Support Automation
+                      </p>
+                      <div className="space-y-2">
+                        {PROJECT_THREAD.map((msg, i) => {
+                          const person = COLLAB_PEOPLE.find((p) => p.name === msg.speaker);
+                          const isAI = msg.role === "ai";
+                          return (
+                            <motion.div
+                              key={`${msg.speaker}-${i}`}
+                              className={`flex items-start gap-2 ${isAI ? "" : "justify-start"}`}
+                              animate={
+                                reduceMotion
+                                  ? undefined
+                                  : { opacity: [0.65, 1, 0.65] }
+                              }
+                              transition={{ duration: 3, repeat: Infinity, delay: i * 0.28 }}
+                            >
+                              {isAI ? (
+                                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-white/15 bg-white/[0.05]">
+                                  <Bot className="h-3.5 w-3.5 text-white/75" />
+                                </span>
+                              ) : (
+                                <span className="relative h-6 w-6 overflow-hidden rounded-full border border-white/25">
+                                  <Image
+                                    src={person?.avatarPath ?? "/avatars/maya.svg"}
+                                    alt={`${msg.speaker} avatar`}
+                                    width={24}
+                                    height={24}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </span>
+                              )}
+                              <div className="min-w-0 rounded-lg border border-white/10 bg-black/20 px-2.5 py-1.5">
+                                <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-white/45">
+                                  {msg.speaker}
+                                </p>
+                                <p className="text-[11px] text-white/75">{msg.text}</p>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                    <div className="mb-2 flex items-center justify-between text-[11px] text-white/45">
+                      <span>Project: Customer Support Automation</span>
+                      <motion.span
+                        key={activeStatus}
+                        initial={reduceMotion ? false : { opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.22 }}
+                        className="rounded-full border border-white/15 px-2 py-0.5 text-white/70"
+                      >
+                        {activeStatus}
+                      </motion.span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Paperclip className="h-3.5 w-3.5 text-white/60" />
+                      <span className="text-xs text-white/45">Message AIOPSOS...</span>
+                      <div className="ml-auto flex items-center gap-1.5">
+                        <motion.span
+                          className="h-1.5 w-1.5 rounded-full bg-white/50"
+                          animate={reduceMotion ? undefined : { opacity: [0.25, 1, 0.25] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        />
+                        <motion.span
+                          className="h-1.5 w-1.5 rounded-full bg-white/50"
+                          animate={reduceMotion ? undefined : { opacity: [0.25, 1, 0.25] }}
+                          transition={{ duration: 1, repeat: Infinity, delay: 0.15 }}
+                        />
+                        <motion.span
+                          className="h-1.5 w-1.5 rounded-full bg-white/50"
+                          animate={reduceMotion ? undefined : { opacity: [0.25, 1, 0.25] }}
+                          transition={{ duration: 1, repeat: Infinity, delay: 0.3 }}
+                        />
+                        <button className="ml-2 rounded-full border border-white/15 bg-white/[0.06] p-1.5 text-white/70">
+                          <Send className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
               {CAPABILITIES.map((c, i) => (
-                <motion.div
-                  key={c.title}
-                  variants={fadeUp}
-                  custom={i}
-                  className="bg-card p-8 md:p-10"
-                >
+                <div key={c.title} className="bg-card p-8 md:p-10">
                   <h3 className="mb-3 text-lg font-semibold tracking-[-0.01em]">
                     {c.title}
                   </h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">
                     {c.description}
                   </p>
-                </motion.div>
+                </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Collaboration */}
+      <section className="border-y border-border/40 py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
+          >
+            <motion.h2 variants={fadeUp} custom={0} className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
+              Project collaboration in motion
+            </motion.h2>
+            <motion.p variants={fadeUp} custom={1} className="mb-12 max-w-2xl text-muted-foreground">
+              Teams collaborate with AI in shared project spaces, hand off work across departments, and keep policy and context attached to every decision.
+            </motion.p>
+
+            <motion.div variants={fadeUp} custom={2} className="grid gap-6 lg:grid-cols-[1.2fr_minmax(0,1fr)]">
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <p className="mb-4 text-sm font-semibold">Live project room</p>
+                <div className="space-y-3">
+                  {COLLAB_PEOPLE.map((person, i) => (
+                    <motion.div
+                      key={person.name}
+                      className="flex items-center justify-between rounded-lg border border-border bg-muted/20 px-3 py-2.5"
+                      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: i * 0.08 }}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border">
+                          <img
+                            src={person.avatarPath}
+                            alt={`${person.name} avatar`}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-card bg-emerald-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{person.name}</p>
+                          <p className="text-xs text-muted-foreground">{person.team}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <motion.p
+                          className="text-xs text-muted-foreground"
+                          animate={reduceMotion ? undefined : { opacity: [0.35, 1, 0.35] }}
+                          transition={{ duration: 1.3, repeat: Infinity, delay: i * 0.25 }}
+                        >
+                          with AI
+                        </motion.p>
+                        <p className="text-[11px] text-muted-foreground">{person.aiTask}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <p className="mb-4 text-sm font-semibold">Project timeline + AI handoffs</p>
+                <div className="mb-4 rounded-lg border border-border bg-muted/20 p-3">
+                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">AI co-pilot thread</p>
+                  <motion.div
+                    className="rounded-md border border-border bg-card px-3 py-2 text-xs"
+                    animate={reduceMotion ? undefined : { y: [0, -1, 0] }}
+                    transition={{ duration: 1.6, repeat: Infinity }}
+                  >
+                    Product asked AI for a rollout draft, operations refined the plan,
+                    finance requested compliance checks, and engineering received the final
+                    approved handoff.
+                  </motion.div>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    "Kickoff and requirements aligned",
+                    "Knowledge base docs linked to AI project space",
+                    "Policy checks completed with AI guardrails",
+                    "Launch review approved",
+                  ].map((item, i) => (
+                    <div key={item} className="relative rounded-lg border border-border bg-muted/20 px-3 py-2.5">
+                      <motion.span
+                        className="absolute left-0 top-0 h-full w-1 rounded-l-lg bg-foreground/70"
+                        animate={reduceMotion ? undefined : { opacity: [0.25, 0.9, 0.25] }}
+                        transition={{ duration: 1.7, repeat: Infinity, delay: i * 0.28 }}
+                      />
+                      <p className="pl-2 text-sm">{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -289,9 +656,9 @@ export default function Home() {
               custom={1}
               className="mb-16 max-w-lg text-muted-foreground"
             >
-              Choose between every cutting-edge model from OpenAI, Anthropic,
-              Google, and Mistral. Intelligent routing picks the best model for
-              each task.
+              Use the latest models from OpenAI, Anthropic, Google, and Mistral in
+              one place. Intelligent routing and governance controls match the
+              right model, policy, and context to each task.
             </motion.p>
 
             <motion.div
@@ -313,15 +680,15 @@ export default function Home() {
               {[
                 {
                   title: "Right model, right team",
-                  body: "Department-level routing ensures engineering gets code-optimised models while commercial teams get conversational ones. No one-size-fits-all.",
+                  body: "Department-level routing ensures engineering gets code-optimised models while commercial teams get conversational ones. No one-size-fits-all setup for the entire company.",
                 },
                 {
-                  title: "Responsible adoption by design",
-                  body: "PII detection, prompt guardrails, and structured access policies ensure your teams adopt AI safely and in line with your governance standards.",
+                  title: "Company policies built into daily work",
+                  body: "PII detection, guardrails, and role-based policy controls are embedded where people actually use AI, so governance becomes part of execution instead of an afterthought.",
                 },
                 {
-                  title: "Understand your AI investment",
-                  body: "See token usage, cost per department, and ROI in one place. Make informed decisions about where to expand and where to optimise.",
+                  title: "Projects, documents, and collaboration in context",
+                  body: "Attach internal documents, work in shared projects, and collaborate with AI as a team. Track adoption, usage, and ROI so you can scale what works.",
                 },
               ].map((card) => (
                 <div key={card.title} className="bg-card p-8 md:p-10">
@@ -586,7 +953,7 @@ export default function Home() {
             <div className="md:col-span-1">
               <Image src="/logo.png" alt="AIOPSOS" width={100} height={40} className="h-9 w-auto" unoptimized />
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                Structured AI adoption for the modern organisation.
+                The AI workspace for companies to manage models, policies, and collaboration.
               </p>
             </div>
 

@@ -11,6 +11,7 @@ interface AdminAssessmentCompletedEmailProps {
   tierLabel: string;
   orgName: string;
   resultsUrl: string;
+  logoUrl?: string;
   dimensionScores?: DimensionScores;
   respondentRole?: string;
   toolsUsed?: string[];
@@ -25,6 +26,7 @@ export function AdminAssessmentCompletedEmail({
   tierLabel,
   orgName,
   resultsUrl,
+  logoUrl,
   dimensionScores,
   respondentRole,
   toolsUsed,
@@ -40,17 +42,24 @@ export function AdminAssessmentCompletedEmail({
       }}
     >
       <div style={{ maxWidth: "480px", margin: "0 auto" }}>
-        <p
-          style={{
-            fontSize: "14px",
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-            marginBottom: "40px",
-            color: "#ffffff",
-          }}
-        >
-          AIOPSOS
-        </p>
+        {/* Header branding — org logo or name */}
+        <div style={{ marginBottom: "40px" }}>
+          {logoUrl ? (
+            <img src={logoUrl} alt={orgName} style={{ height: "32px", maxWidth: "180px", objectFit: "contain" }} />
+          ) : (
+            <p
+              style={{
+                fontSize: "16px",
+                fontWeight: 800,
+                letterSpacing: "-0.02em",
+                color: "#ffffff",
+                margin: 0,
+              }}
+            >
+              {orgName}
+            </p>
+          )}
+        </div>
 
         <h1
           style={{
@@ -62,7 +71,7 @@ export function AdminAssessmentCompletedEmail({
             color: "#ffffff",
           }}
         >
-          New Assessment Completed
+          New assessment completed for {orgName}
         </h1>
 
         <p
@@ -73,16 +82,16 @@ export function AdminAssessmentCompletedEmail({
             margin: "0 0 24px",
           }}
         >
-          Hi {adminName}, a new AI readiness assessment has been submitted for{" "}
-          {orgName}.
+          Hi {adminName}, here are the details for {respondentName}.
         </p>
 
         <div
           style={{
-            backgroundColor: "#1e1e1e",
-            borderRadius: "12px",
+            backgroundColor: "#1a1a1a",
+            borderRadius: "16px",
             padding: "24px",
             marginBottom: "24px",
+            border: "1px solid rgba(255,255,255,0.06)",
           }}
         >
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -296,14 +305,15 @@ export function AdminAssessmentCompletedEmail({
             display: "inline-block",
             backgroundColor: "#ffffff",
             color: "#0d0d0d",
-            fontSize: "14px",
-            fontWeight: 600,
-            padding: "12px 28px",
-            borderRadius: "8px",
+            fontSize: "15px",
+            fontWeight: 700,
+            padding: "14px 36px",
+            borderRadius: "10px",
             textDecoration: "none",
+            letterSpacing: "-0.01em",
           }}
         >
-          View All Results
+          View All Results →
         </a>
 
         <hr
@@ -314,8 +324,8 @@ export function AdminAssessmentCompletedEmail({
           }}
         />
 
-        <p style={{ fontSize: "12px", color: "#555555", margin: 0 }}>
-          AIOPSOS -- The enterprise AI control layer.
+        <p style={{ fontSize: "12px", color: "#444444", margin: 0, textAlign: "center" }}>
+          Powered by AIOPSOS
         </p>
       </div>
     </div>

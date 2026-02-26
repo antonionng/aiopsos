@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
     const { data: org } = await supabase
       .from("organisations")
-      .select("name")
+      .select("name, logo_url")
       .eq("id", userProfile.org_id)
       .single();
 
@@ -111,6 +111,7 @@ export async function POST(req: NextRequest) {
           ? (RESPONDENT_ROLE_LABELS[respondent_role as keyof typeof RESPONDENT_ROLE_LABELS] ?? respondent_role)
           : undefined,
         toolsUsed: tools_used ?? undefined,
+        logoUrl: org?.logo_url ?? undefined,
         fallbackNotify,
       }
     );

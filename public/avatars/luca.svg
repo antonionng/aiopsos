@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Luca avatar">
+  <rect width="96" height="96" rx="18" fill="#1f2a23"/>
+  <circle cx="48" cy="50" r="24" fill="#eec7a2"/>
+  <path d="M24 42c0-14 10-24 24-24s24 10 24 24v4H24z" fill="#166534"/>
+  <rect x="34" y="46" width="12" height="8" rx="3" fill="none" stroke="#0f172a" stroke-width="1.8"/>
+  <rect x="50" y="46" width="12" height="8" rx="3" fill="none" stroke="#0f172a" stroke-width="1.8"/>
+  <path d="M46 50h4" stroke="#0f172a" stroke-width="1.8"/>
+  <circle cx="39.8" cy="50" r="1.5" fill="#0f172a"/>
+  <circle cx="55.8" cy="50" r="1.5" fill="#0f172a"/>
+  <path d="M41 60c2 2 4.2 3 7 3s5-1 7-3" fill="none" stroke="#8b5e3c" stroke-width="2" stroke-linecap="round"/>
+  <path d="M22 96c3-15 13-24 26-24s23 9 26 24" fill="#22c55e"/>
+</svg>

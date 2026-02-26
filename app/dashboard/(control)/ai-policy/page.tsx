@@ -75,6 +75,7 @@ function PolicyContent() {
   const [userRole, setUserRole] = useState<string>("user");
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
@@ -249,6 +250,10 @@ function PolicyContent() {
     setExpandedId(expandedId === id ? null : id);
   }
 
+  function toggleTemplateExpand(id: string) {
+    setExpandedTemplateId(expandedTemplateId === id ? null : id);
+  }
+
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("en-GB", {
       day: "numeric",
@@ -306,65 +311,136 @@ function PolicyContent() {
             </CardContent>
           </Card>
         ) : policies.length === 0 ? (
-          isAdmin ? (
-            <div className="space-y-6">
-              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-14 text-center">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10">
-                  <ScrollText className="h-7 w-7 text-brand" />
+          <div className="space-y-8">
+            {isAdmin ? (
+              <>
+                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-14 text-center">
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10">
+                    <ScrollText className="h-7 w-7 text-brand" />
+                  </div>
+                  <h3 className="mb-1 text-base font-semibold">Create your first AI policy</h3>
+                  <p className="mb-5 max-w-md text-sm text-muted-foreground">
+                    Define clear guidelines for how your team uses AI. Start from a professional template, generate one with AI, or write your own.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGenerateOpen(true)}
+                    >
+                      <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                      Generate with AI
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-brand text-brand-foreground hover:bg-brand/90"
+                      onClick={() => openCreate("template")}
+                    >
+                      <FileText className="mr-1.5 h-3.5 w-3.5" />
+                      Start from Template
+                    </Button>
+                  </div>
                 </div>
-                <h3 className="mb-1 text-base font-semibold">Create your first AI policy</h3>
-                <p className="mb-5 max-w-md text-sm text-muted-foreground">
-                  Define clear guidelines for how your team uses AI. Start from a professional template, generate one with AI, or write your own.
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setGenerateOpen(true)}
-                  >
-                    <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-                    Generate with AI
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-brand text-brand-foreground hover:bg-brand/90"
-                    onClick={() => openCreate("template")}
-                  >
-                    <FileText className="mr-1.5 h-3.5 w-3.5" />
-                    Start from Template
-                  </Button>
-                </div>
-              </div>
 
-              <div>
-                <h2 className="mb-3 text-sm font-semibold">Why AI policies matter</h2>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {[
-                    { title: "Reduce risk", desc: "Set clear boundaries on data handling, model usage, and acceptable AI applications before issues arise." },
-                    { title: "Build trust", desc: "Show your team and stakeholders that AI is being used responsibly with documented, transparent guidelines." },
-                    { title: "Accelerate adoption", desc: "Employees adopt AI 2x faster when they have clear policies — uncertainty is the biggest blocker." },
-                  ].map((c) => (
-                    <Card key={c.title} className="border-border bg-card">
-                      <CardContent className="pt-5">
-                        <h3 className="mb-1.5 text-sm font-semibold">{c.title}</h3>
-                        <p className="text-xs leading-relaxed text-muted-foreground">{c.desc}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
+                <div>
+                  <h2 className="mb-3 text-sm font-semibold">Why AI policies matter</h2>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {[
+                      { title: "Reduce risk", desc: "Set clear boundaries on data handling, model usage, and acceptable AI applications before issues arise." },
+                      { title: "Build trust", desc: "Show your team and stakeholders that AI is being used responsibly with documented, transparent guidelines." },
+                      { title: "Accelerate adoption", desc: "Employees adopt AI 2x faster when they have clear policies — uncertainty is the biggest blocker." },
+                    ].map((c) => (
+                      <Card key={c.title} className="border-border bg-card">
+                        <CardContent className="pt-5">
+                          <h3 className="mb-1.5 text-sm font-semibold">{c.title}</h3>
+                          <p className="text-xs leading-relaxed text-muted-foreground">{c.desc}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+                  <ScrollText className="h-7 w-7 text-muted-foreground" />
+                </div>
+                <h3 className="mb-1 text-base font-semibold">No published policies</h3>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  Your organisation hasn&apos;t published any AI usage policies yet. In the meantime, you can reference the general policies below.
+                </p>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                <ScrollText className="h-7 w-7 text-muted-foreground" />
-              </div>
-              <h3 className="mb-1 text-base font-semibold">No published policies</h3>
-              <p className="max-w-sm text-sm text-muted-foreground">
-                Your organisation hasn&apos;t published any AI usage policies yet. Check back soon — your admin may be working on them.
+            )}
+
+            {/* General policies — read-only templates when org has none */}
+            <div>
+              <h2 className="mb-3 text-sm font-semibold">General policies (reference)</h2>
+              <p className="mb-4 text-xs text-muted-foreground">
+                Enterprise-grade AI policy templates you can use as reference. {isAdmin && "Use &quot;From Template&quot; above to create your own from these."}
               </p>
+              <div className="space-y-3">
+                {AI_POLICY_TEMPLATES.map((tmpl) => (
+                  <motion.div key={tmpl.id} variants={item}>
+                    <Card className="border-border bg-card">
+                      <button
+                        onClick={() => toggleTemplateExpand(tmpl.id)}
+                        className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-muted/30"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <ScrollText className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">{tmpl.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {POLICY_CATEGORY_LABELS[tmpl.category] ?? tmpl.category}
+                              {" · "}
+                              Reference template
+                            </p>
+                          </div>
+                        </div>
+                        {expandedTemplateId === tmpl.id ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                        )}
+                      </button>
+                      <AnimatePresence>
+                        {expandedTemplateId === tmpl.id && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="border-t border-border px-4 py-4">
+                              <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <PolicyMarkdown content={tmpl.content} />
+                              </div>
+                              {isAdmin && (
+                                <div className="mt-4 flex gap-2 border-t border-border pt-4">
+                                  <Button
+                                    size="sm"
+                                    className="bg-brand text-brand-foreground hover:bg-brand/90"
+                                    onClick={() => {
+                                      pickTemplate(tmpl.id);
+                                      setExpandedTemplateId(null);
+                                    }}
+                                  >
+                                    <FileText className="mr-1.5 h-3.5 w-3.5" />
+                                    Use as template
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          )
+          </div>
         ) : (
           policies.map((policy) => (
             <motion.div key={policy.id} variants={item}>

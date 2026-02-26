@@ -3,6 +3,7 @@ import type { ModelRouting, ControlLayer } from "./types";
 
 interface DepartmentProfile {
   type: DepartmentType;
+  departmentName?: string;
   dataSensitivity: "low" | "medium" | "high" | "critical";
   maturityScore: number;
   primaryTasks: string[];
@@ -76,6 +77,7 @@ export function generateModelRouting(departments: DepartmentProfile[]): ModelRou
     const mapping = MODEL_MAP[dept.type];
     return {
       department_type: dept.type,
+      department_name: dept.departmentName,
       primary_model: mapping.primary,
       secondary_model: mapping.secondary,
       use_case: mapping.useCase,
