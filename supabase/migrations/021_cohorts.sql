@@ -162,6 +162,16 @@ CREATE INDEX IF NOT EXISTS idx_grades_enrolment ON grades(enrolment_id);
 CREATE INDEX IF NOT EXISTS idx_certificates_ref ON certificates(public_ref);
 
 -- ── RLS helpers ──────────────────────────────────────────────
+-- Every helper is prefixed `academy_`. That is not decoration: these
+-- live in `public`, and a Supabase project may host more than one
+-- product. A generic name like `current_org_id()` already exists in
+-- at least one target database with a different body (it reads the
+-- org from a JWT claim rather than from user_profiles) and around a
+-- hundred unrelated RLS policies depend on it. A CREATE OR REPLACE
+-- on that name would silently repoint all of them and lock the other
+-- product out of its own data. Prefixing makes the collision
+-- impossible rather than unlikely.
+--
 -- These are SECURITY DEFINER on purpose. A policy expression that
 -- selects from another RLS-protected table has that table's own
 -- policies applied inside it, which makes cross-table rules both
@@ -172,70 +182,70 @@ CREATE INDEX IF NOT EXISTS idx_certificates_ref ON certificates(public_ref);
 -- this codebase: a facilitator reaches cohorts they run regardless
 -- of which org those cohorts belong to, and reaches nothing else.
 
-CREATE OR REPLACE FUNCTION public.current_user_role()
+CREATE OR REPLACE FUNCTION public.academy_user_role()
 RETURNS text
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT role FROM user_profiles WHERE id = auth.uid()
 $$;
 
-CREATE OR REPLACE FUNCTION public.current_org_id()
+CREATE OR REPLACE FUNCTION public.academy_org_id()
 RETURNS uuid
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT org_id FROM user_profiles WHERE id = auth.uid()
 $$;
 
-CREATE OR REPLACE FUNCTION public.current_facilitator_id()
+CREATE OR REPLACE FUNCTION public.academy_facilitator_id()
 RETURNS uuid
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT id FROM facilitators WHERE user_id = auth.uid() AND active
 $$;
 
 /** Anyone in the cohort's org, the facilitator running it, or a super admin. */
-CREATE OR REPLACE FUNCTION public.can_read_cohort(p_cohort uuid)
+CREATE OR REPLACE FUNCTION public.academy_can_read_cohort(p_cohort uuid)
 RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT EXISTS (
     SELECT 1 FROM cohorts c
     WHERE c.id = p_cohort
       AND (
-        public.current_user_role() = 'super_admin'
-        OR (c.org_id IS NOT NULL AND c.org_id = public.current_org_id())
+        public.academy_user_role() = 'super_admin'
+        OR (c.org_id IS NOT NULL AND c.org_id = public.academy_org_id())
         OR (c.facilitator_id IS NOT NULL
-            AND c.facilitator_id = public.current_facilitator_id())
+            AND c.facilitator_id = public.academy_facilitator_id())
       )
   )
 $$;
 
 /** Admins and managers of the cohort's own org, or a super admin. */
-CREATE OR REPLACE FUNCTION public.can_manage_cohort(p_cohort uuid)
+CREATE OR REPLACE FUNCTION public.academy_can_manage_cohort(p_cohort uuid)
 RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT EXISTS (
     SELECT 1 FROM cohorts c
     WHERE c.id = p_cohort
       AND (
-        public.current_user_role() = 'super_admin'
+        public.academy_user_role() = 'super_admin'
         OR (c.org_id IS NOT NULL
-            AND c.org_id = public.current_org_id()
-            AND public.current_user_role() IN ('admin', 'manager'))
+            AND c.org_id = public.academy_org_id()
+            AND public.academy_user_role() IN ('admin', 'manager'))
       )
   )
 $$;
 
 /** Whoever may record attendance, submissions and grades: managers plus the facilitator. */
-CREATE OR REPLACE FUNCTION public.can_grade_cohort(p_cohort uuid)
+CREATE OR REPLACE FUNCTION public.academy_can_grade_cohort(p_cohort uuid)
 RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
-  SELECT public.can_manage_cohort(p_cohort)
+  SELECT public.academy_can_manage_cohort(p_cohort)
       OR EXISTS (
         SELECT 1 FROM cohorts c
         WHERE c.id = p_cohort
           AND c.facilitator_id IS NOT NULL
-          AND c.facilitator_id = public.current_facilitator_id()
+          AND c.facilitator_id = public.academy_facilitator_id()
       )
 $$;
 
-CREATE OR REPLACE FUNCTION public.owns_enrolment(p_enrolment uuid)
+CREATE OR REPLACE FUNCTION public.academy_owns_enrolment(p_enrolment uuid)
 RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT EXISTS (
@@ -244,40 +254,30 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
 $$;
 
 /** The participant themselves, their org's admins and managers, the facilitator, or a super admin. */
-CREATE OR REPLACE FUNCTION public.can_read_enrolment(p_enrolment uuid)
+CREATE OR REPLACE FUNCTION public.academy_can_read_enrolment(p_enrolment uuid)
 RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
-  SELECT public.owns_enrolment(p_enrolment)
+  SELECT public.academy_owns_enrolment(p_enrolment)
       OR EXISTS (
         SELECT 1 FROM enrolments e
         WHERE e.id = p_enrolment
-          AND public.can_grade_cohort(e.cohort_id)
+          AND public.academy_can_grade_cohort(e.cohort_id)
       )
       OR EXISTS (
         SELECT 1 FROM enrolments e
         WHERE e.id = p_enrolment
-          AND e.org_id = public.current_org_id()
-          AND public.current_user_role() IN ('admin', 'manager', 'super_admin')
+          AND e.org_id = public.academy_org_id()
+          AND public.academy_user_role() IN ('admin', 'manager', 'super_admin')
       )
 $$;
 
 /** Whoever may write attendance, submissions and grades against this enrolment. */
-CREATE OR REPLACE FUNCTION public.can_grade_enrolment(p_enrolment uuid)
+CREATE OR REPLACE FUNCTION public.academy_can_grade_enrolment(p_enrolment uuid)
 RETURNS boolean
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT EXISTS (
     SELECT 1 FROM enrolments e
-    WHERE e.id = p_enrolment AND public.can_grade_cohort(e.cohort_id)
-  )
-$$;
-
-/** Whoever may see a session: same audience as its cohort. */
-CREATE OR REPLACE FUNCTION public.can_read_session(p_session uuid)
-RETURNS boolean
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM sessions s
-    WHERE s.id = p_session AND public.can_read_cohort(s.cohort_id)
+    WHERE e.id = p_enrolment AND public.academy_can_grade_cohort(e.cohort_id)
   )
 $$;
 
@@ -309,47 +309,47 @@ CREATE POLICY "Facilitators update their own profile"
 DROP POLICY IF EXISTS "Super admins manage facilitators" ON facilitators;
 CREATE POLICY "Super admins manage facilitators"
   ON facilitators FOR ALL
-  USING (public.current_user_role() = 'super_admin')
-  WITH CHECK (public.current_user_role() = 'super_admin');
+  USING (public.academy_user_role() = 'super_admin')
+  WITH CHECK (public.academy_user_role() = 'super_admin');
 
 -- cohorts: split by command because on INSERT the row does not exist
 -- yet, so the helper functions have nothing to look up.
 DROP POLICY IF EXISTS "Cohort audience reads cohorts" ON cohorts;
 CREATE POLICY "Cohort audience reads cohorts"
   ON cohorts FOR SELECT
-  USING (public.can_read_cohort(id));
+  USING (public.academy_can_read_cohort(id));
 
 DROP POLICY IF EXISTS "Admins create cohorts" ON cohorts;
 CREATE POLICY "Admins create cohorts"
   ON cohorts FOR INSERT
   WITH CHECK (
-    public.current_user_role() = 'super_admin'
-    OR (org_id = public.current_org_id()
-        AND public.current_user_role() IN ('admin', 'manager'))
+    public.academy_user_role() = 'super_admin'
+    OR (org_id = public.academy_org_id()
+        AND public.academy_user_role() IN ('admin', 'manager'))
   );
 
 DROP POLICY IF EXISTS "Admins update cohorts" ON cohorts;
 CREATE POLICY "Admins update cohorts"
   ON cohorts FOR UPDATE
-  USING (public.can_manage_cohort(id))
-  WITH CHECK (public.can_manage_cohort(id));
+  USING (public.academy_can_manage_cohort(id))
+  WITH CHECK (public.academy_can_manage_cohort(id));
 
 DROP POLICY IF EXISTS "Admins delete cohorts" ON cohorts;
 CREATE POLICY "Admins delete cohorts"
   ON cohorts FOR DELETE
-  USING (public.can_manage_cohort(id));
+  USING (public.academy_can_manage_cohort(id));
 
 -- sessions
 DROP POLICY IF EXISTS "Cohort audience reads sessions" ON sessions;
 CREATE POLICY "Cohort audience reads sessions"
   ON sessions FOR SELECT
-  USING (public.can_read_cohort(cohort_id));
+  USING (public.academy_can_read_cohort(cohort_id));
 
 DROP POLICY IF EXISTS "Managers and facilitators write sessions" ON sessions;
 CREATE POLICY "Managers and facilitators write sessions"
   ON sessions FOR ALL
-  USING (public.can_grade_cohort(cohort_id))
-  WITH CHECK (public.can_grade_cohort(cohort_id));
+  USING (public.academy_can_grade_cohort(cohort_id))
+  WITH CHECK (public.academy_can_grade_cohort(cohort_id));
 
 -- enrolments: a participant sees only their own; admins and managers see
 -- their own org's; the facilitator sees the register for cohorts they run.
@@ -358,66 +358,66 @@ CREATE POLICY "Enrolment audience reads enrolments"
   ON enrolments FOR SELECT
   USING (
     user_id = auth.uid()
-    OR public.can_grade_cohort(cohort_id)
-    OR (org_id = public.current_org_id()
-        AND public.current_user_role() IN ('admin', 'manager', 'super_admin'))
+    OR public.academy_can_grade_cohort(cohort_id)
+    OR (org_id = public.academy_org_id()
+        AND public.academy_user_role() IN ('admin', 'manager', 'super_admin'))
   );
 
 -- Enrolling someone is an org decision, not a facilitator one.
 DROP POLICY IF EXISTS "Admins manage enrolments" ON enrolments;
 CREATE POLICY "Admins manage enrolments"
   ON enrolments FOR ALL
-  USING (public.can_manage_cohort(cohort_id))
-  WITH CHECK (public.can_manage_cohort(cohort_id));
+  USING (public.academy_can_manage_cohort(cohort_id))
+  WITH CHECK (public.academy_can_manage_cohort(cohort_id));
 
 -- attendance
 DROP POLICY IF EXISTS "Enrolment audience reads attendance" ON attendance;
 CREATE POLICY "Enrolment audience reads attendance"
   ON attendance FOR SELECT
-  USING (public.can_read_enrolment(enrolment_id));
+  USING (public.academy_can_read_enrolment(enrolment_id));
 
 DROP POLICY IF EXISTS "Graders write attendance" ON attendance;
 CREATE POLICY "Graders write attendance"
   ON attendance FOR ALL
-  USING (public.can_grade_enrolment(enrolment_id))
-  WITH CHECK (public.can_grade_enrolment(enrolment_id));
+  USING (public.academy_can_grade_enrolment(enrolment_id))
+  WITH CHECK (public.academy_can_grade_enrolment(enrolment_id));
 
 -- submissions: participants submit their own work, graders may correct.
 DROP POLICY IF EXISTS "Enrolment audience reads submissions" ON submissions;
 CREATE POLICY "Enrolment audience reads submissions"
   ON submissions FOR SELECT
-  USING (public.can_read_enrolment(enrolment_id));
+  USING (public.academy_can_read_enrolment(enrolment_id));
 
 DROP POLICY IF EXISTS "Participants and graders create submissions" ON submissions;
 CREATE POLICY "Participants and graders create submissions"
   ON submissions FOR INSERT
   WITH CHECK (
-    public.owns_enrolment(enrolment_id)
-    OR public.can_grade_enrolment(enrolment_id)
+    public.academy_owns_enrolment(enrolment_id)
+    OR public.academy_can_grade_enrolment(enrolment_id)
   );
 
 DROP POLICY IF EXISTS "Graders amend submissions" ON submissions;
 CREATE POLICY "Graders amend submissions"
   ON submissions FOR UPDATE
-  USING (public.can_grade_enrolment(enrolment_id))
-  WITH CHECK (public.can_grade_enrolment(enrolment_id));
+  USING (public.academy_can_grade_enrolment(enrolment_id))
+  WITH CHECK (public.academy_can_grade_enrolment(enrolment_id));
 
 DROP POLICY IF EXISTS "Graders delete submissions" ON submissions;
 CREATE POLICY "Graders delete submissions"
   ON submissions FOR DELETE
-  USING (public.can_grade_enrolment(enrolment_id));
+  USING (public.academy_can_grade_enrolment(enrolment_id));
 
 -- grades
 DROP POLICY IF EXISTS "Enrolment audience reads grades" ON grades;
 CREATE POLICY "Enrolment audience reads grades"
   ON grades FOR SELECT
-  USING (public.can_read_enrolment(enrolment_id));
+  USING (public.academy_can_read_enrolment(enrolment_id));
 
 DROP POLICY IF EXISTS "Graders write grades" ON grades;
 CREATE POLICY "Graders write grades"
   ON grades FOR ALL
-  USING (public.can_grade_enrolment(enrolment_id))
-  WITH CHECK (public.can_grade_enrolment(enrolment_id));
+  USING (public.academy_can_grade_enrolment(enrolment_id))
+  WITH CHECK (public.academy_can_grade_enrolment(enrolment_id));
 
 -- certificates: issuing is an org act, not a facilitator one. Public
 -- verification does not read through this table directly - the verify
@@ -425,7 +425,7 @@ CREATE POLICY "Graders write grades"
 DROP POLICY IF EXISTS "Enrolment audience reads certificates" ON certificates;
 CREATE POLICY "Enrolment audience reads certificates"
   ON certificates FOR SELECT
-  USING (public.can_read_enrolment(enrolment_id));
+  USING (public.academy_can_read_enrolment(enrolment_id));
 
 DROP POLICY IF EXISTS "Admins issue certificates" ON certificates;
 CREATE POLICY "Admins issue certificates"
@@ -434,14 +434,14 @@ CREATE POLICY "Admins issue certificates"
     EXISTS (
       SELECT 1 FROM enrolments e
       WHERE e.id = certificates.enrolment_id
-        AND public.can_manage_cohort(e.cohort_id)
+        AND public.academy_can_manage_cohort(e.cohort_id)
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM enrolments e
       WHERE e.id = certificates.enrolment_id
-        AND public.can_manage_cohort(e.cohort_id)
+        AND public.academy_can_manage_cohort(e.cohort_id)
     )
   );
 
