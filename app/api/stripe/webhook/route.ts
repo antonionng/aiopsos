@@ -32,6 +32,16 @@ export async function POST(req: Request) {
       const session = event.data.object as Stripe.Checkout.Session;
       const orgId = session.metadata?.org_id;
       const planName = session.metadata?.plan;
+      const cohortId = session.metadata?.cohort_id;
+
+      // Cohort payments are one-off and carry no `plan`, so they fall past
+      // the subscription branch below untouched.
+      if (cohortId && session.payment_status === "paid") {
+        await supabaseAdmin
+          .from("cohorts")
+          .update({ paid_at: new Date().toISOString() })
+          .eq("id", cohortId);
+      }
 
       if (orgId && planName) {
         const { data: planRow } = await supabaseAdmin

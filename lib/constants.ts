@@ -429,3 +429,58 @@ export type CourseStatus = (typeof COURSE_STATUSES)[number];
 // course establishes compliance. Do not soften this.
 export const LITERACY_DISCLAIMER =
   "This programme documents role-proportionate AI literacy measures and the records evidencing them. It does not certify compliance with the EU AI Act or any other regulation, and no single course establishes compliance on its own.";
+
+// --- Cohort Delivery Constants ---
+
+export const COHORT_STATUSES = ["scheduled", "running", "completed", "cancelled"] as const;
+
+export type CohortStatus = (typeof COHORT_STATUSES)[number];
+
+export const COHORT_STATUS_LABELS: Record<CohortStatus, string> = {
+  scheduled: "Scheduled",
+  running: "Running",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
+
+export const ENROLMENT_STATUSES = [
+  "invited",
+  "enrolled",
+  "withdrawn",
+  "completed",
+  "failed",
+] as const;
+
+export type EnrolmentStatus = (typeof ENROLMENT_STATUSES)[number];
+
+export const ENROLMENT_STATUS_LABELS: Record<EnrolmentStatus, string> = {
+  invited: "Invited",
+  enrolled: "Enrolled",
+  withdrawn: "Withdrawn",
+  completed: "Completed",
+  failed: "Not completed",
+};
+
+export const ATTENDANCE_STATUSES = ["present", "late", "absent", "excused"] as const;
+
+export type AttendanceStatus = (typeof ATTENDANCE_STATUSES)[number];
+
+export const ATTENDANCE_STATUS_LABELS: Record<AttendanceStatus, string> = {
+  present: "Present",
+  late: "Late",
+  absent: "Absent",
+  excused: "Excused",
+};
+
+
+/**
+ * Certificate defaults. A certificate requires BOTH an attendance floor and a
+ * pass grade, which is what levy and reimbursement schemes audit against.
+ * Cohorts carry their own thresholds so a funded programme can set its own;
+ * these are only the defaults for a new cohort.
+ */
+export const DEFAULT_PASS_ATTENDANCE_PCT = 80;
+export const DEFAULT_PASS_GRADE_PCT = 70;
+
+/** Length of the public certificate reference in `certificates.public_ref`. */
+export const CERTIFICATE_REF_LENGTH = 12;
