@@ -60,6 +60,7 @@ export default function PublicAssessPage() {
           overall: data.overall,
           tier: data.tier,
           session_token: data.session_token,
+          respondent_role: meta.role,
         })
       );
       router.push(`/assess/${token}/results`);

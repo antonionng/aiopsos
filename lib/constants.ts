@@ -387,3 +387,45 @@ export function getTierImpactIndex(tierNumber: number): number {
   if (tierNumber === 3) return 2;
   return 3;
 }
+
+// --- Academy Constants ---
+
+// Ordered from least to most senior. `recommendCourses` tie-breaks on this
+// order, so the index is meaningful - do not reorder without updating tests.
+export const COURSE_LEVELS = ["practitioner", "manager", "leadership"] as const;
+
+export type CourseLevel = (typeof COURSE_LEVELS)[number];
+
+export const COURSE_LEVEL_LABELS: Record<CourseLevel, string> = {
+  practitioner: "Practitioner",
+  manager: "Manager",
+  leadership: "Leadership",
+};
+
+export const COURSE_LEVEL_DESCRIPTIONS: Record<CourseLevel, string> = {
+  practitioner: "For the people doing the work day to day.",
+  manager: "For those who set expectations and review the output.",
+  leadership: "For those accountable for the organisation AI use.",
+};
+
+export const DELIVERY_MODES = ["in_person", "virtual", "blended"] as const;
+
+export type DeliveryMode = (typeof DELIVERY_MODES)[number];
+
+export const DELIVERY_MODE_LABELS: Record<DeliveryMode, string> = {
+  in_person: "In person",
+  virtual: "Live online",
+  blended: "Blended",
+};
+
+export const COURSE_STATUSES = ["draft", "published", "retired"] as const;
+
+export type CourseStatus = (typeof COURSE_STATUSES)[number];
+
+
+// Shown wherever the academy makes a claim about regulatory measures.
+// EU AI Act Article 4 requires measures supporting AI literacy; the
+// Commission's Q&A is explicit that no certificate and no single generic
+// course establishes compliance. Do not soften this.
+export const LITERACY_DISCLAIMER =
+  "This programme documents role-proportionate AI literacy measures and the records evidencing them. It does not certify compliance with the EU AI Act or any other regulation, and no single course establishes compliance on its own.";

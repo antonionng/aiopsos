@@ -40,40 +40,40 @@ const fadeUp = {
 
 const CAPABILITIES = [
   {
-    title: "Run one AI workspace for the company",
+    title: "Find out where each team actually stands",
     description:
-      "Manage every AI model, policy, document, and project in one shared workspace. Give each team the same platform with controls that fit how they actually work.",
+      "A five-minute assessment scores every person across five dimensions, by department and by role. You get a picture of the gap rather than an assumption about it.",
   },
   {
-    title: "Tailor AI by department, not one-size-fits-all",
+    title: "Train against the gap, facilitated by a trainer",
     description:
-      "Route the right model to each function and apply role-specific guardrails. Engineering, finance, legal, and operations each get policies and workflows built for their needs.",
+      "Each gap maps to courses in the academy. They run live, in person or online, led by a facilitator. The platform schedules the cohort and records what happened; it does not pretend to replace the person at the front of the room.",
   },
   {
-    title: "Ground AI in your docs and projects",
+    title: "Hold the records someone will ask you for",
     description:
-      "Embed internal documents directly into AI workflows, organise work by project, and collaborate with your team in context. Turn usage into consistent, measurable output.",
+      "Attendance, submissions, grades, facilitator credentials and observed usage after training, exported as a dated evidence pack. Documented measures, not a compliance badge.",
   },
 ];
 
 const STEPS = [
   {
     number: "01",
-    title: "Diagnose",
+    title: "Assess",
     description:
-      "Share a 5-minute assessment across your organisation. Instantly see where each department sits on the AI maturity curve.",
+      "Distribute the assessment by email, link or QR code. Five dimensions, six maturity tiers, scored by department and by respondent role.",
   },
   {
     number: "02",
-    title: "Activate",
+    title: "Train",
     description:
-      "Get a tailored 90-day adoption roadmap with defined use cases, workflow integration targets, and model recommendations for every team.",
+      "The gaps map onto the course catalogue. Book a cohort, and a facilitator delivers it live. Attendance, submissions and grades are recorded as it runs.",
   },
   {
     number: "03",
-    title: "Measure",
+    title: "Evidence",
     description:
-      "See adoption rates, workflow penetration, and efficiency gains. Review progress at Day 90 and decide whether to expand, refine, or recalibrate.",
+      "Export a dated pack: who was trained, on what, by whom, and what changed in observed usage afterwards. The record, not a certificate.",
   },
 ];
 
@@ -89,14 +89,14 @@ const MODELS = [
 ];
 
 const TRUST = [
-  "Enterprise-grade governance",
-  "Multi-model routing under one interface",
+  "Role-proportionate training records",
+  "Attendance and grading held per cohort",
+  "Third-party certificate verification",
+  "Dated, frozen evidence packs",
+  "Facilitator credentials on record",
+  "Department-level usage reporting",
+  "Row-level data isolation per tenant",
   "Automated PII detection and guardrails",
-  "Compliance-ready logging",
-  "Department-level cost visibility",
-  "Role-based access policies",
-  "Prompt injection protection",
-  "SSO-ready authentication",
 ];
 
 const WORKSPACE_QUICK_ACTIONS = [
@@ -171,6 +171,7 @@ const COLLAB_PEOPLE = [
 const FOOTER_LINKS = {
   Product: [
     { label: "Assessment", href: "/dashboard/assessment" },
+    { label: "Academy", href: "/courses" },
     { label: "Recommendations", href: "/dashboard/recommend" },
     { label: "Roadmap", href: "/dashboard/roadmap" },
     { label: "AI Interface", href: "/dashboard/chat" },
@@ -219,6 +220,9 @@ export default function Home() {
               <a href="#capabilities" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Product
               </a>
+              <Link href="/courses" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                Academy
+              </Link>
               <a href="#enterprise" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Enterprise
               </a>
@@ -266,9 +270,9 @@ export default function Home() {
             custom={1}
             className="mb-6 text-5xl font-bold leading-[1.08] tracking-[-0.04em] text-foreground sm:text-6xl lg:text-[4.5rem]"
           >
-            Your company&apos;s
+            Trained workforce.
             <br />
-            AI workspace.
+            Documented.
           </motion.h1>
 
           <motion.p
@@ -276,10 +280,10 @@ export default function Home() {
             custom={2}
             className="mx-auto mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground"
           >
-            Most teams have AI access but no shared operating model. AIOPSOS gives
-            companies one workspace to manage models, enforce tailored policies,
-            embed internal documents, run projects, and collaborate with AI across
-            every department.
+            Assess your workforce, train them by role with a live facilitator,
+            and hold the documentation your regulator will ask for. AIOPSOS
+            scores the gap, maps it to courses, records who was trained on what,
+            and exports the evidence.
           </motion.p>
 
           <motion.div variants={fadeUp} custom={3}>
@@ -299,12 +303,12 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6">
           <div>
             <h2 className="mb-6 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
-              How the AI workspace works
+              Assess, train, evidence
             </h2>
 
             <p className="mb-10 max-w-2xl text-muted-foreground">
-              A practical interface for teams to manage models, policies, knowledge, and
-              project collaboration in one place.
+              Three jobs, one system of record. The shared AI workspace below is
+              where the observed usage in your evidence pack comes from.
             </p>
 
             <div className="mb-12 overflow-hidden rounded-2xl border border-border bg-black/70">
@@ -615,7 +619,7 @@ export default function Home() {
               custom={0}
               className="mb-16 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
-              Your 90-day path to measurable AI impact
+              From assessment to evidence pack
             </motion.h2>
 
             <div className="grid gap-12 md:grid-cols-3 md:gap-8">
@@ -717,7 +721,7 @@ export default function Home() {
               custom={0}
               className="mb-16 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
-              Built for enterprise.
+              Built for the audit.
             </motion.h2>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -920,17 +924,17 @@ export default function Home() {
               custom={0}
               className="mb-4 text-4xl font-bold tracking-[-0.03em] sm:text-5xl"
             >
-              Give your teams the structure
+              Train your workforce.
               <br />
-              to succeed with AI.
+              Keep the receipts.
             </motion.h2>
             <motion.p
               variants={fadeUp}
               custom={1}
               className="mx-auto mb-10 max-w-md text-muted-foreground"
             >
-              Assess maturity in under 10 minutes. Get a 90-day roadmap
-              to measurable impact. 14-day Pro trial included.
+              Assess maturity in under 10 minutes, see which courses each
+              department needs, and start the record. 14-day Pro trial included.
             </motion.p>
             <motion.div variants={fadeUp} custom={2}>
               <Link
@@ -953,7 +957,7 @@ export default function Home() {
             <div className="md:col-span-1">
               <Image src="/logo.png" alt="AIOPSOS" width={100} height={40} className="h-9 w-auto" unoptimized />
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                The AI workspace for companies to manage models, policies, and collaboration.
+                Assess your workforce, train them by role, and hold the documentation your regulator will ask for.
               </p>
             </div>
 

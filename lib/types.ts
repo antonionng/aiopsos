@@ -1,4 +1,11 @@
-import type { DepartmentType, Dimension } from "./constants";
+import type {
+  CourseLevel,
+  CourseStatus,
+  DeliveryMode,
+  DepartmentType,
+  Dimension,
+  RespondentRole,
+} from "./constants";
 
 export interface Organisation {
   id: string;
@@ -270,4 +277,58 @@ export interface ApprovalRequest {
   content_preview: string;
   created_at: string;
   resolved_at: string | null;
+}
+
+export interface Course {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  level: CourseLevel;
+  duration_hours: number;
+  delivery_modes: DeliveryMode[];
+  learning_outcomes: string[];
+  target_roles: RespondentRole[];
+  target_dimensions: Dimension[];
+  status: CourseStatus;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CourseModule {
+  id: string;
+  course_id: string;
+  position: number;
+  title: string;
+  summary: string;
+  duration_hours: number;
+  outcomes: string[];
+  lab_url: string | null;
+  created_at: string;
+}
+
+/** A course recommendation with the reasoning that produced it. */
+export interface CourseMatch {
+  course: Course;
+  /** Weighted overlap with the respondent's weakest dimensions. */
+  score: number;
+  /** Which weak dimensions this course addresses, weakest first. */
+  matched_dimensions: Dimension[];
+}
+
+/**
+ * A course recommendation flattened for the wire. Shared by the public
+ * assessment results endpoint and the signed-in one so both can render
+ * through the same component.
+ */
+export interface CourseRecommendation {
+  slug: string;
+  title: string;
+  summary: string;
+  level: CourseLevel;
+  duration_hours: number;
+  delivery_modes: DeliveryMode[];
+  match_score: number;
+  matched_dimensions: Dimension[];
 }

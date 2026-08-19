@@ -29,14 +29,16 @@ import {
   DEPARTMENT_TYPES,
   type Dimension,
 } from "@/lib/constants";
-import type { DimensionScores } from "@/lib/types";
+import type { CourseRecommendation, DimensionScores } from "@/lib/types";
 import { OrgAvatar } from "@/components/org-avatar";
+import { RecommendedCourses } from "@/components/recommended-courses";
 
 interface ResultsData {
   scores: DimensionScores;
   overall: number;
   tier: { tier: number; label: string; color: string };
   session_token: string;
+  respondent_role?: string | null;
 }
 
 export default function AssessResultsPage() {
@@ -52,6 +54,7 @@ export default function AssessResultsPage() {
   const [orgName, setOrgName] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [completedCount, setCompletedCount] = useState<number>(0);
+  const [courses, setCourses] = useState<CourseRecommendation[]>([]);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`assess_results_${token}`);
@@ -61,6 +64,33 @@ export default function AssessResultsPage() {
       router.push(`/assess/${token}`);
     }
   }, [token, router]);
+
+  // The scores are already in the browser, so asking the server which
+  // courses they map to discloses nothing new. The catalogue itself is public.
+  useEffect(() => {
+    if (!results) return;
+    let cancelled = false;
+
+    fetch("/api/public/courses/recommend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        scores: results.scores,
+        respondent_role: results.respondent_role ?? null,
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.recommendations) setCourses(d.recommendations);
+      })
+      .catch(() => {
+        // A failed recommendation lookup must never block the signup path.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [results]);
 
   useEffect(() => {
     if (!token) return;
@@ -202,6 +232,15 @@ export default function AssessResultsPage() {
       <p className="mb-8 text-center text-xs text-muted-foreground">
         Create an account to unlock your full breakdown
       </p>
+
+      {/* Course recommendations stay unlocked: the gap the assessment finds
+          is only useful to the respondent if they can see what closes it. */}
+      <RecommendedCourses
+        recommendations={courses}
+        heading="Courses matched to your results"
+        description="Based on your weakest dimensions and your role. Delivered live by a facilitator, in person or online."
+        className="mb-8"
+      />
 
       {/* Signup card -- always visible */}
       <motion.div

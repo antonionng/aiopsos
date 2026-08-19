@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RESPONDENT_ROLES } from "./constants";
 
 export const teamInviteSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -25,6 +26,17 @@ export const publicAssessmentSubmitSchema = z.object({
   assessment_id: z.string().uuid("Invalid assessment ID"),
   respondent_role: z.string().max(50).optional().nullable(),
   tools_used: z.array(z.string()).optional().nullable(),
+});
+
+export const courseRecommendSchema = z.object({
+  scores: z.object({
+    confidence: z.number().min(0).max(5),
+    practice: z.number().min(0).max(5),
+    tools: z.number().min(0).max(5),
+    responsible: z.number().min(0).max(5),
+    culture: z.number().min(0).max(5),
+  }),
+  respondent_role: z.enum(RESPONDENT_ROLES).optional().nullable(),
 });
 
 export const organisationUpdateSchema = z.object({
