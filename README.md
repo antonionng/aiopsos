@@ -87,7 +87,11 @@ Tenancy and identity: `organisations`, `departments`, `user_profiles`,
 Assessment: `assessments`, `assessment_responses`, `assessment_links`,
 `assessment_invites`, `pending_responses`, `recommendations`, `roadmaps`.
 
-Academy: `courses`, `course_modules`.
+Academy catalogue: `courses`, `course_modules`.
+
+Delivery: `facilitators`, `cohorts`, `sessions`, `enrolments`, `attendance`,
+`submissions`, `grades`, `certificates`, plus `session_reminders` for reminder
+de-duplication.
 
 Governance: `ai_policies`, `approval_requests`.
 
@@ -126,6 +130,7 @@ the `ai` SDK, so they only need to be present in the environment.
 | `EMAIL_FROM` | Sender address for transactional email |
 | `NOTIFY_EMAIL` | Where contact-form and admin notifications go |
 | `TAVILY_API_KEY` | Web search |
+| `CRON_SECRET` | Shared secret for the scheduled jobs below. Without it they refuse to run |
 
 Note that `.gitignore` excludes `.env*`, so there is no checked-in example file.
 
@@ -141,6 +146,14 @@ order against the project.
 Any new table holding participant data must ship with RLS enabled in the same
 migration that creates it, not in a follow-up.
 
+### Scheduled jobs
+
+`GET /api/cron/session-reminders` sends the 24-hour reminder for every session
+starting tomorrow. Call it hourly from Vercel Cron or any scheduler, passing
+`Authorization: Bearer $CRON_SECRET`. Its window deliberately overlaps between
+runs so a missed run still catches the session; `session_reminders` is what
+stops the overlap turning into duplicate email.
+
 ## Scripts
 
 ```bash
@@ -152,3 +165,15 @@ npm test        # unit tests, node:test with native TS stripping
 
 Tests live beside the code in `lib/__tests__`. They import with explicit `.ts`
 extensions because Node's test runner resolves ESM specifiers literally.
+
+Row-level security is tested separately, in SQL, because that is the level it
+operates at. `supabase/tests/rls_cohorts.sql` asserts the negative cases —
+an admin must not see another organisation's register, a facilitator reaches
+only the cohorts they run, a participant cannot mark their own attendance. It
+runs inside a transaction that is rolled back:
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_cohorts.sql
+```
+
+Point it at a branch or a local stack, never at production.

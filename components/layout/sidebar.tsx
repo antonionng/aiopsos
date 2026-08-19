@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ClipboardCheck,
   FileText,
+  GraduationCap,
   Layers,
   LayoutDashboard,
   LinkIcon,
@@ -46,6 +47,13 @@ interface NavItem {
   label: string;
   minRole?: UserRole[];
   requiredPlan?: "pro" | "enterprise";
+  /**
+   * Also show this to facilitators. Facilitation is not a tenancy role - a
+   * facilitator is usually a plain `user`, and often not a member of the org
+   * whose cohort they are running - so `minRole` alone would hide the
+   * register from the one person who has to take it.
+   */
+  alsoFacilitators?: boolean;
 }
 
 interface NavSection {
@@ -60,6 +68,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/dashboard/hub", icon: LayoutDashboard, label: "Overview" },
       { href: "/dashboard/assessment", icon: BrainCircuit, label: "Readiness Assessment" },
       { href: "/dashboard/my-results", icon: ClipboardCheck, label: "My Results" },
+      { href: "/dashboard/my-learning", icon: GraduationCap, label: "My Learning" },
       { href: "/dashboard/recommend", icon: Layers, label: "Stack Recommendation", requiredPlan: "pro", minRole: ["super_admin", "admin", "manager"] },
       { href: "/dashboard/roadmap", icon: Route, label: "90-Day Roadmap", requiredPlan: "pro", minRole: ["super_admin", "admin", "manager"] },
     ],
@@ -70,6 +79,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics", requiredPlan: "pro", minRole: ["super_admin", "admin", "manager"] },
       { href: "/dashboard/knowledge", icon: FileText, label: "Document Library", requiredPlan: "pro", minRole: ["super_admin", "admin", "manager"] },
       { href: "/dashboard/ai-policy", icon: ScrollText, label: "AI Policy", requiredPlan: "pro" },
+      { href: "/dashboard/cohorts", icon: GraduationCap, label: "Cohorts", minRole: ["super_admin", "admin", "manager"], alsoFacilitators: true },
       { href: "/dashboard/links", icon: LinkIcon, label: "Share Links", minRole: ["super_admin", "admin", "manager"] },
     ],
   },
@@ -128,6 +138,7 @@ async function fetchOrgs(supabase: ReturnType<typeof createClient>) {
 export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const [collapsed, setCollapsed] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>("user");
+  const [isFacilitator, setIsFacilitator] = useState(false);
   const [userPlan, setUserPlan] = useState<PlanType>("basic");
   const [orgs, setOrgs] = useState<OrgOption[]>([]);
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
@@ -151,6 +162,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
         .select("role, org_id, plan_override")
         .eq("id", user.id)
         .maybeSingle();
+
+      const { data: facilitator } = await supabase
+        .from("facilitators")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .maybeSingle();
+      setIsFacilitator(!!facilitator);
 
       if (profile) {
         setUserRole(profile.role as UserRole);
@@ -227,6 +246,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
 
   const canSee = (item: NavItem) => {
     if (!item.minRole) return true;
+    if (item.alsoFacilitators && isFacilitator) return true;
     return item.minRole.includes(userRole);
   };
 

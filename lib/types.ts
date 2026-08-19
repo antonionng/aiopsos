@@ -1,9 +1,12 @@
 import type {
+  AttendanceStatus,
+  CohortStatus,
   CourseLevel,
   CourseStatus,
   DeliveryMode,
   DepartmentType,
   Dimension,
+  EnrolmentStatus,
   RespondentRole,
 } from "./constants";
 
@@ -331,4 +334,130 @@ export interface CourseRecommendation {
   delivery_modes: DeliveryMode[];
   match_score: number;
   matched_dimensions: Dimension[];
+}
+
+// --- Cohort delivery ---
+
+export interface FacilitatorCredential {
+  title: string;
+  issuer?: string;
+  reference?: string;
+  year?: number;
+}
+
+export interface Facilitator {
+  id: string;
+  user_id: string;
+  display_name: string;
+  bio: string;
+  credentials: FacilitatorCredential[];
+  active: boolean;
+  created_at: string;
+}
+
+export interface Cohort {
+  id: string;
+  course_id: string;
+  org_id: string | null;
+  facilitator_id: string | null;
+  title: string;
+  delivery_mode: DeliveryMode;
+  location: string | null;
+  timezone: string;
+  seat_limit: number;
+  starts_on: string | null;
+  ends_on: string | null;
+  status: CohortStatus;
+  price_amount: number | null;
+  currency: string;
+  stripe_session_id: string | null;
+  paid_at: string | null;
+  pass_attendance_pct: number;
+  pass_grade_pct: number;
+  created_at: string;
+}
+
+export interface CohortSession {
+  id: string;
+  cohort_id: string;
+  module_id: string | null;
+  position: number;
+  title: string;
+  starts_at: string;
+  ends_at: string;
+  join_url: string | null;
+  created_at: string;
+}
+
+export interface Enrolment {
+  id: string;
+  cohort_id: string;
+  user_id: string;
+  org_id: string;
+  department_id: string | null;
+  status: EnrolmentStatus;
+  enrolled_at: string;
+  completed_at: string | null;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  session_id: string;
+  enrolment_id: string;
+  status: AttendanceStatus;
+  minutes_attended: number;
+  recorded_by: string | null;
+  recorded_at: string;
+}
+
+export interface Submission {
+  id: string;
+  session_id: string;
+  enrolment_id: string;
+  artefact_url: string | null;
+  notes: string;
+  submitted_at: string;
+}
+
+export interface Grade {
+  id: string;
+  enrolment_id: string;
+  module_id: string | null;
+  submission_id: string | null;
+  score: number;
+  max_score: number;
+  rubric: Record<string, unknown>;
+  feedback: string;
+  graded_by: string | null;
+  graded_at: string;
+}
+
+/** Frozen at issue so later catalogue edits never rewrite history. */
+export interface CertificateSnapshot {
+  participant_name: string;
+  course_title: string;
+  course_level: CourseLevel;
+  course_slug: string;
+  cohort_title: string;
+  delivery_mode: DeliveryMode;
+  starts_on: string | null;
+  ends_on: string | null;
+  facilitator_name: string | null;
+  facilitator_credentials: FacilitatorCredential[];
+  modules: { position: number; title: string; outcomes: string[] }[];
+  learning_outcomes: string[];
+  attendance_pct: number;
+  grade_pct: number | null;
+  pass_attendance_pct: number;
+  pass_grade_pct: number;
+  issued_by_org: string | null;
+}
+
+export interface Certificate {
+  id: string;
+  enrolment_id: string;
+  public_ref: string;
+  issued_at: string;
+  revoked_at: string | null;
+  snapshot: CertificateSnapshot;
 }

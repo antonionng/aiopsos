@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { RESPONDENT_ROLES } from "./constants";
+import {
+  ATTENDANCE_STATUSES,
+  COHORT_STATUSES,
+  DELIVERY_MODES,
+  ENROLMENT_STATUSES,
+  RESPONDENT_ROLES,
+} from "./constants";
 
 export const teamInviteSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -65,6 +71,92 @@ export const approvalActionSchema = z.object({
   id: z.string().uuid().optional(),
   status: z.enum(["approved", "rejected"]),
   comment: z.string().max(2000).optional(),
+});
+
+// --- Cohort delivery ---
+
+export const cohortCreateSchema = z.object({
+  course_id: z.string().uuid(),
+  title: z.string().min(1).max(300),
+  delivery_mode: z.enum(DELIVERY_MODES),
+  location: z.string().max(300).optional().nullable(),
+  // IANA zone name. Sessions are stored UTC and rendered in this zone.
+  timezone: z.string().min(1).max(100).default("Europe/London"),
+  seat_limit: z.number().int().min(1).max(500).default(12),
+  starts_on: z.string().date().optional().nullable(),
+  ends_on: z.string().date().optional().nullable(),
+  facilitator_id: z.string().uuid().optional().nullable(),
+  // Minor units. Per-cohort pricing, so this is the whole cohort, not a seat.
+  // Minor units, capped at 10,000,000 (GBP 100,000) as a fat-finger guard.
+  price_amount: z.number().int().min(0).max(10_000_000).optional().nullable(),
+  currency: z.string().length(3).default("GBP"),
+  pass_attendance_pct: z.number().min(0).max(100).default(80),
+  pass_grade_pct: z.number().min(0).max(100).default(70),
+});
+
+export const cohortUpdateSchema = cohortCreateSchema
+  .partial()
+  .extend({ status: z.enum(COHORT_STATUSES).optional() })
+  .omit({ course_id: true });
+
+export const sessionUpsertSchema = z.object({
+  sessions: z
+    .array(
+      z.object({
+        id: z.string().uuid().optional(),
+        module_id: z.string().uuid().optional().nullable(),
+        position: z.number().int().min(1).max(200),
+        title: z.string().min(1).max(300),
+        starts_at: z.string().datetime({ offset: true }),
+        ends_at: z.string().datetime({ offset: true }),
+        join_url: z.string().url().max(1000).optional().nullable().or(z.literal("")),
+      })
+    )
+    .min(1)
+    .max(200),
+});
+
+export const enrolSchema = z.object({
+  emails: z.array(z.string().email()).min(1).max(500),
+});
+
+export const attendanceBulkSchema = z.object({
+  records: z
+    .array(
+      z.object({
+        enrolment_id: z.string().uuid(),
+        status: z.enum(ATTENDANCE_STATUSES),
+        minutes_attended: z.number().int().min(0).max(1440).default(0),
+      })
+    )
+    .min(1)
+    .max(500),
+});
+
+export const gradeSchema = z.object({
+  id: z.string().uuid().optional(),
+  enrolment_id: z.string().uuid(),
+  module_id: z.string().uuid().optional().nullable(),
+  submission_id: z.string().uuid().optional().nullable(),
+  score: z.number().min(0).max(10_000),
+  max_score: z.number().gt(0).max(10_000).default(100),
+  rubric: z.record(z.string(), z.unknown()).optional(),
+  feedback: z.string().max(5000).default(""),
+});
+
+export const submissionSchema = z.object({
+  session_id: z.string().uuid(),
+  enrolment_id: z.string().uuid(),
+  artefact_url: z.string().url().max(1000).optional().nullable().or(z.literal("")),
+  notes: z.string().max(5000).default(""),
+});
+
+export const certificateIssueSchema = z.object({
+  enrolment_id: z.string().uuid(),
+});
+
+export const enrolmentStatusSchema = z.object({
+  status: z.enum(ENROLMENT_STATUSES),
 });
 
 export function validateBody<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: string } {
