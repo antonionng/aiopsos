@@ -11,6 +11,10 @@ import { AdminNewMemberEmail } from "./emails/admin-new-member";
 import { ApprovalRequestEmail } from "./emails/approval-request";
 import { ApprovalDecisionEmail } from "./emails/approval-decision";
 import { RoadmapReadyEmail } from "./emails/roadmap-ready";
+import { CohortEnrolmentEmail } from "./emails/cohort-enrolment";
+import { SessionReminderEmail } from "./emails/session-reminder";
+import { CertificateIssuedEmail } from "./emails/certificate-issued";
+import { LITERACY_DISCLAIMER } from "./constants";
 import type { DimensionScores } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -437,5 +441,95 @@ export async function sendApprovalRequestEmail(
     );
   } catch (error) {
     console.error("Failed to send approval request email:", error);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Academy emails
+// ---------------------------------------------------------------------------
+
+export async function sendCohortEnrolmentEmail(
+  to: string,
+  details: {
+    recipientName: string;
+    cohortTitle: string;
+    courseTitle: string;
+    startsOn: string | null;
+    timezone: string;
+  }
+) {
+  try {
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
+      to,
+      subject: `You are enrolled: ${details.courseTitle}`,
+      react: CohortEnrolmentEmail({
+        ...details,
+        learningUrl: `${BASE_URL}/dashboard/my-learning`,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send cohort enrolment email:", error);
+  }
+}
+
+export async function sendSessionReminderEmail(
+  to: string,
+  details: {
+    recipientName: string;
+    sessionTitle: string;
+    cohortTitle: string;
+    startsAt: string;
+    timezone: string;
+    location: string | null;
+    joinUrl: string | null;
+  }
+) {
+  try {
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
+      to,
+      subject: `Tomorrow: ${details.sessionTitle}`,
+      react: SessionReminderEmail({
+        ...details,
+        learningUrl: `${BASE_URL}/dashboard/my-learning`,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send session reminder email:", error);
+  }
+}
+
+export async function sendCertificateIssuedEmail(
+  to: string,
+  details: {
+    recipientName: string;
+    courseTitle: string;
+    attendancePct: number;
+    gradePct: number | null;
+    publicRef: string;
+  }
+) {
+  try {
+    const { from } = getEmailConfig();
+    await getResend().emails.send({
+      from,
+      to,
+      subject: `Certificate issued: ${details.courseTitle}`,
+      react: CertificateIssuedEmail({
+        recipientName: details.recipientName,
+        courseTitle: details.courseTitle,
+        attendancePct: details.attendancePct,
+        gradePct: details.gradePct,
+        verifyUrl: `${BASE_URL}/verify/${details.publicRef}`,
+        // The certificate records completion of a course. It is not evidence
+        // of compliance, and the email must not imply otherwise.
+        disclaimer: LITERACY_DISCLAIMER,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send certificate issued email:", error);
   }
 }
