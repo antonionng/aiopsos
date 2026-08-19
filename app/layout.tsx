@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "AIOPSOS",
   description:
-    "The enterprise AI adoption platform. Assess maturity, embed AI into workflows, and measure real impact.",
+    "Assess your workforce, train them by role with a live facilitator, and hold the documentation your regulator will ask for.",
 };
 
 export default function RootLayout({

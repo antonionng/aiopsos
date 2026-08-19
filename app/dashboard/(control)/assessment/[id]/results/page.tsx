@@ -44,6 +44,7 @@ import {
 import { RadarChart } from "@/components/charts/radar-chart";
 import { Heatmap } from "@/components/charts/heatmap";
 import { MaturityGauge } from "@/components/charts/maturity-gauge";
+import { CohortTrainingNeeds } from "@/components/assessment/cohort-training-needs";
 import {
   calculateOverallScore,
   getRiskAreas,
@@ -728,6 +729,11 @@ export default function AssessmentResultsPage() {
               </Card>
             </motion.div>
           )}
+
+          {/* Training Needs */}
+          <motion.div variants={item} className="mt-6">
+            <CohortTrainingNeeds assessmentId={id} />
+          </motion.div>
 
           {/* Market Leader Comparison */}
           <motion.div variants={item} className="mt-6">

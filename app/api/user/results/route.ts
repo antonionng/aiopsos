@@ -2,8 +2,15 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { calculateOverallScore, getRiskAreas } from "@/lib/scoring";
-import { getTierForScore, DIMENSION_LABELS, type Dimension } from "@/lib/constants";
-import type { DimensionScores } from "@/lib/types";
+import {
+  getTierForScore,
+  DIMENSION_LABELS,
+  type Dimension,
+  type RespondentRole,
+} from "@/lib/constants";
+import { fetchPublishedCourses } from "@/lib/courses";
+import { rankCourses } from "@/lib/recommendation-engine";
+import type { CourseRecommendation, DimensionScores } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +78,27 @@ export async function GET() {
         : DIMENSION_RECOMMENDATIONS[dim].mid,
   }));
 
+  // Courses that close this person's widest gaps, for their own role.
+  // Respondents can skip the role question; individual contributor is the
+  // widest audience, so an unknown role still gets a usable shortlist.
+  const respondentRole =
+    (response.respondent_role as RespondentRole | null) ?? "individual_contributor";
+
+  const courses: CourseRecommendation[] = rankCourses(
+    scores,
+    respondentRole,
+    await fetchPublishedCourses()
+  ).map(({ course, score, matched_dimensions }) => ({
+    slug: course.slug,
+    title: course.title,
+    summary: course.summary,
+    level: course.level,
+    duration_hours: course.duration_hours,
+    delivery_modes: course.delivery_modes,
+    match_score: score,
+    matched_dimensions,
+  }));
+
   // Fetch anonymised org averages for comparison
   let orgAverages: DimensionScores | null = null;
   const { data: profile } = await supabase
@@ -105,5 +133,7 @@ export async function GET() {
     recommendations,
     submitted_at: response.submitted_at,
     orgAverages,
+    respondent_role: respondentRole,
+    courses,
   }, { headers: { "Cache-Control": "no-store" } });
 }

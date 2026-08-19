@@ -75,21 +75,21 @@ function FounderSection() {
 const VALUES = [
   {
     icon: Target,
-    title: "Structured adoption",
+    title: "Measured, not assumed",
     description:
-      "AI without strategy is just noise. We help organisations move from scattered tool access to measurable, workflow-embedded impact.",
+      "Training that is not aimed at a measured gap is guesswork. We score first, by department and by role, and let that decide what gets delivered.",
   },
   {
     icon: Users,
-    title: "Equitable access",
+    title: "A trainer in the room",
     description:
-      "Every organisation deserves the tools and strategy to benefit from AI, regardless of size, budget, or technical maturity.",
+      "Courses are delivered live by a facilitator, in person or online. The platform schedules the cohort and holds the record. It does not replace the person teaching.",
   },
   {
     icon: Sparkles,
-    title: "Practical impact",
+    title: "Documented, not claimed",
     description:
-      "We focus on real outcomes — cycle-time compression, decision quality, and capability uplift — not hype or theoretical possibilities.",
+      "We produce attendance, grades, credentials and observed practice as a dated record. We never claim a course or a certificate makes an organisation compliant.",
   },
 ];
 
@@ -106,9 +106,9 @@ export default function AboutPage() {
           About AIOPSOS
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          We believe AI adoption shouldn't be ad-hoc or exclusive. AIOPSOS
-          exists to give every organisation — from startups to enterprises — the
-          structure to move from AI access to AI impact.
+          Staff who use AI without training are a risk their employer carries.
+          AIOPSOS exists so organisations can measure that gap, close it with
+          real facilitated training, and hold the records afterwards.
         </p>
       </motion.div>
 
@@ -119,10 +119,10 @@ export default function AboutPage() {
         </h2>
         <div className="rounded-2xl border border-border bg-card p-8">
           <p className="text-lg leading-relaxed text-foreground">
-            To democratise structured AI adoption by providing the assessment
-            tools, multi-model interfaces, and strategic roadmaps that turn
-            fragmented experimentation into measurable organisational
-            capability.
+            To make workforce AI literacy something an organisation can
+            measure, deliver and evidence — an assessment that finds the gap,
+            training that is facilitated by a person rather than a video, and a
+            documented record of what was done, for whom, and by whom.
           </p>
         </div>
       </motion.section>

@@ -1,5 +1,15 @@
-import type { DepartmentType } from "./constants";
-import type { ModelRouting, ControlLayer } from "./types";
+import type {
+  CourseLevel,
+  DepartmentType,
+  Dimension,
+  RespondentRole,
+} from "./constants";
+import type {
+  Course,
+  CourseMatch,
+  ModelRouting,
+  ControlLayer,
+} from "./types";
 
 interface DepartmentProfile {
   type: DepartmentType;
@@ -140,4 +150,124 @@ export function getRecommendationSummary(routing: ModelRouting[], control: Contr
     monthlyBudget: control.cost_budget_monthly,
     guardrailCount: control.guardrails.length,
   };
+}
+
+// ── Course recommendation ────────────────────────────────────
+// Maps assessment gaps onto the academy catalogue. Deterministic and
+// model-free: the same scores and the same catalogue always produce the
+// same three courses.
+//
+// Two notes on shape, both deliberate:
+//
+//  1. The catalogue is passed in rather than queried. The brief specifies a
+//     pure function; a function that reads the database is not pure and not
+//     unit-testable. Callers fetch published courses and hand them over.
+//  2. The rank tables below mirror DIMENSIONS and COURSE_LEVELS from
+//     ./constants as `Record<Union, number>`, so adding a dimension or level
+//     to those tuples is a compile error here rather than a silent
+//     mis-ranking. They are local so this module has no runtime imports,
+//     which is what lets the test runner load it with type stripping alone.
+
+/** Canonical dimension order. Breaks ties between equal scores. */
+const DIMENSION_RANK: Record<Dimension, number> = {
+  confidence: 0,
+  practice: 1,
+  tools: 2,
+  responsible: 3,
+  culture: 4,
+};
+
+/** Ascending seniority. Breaks ties between equally-matched courses. */
+const LEVEL_RANK: Record<CourseLevel, number> = {
+  practitioner: 0,
+  manager: 1,
+  leadership: 2,
+};
+
+/**
+ * Weight carried by each of the respondent's weakest dimensions, weakest
+ * first. Only these dimensions count towards a match, so a course aimed
+ * squarely at someone's strongest area never surfaces.
+ */
+const WEAK_DIMENSION_WEIGHTS = [3, 2, 1] as const;
+
+/** Maximum courses returned. */
+const MAX_RECOMMENDATIONS = 3;
+
+/**
+ * The respondent's weakest dimensions, weakest first, capped at the number
+ * of weights we score against.
+ */
+export function getWeakestDimensions(
+  scoresByDimension: Record<Dimension, number>
+): Dimension[] {
+  return (Object.keys(DIMENSION_RANK) as Dimension[])
+    .map((dimension) => {
+      const raw = scoresByDimension[dimension];
+      return { dimension, score: Number.isFinite(raw) ? raw : 0 };
+    })
+    .sort(
+      (a, b) =>
+        a.score - b.score || DIMENSION_RANK[a.dimension] - DIMENSION_RANK[b.dimension]
+    )
+    .slice(0, WEAK_DIMENSION_WEIGHTS.length)
+    .map((d) => d.dimension);
+}
+
+/**
+ * Rank the catalogue against one respondent's scores, with the reasoning
+ * attached. Courses that address none of the weak dimensions are dropped
+ * rather than ranked last - a nil match is not a recommendation.
+ */
+export function rankCourses(
+  scoresByDimension: Record<Dimension, number>,
+  respondentRole: RespondentRole,
+  catalogue: Course[]
+): CourseMatch[] {
+  const weakest = getWeakestDimensions(scoresByDimension);
+
+  return catalogue
+    .filter((course) => course.status === "published")
+    // An empty target_roles means the course suits every role. The column
+    // defaults to '{}', so this keeps a half-filled catalogue row useful
+    // rather than invisible.
+    .filter(
+      (course) =>
+        course.target_roles.length === 0 ||
+        course.target_roles.includes(respondentRole)
+    )
+    .map((course) => {
+      const matched = weakest.filter((dimension) =>
+        course.target_dimensions.includes(dimension)
+      );
+      const score = matched.reduce(
+        (total, dimension) =>
+          total + WEAK_DIMENSION_WEIGHTS[weakest.indexOf(dimension)],
+        0
+      );
+      return { course, score, matched_dimensions: matched };
+    })
+    .filter((match) => match.score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        LEVEL_RANK[a.course.level] - LEVEL_RANK[b.course.level] ||
+        a.course.duration_hours - b.course.duration_hours ||
+        a.course.slug.localeCompare(b.course.slug)
+    )
+    .slice(0, MAX_RECOMMENDATIONS);
+}
+
+/**
+ * The courses this respondent should be put on, strongest match first.
+ * Capped at three.
+ */
+export function recommendCourses(
+  scoresByDimension: Record<Dimension, number>,
+  respondentRole: RespondentRole,
+  catalogue: Course[]
+): Course[] {
+  return rankCourses(scoresByDimension, respondentRole, catalogue).map(
+    (match) => match.course
+  );
 }

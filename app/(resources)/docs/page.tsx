@@ -5,6 +5,7 @@ import {
   Rocket,
   ClipboardCheck,
   MessageSquare,
+  GraduationCap,
   Lightbulb,
   BarChart3,
   ChevronRight,
@@ -57,6 +58,18 @@ const GUIDES = [
     ],
   },
   {
+    icon: GraduationCap,
+    title: "Academy & Course Recommendations",
+    description:
+      "Turn assessment gaps into facilitated training, by role and by department.",
+    steps: [
+      "Review recommended courses on your own results page",
+      "Open Training Needs on an assessment to see the cohort view by department",
+      "Browse the full catalogue at /courses, including modules and outcomes",
+      "Courses are delivered live by a facilitator - the platform records delivery, it does not host content",
+    ],
+  },
+  {
     icon: Lightbulb,
     title: "Recommendations & Roadmap",
     description:
@@ -95,8 +108,8 @@ export default function DocsPage() {
           Documentation
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Everything you need to get started with AIOPSOS and make the most of
-          your AI adoption journey.
+          How to assess your workforce, train them by role, and produce the
+          records that evidence it.
         </p>
       </motion.div>
 

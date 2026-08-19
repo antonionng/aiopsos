@@ -33,7 +33,8 @@ import {
   MATURITY_TIERS,
   type Dimension,
 } from "@/lib/constants";
-import type { DimensionScores } from "@/lib/types";
+import type { CourseRecommendation, DimensionScores } from "@/lib/types";
+import { RecommendedCourses } from "@/components/recommended-courses";
 
 interface ResultsData {
   scores: DimensionScores;
@@ -48,6 +49,7 @@ interface ResultsData {
   }[];
   submitted_at: string;
   orgAverages: DimensionScores | null;
+  courses?: CourseRecommendation[];
 }
 
 const INDUSTRY_BENCHMARKS: Record<Dimension, number> = {
@@ -654,6 +656,15 @@ export default function MyResultsPage() {
           </div>
         </motion.div>
       )}
+
+      {/* ─── Recommended Courses ─── */}
+      <motion.div variants={item} className="mb-8">
+        <RecommendedCourses
+          recommendations={results.courses ?? []}
+          heading="Courses that close your gaps"
+          description="Matched to your weakest dimensions and your role. Each one is facilitated live -- your organisation books the cohort."
+        />
+      </motion.div>
 
       {/* ─── Personalised Action Plan ─── */}
       <motion.div variants={item} className="mb-8">
