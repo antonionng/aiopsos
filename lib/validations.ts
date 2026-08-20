@@ -159,6 +159,15 @@ export const enrolmentStatusSchema = z.object({
   status: z.enum(ENROLMENT_STATUSES),
 });
 
+export const evidencePackSchema = z.object({
+  period_start: z.string().date(),
+  period_end: z.string().date(),
+  // The org's own statement of which AI systems it deploys. Free text on
+  // purpose: it is a declaration by the organisation, not something the
+  // platform can infer for them.
+  declaration: z.string().max(5000).default(""),
+});
+
 export function validateBody<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: string } {
   const result = schema.safeParse(data);
   if (!result.success) {

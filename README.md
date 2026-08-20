@@ -93,6 +93,10 @@ Delivery: `facilitators`, `cohorts`, `sessions`, `enrolments`, `attendance`,
 `submissions`, `grades`, `certificates`, plus `session_reminders` for reminder
 de-duplication.
 
+Evidence: `evidence_packs`. The `payload` column is a frozen snapshot — a pack
+regenerated for a past period must produce the same document, so nothing
+downstream re-reads live tables. There is deliberately no UPDATE policy on it.
+
 Governance: `ai_policies`, `approval_requests`.
 
 Workspace: `conversations`, `messages`, `message_attachments`,
@@ -174,6 +178,7 @@ runs inside a transaction that is rolled back:
 
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_cohorts.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_evidence_packs.sql
 ```
 
 Point it at a branch or a local stack, never at production.
