@@ -177,3 +177,16 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_cohorts.sql
 ```
 
 Point it at a branch or a local stack, never at production.
+
+Both `020` and `021` were verified on a throwaway Supabase branch on
+20 August 2026: applied clean, seeded 10 courses and 30 modules, re-ran
+without duplicating anything, and all 15 RLS assertions passed. Two things
+that check found are worth knowing before you touch a shared database:
+
+- **Never name an RLS helper generically.** The academy helpers are prefixed
+  `academy_` because `public.current_org_id()` already exists in at least one
+  Supabase project this schema might land in, with a different body and about
+  a hundred unrelated policies depending on it.
+- **Do not revoke `EXECUTE` on those helpers**, whatever the Supabase linter
+  advises. RLS evaluates policy expressions with the calling role's
+  privileges, so revoking breaks every policy. See the note in `021`.

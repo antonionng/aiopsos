@@ -181,6 +181,23 @@ CREATE INDEX IF NOT EXISTS idx_certificates_ref ON certificates(public_ref);
 -- The facilitator branch is the first cross-organisation grant in
 -- this codebase: a facilitator reaches cohorts they run regardless
 -- of which org those cohorts belong to, and reaches nothing else.
+--
+-- NOTE ON THE SUPABASE LINTER. It will flag every function below with
+-- `anon_security_definer_function_executable` and
+-- `authenticated_security_definer_function_executable`, and suggest
+-- revoking EXECUTE. Do not do that. Row-level security evaluates a
+-- policy expression with the *calling* role's privileges, so revoking
+-- EXECUTE from `authenticated` makes every policy here fail with
+-- "permission denied for function academy_can_read_cohort" - the
+-- tables become unreadable to the people who should see them. This was
+-- verified on a throwaway branch database on 20 Aug 2026: revoke, and
+-- the RLS suite fails; grant, and it passes.
+--
+-- The exposure is also not the leak the linter assumes. The no-argument
+-- helpers return facts about the caller themselves, and the `can_*`
+-- helpers return a boolean about the caller's own access to one id,
+-- which is exactly what they could learn by selecting from the table.
+-- An anonymous caller gets false from all of them.
 
 CREATE OR REPLACE FUNCTION public.academy_user_role()
 RETURNS text
