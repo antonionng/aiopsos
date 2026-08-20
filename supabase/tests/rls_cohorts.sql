@@ -11,6 +11,9 @@
 --
 --     psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_cohorts.sql
 --
+-- Ids are inlined rather than set with psql variables, so the file is
+-- also runnable through any plain SQL client or the Supabase SQL editor.
+--
 -- Everything happens inside a transaction that is rolled back, so
 -- running this leaves no rows behind. It is safe on a branch or a
 -- local stack; do not point it at production.
@@ -18,30 +21,23 @@
 
 BEGIN;
 
--- Fixed ids so failures are readable.
-\set org_a       '''aaaaaaaa-0000-0000-0000-000000000001'''
-\set org_b       '''bbbbbbbb-0000-0000-0000-000000000001'''
-\set admin_a     '''aaaaaaaa-0000-0000-0000-0000000000a1'''
-\set member_a    '''aaaaaaaa-0000-0000-0000-0000000000a2'''
-\set admin_b     '''bbbbbbbb-0000-0000-0000-0000000000b1'''
-\set trainer     '''cccccccc-0000-0000-0000-0000000000c1'''
 
 -- ── Fixtures, written as the owner so RLS does not interfere ──
 
 INSERT INTO organisations (id, name) VALUES
-  (:org_a::uuid, 'RLS Test Org A'),
-  (:org_b::uuid, 'RLS Test Org B');
+  ('aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'RLS Test Org A'),
+  ('bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'RLS Test Org B');
 
 INSERT INTO user_profiles (id, org_id, role, email, name) VALUES
-  (:admin_a::uuid,  :org_a::uuid, 'admin',   'admin-a@rls.test',  'Admin A'),
-  (:member_a::uuid, :org_a::uuid, 'user',    'member-a@rls.test', 'Member A'),
-  (:admin_b::uuid,  :org_b::uuid, 'admin',   'admin-b@rls.test',  'Admin B'),
+  ('aaaaaaaa-0000-0000-0000-0000000000a1'::uuid,  'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'admin',   'admin-a@rls.test',  'Admin A'),
+  ('aaaaaaaa-0000-0000-0000-0000000000a2'::uuid, 'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'user',    'member-a@rls.test', 'Member A'),
+  ('bbbbbbbb-0000-0000-0000-0000000000b1'::uuid,  'bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'admin',   'admin-b@rls.test',  'Admin B'),
   -- The trainer is a plain user in org B, and facilitates for org A.
   -- That is the whole point: facilitation must not follow tenancy.
-  (:trainer::uuid,  :org_b::uuid, 'user',    'trainer@rls.test',  'Trainer');
+  ('cccccccc-0000-0000-0000-0000000000c1'::uuid,  'bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'user',    'trainer@rls.test',  'Trainer');
 
 INSERT INTO facilitators (id, user_id, display_name)
-VALUES ('dddddddd-0000-0000-0000-0000000000d1', :trainer::uuid, 'Trainer');
+VALUES ('dddddddd-0000-0000-0000-0000000000d1', 'cccccccc-0000-0000-0000-0000000000c1'::uuid, 'Trainer');
 
 INSERT INTO courses (id, slug, title, level, status)
 VALUES ('eeeeeeee-0000-0000-0000-0000000000e1', 'rls-test-course', 'RLS Test Course', 'practitioner', 'published');
@@ -49,10 +45,10 @@ VALUES ('eeeeeeee-0000-0000-0000-0000000000e1', 'rls-test-course', 'RLS Test Cou
 INSERT INTO cohorts (id, course_id, org_id, facilitator_id, title, delivery_mode)
 VALUES
   ('11111111-0000-0000-0000-000000000001',
-   'eeeeeeee-0000-0000-0000-0000000000e1', :org_a::uuid,
+   'eeeeeeee-0000-0000-0000-0000000000e1', 'aaaaaaaa-0000-0000-0000-000000000001'::uuid,
    'dddddddd-0000-0000-0000-0000000000d1', 'Org A cohort', 'virtual'),
   ('22222222-0000-0000-0000-000000000002',
-   'eeeeeeee-0000-0000-0000-0000000000e1', :org_b::uuid,
+   'eeeeeeee-0000-0000-0000-0000000000e1', 'bbbbbbbb-0000-0000-0000-000000000001'::uuid,
    NULL, 'Org B cohort', 'virtual');
 
 INSERT INTO sessions (id, cohort_id, position, title, starts_at, ends_at)
@@ -65,9 +61,9 @@ VALUES
 INSERT INTO enrolments (id, cohort_id, user_id, org_id)
 VALUES
   ('44444444-0000-0000-0000-000000000001',
-   '11111111-0000-0000-0000-000000000001', :member_a::uuid, :org_a::uuid),
+   '11111111-0000-0000-0000-000000000001', 'aaaaaaaa-0000-0000-0000-0000000000a2'::uuid, 'aaaaaaaa-0000-0000-0000-000000000001'::uuid),
   ('44444444-0000-0000-0000-000000000002',
-   '22222222-0000-0000-0000-000000000002', :admin_b::uuid,  :org_b::uuid);
+   '22222222-0000-0000-0000-000000000002', 'bbbbbbbb-0000-0000-0000-0000000000b1'::uuid,  'bbbbbbbb-0000-0000-0000-000000000001'::uuid);
 
 INSERT INTO attendance (session_id, enrolment_id, status)
 VALUES
