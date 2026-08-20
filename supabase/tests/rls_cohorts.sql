@@ -24,17 +24,31 @@ BEGIN;
 
 -- ── Fixtures, written as the owner so RLS does not interfere ──
 
+-- `user_profiles.id` references `auth.users(id)`, so the auth rows have to
+-- exist first. Migration 010 attaches an on_auth_user_created trigger that
+-- creates the matching user_profiles row, which is why the profiles below
+-- are upserted rather than inserted.
+INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
+VALUES
+  ('aaaaaaaa-0000-0000-0000-0000000000a1'::uuid, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', 'admin-a@rls.test',  '', now(), now(), now()),
+  ('aaaaaaaa-0000-0000-0000-0000000000a2'::uuid, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', 'member-a@rls.test', '', now(), now(), now()),
+  ('bbbbbbbb-0000-0000-0000-0000000000b1'::uuid, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', 'admin-b@rls.test',  '', now(), now(), now()),
+  ('cccccccc-0000-0000-0000-0000000000c1'::uuid, '00000000-0000-0000-0000-000000000000'::uuid, 'authenticated', 'authenticated', 'trainer@rls.test',  '', now(), now(), now())
+ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO organisations (id, name) VALUES
   ('aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'RLS Test Org A'),
   ('bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'RLS Test Org B');
 
 INSERT INTO user_profiles (id, org_id, role, email, name) VALUES
-  ('aaaaaaaa-0000-0000-0000-0000000000a1'::uuid,  'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'admin',   'admin-a@rls.test',  'Admin A'),
-  ('aaaaaaaa-0000-0000-0000-0000000000a2'::uuid, 'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'user',    'member-a@rls.test', 'Member A'),
-  ('bbbbbbbb-0000-0000-0000-0000000000b1'::uuid,  'bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'admin',   'admin-b@rls.test',  'Admin B'),
+  ('aaaaaaaa-0000-0000-0000-0000000000a1'::uuid, 'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'admin', 'admin-a@rls.test',  'Admin A'),
+  ('aaaaaaaa-0000-0000-0000-0000000000a2'::uuid, 'aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'user',  'member-a@rls.test', 'Member A'),
+  ('bbbbbbbb-0000-0000-0000-0000000000b1'::uuid, 'bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'admin', 'admin-b@rls.test',  'Admin B'),
   -- The trainer is a plain user in org B, and facilitates for org A.
   -- That is the whole point: facilitation must not follow tenancy.
-  ('cccccccc-0000-0000-0000-0000000000c1'::uuid,  'bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'user',    'trainer@rls.test',  'Trainer');
+  ('cccccccc-0000-0000-0000-0000000000c1'::uuid, 'bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'user',  'trainer@rls.test',  'Trainer')
+ON CONFLICT (id) DO UPDATE
+  SET org_id = EXCLUDED.org_id, role = EXCLUDED.role, name = EXCLUDED.name;
 
 INSERT INTO facilitators (id, user_id, display_name)
 VALUES ('dddddddd-0000-0000-0000-0000000000d1', 'cccccccc-0000-0000-0000-0000000000c1'::uuid, 'Trainer');

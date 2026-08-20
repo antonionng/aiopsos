@@ -178,10 +178,9 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_cohorts.sql
 
 Point it at a branch or a local stack, never at production.
 
-Both `020` and `021` were verified on a throwaway Supabase branch on
-20 August 2026: applied clean, seeded 10 courses and 30 modules, re-ran
-without duplicating anything, and all 15 RLS assertions passed. Two things
-that check found are worth knowing before you touch a shared database:
+The whole chain, `001` through `021`, was applied from scratch to a fresh
+Supabase project on 20 August 2026 and the RLS suite passed 15/15 against it.
+Three things that exercise established are worth knowing:
 
 - **Never name an RLS helper generically.** The academy helpers are prefixed
   `academy_` because `public.current_org_id()` already exists in at least one
@@ -190,3 +189,7 @@ that check found are worth knowing before you touch a shared database:
 - **Do not revoke `EXECUTE` on those helpers**, whatever the Supabase linter
   advises. RLS evaluates policy expressions with the calling role's
   privileges, so revoking breaks every policy. See the note in `021`.
+- **`user_profiles.id` references `auth.users(id)`**, so the RLS test creates
+  auth users before profiles. Note that `information_schema` hides that
+  constraint, because `auth.users` is owned by another role — query
+  `pg_constraint` if you need to check it.
