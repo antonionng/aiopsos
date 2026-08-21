@@ -214,7 +214,7 @@ export async function POST(req: Request) {
   }
 
   let systemPrompt =
-    "You are an AI assistant within the AIOPSOS platform. " +
+    "You are an AI assistant within the Experrt platform. " +
     "You help enterprise users with their work tasks. " +
     "Be concise, professional, and helpful. " +
     "Format responses with markdown when appropriate." +

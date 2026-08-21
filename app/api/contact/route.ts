@@ -6,7 +6,7 @@ const TO = "ag@experrt.com";
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.RESEND_API_KEY;
-    const from = process.env.EMAIL_FROM || "AIOPSOS <noreply@aiopsos.com>";
+    const from = process.env.EMAIL_FROM || "Experrt <noreply@experrt.com>";
 
     if (!apiKey) {
       console.warn("[contact] RESEND_API_KEY is not set");
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         <p><strong>Message:</strong></p>
         <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(message.trim())}</div>
         <hr style="margin: 32px 0; border: none; border-top: 1px solid #eee;" />
-        <p style="color: #666; font-size: 12px;">This message was sent via the AIOPSOS contact form.</p>
+        <p style="color: #666; font-size: 12px;">This message was sent via the Experrt contact form.</p>
       </div>
     `;
 

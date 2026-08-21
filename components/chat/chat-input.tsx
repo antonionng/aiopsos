@@ -178,7 +178,7 @@ export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onSt
             onKeyDown={handleKeyDown}
             onInput={handleInput}
             onPaste={handlePaste}
-            placeholder="Message AIOPSOS..."
+            placeholder="Message Experrt..."
             className="min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent px-4 pt-3.5 pb-12 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
             rows={1}
           />

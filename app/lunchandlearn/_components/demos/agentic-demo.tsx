@@ -176,7 +176,7 @@ export function AgenticDemo() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          subject: `AIOPSOS Flood Response Update - ${dateLabel}`,
+          subject: `Experrt Flood Response Update - ${dateLabel}`,
           content: phaseFiveContent,
         }),
       });

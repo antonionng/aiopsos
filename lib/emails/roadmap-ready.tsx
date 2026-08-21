@@ -33,7 +33,7 @@ export function RoadmapReadyEmail({
             color: "#ffffff",
           }}
         >
-          AIOPSOS
+          Experrt
         </p>
 
         <h1
@@ -97,7 +97,7 @@ export function RoadmapReadyEmail({
         />
 
         <p style={{ fontSize: "12px", color: "#555555", margin: 0 }}>
-          AIOPSOS -- The enterprise AI control layer.
+          Experrt -- The enterprise AI control layer.
         </p>
       </div>
     </div>

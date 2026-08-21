@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy | AIOPSOS",
-  description: "Cookie Policy for the AIOPSOS enterprise AI adoption platform.",
+  title: "Cookie Policy | Experrt",
+  description: "Cookie Policy for the Experrt enterprise AI adoption platform.",
 };
 
 export default function CookiesPage() {
@@ -13,8 +13,8 @@ export default function CookiesPage() {
       <p className="text-sm text-muted-foreground">Last updated: 24 February 2026</p>
 
       <p>
-        This Cookie Policy explains how AIOPSOS (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) uses
-        cookies and similar technologies when you visit or use the AIOPSOS
+        This Cookie Policy explains how Experrt (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) uses
+        cookies and similar technologies when you visit or use the Experrt
         platform (the &quot;Service&quot;). It should be read alongside our{" "}
         <Link href="/privacy" className="text-foreground underline underline-offset-4">
           Privacy Policy
@@ -67,13 +67,13 @@ export default function CookiesPage() {
             </tr>
             <tr>
               <td><code>theme</code></td>
-              <td>AIOPSOS</td>
+              <td>Experrt</td>
               <td>Stores your preferred colour theme (light/dark/system).</td>
               <td>1 year</td>
             </tr>
             <tr>
               <td><code>cookie-consent</code></td>
-              <td>AIOPSOS</td>
+              <td>Experrt</td>
               <td>Stores your cookie consent preference.</td>
               <td>1 year</td>
             </tr>
@@ -99,13 +99,13 @@ export default function CookiesPage() {
           <tbody>
             <tr>
               <td><code>sidebar-collapsed</code></td>
-              <td>AIOPSOS</td>
+              <td>Experrt</td>
               <td>Remembers your sidebar open/closed preference.</td>
               <td>Persistent (localStorage)</td>
             </tr>
             <tr>
               <td><code>preferred-model</code></td>
-              <td>AIOPSOS</td>
+              <td>Experrt</td>
               <td>Remembers your last selected AI model in the chat interface.</td>
               <td>Persistent (localStorage)</td>
             </tr>
@@ -250,8 +250,8 @@ export default function CookiesPage() {
       <h2>7. Contact Us</h2>
       <p>
         If you have questions about our use of cookies, please contact us at{" "}
-        <a href="mailto:privacy@aiopsos.com" className="text-foreground underline underline-offset-4">
-          privacy@aiopsos.com
+        <a href="mailto:privacy@experrt.com" className="text-foreground underline underline-offset-4">
+          privacy@experrt.com
         </a>
         .
       </p>

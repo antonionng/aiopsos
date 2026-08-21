@@ -54,7 +54,7 @@ function FounderSection() {
               outcomes.
             </p>
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              Antonio founded AIOPSOS with a core conviction: that equitable AI
+              Antonio founded Experrt with a core conviction: that equitable AI
               access is essential. Every organisation, regardless of scale or
               resources, should have the tools and structure to benefit from what
               AI can deliver.
@@ -83,7 +83,7 @@ const VALUES = [
     icon: Users,
     title: "A trainer in the room",
     description:
-      "Courses are delivered live by a facilitator, in person or online. The platform schedules the cohort and holds the record. It does not replace the person teaching.",
+      "Every course is facilitated live, in person or online. No video library, no self-paced module nobody finishes. The platform schedules the cohort and holds the record; it does not replace the person teaching.",
   },
   {
     icon: Sparkles,
@@ -103,12 +103,12 @@ export default function AboutPage() {
       {/* Hero */}
       <motion.div variants={fadeUp} custom={0} className="mb-16">
         <h1 className="mb-4 text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
-          About AIOPSOS
+          About Experrt
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Staff who use AI without training are a risk their employer carries.
-          AIOPSOS exists so organisations can measure that gap, close it with
-          real facilitated training, and hold the records afterwards.
+          Experrt is a training academy for applied AI, technology and
+          robotics. We teach the people who have to use this technology on
+          Monday morning — live, in the room or online, on their own work.
         </p>
       </motion.div>
 
@@ -119,10 +119,11 @@ export default function AboutPage() {
         </h2>
         <div className="rounded-2xl border border-border bg-card p-8">
           <p className="text-lg leading-relaxed text-foreground">
-            To make workforce AI literacy something an organisation can
-            measure, deliver and evidence — an assessment that finds the gap,
-            training that is facilitated by a person rather than a video, and a
-            documented record of what was done, for whom, and by whom.
+            To make a workforce genuinely capable with AI, technology and
+            robotics — not licensed for it, capable with it. That means
+            training delivered by a person who has done the work, aimed at a
+            measured gap, and recorded well enough that you can show what was
+            done, for whom, and by whom.
           </p>
         </div>
       </motion.section>

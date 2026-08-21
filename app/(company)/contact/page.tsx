@@ -69,7 +69,7 @@ export default function ContactPage() {
           Contact us
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Have a question about AIOPSOS, want to discuss enterprise adoption, or
+          Have a question about Experrt, want to discuss enterprise adoption, or
           just want to say hello? We'd love to hear from you.
         </p>
       </motion.div>

@@ -421,7 +421,7 @@ export default function PlatformAdminPage() {
         <div>
           <h1 className="mb-1">Platform Administration</h1>
           <p className="text-sm text-muted-foreground">
-            Manage all tenants across the AIOPSOS platform.
+            Manage all tenants across the Experrt platform.
           </p>
         </div>
         <Button onClick={() => setCreateOpen(true)} className="bg-brand text-brand-foreground hover:bg-brand/90">

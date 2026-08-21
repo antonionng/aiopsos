@@ -85,7 +85,7 @@ export default function StatusPage() {
           System Status
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Current operational status of AIOPSOS services.
+          Current operational status of Experrt services.
         </p>
       </motion.div>
 

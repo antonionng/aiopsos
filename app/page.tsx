@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { Wordmark } from "@/components/wordmark";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -38,21 +39,63 @@ const fadeUp = {
   }),
 };
 
-const CAPABILITIES = [
+const PILLARS = [
   {
-    title: "Find out where each team actually stands",
+    title: "Applied AI",
     description:
-      "A five-minute assessment scores every person across five dimensions, by department and by role. You get a picture of the gap rather than an assumption about it.",
+      "Using AI on the work your team already does: drafting, analysis, research, summarising a document nobody has time to read. Built around verification habits, because an answer nobody checks is a liability rather than a saving.",
+    sharpEdge: "Not prompt tricks. The judgement to know when the output is wrong.",
   },
   {
-    title: "Train against the gap, facilitated by a trainer",
+    title: "Technology adoption",
     description:
-      "Each gap maps to courses in the academy. They run live, in person or online, led by a facilitator. The platform schedules the cohort and records what happened; it does not pretend to replace the person at the front of the room.",
+      "The tools your organisation already pays for, actually used. Most companies have more capability sitting unopened in their existing licences than in anything they are about to buy.",
+    sharpEdge: "Not a product demo. Your stack, your workflows, your people.",
   },
   {
-    title: "Hold the records someone will ask you for",
+    title: "Applied robotics",
     description:
-      "Attendance, submissions, grades, facilitator credentials and observed usage after training, exported as a dated evidence pack. Documented measures, not a compliance badge.",
+      "Robotics as an operational question rather than an engineering one: what to specify, how to put it into a real process, who owns it, and what happens on the shift when it stops.",
+    sharpEdge: "Not how they are built. How they are put to work.",
+  },
+];
+
+const PLATFORM_BENEFITS = [
+  {
+    title: "Know where each team actually stands",
+    description:
+      "A five-minute assessment scores every person across five dimensions, by department and by role, so the training answers a measured gap rather than a guess. It is also how we decide what to teach you.",
+  },
+  {
+    title: "Somewhere for the practice to continue",
+    description:
+      "A governed AI workspace your teams keep using once the trainer has gone home: the right models, your own documents, and guardrails set by your policy rather than by whoever signed up first.",
+  },
+  {
+    title: "Proof the training happened",
+    description:
+      "Attendance, submissions, grades, facilitator credentials and observed use afterwards, exported as a dated pack. What a funding body, an auditor or a board actually asks to see.",
+  },
+];
+
+const WHY_NOW = [
+  {
+    tag: "Adoption",
+    title: "The tools arrived before the training did",
+    description:
+      "Most organisations rolled out AI licences and assumed capability would follow. It did not. Usage clusters in a handful of enthusiasts while everyone else quietly opts out.",
+  },
+  {
+    tag: "Risk",
+    title: "Untrained use is the expensive kind",
+    description:
+      "Staff using AI without a verification habit produce confident, plausible, wrong work — and it reaches customers. The failure is not the tool, it is the absence of a standard for checking it.",
+  },
+  {
+    tag: "Obligation",
+    title: "Enforcement started this month",
+    description:
+      "EU AI Act Article 4 requires providers and deployers to take measures supporting AI literacy among their staff. National market surveillance authorities began supervising on 2 August 2026.",
   },
 ];
 
@@ -110,10 +153,10 @@ const PROJECT_THREAD = [
   {
     speaker: "Maya",
     role: "human" as const,
-    text: "AIOPSOS, draft a customer support launch brief using our Q2 project docs.",
+    text: "Experrt, draft a customer support launch brief using our Q2 project docs.",
   },
   {
-    speaker: "AIOPSOS",
+    speaker: "Experrt",
     role: "ai" as const,
     text: "Draft ready. I included rollout phases, owners, and risk controls from your policy set.",
   },
@@ -123,7 +166,7 @@ const PROJECT_THREAD = [
     text: "Great. Add an operations timeline and suggest staffing impact by week.",
   },
   {
-    speaker: "AIOPSOS",
+    speaker: "Experrt",
     role: "ai" as const,
     text: "Updated with a 6-week timeline and staffing estimates. Finance guardrails are applied.",
   },
@@ -133,7 +176,7 @@ const PROJECT_THREAD = [
     text: "Looks good. I need a compliance summary before sign-off.",
   },
   {
-    speaker: "AIOPSOS",
+    speaker: "Experrt",
     role: "ai" as const,
     text: "Compliance summary generated and attached. Ready for final approval and engineering handoff.",
   },
@@ -214,7 +257,7 @@ export default function Home() {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center">
-              <Image src="/logo.png" alt="AIOPSOS" width={120} height={48} className="h-10 w-auto" unoptimized />
+              <Wordmark size="md" />
             </Link>
             <div className="hidden items-center gap-6 md:flex">
               <a href="#capabilities" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
@@ -262,7 +305,7 @@ export default function Home() {
           variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
         >
           <motion.div variants={fadeUp} custom={0} className="mb-8 flex justify-center">
-            <Image src="/logo.png" alt="AIOPSOS" width={200} height={200} className="h-24 w-auto" unoptimized />
+            <Wordmark size="xl" />
           </motion.div>
 
           <motion.h1
@@ -270,9 +313,9 @@ export default function Home() {
             custom={1}
             className="mb-6 text-5xl font-bold leading-[1.08] tracking-[-0.04em] text-foreground sm:text-6xl lg:text-[4.5rem]"
           >
-            Trained workforce.
+            We train your people to
             <br />
-            Documented.
+            actually use AI and robotics.
           </motion.h1>
 
           <motion.p
@@ -280,10 +323,10 @@ export default function Home() {
             custom={2}
             className="mx-auto mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground"
           >
-            Assess your workforce, train them by role with a live facilitator,
-            and hold the documentation your regulator will ask for. AIOPSOS
-            scores the gap, maps it to courses, records who was trained on what,
-            and exports the evidence.
+            Experrt is a training academy for applied AI, technology and
+            robotics. Every course is facilitated live by a trainer, in your
+            room or online, and built around your team&apos;s real work — not a
+            video library they will never open.
           </motion.p>
 
           <motion.div variants={fadeUp} custom={3}>
@@ -291,11 +334,122 @@ export default function Home() {
               href="/register"
               className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-sm font-semibold text-background transition-opacity hover:opacity-90"
             >
-              Get Started
+              Book a conversation
               <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link
+              href="/courses"
+              className="ml-3 inline-flex h-12 items-center justify-center rounded-full border border-border px-8 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+            >
+              See the courses
             </Link>
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* What we train */}
+      <section id="what-we-train" className="border-t border-border/40 py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
+          >
+            <motion.h2
+              variants={fadeUp}
+              custom={0}
+              className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+            >
+              What we train
+            </motion.h2>
+            <motion.p
+              variants={fadeUp}
+              custom={1}
+              className="mb-12 max-w-2xl text-muted-foreground"
+            >
+              Three subjects, one idea behind all of them: putting the
+              technology to work inside a real business, with the people who
+              have to live with it afterwards.
+            </motion.p>
+
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
+              {PILLARS.map((pillar) => (
+                <motion.div
+                  key={pillar.title}
+                  variants={fadeUp}
+                  custom={2}
+                  className="bg-card p-8 md:p-10"
+                >
+                  <h3 className="mb-3 text-lg font-semibold tracking-[-0.01em]">
+                    {pillar.title}
+                  </h3>
+                  <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                    {pillar.description}
+                  </p>
+                  <p className="text-sm font-medium text-foreground/80">
+                    {pillar.sharpEdge}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Why now */}
+      <section id="why-now" className="border-t border-border/40 py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
+          >
+            <motion.h2
+              variants={fadeUp}
+              custom={0}
+              className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+            >
+              Why now
+            </motion.h2>
+            <motion.p
+              variants={fadeUp}
+              custom={1}
+              className="mb-12 max-w-2xl text-muted-foreground"
+            >
+              Most organisations bought the tools first and are training
+              afterwards, if at all. Three things changed that calculation this
+              year.
+            </motion.p>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {WHY_NOW.map((reason, i) => (
+                <motion.div key={reason.title} variants={fadeUp} custom={i}>
+                  <p className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {reason.tag}
+                  </p>
+                  <h3 className="mb-2 text-base font-semibold">{reason.title}</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {reason.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.p
+              variants={fadeUp}
+              custom={3}
+              className="mt-10 max-w-3xl text-xs leading-relaxed text-muted-foreground"
+            >
+              To be precise about the last one, because plenty of people are
+              not: Article 4 requires measures supporting AI literacy among
+              staff. It does not require a certificate, and no single course
+              makes an organisation compliant. What we produce is a documented,
+              role-proportionate record of the training you actually did.
+            </motion.p>
+          </motion.div>
+        </div>
       </section>
 
       {/* Capabilities */}
@@ -303,19 +457,21 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6">
           <div>
             <h2 className="mb-6 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
-              Assess, train, evidence
+              The platform behind the training
             </h2>
 
             <p className="mb-10 max-w-2xl text-muted-foreground">
-              Three jobs, one system of record. The shared AI workspace below is
-              where the observed usage in your evidence pack comes from.
+              Training is what we do. This is what makes it provable: a shared
+              AI workspace your teams keep using after the course ends, which is
+              also where the observed-practice figures in your records come
+              from. An enabler, not the product.
             </p>
 
             <div className="mb-12 overflow-hidden rounded-2xl border border-border bg-black/70">
               <div className="flex h-11 items-center justify-between border-b border-white/10 px-4 sm:px-5">
                 <div className="flex items-center gap-3">
                   <Menu className="h-4 w-4 text-white/60" />
-                  <Image src="/logo.png" alt="AIOPSOS" width={56} height={24} className="h-5 w-auto opacity-90" unoptimized />
+                  <Wordmark size="sm" className="opacity-90" />
                 </div>
                 <div className="h-2 w-2 rounded-full bg-emerald-400/80" />
               </div>
@@ -466,7 +622,7 @@ export default function Home() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Paperclip className="h-3.5 w-3.5 text-white/60" />
-                      <span className="text-xs text-white/45">Message AIOPSOS...</span>
+                      <span className="text-xs text-white/45">Message Experrt...</span>
                       <div className="ml-auto flex items-center gap-1.5">
                         <motion.span
                           className="h-1.5 w-1.5 rounded-full bg-white/50"
@@ -494,7 +650,7 @@ export default function Home() {
             </div>
 
             <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
-              {CAPABILITIES.map((c, i) => (
+              {PLATFORM_BENEFITS.map((c) => (
                 <div key={c.title} className="bg-card p-8 md:p-10">
                   <h3 className="mb-3 text-lg font-semibold tracking-[-0.01em]">
                     {c.title}
@@ -619,7 +775,7 @@ export default function Home() {
               custom={0}
               className="mb-16 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
-              From assessment to evidence pack
+              How an engagement runs
             </motion.h2>
 
             <div className="grid gap-12 md:grid-cols-3 md:gap-8">
@@ -721,7 +877,7 @@ export default function Home() {
               custom={0}
               className="mb-16 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
-              Built for the audit.
+              What you get in writing.
             </motion.h2>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -924,17 +1080,17 @@ export default function Home() {
               custom={0}
               className="mb-4 text-4xl font-bold tracking-[-0.03em] sm:text-5xl"
             >
-              Train your workforce.
+              Your people, genuinely
               <br />
-              Keep the receipts.
+              capable with this stuff.
             </motion.h2>
             <motion.p
               variants={fadeUp}
               custom={1}
               className="mx-auto mb-10 max-w-md text-muted-foreground"
             >
-              Assess maturity in under 10 minutes, see which courses each
-              department needs, and start the record. 14-day Pro trial included.
+              Start with the assessment — five minutes per person, and it tells
+              you which teams need what. Then we come and teach them.
             </motion.p>
             <motion.div variants={fadeUp} custom={2}>
               <Link
@@ -955,9 +1111,9 @@ export default function Home() {
           <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-5">
             {/* Brand column */}
             <div className="md:col-span-1">
-              <Image src="/logo.png" alt="AIOPSOS" width={100} height={40} className="h-9 w-auto" unoptimized />
+              <Wordmark size="md" />
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                Assess your workforce, train them by role, and hold the documentation your regulator will ask for.
+                A training academy for applied AI, technology and robotics. Facilitated live, in person and online.
               </p>
             </div>
 
@@ -983,7 +1139,7 @@ export default function Home() {
 
           <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border/40 pt-8 sm:flex-row">
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} AIOPSOS. All rights reserved.
+              &copy; {new Date().getFullYear()} Experrt. All rights reserved.
             </p>
           </div>
         </div>

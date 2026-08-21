@@ -1287,7 +1287,7 @@ export default function SettingsPage() {
                           Upgrade to Enterprise
                         </Button>
                         <Button variant="outline" asChild>
-                          <a href="mailto:sales@aiopsos.com">Talk to Sales</a>
+                          <a href="mailto:sales@experrt.com">Talk to Sales</a>
                         </Button>
                       </div>
                     </div>

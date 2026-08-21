@@ -98,7 +98,7 @@ export function ContentSlide({
         >
           <Image
             src={aside.logoUrl ?? "/logo.png"}
-            alt="AIOPSOS"
+            alt="Experrt"
             width={120}
             height={40}
             className="mb-5 object-contain object-left"

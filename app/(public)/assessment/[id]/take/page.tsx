@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Wordmark } from "@/components/wordmark";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -28,7 +29,6 @@ import {
   Share2,
   Trophy,
 } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -703,14 +703,7 @@ function ResultsPhase({
         transition={{ duration: 0.4 }}
         className="mb-8 flex justify-center"
       >
-        <Image
-          src="/logo.png"
-          alt="AIOPSOS"
-          width={120}
-          height={48}
-          unoptimized
-          className="opacity-80"
-        />
+        <Wordmark size="md" className="opacity-80" />
       </motion.div>
 
       {/* Celebratory header */}

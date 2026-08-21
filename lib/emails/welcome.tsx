@@ -33,7 +33,7 @@ export function WelcomeEmail({
   const hasScores = scores && overall !== undefined && tierLabel;
   const baseUrl = dashboardUrl.replace(/\/dashboard$/, "");
   const firstName = name.split(" ")[0];
-  const brandName = orgName || "AIOPSOS";
+  const brandName = orgName || "Experrt";
 
   return (
     <div
@@ -100,8 +100,8 @@ export function WelcomeEmail({
               ? `Your AI readiness results for ${orgName} are ready. You've taken the first step — here's how you scored.`
               : "Your AI readiness results are ready. You've taken the first step — here's how you scored."
             : orgName
-              ? `You're now part of ${orgName} on AIOPSOS. Here's everything you need to get started.`
-              : "You're now on AIOPSOS. Here's everything you need to get started."}
+              ? `You're now part of ${orgName} on Experrt. Here's everything you need to get started.`
+              : "You're now on Experrt. Here's everything you need to get started."}
         </p>
 
         {/* Score section — only if assessment data is available */}
@@ -428,7 +428,7 @@ export function WelcomeEmail({
             textAlign: "center" as const,
           }}
         >
-          AIOPSOS — The enterprise AI control layer.
+          Experrt — The enterprise AI control layer.
         </p>
       </div>
     </div>
