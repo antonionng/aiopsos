@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, ExternalLink } from "lucide-react";
 import { fetchCourseBySlug } from "@/lib/courses";
+import { insightForCourse } from "@/lib/insights/catalog";
 import { StructuredData, courseLd } from "@/components/structured-data";
 import { CourseEnquiryForm } from "@/components/course-enquiry-form";
 import { CourseArtwork } from "@/components/course-artwork";
@@ -48,6 +49,7 @@ export default async function CoursePage({
 
   const { course, modules } = result;
   const moduleHours = modules.reduce((sum, m) => sum + m.duration_hours, 0);
+  const relatedInsight = insightForCourse(course.slug);
 
   return (
     <article>
@@ -180,6 +182,24 @@ export default async function CoursePage({
               records stay with the organisation and can be exported.
             </p>
           </section>
+
+          {relatedInsight && (
+            <section>
+              <h2 className="mb-3 text-xl font-semibold tracking-[-0.01em]">
+                Further reading
+              </h2>
+              <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                <Link
+                  href={`/insights/${relatedInsight.slug}`}
+                  className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+                >
+                  {relatedInsight.title}
+                </Link>
+                {" "}
+                is the public briefing that sits next to this course.
+              </p>
+            </section>
+          )}
         </div>
 
         <aside className="space-y-6">

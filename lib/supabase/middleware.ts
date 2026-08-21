@@ -59,7 +59,13 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/contact") ||
     request.nextUrl.pathname.startsWith("/docs") ||
     request.nextUrl.pathname.startsWith("/changelog") ||
-    request.nextUrl.pathname.startsWith("/status");
+    request.nextUrl.pathname.startsWith("/status") ||
+    // Published editorial. /blog is a redirect to /insights; both must stay
+    // off the auth wall or Google keeps hitting a login SERP.
+    request.nextUrl.pathname === "/blog" ||
+    request.nextUrl.pathname.startsWith("/blog/") ||
+    request.nextUrl.pathname === "/insights" ||
+    request.nextUrl.pathname.startsWith("/insights/");
 
   if (!user && !isAuthPage && !isPublicRoute) {
     const url = request.nextUrl.clone();

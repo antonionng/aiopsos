@@ -60,6 +60,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/blog",
+        destination: "/insights",
+        permanent: true,
+      },
+      {
+        source: "/blog/:path*",
+        destination: "/insights/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
