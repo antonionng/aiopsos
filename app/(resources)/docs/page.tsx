@@ -95,6 +95,34 @@ const GUIDES = [
   },
 ];
 
+const SUBPROCESSORS = [
+  {
+    name: "Supabase",
+    purpose: "Database, authentication and file storage. Holds assessment responses, training records and certificates.",
+    region: "London (eu-west-2)",
+  },
+  {
+    name: "OpenAI",
+    purpose: "The models behind the AI workspace. Prompts and their responses only; training records are never sent.",
+    region: "United States",
+  },
+  {
+    name: "Vercel",
+    purpose: "Application hosting and content delivery.",
+    region: "London (lhr1)",
+  },
+  {
+    name: "Stripe",
+    purpose: "Payment processing. Card details never reach our systems.",
+    region: "United States / Ireland",
+  },
+  {
+    name: "Resend",
+    purpose: "Transactional email: enrolment confirmations, session reminders, certificates.",
+    region: "United States",
+  },
+];
+
 export default function DocsPage() {
   return (
     <motion.div
@@ -147,6 +175,50 @@ export default function DocsPage() {
           </motion.div>
         ))}
       </div>
+
+      {/* Sub-processors */}
+      <motion.section
+        variants={fadeUp}
+        custom={GUIDES.length + 1}
+        className="mt-12"
+      >
+        <h2 className="mb-2 text-2xl font-semibold tracking-[-0.02em]">
+          Where your data is processed
+        </h2>
+        <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Procurement will ask for this, so it is on a public page rather than
+          in an email. These are every third party that processes customer data
+          on our behalf.
+        </p>
+
+        <div className="overflow-hidden rounded-2xl border border-border">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-border bg-card">
+              <tr>
+                <th className="px-5 py-3 font-semibold">Sub-processor</th>
+                <th className="px-5 py-3 font-semibold">Purpose</th>
+                <th className="px-5 py-3 font-semibold">Region</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SUBPROCESSORS.map((sp) => (
+                <tr key={sp.name} className="border-b border-border/50 last:border-0">
+                  <td className="px-5 py-3 font-medium">{sp.name}</td>
+                  <td className="px-5 py-3 text-muted-foreground">{sp.purpose}</td>
+                  <td className="px-5 py-3 text-muted-foreground">{sp.region}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p className="mt-4 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+          We use a single model provider on purpose. One named sub-processor is
+          a materially easier approval for a regulated buyer than four, and it
+          keeps this table short enough to actually be read. Adding a provider
+          would mean updating this page at the same time.
+        </p>
+      </motion.section>
 
       {/* Help section */}
       <motion.div

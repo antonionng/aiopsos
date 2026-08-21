@@ -91,27 +91,9 @@ export const AI_MODELS = {
     { id: "gpt-4o-mini", label: "GPT-4o Mini", provider: "openai" as const },
     { id: "o3-mini", label: "o3-mini", provider: "openai" as const },
   ],
-  anthropic: [
-    { id: "claude-opus-4-6", label: "Claude Opus 4.6", provider: "anthropic" as const },
-    { id: "claude-sonnet-4-20250514", label: "Claude Sonnet 4", provider: "anthropic" as const },
-    { id: "claude-haiku-4-5", label: "Claude Haiku 4.5", provider: "anthropic" as const },
-  ],
-  google: [
-    { id: "gemini-2.0-flash", label: "Gemini 2.0 Flash", provider: "google" as const },
-    { id: "gemini-1.5-pro", label: "Gemini 1.5 Pro", provider: "google" as const },
-  ],
-  mistral: [
-    { id: "mistral-large-latest", label: "Mistral Large", provider: "mistral" as const },
-    { id: "mistral-small-latest", label: "Mistral Small", provider: "mistral" as const },
-  ],
 } as const;
 
-export const ALL_MODELS = [
-  ...AI_MODELS.openai,
-  ...AI_MODELS.anthropic,
-  ...AI_MODELS.google,
-  ...AI_MODELS.mistral,
-];
+export const ALL_MODELS = [...AI_MODELS.openai];
 
 export function getTierForScore(score: number) {
   return MATURITY_TIERS.find((t) => score >= t.min && score <= t.max) ?? MATURITY_TIERS[0];
@@ -122,27 +104,10 @@ export function getTierForScore(score: number) {
 export const PLAN_TYPES = ["basic", "pro", "enterprise"] as const;
 export type PlanType = (typeof PLAN_TYPES)[number];
 
-const PRO_MODELS = [
-  "gpt-5.2",
-  "gpt-4o",
-  "gpt-4o-mini",
-  "o3-mini",
-  "claude-opus-4-6",
-  "claude-sonnet-4-20250514",
-  "claude-haiku-4-5",
-  "gemini-2.0-flash",
-  "gemini-1.5-pro",
-  "mistral-large-latest",
-  "mistral-small-latest",
-] as const;
+const PRO_MODELS = ["gpt-5.2", "gpt-4o", "gpt-4o-mini", "o3-mini"] as const;
 
 export const PLAN_MODELS = {
-  basic: [
-    "gpt-4o-mini",
-    "claude-haiku-4-5",
-    "gemini-2.0-flash",
-    "mistral-small-latest",
-  ],
+  basic: ["gpt-4o-mini"],
   pro: PRO_MODELS,
   enterprise: PRO_MODELS,
 } as const;
