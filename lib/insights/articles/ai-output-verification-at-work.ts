@@ -6,7 +6,7 @@ export const article: InsightArticle = {
   description:
     "Prompt tricks do not make AI safe to send. L&D and line managers need verification habits: what to check, when a person must review, and how to train that standard on real work.",
   dek: "The expensive failure is not a weak prompt. It is a plausible answer that left the building unchecked.",
-  publishedAt: "2026-08-19",
+  publishedAt: "2026-07-08",
   relatedCourseSlugs: [
     "prompting-and-output-verification",
     "ai-foundations-for-every-role",
