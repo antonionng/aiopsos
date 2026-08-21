@@ -84,18 +84,24 @@ const WHY_NOW = [
     title: "The tools arrived before the training did",
     description:
       "Most organisations rolled out AI licences and assumed capability would follow. It did not. Usage clusters in a handful of enthusiasts while everyone else quietly opts out.",
+    href: "/insights/unused-ai-licences-training-gap",
+    linkLabel: "The licences are paid for. The team was not trained.",
   },
   {
     tag: "Risk",
     title: "Untrained use is the expensive kind",
     description:
       "Staff using AI without a verification habit produce confident, plausible, wrong work — and it reaches customers. The failure is not the tool, it is the absence of a standard for checking it.",
+    href: "/insights/ai-output-verification-at-work",
+    linkLabel: "An answer nobody checks is a liability",
   },
   {
     tag: "Obligation",
     title: "Enforcement started this month",
     description:
       "EU AI Act Article 4 requires providers and deployers to take measures supporting AI literacy among their staff. National market surveillance authorities began supervising on 2 August 2026.",
+    href: "/insights/eu-ai-act-article-4-literacy-for-ld",
+    linkLabel: "What L&D actually has to do under Article 4",
   },
 ];
 
@@ -217,6 +223,7 @@ const FOOTER_LINKS = {
     { label: "Analytics", href: "/dashboard/analytics" },
   ],
   Resources: [
+    { label: "Insights", href: "/insights" },
     { label: "Documentation", href: "/docs" },
     { label: "Changelog", href: "/changelog" },
     { label: "Status", href: "/status" },
@@ -261,6 +268,9 @@ export default function Home() {
               </a>
               <Link href="/courses" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Academy
+              </Link>
+              <Link href="/insights" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                Insights
               </Link>
               <a href="#enterprise" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Enterprise
@@ -425,6 +435,13 @@ export default function Home() {
                   <p className="text-sm leading-relaxed text-muted-foreground">
                     {reason.description}
                   </p>
+                  <Link
+                    href={reason.href}
+                    className="mt-4 inline-flex items-center text-sm font-medium text-foreground hover:text-brand"
+                  >
+                    {reason.linkLabel}
+                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </Link>
                 </motion.div>
               ))}
             </div>

@@ -29,6 +29,12 @@ export default function ResourcesLayout({
           </p>
           <nav className="flex gap-6">
             <Link
+              href="/insights"
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Insights
+            </Link>
+            <Link
               href="/docs"
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >

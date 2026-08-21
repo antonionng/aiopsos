@@ -18,12 +18,20 @@ export default function CoursesLayout({
             <ArrowLeft className="h-4 w-4" />
             Back to Experrt
           </Link>
-          <Link
-            href="/courses"
-            className="text-sm font-medium text-foreground transition-colors hover:text-brand"
-          >
-            Courses
-          </Link>
+          <nav className="flex items-center gap-5">
+            <Link
+              href="/insights"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Insights
+            </Link>
+            <Link
+              href="/courses"
+              className="text-sm font-medium text-foreground transition-colors hover:text-brand"
+            >
+              Courses
+            </Link>
+          </nav>
         </div>
       </header>
 
@@ -39,6 +47,12 @@ export default function CoursesLayout({
               &copy; {new Date().getFullYear()} Experrt. All rights reserved.
             </p>
             <nav className="flex gap-6">
+              <Link
+                href="/insights"
+                className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Insights
+              </Link>
               <Link
                 href="/courses"
                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"

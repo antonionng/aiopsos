@@ -1,3 +1,5 @@
+import { getPublicSiteUrl } from "@/lib/site";
+
 /**
  * JSON-LD structured data.
  *
@@ -20,7 +22,7 @@ export function StructuredData({ data }: { data: Record<string, unknown> }) {
   );
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://experrt.com";
+const BASE_URL = getPublicSiteUrl();
 
 /** The provider, referenced by every Course node via @id. */
 export const ORGANISATION_LD = {
@@ -67,5 +69,30 @@ export function courseLd(course: {
         mode === "virtual" ? "online" : mode === "blended" ? "blended" : "onsite",
       courseWorkload: `PT${course.duration_hours}H`,
     })),
+  };
+}
+
+export function articleLd(article: {
+  slug: string;
+  title: string;
+  description: string;
+  publishedAt: string;
+}) {
+  const url = `${BASE_URL}/insights/${article.slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.description,
+    datePublished: article.publishedAt,
+    dateModified: article.publishedAt,
+    mainEntityOfPage: url,
+    url,
+    author: {
+      "@type": "Organization",
+      name: "Experrt",
+      url: BASE_URL,
+    },
+    publisher: { "@id": `${BASE_URL}/#organisation` },
   };
 }

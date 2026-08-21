@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { CookieConsent } from "@/components/cookie-consent";
+import { getPublicSiteUrl } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://experrt.com";
+const BASE_URL = getPublicSiteUrl();
 
 export const metadata: Metadata = {
   // metadataBase resolves every relative canonical and OG image across the
