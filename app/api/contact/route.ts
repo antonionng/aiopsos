@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-
-const TO = "ag@experrt.com";
+import { getNotifyEmail } from "@/lib/notify-email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,10 +40,12 @@ export async function POST(req: NextRequest) {
       </div>
     `;
 
+    const to = getNotifyEmail();
+    console.log("[contact] notify-to", to);
     const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
       from,
-      to: TO,
+      to,
       replyTo: email.trim(),
       subject: `Contact form: ${name.trim()}`,
       html: htmlBody,
