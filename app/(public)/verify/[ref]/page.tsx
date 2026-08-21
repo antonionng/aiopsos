@@ -13,9 +13,9 @@ import type { CertificateSnapshot } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Verify a certificate | AIOPSOS",
+  title: "Verify a certificate | Experrt",
   description:
-    "Check a certificate of completion issued through AIOPSOS: course, dates, facilitator, attendance and grade.",
+    "Check a certificate of completion issued through Experrt: course, dates, facilitator, attendance and grade.",
   // Individual certificates must not be indexed. They name a person, and a
   // search engine is not the audience for them - the holder shares the link.
   robots: { index: false, follow: false },
@@ -60,7 +60,7 @@ export default async function VerifyPage({
       <header className="border-b border-border/40">
         <div className="mx-auto flex h-14 max-w-3xl items-center px-6">
           <Link href="/" className="text-sm font-semibold">
-            AIOPSOS
+            Experrt
           </Link>
         </div>
       </header>
@@ -85,7 +85,7 @@ export default async function VerifyPage({
             <p className="text-sm text-muted-foreground">
               {revoked
                 ? `Withdrawn on ${new Date(data.revoked_at as string).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}. It should no longer be relied on.`
-                : `Issued on ${new Date(data.issued_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })} and recorded by AIOPSOS.`}
+                : `Issued on ${new Date(data.issued_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })} and recorded by Experrt.`}
             </p>
           </div>
         </div>

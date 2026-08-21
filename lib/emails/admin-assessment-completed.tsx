@@ -325,7 +325,7 @@ export function AdminAssessmentCompletedEmail({
         />
 
         <p style={{ fontSize: "12px", color: "#444444", margin: 0, textAlign: "center" }}>
-          Powered by AIOPSOS
+          Powered by Experrt
         </p>
       </div>
     </div>

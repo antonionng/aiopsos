@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | AIOPSOS",
-  description: "Privacy Policy for the AIOPSOS enterprise AI adoption platform.",
+  title: "Privacy Policy | Experrt",
+  description: "Privacy Policy for the Experrt enterprise AI adoption platform.",
 };
 
 export default function PrivacyPage() {
@@ -13,9 +13,9 @@ export default function PrivacyPage() {
       <p className="text-sm text-muted-foreground">Last updated: 24 February 2026</p>
 
       <p>
-        AIOPSOS (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) is committed to protecting your
+        Experrt (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) is committed to protecting your
         privacy. This Privacy Policy explains how we collect, use, disclose, and
-        safeguard your personal data when you use the AIOPSOS platform, website,
+        safeguard your personal data when you use the Experrt platform, website,
         and related services (the &quot;Service&quot;).
       </p>
 
@@ -282,8 +282,8 @@ export default function PrivacyPage() {
 
       <p>
         To exercise any of these rights, contact us at{" "}
-        <a href="mailto:privacy@aiopsos.com" className="text-foreground underline underline-offset-4">
-          privacy@aiopsos.com
+        <a href="mailto:privacy@experrt.com" className="text-foreground underline underline-offset-4">
+          privacy@experrt.com
         </a>
         . We will respond within 30 days.
       </p>
@@ -325,14 +325,14 @@ export default function PrivacyPage() {
       <ul>
         <li>
           Email:{" "}
-          <a href="mailto:privacy@aiopsos.com" className="text-foreground underline underline-offset-4">
-            privacy@aiopsos.com
+          <a href="mailto:privacy@experrt.com" className="text-foreground underline underline-offset-4">
+            privacy@experrt.com
           </a>
         </li>
         <li>
           General:{" "}
-          <a href="mailto:support@aiopsos.com" className="text-foreground underline underline-offset-4">
-            support@aiopsos.com
+          <a href="mailto:support@experrt.com" className="text-foreground underline underline-offset-4">
+            support@experrt.com
           </a>
         </li>
       </ul>

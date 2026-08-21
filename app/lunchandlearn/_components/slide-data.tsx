@@ -106,7 +106,7 @@ export const slides: SlideType[] = [
       "Build a culture of intentional use: every prompt should have a purpose, every workflow should justify its cost",
     ],
     aside: {
-      message: "AIOPSOS is built for this: right-sized models, multi-model access, and governance that match how you want to use AI responsibly.",
+      message: "Experrt is built for this: right-sized models, multi-model access, and governance that match how you want to use AI responsibly.",
       features: [
         "Route to the right model per task (no one-size-fits-all)",
         "Multi-model access across vendors",
@@ -127,7 +127,7 @@ export const slides: SlideType[] = [
     imageUrl: "/antonio.jpg",
     bio: [
       "Antonio is a leading AI architect and trainer with deep experience helping organisations navigate the shift from experimental AI use to strategic, embedded adoption. He has built and scaled multiple enterprise AI applications for long term clients. His work spans enterprise AI strategy, multi-model orchestration, and building the frameworks that turn AI potential into measurable business outcomes.",
-      "Antonio founded AIOPSOS with a core conviction: that equitable AI access is essential. Every organisation, regardless of scale or resources, should have the tools and structure to benefit from what AI can deliver.",
+      "Antonio founded Experrt with a core conviction: that equitable AI access is essential. Every organisation, regardless of scale or resources, should have the tools and structure to benefit from what AI can deliver.",
       "He serves on the board of multiple tech companies and is a strong advocate for responsible AI adoption: right-sized models, governance, and measurable outcomes.",
     ],
     personal: "Dad of four. Passionate about applied AI in robotics.",

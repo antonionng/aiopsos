@@ -26,7 +26,7 @@ export function InviteEmail({ name, inviterName, loginUrl }: InviteEmailProps) {
             color: "#ffffff",
           }}
         >
-          AIOPSOS
+          Experrt
         </p>
 
         <h1
@@ -50,7 +50,7 @@ export function InviteEmail({ name, inviterName, loginUrl }: InviteEmailProps) {
             margin: "0 0 8px",
           }}
         >
-          {inviterName} has invited you to join their team on AIOPSOS -- the
+          {inviterName} has invited you to join their team on Experrt -- the
           enterprise AI control layer.
         </p>
 
@@ -90,7 +90,7 @@ export function InviteEmail({ name, inviterName, loginUrl }: InviteEmailProps) {
         />
 
         <p style={{ fontSize: "12px", color: "#555555", margin: 0 }}>
-          AIOPSOS -- The enterprise AI control layer.
+          Experrt -- The enterprise AI control layer.
         </p>
       </div>
     </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Wordmark } from "@/components/wordmark";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,20 +55,12 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Image
-            src="/logo.png"
-            alt="AIOPSOS logo"
-            width={80}
-            height={80}
-            className="mx-auto mb-6 h-16 w-auto"
-            priority
-            unoptimized
-          />
+          <Wordmark size="lg" className="mx-auto mb-6" />
           <h1 className="mb-2 text-2xl font-bold tracking-[-0.02em]">
             Create your account
           </h1>
           <p className="text-sm text-muted-foreground">
-            Get started with AIOPSOS
+            Get started with Experrt
           </p>
         </div>
 

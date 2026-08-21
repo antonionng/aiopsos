@@ -16,13 +16,13 @@ export default function CoursesLayout({
             className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to AIOPSOS
+            Back to Experrt
           </Link>
           <Link
             href="/courses"
             className="text-sm font-medium text-foreground transition-colors hover:text-brand"
           >
-            Academy
+            Courses
           </Link>
         </div>
       </header>
@@ -36,7 +36,7 @@ export default function CoursesLayout({
           </p>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} AIOPSOS. All rights reserved.
+              &copy; {new Date().getFullYear()} Experrt. All rights reserved.
             </p>
             <nav className="flex gap-6">
               <Link

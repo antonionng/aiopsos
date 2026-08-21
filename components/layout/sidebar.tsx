@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Wordmark } from "@/components/wordmark";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -273,14 +273,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <Image
-                src="/logo.png"
-                alt="AIOPSOS"
-                width={28}
-                height={28}
-                className="object-contain"
-                unoptimized
-              />
+              <Wordmark size="md" />
             </motion.div>
           ) : (
             <motion.div
@@ -289,14 +282,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <Image
-                src="/logo.png"
-                alt="AIOPSOS"
-                width={120}
-                height={40}
-                className="h-9 w-auto object-contain"
-                unoptimized
-              />
+              <Wordmark size="md" />
             </motion.div>
           )}
         </AnimatePresence>

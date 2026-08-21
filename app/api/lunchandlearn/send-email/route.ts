@@ -9,7 +9,7 @@ marked.setOptions({ gfm: true });
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.RESEND_API_KEY;
-    const from = process.env.EMAIL_FROM || "AIOPSOS <noreply@aiopsos.com>";
+    const from = process.env.EMAIL_FROM || "Experrt <noreply@experrt.com>";
 
     if (!apiKey) {
       return NextResponse.json({ error: "Email provider not configured." }, { status: 500 });
@@ -23,14 +23,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email content is required." }, { status: 400 });
     }
 
-    const subject = subjectRaw || "AIOPSOS Flood Response Update";
+    const subject = subjectRaw || "Experrt Flood Response Update";
     const htmlContent = marked.parse(contentRaw, { async: false }) as string;
 
     const html = `
       <div style="margin:0;padding:0;background:#0d0d0d;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Arial,sans-serif;color:#ececec;">
         <div style="max-width:620px;margin:0 auto;padding:32px 24px;">
           <div style="margin-bottom:28px;">
-            <div style="font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#ffffff;">AIOPSOS</div>
+            <div style="font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#ffffff;">Experrt</div>
             <div style="font-size:12px;color:#a1a1aa;margin-top:4px;">Live Agentic Demo Communication</div>
           </div>
           <div style="background:#141414;border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:22px;">

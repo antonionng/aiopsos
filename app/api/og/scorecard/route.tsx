@@ -6,7 +6,7 @@ export const runtime = "edge";
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const score = parseFloat(searchParams.get("score") ?? "0");
-  const org = searchParams.get("org") ?? "AIOPSOS";
+  const org = searchParams.get("org") ?? "Experrt";
   const conf = parseFloat(searchParams.get("conf") ?? "0");
   const prac = parseFloat(searchParams.get("prac") ?? "0");
   const tools = parseFloat(searchParams.get("tools") ?? "0");
@@ -158,7 +158,7 @@ export async function GET(req: NextRequest) {
             color: "#555555",
           }}
         >
-          Powered by AIOPSOS
+          Powered by Experrt
         </div>
       </div>
     ),

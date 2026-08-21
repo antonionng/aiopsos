@@ -22,7 +22,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 function getEmailConfig() {
   return {
     apiKey: process.env.RESEND_API_KEY,
-    from: process.env.EMAIL_FROM || "AIOPSOS <noreply@aiopsos.com>",
+    from: process.env.EMAIL_FROM || "Experrt <noreply@experrt.com>",
   };
 }
 
@@ -74,7 +74,7 @@ export async function sendWelcomeEmail(
           : `Your AI Readiness Score: ${scoreData.overall.toFixed(1)}/5`)
       : orgName
         ? `Thanks for joining ${orgName}`
-        : "Welcome to AIOPSOS";
+        : "Welcome to Experrt";
     await getResend().emails.send({
       from,
       to,
@@ -101,7 +101,7 @@ export async function sendTeamInviteEmail(to: string, name: string, inviterName:
     await getResend().emails.send({
       from,
       to,
-      subject: `You're invited to join AIOPSOS`,
+      subject: `You're invited to join Experrt`,
       react: InviteEmail({ name, inviterName, loginUrl: `${BASE_URL}/auth/login` }),
     });
   } catch (error) {

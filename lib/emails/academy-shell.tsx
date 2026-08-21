@@ -123,13 +123,13 @@ export function EmailShell({
   return (
     <div style={styles.page}>
       <div style={styles.inner}>
-        <p style={styles.brand}>AIOPSOS</p>
+        <p style={styles.brand}>Experrt</p>
         <h1 style={styles.heading}>{heading}</h1>
         {children}
         <hr style={styles.rule} />
         <p style={styles.footer}>
           {footerNote ??
-            "Sent via AIOPSOS - workforce AI assessment, facilitated training, and the records that evidence it."}
+            "Sent via Experrt - workforce AI assessment, facilitated training, and the records that evidence it."}
         </p>
       </div>
     </div>

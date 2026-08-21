@@ -1,8 +1,8 @@
-# aiopsos
+# experrt
 
 **Assess your workforce, train them by role, and hold the documentation your regulator will ask for.**
 
-`ai-adoption-os` is the platform behind AIOPSOS. It scores an organisation's AI
+`experrt` is the platform behind Experrt. It scores an organisation's AI
 maturity, maps the gaps onto a catalogue of facilitated courses, records the
 delivery of that training, and exports the result as a dated evidence pack.
 

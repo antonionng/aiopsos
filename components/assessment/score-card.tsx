@@ -160,7 +160,7 @@ export function ScoreCard({
 
         {/* Footer */}
         <p className="mt-5 text-center text-[10px] text-muted-foreground/50">
-          Powered by AIOPSOS
+          Powered by Experrt
         </p>
       </div>
 

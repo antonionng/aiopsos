@@ -129,7 +129,7 @@ function SharedNav() {
     <nav className="border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-6">
         <Link href="/" className="text-sm font-bold tracking-tight">
-          AIOPSOS
+          Experrt
         </Link>
       </div>
     </nav>

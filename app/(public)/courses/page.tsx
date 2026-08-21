@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, Users } from "lucide-react";
 import { fetchPublishedCourses } from "@/lib/courses";
+import { StructuredData, ORGANISATION_LD } from "@/components/structured-data";
 import {
   COURSE_LEVELS,
   COURSE_LEVEL_DESCRIPTIONS,
@@ -13,10 +14,16 @@ import {
 } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Academy | AIOPSOS",
+  title: "Courses — applied AI, technology and robotics training",
   description:
-    "Facilitated AI literacy courses by role. Every course is delivered live by a trainer, with attendance, submissions and grades recorded.",
+    "Facilitated training courses in applied AI, technology adoption and applied robotics, by role and by level. Delivered live by a trainer, in person or online, with attendance and grades recorded.",
   alternates: { canonical: "/courses" },
+  openGraph: {
+    title: "Courses — applied AI, technology and robotics training | Experrt",
+    description:
+      "Facilitated live by a trainer, in person or online. Courses by role and by level.",
+    url: "/courses",
+  },
 };
 
 export const dynamic = "force-dynamic";
@@ -40,15 +47,16 @@ export default async function CoursesPage({
 
   return (
     <div>
+      <StructuredData data={ORGANISATION_LD} />
       <header className="mb-12">
         <h1 className="mb-4 text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
-          The Academy
+          Training courses
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Courses are matched to the gaps your assessment finds, then delivered
-          live by a trainer, in person or online. The platform records who
-          attended, what they submitted and how they were graded. It does not
-          replace the trainer.
+          Applied AI, technology adoption and applied robotics — every course
+          facilitated live by a trainer, in person or online, and worked
+          through on your team&apos;s own material. Pick from the catalogue, or
+          run the assessment first and let it tell you which teams need what.
         </p>
       </header>
 
@@ -158,8 +166,9 @@ export default async function CoursesPage({
         </h2>
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">
           The readiness assessment scores each person across five dimensions and
-          maps the gaps onto this catalogue, by department and by role. It takes
-          about five minutes per person.
+          maps the gaps onto this catalogue, by department and by role. Five
+          minutes per person, and it is usually the cheapest way to find out
+          that the team you assumed was fine is not.
         </p>
         <Link
           href="/register"

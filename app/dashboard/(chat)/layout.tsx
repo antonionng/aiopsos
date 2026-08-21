@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import Image from "next/image";
+import { Wordmark } from "@/components/wordmark";
 import { Menu, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserAvatarMenu } from "@/components/layout/user-avatar-menu";
@@ -47,7 +47,7 @@ function ChatLayoutInner({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen overflow-hidden">
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
-            <Image src="/logo.png" alt="AIOPSOS" width={80} height={32} className="h-7 w-auto" unoptimized />
+            <Wordmark size="sm" />
             <UserAvatarMenu />
           </header>
           <main className="flex flex-1 flex-col overflow-hidden">
@@ -101,7 +101,7 @@ function ChatLayoutInner({ children }: { children: React.ReactNode }) {
                 <Menu className="h-4 w-4" />
               </Button>
             )}
-            <Image src="/logo.png" alt="AIOPSOS" width={80} height={32} className="h-7 w-auto" unoptimized />
+            <Wordmark size="sm" />
           </div>
 
           <UserAvatarMenu />

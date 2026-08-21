@@ -48,7 +48,7 @@ export function AssessmentResultsEmail({
             color: "#ffffff",
           }}
         >
-          AIOPSOS
+          Experrt
         </p>
 
         <h1
@@ -178,7 +178,7 @@ export function AssessmentResultsEmail({
             margin: 0,
           }}
         >
-          AIOPSOS -- The enterprise AI control layer.
+          Experrt -- The enterprise AI control layer.
         </p>
       </div>
     </div>

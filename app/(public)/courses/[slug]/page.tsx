@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, ExternalLink } from "lucide-react";
 import { fetchCourseBySlug } from "@/lib/courses";
+import { StructuredData, courseLd } from "@/components/structured-data";
 import {
   COURSE_LEVEL_LABELS,
   DELIVERY_MODE_LABELS,
@@ -19,11 +20,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const result = await fetchCourseBySlug(slug);
-  if (!result) return { title: "Course not found | AIOPSOS" };
+  if (!result) return { title: "Course not found | Experrt" };
 
   const { course } = result;
   return {
-    title: `${course.title} | AIOPSOS Academy`,
+    title: `${course.title} | Experrt Academy`,
     description: course.summary,
     alternates: { canonical: `/courses/${course.slug}` },
     openGraph: {
@@ -48,6 +49,7 @@ export default async function CoursePage({
 
   return (
     <article>
+      <StructuredData data={courseLd(course)} />
       <Link
         href="/courses"
         className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"

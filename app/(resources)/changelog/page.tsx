@@ -119,7 +119,7 @@ export default function ChangelogPage() {
           Changelog
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Track the latest updates, new features, and improvements to AIOPSOS.
+          Track the latest updates, new features, and improvements to Experrt.
         </p>
       </motion.div>
 

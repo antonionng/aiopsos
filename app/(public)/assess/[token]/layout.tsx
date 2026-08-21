@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Wordmark } from "@/components/wordmark";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AssessLayout({
@@ -60,7 +60,7 @@ export default async function AssessLayout({
             className="flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             Powered by
-            <Image src="/logo.png" alt="AIOPSOS" width={60} height={24} className="h-5 w-auto" unoptimized />
+            <Wordmark size="sm" />
           </Link>
         </div>
       </nav>

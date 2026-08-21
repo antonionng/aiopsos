@@ -124,7 +124,7 @@ export function EvidencePackDocument({ payload }: { payload: EvidencePackPayload
   return (
     <Document
       title={`AI literacy measures — ${payload.organisation.name} — ${payload.period.start} to ${payload.period.end}`}
-      author="AIOPSOS"
+      author="Experrt"
       subject="Record of AI literacy measures and supporting evidence"
       creationDate={new Date(payload.generated_at)}
     >

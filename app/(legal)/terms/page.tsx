@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | AIOPSOS",
-  description: "Terms of Service for the AIOPSOS enterprise AI adoption platform.",
+  title: "Terms of Service | Experrt",
+  description: "Terms of Service for the Experrt enterprise AI adoption platform.",
 };
 
 export default function TermsPage() {
@@ -13,9 +13,9 @@ export default function TermsPage() {
       <p className="text-sm text-muted-foreground">Last updated: 24 February 2026</p>
 
       <p>
-        Welcome to AIOPSOS. These Terms of Service (&quot;Terms&quot;) govern your access
-        to and use of the AIOPSOS platform, website, APIs, and related services
-        (collectively, the &quot;Service&quot;) operated by AIOPSOS (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
+        Welcome to Experrt. These Terms of Service (&quot;Terms&quot;) govern your access
+        to and use of the Experrt platform, website, APIs, and related services
+        (collectively, the &quot;Service&quot;) operated by Experrt (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
         By creating an account or using the Service, you agree to be bound by
         these Terms. If you do not agree, do not use the Service.
       </p>
@@ -120,7 +120,7 @@ export default function TermsPage() {
       <h3>5.1 Our IP</h3>
       <p>
         The Service, its design, underlying technology, branding, and all
-        related intellectual property rights belong to AIOPSOS. These Terms do
+        related intellectual property rights belong to Experrt. These Terms do
         not grant you any ownership rights in the Service.
       </p>
 
@@ -217,17 +217,17 @@ export default function TermsPage() {
 
       <h2>12. Limitation of Liability</h2>
       <p>
-        TO THE MAXIMUM EXTENT PERMITTED BY LAW, AIOPSOS SHALL NOT BE LIABLE FOR
+        TO THE MAXIMUM EXTENT PERMITTED BY LAW, Experrt SHALL NOT BE LIABLE FOR
         ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES,
         OR ANY LOSS OF PROFITS, DATA, OR GOODWILL, ARISING OUT OF OR RELATED TO
         YOUR USE OF THE SERVICE. OUR TOTAL AGGREGATE LIABILITY SHALL NOT EXCEED
-        THE AMOUNT PAID BY YOU TO AIOPSOS IN THE TWELVE (12) MONTHS PRECEDING
+        THE AMOUNT PAID BY YOU TO Experrt IN THE TWELVE (12) MONTHS PRECEDING
         THE CLAIM.
       </p>
 
       <h2>13. Indemnification</h2>
       <p>
-        You agree to indemnify and hold harmless AIOPSOS, its officers,
+        You agree to indemnify and hold harmless Experrt, its officers,
         directors, employees, and agents from and against any claims, damages,
         losses, liabilities, and expenses (including legal fees) arising out of
         your use of the Service, your User Content, or your violation of these
@@ -245,7 +245,7 @@ export default function TermsPage() {
       <h2>15. Governing Law &amp; Disputes</h2>
       <p>
         These Terms are governed by and construed in accordance with the laws of
-        the jurisdiction in which AIOPSOS is incorporated, without regard to
+        the jurisdiction in which Experrt is incorporated, without regard to
         conflict of law principles. Any disputes arising from these Terms shall
         be resolved through good-faith negotiation, and failing that, through
         binding arbitration or the courts of competent jurisdiction.
@@ -260,15 +260,15 @@ export default function TermsPage() {
       <h2>17. Entire Agreement</h2>
       <p>
         These Terms, together with our Privacy Policy and Cookie Policy,
-        constitute the entire agreement between you and AIOPSOS regarding your
+        constitute the entire agreement between you and Experrt regarding your
         use of the Service.
       </p>
 
       <h2>18. Contact</h2>
       <p>
         If you have questions about these Terms, please contact us at{" "}
-        <a href="mailto:legal@aiopsos.com" className="text-foreground underline underline-offset-4">
-          legal@aiopsos.com
+        <a href="mailto:legal@experrt.com" className="text-foreground underline underline-offset-4">
+          legal@experrt.com
         </a>
         .
       </p>
