@@ -177,6 +177,7 @@ only the cohorts they run, a participant cannot mark their own attendance. It
 runs inside a transaction that is rolled back:
 
 ```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_public_catalogue.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_cohorts.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_evidence_packs.sql
 ```
@@ -194,6 +195,11 @@ Three things that exercise established are worth knowing:
 - **Do not revoke `EXECUTE` on those helpers**, whatever the Supabase linter
   advises. RLS evaluates policy expressions with the calling role's
   privileges, so revoking breaks every policy. See the note in `021`.
+- **Never write an RLS policy on a table that selects from that same table.**
+  Migration 002 did, on `user_profiles`, and it sat dormant until an anonymous
+  read reached it and failed with `42P17: infinite recursion`. Ask a
+  `SECURITY DEFINER` function instead — it runs as its owner and is not
+  subject to the policy. Fixed in `023`.
 - **`user_profiles.id` references `auth.users(id)`**, so the RLS test creates
   auth users before profiles. Note that `information_schema` hides that
   constraint, because `auth.users` is owned by another role — query
