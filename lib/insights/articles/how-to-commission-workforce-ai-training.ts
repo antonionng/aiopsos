@@ -6,7 +6,7 @@ export const article: InsightArticle = {
   description:
     "A sponsor briefing for L&D, HR, and transformation leads: who should sit, what to insist on in the brief, and what to export so the programme can be described later.",
   dek: "If you cannot export who was trained, on what, and by whom, you commissioned a day out, not a programme.",
-  publishedAt: "2026-08-20",
+  publishedAt: "2026-07-22",
   relatedCourseSlugs: [
     "sponsoring-an-ai-literacy-programme",
     "ai-governance-and-oversight-for-managers",

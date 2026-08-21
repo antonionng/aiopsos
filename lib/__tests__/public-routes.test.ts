@@ -10,6 +10,8 @@ test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights/unused-ai-licences-training-gap"), true);
   assert.equal(isPublicPath("/insights/ai-output-verification-at-work"), true);
   assert.equal(isPublicPath("/insights/robotics-training-is-an-ops-problem"), true);
+  assert.equal(isPublicPath("/insights/what-ai-literacy-actually-means-at-work"), true);
+  assert.equal(isPublicPath("/insights/technology-judgement-for-nontechnical-directors"), true);
   assert.equal(isPublicPath("/blog"), true);
   assert.equal(isPublicPath("/blog/anything"), true);
 });
