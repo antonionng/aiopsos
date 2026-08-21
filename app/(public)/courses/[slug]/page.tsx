@@ -20,11 +20,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const result = await fetchCourseBySlug(slug);
-  if (!result) return { title: "Course not found | Experrt" };
+  if (!result) return { title: "Course not found" };
 
   const { course } = result;
   return {
-    title: `${course.title} | Experrt Academy`,
+    title: course.title,
     description: course.summary,
     alternates: { canonical: `/courses/${course.slug}` },
     openGraph: {
