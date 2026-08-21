@@ -327,7 +327,7 @@ export default function Home() {
 
           <motion.div variants={fadeUp} custom={3}>
             <Link
-              href="/register"
+              href="/contact"
               className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-sm font-semibold text-background transition-opacity hover:opacity-90"
             >
               Book a conversation

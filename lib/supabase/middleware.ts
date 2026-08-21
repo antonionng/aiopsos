@@ -49,7 +49,17 @@ export async function updateSession(request: NextRequest) {
     /^\/api\/assessment\/[^/]+\/public-info$/.test(request.nextUrl.pathname) ||
     request.nextUrl.pathname.startsWith("/terms") ||
     request.nextUrl.pathname.startsWith("/privacy") ||
-    request.nextUrl.pathname.startsWith("/cookies");
+    request.nextUrl.pathname.startsWith("/cookies") ||
+    // Marketing and resource pages. These were behind the session check,
+    // which meant /about - the page that introduces the trainer - and
+    // /contact - the conversion path - both 307ed an anonymous visitor to a
+    // login screen. They are also in the sitemap, so a crawler was being
+    // pointed at redirects.
+    request.nextUrl.pathname.startsWith("/about") ||
+    request.nextUrl.pathname.startsWith("/contact") ||
+    request.nextUrl.pathname.startsWith("/docs") ||
+    request.nextUrl.pathname.startsWith("/changelog") ||
+    request.nextUrl.pathname.startsWith("/status");
 
   if (!user && !isAuthPage && !isPublicRoute) {
     const url = request.nextUrl.clone();
