@@ -21,7 +21,7 @@ delivery of that training, and exports the result as a dated evidence pack.
 4. **Evidence.** Training records are combined with observed post-training usage
    and exported as a frozen, dated pack.
 
-Alongside this sits a governed multi-model AI workspace (chat, projects,
+Alongside this sits a governed AI workspace (chat, projects,
 knowledge base, personas, policies, approvals), which is also where the observed
 usage in the evidence pack comes from.
 
@@ -46,7 +46,7 @@ organisation compliant. See `LITERACY_DISCLAIMER` in
 | Language | TypeScript, strict |
 | Styling | Tailwind CSS v4, shadcn/ui primitives in `components/ui` |
 | Data | Supabase (Postgres + Auth + Storage), row-level security throughout |
-| AI | `ai` SDK v6 with Anthropic, OpenAI, Google and Mistral providers |
+| AI | `ai` SDK v6, OpenAI only |
 | Payments | Stripe (checkout, portal, webhooks) |
 | Email | Resend, with React components in `lib/emails` |
 | PDF | `@react-pdf/renderer` |
@@ -124,10 +124,7 @@ the `ai` SDK, so they only need to be present in the environment.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key — row-level security applies |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key. Server-side only, bypasses RLS |
 | `NEXT_PUBLIC_APP_URL` | Public base URL, used in emails and share links |
-| `ANTHROPIC_API_KEY` | Anthropic models |
-| `OPENAI_API_KEY` | OpenAI models, image generation, voice |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Google models |
-| `MISTRAL_API_KEY` | Mistral models |
+| `OPENAI_API_KEY` | Models, image generation, voice. OpenAI is the only model provider — see `lib/model-router.ts` |
 | `STRIPE_SECRET_KEY` | Billing |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signature verification |
 | `RESEND_API_KEY` | Transactional email |

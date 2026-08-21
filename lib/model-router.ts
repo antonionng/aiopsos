@@ -1,11 +1,17 @@
 import { openai } from "@ai-sdk/openai";
-import { anthropic } from "@ai-sdk/anthropic";
-import { google } from "@ai-sdk/google";
-import { mistral } from "@ai-sdk/mistral";
 import type { LanguageModel } from "ai";
 import type { DepartmentType } from "./constants";
 
-type Provider = "openai" | "anthropic" | "google" | "mistral";
+/**
+ * OpenAI is the only model provider.
+ *
+ * That is a deliberate commercial choice as much as a technical one: the
+ * evidence pack has to name every sub-processor that touches customer data,
+ * and one vendor is materially easier for a regulated buyer to approve than
+ * four. Adding a provider means adding it here, to the plan tiers in
+ * constants, and to the sub-processor list in the docs - in that order.
+ */
+type Provider = "openai";
 
 interface ModelConfig {
   id: string;
@@ -20,25 +26,20 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
   "gpt-4o": { id: "gpt-4o", provider: "openai", label: "GPT-4o", costPer1kInput: 0.0025, costPer1kOutput: 0.01 },
   "gpt-4o-mini": { id: "gpt-4o-mini", provider: "openai", label: "GPT-4o Mini", costPer1kInput: 0.00015, costPer1kOutput: 0.0006 },
   "o3-mini": { id: "o3-mini", provider: "openai", label: "o3-mini", costPer1kInput: 0.0011, costPer1kOutput: 0.0044 },
-  "claude-opus-4-6": { id: "claude-opus-4-6", provider: "anthropic", label: "Claude Opus 4.6", costPer1kInput: 0.005, costPer1kOutput: 0.025 },
-  "claude-sonnet-4-20250514": { id: "claude-sonnet-4-20250514", provider: "anthropic", label: "Claude Sonnet 4", costPer1kInput: 0.003, costPer1kOutput: 0.015 },
-  "claude-haiku-4-5": { id: "claude-haiku-4-5", provider: "anthropic", label: "Claude Haiku 4.5", costPer1kInput: 0.001, costPer1kOutput: 0.005 },
-  "gemini-2.0-flash": { id: "gemini-2.0-flash", provider: "google", label: "Gemini 2.0 Flash", costPer1kInput: 0.0001, costPer1kOutput: 0.0004 },
-  "gemini-1.5-pro": { id: "gemini-1.5-pro", provider: "google", label: "Gemini 1.5 Pro", costPer1kInput: 0.00125, costPer1kOutput: 0.005 },
-  "mistral-large-latest": { id: "mistral-large-latest", provider: "mistral", label: "Mistral Large", costPer1kInput: 0.002, costPer1kOutput: 0.006 },
-  "mistral-small-latest": { id: "mistral-small-latest", provider: "mistral", label: "Mistral Small", costPer1kInput: 0.0002, costPer1kOutput: 0.0006 },
 };
 
 const DEPARTMENT_DEFAULTS: Record<DepartmentType, string> = {
-  engineering: "claude-sonnet-4-20250514",
+  // Reasoning-heavy work gets the strongest model; high-volume, low-judgement
+  // work gets the cheapest capable one.
+  engineering: "gpt-5.2",
   sales: "gpt-4o",
-  operations: "mistral-large-latest",
-  leadership: "claude-sonnet-4-20250514",
+  operations: "gpt-4o-mini",
+  leadership: "gpt-5.2",
   marketing: "gpt-4o",
-  legal: "claude-sonnet-4-20250514",
+  legal: "gpt-5.2",
   hr: "gpt-4o",
   finance: "gpt-4o",
-  product: "claude-sonnet-4-20250514",
+  product: "gpt-5.2",
   support: "gpt-4o-mini",
 };
 
@@ -47,23 +48,9 @@ export function getDefaultModelForDepartment(dept: DepartmentType): string {
 }
 
 export function getLanguageModel(modelId: string): LanguageModel {
-  const config = MODEL_REGISTRY[modelId];
-  if (!config) {
-    return openai("gpt-4o");
-  }
-
-  switch (config.provider) {
-    case "openai":
-      return openai(modelId);
-    case "anthropic":
-      return anthropic(modelId);
-    case "google":
-      return google(modelId);
-    case "mistral":
-      return mistral(modelId);
-    default:
-      return openai("gpt-4o");
-  }
+  // An unknown id falls back rather than throwing: a stale model saved on a
+  // persona or a conversation should degrade, not break the chat.
+  return openai(MODEL_REGISTRY[modelId] ? modelId : "gpt-4o");
 }
 
 export function calculateCost(modelId: string, inputTokens: number, outputTokens: number): number {

@@ -121,14 +121,10 @@ const STEPS = [
 ];
 
 const MODELS = [
-  { name: "GPT-5.3", provider: "OpenAI" },
-  { name: "Claude Opus 4.6", provider: "Anthropic" },
+  { name: "GPT-5.2", provider: "OpenAI" },
   { name: "GPT-4o", provider: "OpenAI" },
-  { name: "Claude Sonnet 4", provider: "Anthropic" },
-  { name: "Gemini 2.0 Flash", provider: "Google" },
-  { name: "Mistral Large", provider: "Mistral" },
+  { name: "GPT-4o Mini", provider: "OpenAI" },
   { name: "o3-mini", provider: "OpenAI" },
-  { name: "Claude 3.5 Haiku", provider: "Anthropic" },
 ];
 
 const TRUST = [
@@ -805,15 +801,16 @@ export default function Home() {
               custom={0}
               className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
-              Every model. One interface.
+              One provider, deliberately.
             </motion.h2>
             <motion.p
               variants={fadeUp}
               custom={1}
               className="mb-16 max-w-lg text-muted-foreground"
             >
-              Use the latest models from OpenAI, Anthropic, Google, and Mistral in
-              one place. Intelligent routing and governance controls match the
+              We run on OpenAI and say so. Every organisation that buys training
+              has to list who processes its data, and one named sub-processor is
+              a far easier approval than four. Routing and governance match the
               right model, policy, and context to each task.
             </motion.p>
 
