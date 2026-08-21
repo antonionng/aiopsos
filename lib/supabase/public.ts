@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { FALLBACK_PUBLISHED_COURSE_SLUGS } from "@/lib/published-course-slugs";
+import { FALLBACK_PUBLISHED_COURSE_SLUGS } from "../published-course-slugs.ts";
 
 /**
  * Cookie-less anon client for crawler-facing reads.
