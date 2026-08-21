@@ -304,10 +304,6 @@ export default function Home() {
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
         >
-          <motion.div variants={fadeUp} custom={0} className="mb-8 flex justify-center">
-            <Wordmark size="xl" />
-          </motion.div>
-
           <motion.h1
             variants={fadeUp}
             custom={1}

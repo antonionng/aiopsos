@@ -4,12 +4,16 @@ import { ArrowRight, Clock, Users } from "lucide-react";
 import { fetchPublishedCourses } from "@/lib/courses";
 import { StructuredData, ORGANISATION_LD } from "@/components/structured-data";
 import {
+  COURSE_CATEGORIES,
+  COURSE_CATEGORY_DESCRIPTIONS,
+  COURSE_CATEGORY_LABELS,
   COURSE_LEVELS,
   COURSE_LEVEL_DESCRIPTIONS,
   COURSE_LEVEL_LABELS,
   DELIVERY_MODE_LABELS,
   DIMENSION_LABELS,
   RESPONDENT_ROLE_LABELS,
+  type CourseCategory,
   type CourseLevel,
 } from "@/lib/constants";
 
@@ -32,18 +36,36 @@ function isCourseLevel(value: string | undefined): value is CourseLevel {
   return !!value && (COURSE_LEVELS as readonly string[]).includes(value);
 }
 
+function isCourseCategory(value: string | undefined): value is CourseCategory {
+  return !!value && (COURSE_CATEGORIES as readonly string[]).includes(value);
+}
+
+/** Preserve the other filter when building a pill's href. */
+function hrefFor(params: { category?: string | null; level?: string | null }) {
+  const query = new URLSearchParams();
+  if (params.category) query.set("category", params.category);
+  if (params.level) query.set("level", params.level);
+  const qs = query.toString();
+  return qs ? `/courses?${qs}` : "/courses";
+}
+
 export default async function CoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ level?: string }>;
+  searchParams: Promise<{ level?: string; category?: string }>;
 }) {
-  const { level } = await searchParams;
+  const { level, category } = await searchParams;
   const activeLevel = isCourseLevel(level) ? level : null;
+  const activeCategory = isCourseCategory(category) ? category : null;
 
   const allCourses = await fetchPublishedCourses();
-  const courses = activeLevel
-    ? allCourses.filter((c) => c.level === activeLevel)
-    : allCourses;
+  const courses = allCourses.filter(
+    (c) =>
+      (!activeLevel || c.level === activeLevel) &&
+      (!activeCategory || c.category === activeCategory)
+  );
+
+  const totalHours = courses.reduce((sum, c) => sum + c.duration_hours, 0);
 
   return (
     <div>
@@ -60,14 +82,41 @@ export default async function CoursesPage({
         </p>
       </header>
 
-      {/* Level filter */}
-      <nav className="mb-10 flex flex-wrap gap-2">
+      {/* Subject */}
+      <nav className="mb-3 flex flex-wrap gap-2">
         <Link
-          href="/courses"
+          href={hrefFor({ level: activeLevel })}
           className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
-            activeLevel
+            activeCategory
               ? "border-border text-muted-foreground hover:text-foreground"
               : "border-foreground bg-foreground text-background"
+          }`}
+        >
+          All subjects
+        </Link>
+        {COURSE_CATEGORIES.map((cat) => (
+          <Link
+            key={cat}
+            href={hrefFor({ category: cat, level: activeLevel })}
+            className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+              activeCategory === cat
+                ? "border-foreground bg-foreground text-background"
+                : "border-border text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {COURSE_CATEGORY_LABELS[cat]}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Level */}
+      <nav className="mb-6 flex flex-wrap gap-2">
+        <Link
+          href={hrefFor({ category: activeCategory })}
+          className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+            activeLevel
+              ? "border-border/60 text-muted-foreground hover:text-foreground"
+              : "border-foreground/40 text-foreground"
           }`}
         >
           All levels
@@ -75,11 +124,11 @@ export default async function CoursesPage({
         {COURSE_LEVELS.map((lvl) => (
           <Link
             key={lvl}
-            href={`/courses?level=${lvl}`}
-            className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+            href={hrefFor({ category: activeCategory, level: lvl })}
+            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
               activeLevel === lvl
-                ? "border-foreground bg-foreground text-background"
-                : "border-border text-muted-foreground hover:text-foreground"
+                ? "border-foreground/40 text-foreground"
+                : "border-border/60 text-muted-foreground hover:text-foreground"
             }`}
           >
             {COURSE_LEVEL_LABELS[lvl]}
@@ -87,16 +136,27 @@ export default async function CoursesPage({
         ))}
       </nav>
 
+      {activeCategory && (
+        <p className="mb-2 max-w-2xl text-sm text-muted-foreground">
+          {COURSE_CATEGORY_DESCRIPTIONS[activeCategory]}
+        </p>
+      )}
       {activeLevel && (
-        <p className="mb-8 text-sm text-muted-foreground">
+        <p className="mb-2 text-sm text-muted-foreground">
           {COURSE_LEVEL_DESCRIPTIONS[activeLevel]}
         </p>
       )}
 
+      <p className="mb-8 text-xs text-muted-foreground">
+        {courses.length} course{courses.length === 1 ? "" : "s"} ·{" "}
+        {totalHours} facilitated hours
+      </p>
+
       {courses.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-10 text-center">
           <p className="text-sm text-muted-foreground">
-            No published courses at this level yet.
+            Nothing matches that combination yet. Try a different subject or
+            level.
           </p>
         </div>
       ) : (
@@ -108,6 +168,9 @@ export default async function CoursesPage({
               className="group flex flex-col rounded-2xl border border-border bg-card p-6 transition-colors hover:border-foreground/30"
             >
               <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-medium text-brand">
+                  {COURSE_CATEGORY_LABELS[course.category] ?? course.category}
+                </span>
                 <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                   {COURSE_LEVEL_LABELS[course.level]}
                 </span>
