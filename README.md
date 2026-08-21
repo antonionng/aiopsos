@@ -131,7 +131,7 @@ the `ai` SDK, so they only need to be present in the environment.
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signature verification |
 | `RESEND_API_KEY` | Transactional email |
 | `EMAIL_FROM` | Sender address for transactional email |
-| `NOTIFY_EMAIL` | Where contact-form and admin notifications go |
+| `NOTIFY_EMAIL` | Where contact-form and course-enquiry alerts go. Defaults to `ag@experrt.com` if unset |
 | `TAVILY_API_KEY` | Web search |
 | `CRON_SECRET` | Shared secret for the scheduled jobs below. Without it they refuse to run |
 

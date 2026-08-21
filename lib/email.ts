@@ -16,6 +16,7 @@ import { SessionReminderEmail } from "./emails/session-reminder";
 import { CertificateIssuedEmail } from "./emails/certificate-issued";
 import { EnquiryReceivedEmail, EnquiryAlertEmail } from "./emails/enquiry-received";
 import { LITERACY_DISCLAIMER } from "./constants";
+import { getNotifyEmail } from "./notify-email";
 import type { DimensionScores } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -321,9 +322,9 @@ export async function sendAdminAssessmentCompletedEmail(
       }
     }
 
-    // Fallback: platform-level NOTIFY_EMAIL
-    if (recipients.length === 0 && process.env.NOTIFY_EMAIL) {
-      recipients = [{ email: process.env.NOTIFY_EMAIL, name: "Notify" }];
+    // Fallback: platform-level notify address (NOTIFY_EMAIL, else ag@experrt.com)
+    if (recipients.length === 0) {
+      recipients = [{ email: getNotifyEmail(), name: "Notify" }];
     }
 
     if (recipients.length === 0) {
@@ -552,7 +553,8 @@ export async function sendEnquiryEmails(details: {
   source: string;
 }) {
   const { from } = getEmailConfig();
-  const notify = process.env.NOTIFY_EMAIL || from.replace(/^.*</, "").replace(/>$/, "");
+  const notify = getNotifyEmail();
+  console.log("[email] enquiry notify-to", notify);
 
   await Promise.allSettled([
     getResend().emails.send({
