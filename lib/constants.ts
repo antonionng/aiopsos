@@ -392,6 +392,27 @@ export function getTierImpactIndex(tierNumber: number): number {
 
 // Ordered from least to most senior. `recommendCourses` tie-breaks on this
 // order, so the index is meaningful - do not reorder without updating tests.
+/**
+ * The three subjects the academy teaches. A browse axis, deliberately separate
+ * from `target_dimensions`: those describe the assessment gap a course closes,
+ * this describes what the course is about.
+ */
+export const COURSE_CATEGORIES = ["ai", "technology", "robotics"] as const;
+
+export type CourseCategory = (typeof COURSE_CATEGORIES)[number];
+
+export const COURSE_CATEGORY_LABELS: Record<CourseCategory, string> = {
+  ai: "Applied AI",
+  technology: "Technology adoption",
+  robotics: "Applied robotics",
+};
+
+export const COURSE_CATEGORY_DESCRIPTIONS: Record<CourseCategory, string> = {
+  ai: "Using AI on the work your team already does, with the judgement to know when the output is wrong.",
+  technology: "The tools your organisation already pays for, actually used — and the ones worth buying next.",
+  robotics: "Robotics as an operational question rather than an engineering one. Not how they are built, how they are put to work.",
+};
+
 export const COURSE_LEVELS = ["practitioner", "manager", "leadership"] as const;
 
 export type CourseLevel = (typeof COURSE_LEVELS)[number];

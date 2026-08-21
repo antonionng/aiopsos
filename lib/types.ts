@@ -1,6 +1,7 @@
 import type {
   AttendanceStatus,
   CohortStatus,
+  CourseCategory,
   CourseLevel,
   CourseStatus,
   DeliveryMode,
@@ -288,6 +289,7 @@ export interface Course {
   title: string;
   summary: string;
   level: CourseLevel;
+  category: CourseCategory;
   duration_hours: number;
   delivery_modes: DeliveryMode[];
   learning_outcomes: string[];
