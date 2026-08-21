@@ -13,7 +13,7 @@ import type { CertificateSnapshot } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Verify a certificate | Experrt",
+  title: "Verify a certificate",
   description:
     "Check a certificate of completion issued through Experrt: course, dates, facilitator, attendance and grade.",
   // Individual certificates must not be indexed. They name a person, and a
