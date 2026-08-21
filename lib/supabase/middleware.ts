@@ -1,79 +1,61 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isAuthPath, isPublicPath } from "@/lib/public-routes";
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  const pathname = request.nextUrl.pathname;
+  const isAuthPage = isAuthPath(pathname);
+  const isPublicRoute = isPublicPath(pathname);
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
-      },
+  // Public marketing and Insights must not touch Supabase. Constructing the
+  // client here is what turns a missing NEXT_PUBLIC_SUPABASE_URL into a
+  // failed request (or, previously, a login wall for unknown paths).
+  if (isPublicRoute) {
+    return NextResponse.next({ request });
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    if (isAuthPage) {
+      return NextResponse.next({ request });
     }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const isAuthPage =
-    request.nextUrl.pathname.startsWith("/login") ||
-    request.nextUrl.pathname.startsWith("/register") ||
-    request.nextUrl.pathname.startsWith("/forgot-password") ||
-    request.nextUrl.pathname.startsWith("/reset-password");
-
-  const isPublicRoute =
-    request.nextUrl.pathname === "/" ||
-    request.nextUrl.pathname.startsWith("/lunchandlearn") ||
-    request.nextUrl.pathname.startsWith("/verify/") ||
-    request.nextUrl.pathname === "/courses" ||
-    request.nextUrl.pathname.startsWith("/courses/") ||
-    request.nextUrl.pathname.startsWith("/assess/") ||
-    request.nextUrl.pathname.startsWith("/assessment/") ||
-    request.nextUrl.pathname.startsWith("/api/public/") ||
-    request.nextUrl.pathname.startsWith("/api/lunchandlearn") ||
-    request.nextUrl.pathname === "/api/assessment/public-submit" ||
-    /^\/api\/assessment\/[^/]+\/public-info$/.test(request.nextUrl.pathname) ||
-    request.nextUrl.pathname.startsWith("/terms") ||
-    request.nextUrl.pathname.startsWith("/privacy") ||
-    request.nextUrl.pathname.startsWith("/cookies") ||
-    // Marketing and resource pages. These were behind the session check,
-    // which meant /about - the page that introduces the trainer - and
-    // /contact - the conversion path - both 307ed an anonymous visitor to a
-    // login screen. They are also in the sitemap, so a crawler was being
-    // pointed at redirects.
-    request.nextUrl.pathname.startsWith("/about") ||
-    request.nextUrl.pathname.startsWith("/contact") ||
-    request.nextUrl.pathname.startsWith("/docs") ||
-    request.nextUrl.pathname.startsWith("/changelog") ||
-    request.nextUrl.pathname.startsWith("/status") ||
-    // Published editorial. /blog is a redirect to /insights; both must stay
-    // off the auth wall or Google keeps hitting a login SERP.
-    request.nextUrl.pathname === "/blog" ||
-    request.nextUrl.pathname.startsWith("/blog/") ||
-    request.nextUrl.pathname === "/insights" ||
-    request.nextUrl.pathname.startsWith("/insights/");
-
-  if (!user && !isAuthPage && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  const isResetPage = request.nextUrl.pathname.startsWith("/reset-password");
+  let supabaseResponse = NextResponse.next({ request });
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        );
+        supabaseResponse = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        );
+      },
+    },
+  });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user && !isAuthPage) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  const isResetPage = pathname.startsWith("/reset-password");
   if (user && isAuthPage && !isResetPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
