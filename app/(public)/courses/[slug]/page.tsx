@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, ExternalLink } from "lucide-react";
 import { fetchCourseBySlug } from "@/lib/courses";
 import { StructuredData, courseLd } from "@/components/structured-data";
+import { CourseEnquiryForm } from "@/components/course-enquiry-form";
+import { CourseArtwork } from "@/components/course-artwork";
 import {
   COURSE_LEVEL_LABELS,
   DELIVERY_MODE_LABELS,
@@ -59,6 +61,9 @@ export default async function CoursePage({
       </Link>
 
       <header className="mb-10">
+        <div className="mb-6 flex h-32 items-center justify-center overflow-hidden rounded-2xl border border-border bg-card">
+          <CourseArtwork category={course.category} className="h-24 w-32" />
+        </div>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
             {COURSE_LEVEL_LABELS[course.level]}
@@ -222,13 +227,23 @@ export default async function CoursePage({
             </dl>
           </div>
 
+          <div id="request" className="scroll-mt-24 rounded-2xl border-2 border-brand/20 bg-card p-6">
+            <h2 className="mb-1 text-sm font-semibold">Run this for your team</h2>
+            <CourseEnquiryForm
+              courseSlug={course.slug}
+              courseTitle={course.title}
+              source="course_page"
+            />
+          </div>
+
           <div className="rounded-2xl border border-border bg-card p-6">
             <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-              Find out whether your teams need this course before you book it.
+              Not sure this is the right course? The assessment scores your
+              teams and tells you which ones they need.
             </p>
             <Link
               href="/register"
-              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+              className="inline-flex h-10 w-full items-center justify-center rounded-full border border-border px-5 text-sm font-semibold transition-colors hover:bg-accent"
             >
               Run an assessment
               <ArrowRight className="ml-2 h-4 w-4" />

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Clock, Users } from "lucide-react";
 import { fetchPublishedCourses } from "@/lib/courses";
 import { StructuredData, ORGANISATION_LD } from "@/components/structured-data";
+import { CourseArtwork } from "@/components/course-artwork";
 import {
   COURSE_CATEGORIES,
   COURSE_CATEGORY_DESCRIPTIONS,
@@ -165,8 +166,12 @@ export default async function CoursesPage({
             <Link
               key={course.id}
               href={`/courses/${course.slug}`}
-              className="group flex flex-col rounded-2xl border border-border bg-card p-6 transition-colors hover:border-foreground/30"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-foreground/30"
             >
+              <div className="flex h-20 items-center justify-center border-b border-border/60 bg-foreground/[0.02]">
+                <CourseArtwork category={course.category} className="h-14 w-20" />
+              </div>
+              <div className="flex flex-1 flex-col p-6">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-medium text-brand">
                   {COURSE_CATEGORY_LABELS[course.category] ?? course.category}
@@ -218,6 +223,7 @@ export default async function CoursesPage({
                 Course outline
                 <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </span>
+              </div>
             </Link>
           ))}
         </div>
