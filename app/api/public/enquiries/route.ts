@@ -65,7 +65,11 @@ export async function POST(req: NextRequest) {
     orgId = profile?.org_id ?? null;
   }
 
-  const { data, error } = await supabase
+  // No .select() on this insert. Returning the inserted row requires a read
+  // policy, and anon deliberately has none - an enquiry holds a name, an
+  // email and an organisation. Asking for the row back would mean opening
+  // reads to everyone, which is exactly the thing to avoid.
+  const { error } = await supabase
     .from("course_enquiries")
     .insert({
       course_id: courseId,
@@ -77,9 +81,7 @@ export async function POST(req: NextRequest) {
       message: input.message,
       seats: input.seats ?? null,
       source: input.source,
-    })
-    .select("id")
-    .single();
+    });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -88,7 +90,6 @@ export async function POST(req: NextRequest) {
   // A failed email must not fail the enquiry - the row is already saved, and
   // losing the notification is recoverable where losing the lead is not.
   await sendEnquiryEmails({
-    enquiryId: data.id,
     name: input.name,
     email: input.email,
     organisationName: input.organisation_name,
