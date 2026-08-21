@@ -48,10 +48,10 @@ export function RecommendedCourses({
 
       <div className="space-y-3">
         {recommendations.map((course) => (
+          <div key={course.slug} className="rounded-xl border border-border bg-card p-4">
           <Link
-            key={course.slug}
             href={`/courses/${course.slug}`}
-            className="group block rounded-xl border border-border bg-card p-4 transition-colors hover:border-foreground/30"
+            className="group block"
           >
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
@@ -92,6 +92,14 @@ export function RecommendedCourses({
               <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </span>
           </Link>
+
+          <Link
+            href={`/courses/${course.slug}#request`}
+            className="mt-2 inline-flex h-9 w-full items-center justify-center rounded-lg bg-brand px-4 text-xs font-semibold text-brand-foreground transition-opacity hover:opacity-90"
+          >
+            Request this course
+          </Link>
+          </div>
         ))}
       </div>
 

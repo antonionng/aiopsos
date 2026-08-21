@@ -14,6 +14,7 @@ import { RoadmapReadyEmail } from "./emails/roadmap-ready";
 import { CohortEnrolmentEmail } from "./emails/cohort-enrolment";
 import { SessionReminderEmail } from "./emails/session-reminder";
 import { CertificateIssuedEmail } from "./emails/certificate-issued";
+import { EnquiryReceivedEmail, EnquiryAlertEmail } from "./emails/enquiry-received";
 import { LITERACY_DISCLAIMER } from "./constants";
 import type { DimensionScores } from "./types";
 
@@ -532,4 +533,56 @@ export async function sendCertificateIssuedEmail(
   } catch (error) {
     console.error("Failed to send certificate issued email:", error);
   }
+}
+
+/**
+ * A course enquiry: confirm to the enquirer, alert us.
+ *
+ * Both are attempted independently. A bounced confirmation must not stop the
+ * alert reaching us - the lead is the thing that matters.
+ */
+export async function sendEnquiryEmails(details: {
+  enquiryId: string;
+  name: string;
+  email: string;
+  organisationName: string;
+  message: string;
+  seats: number | null;
+  courseTitle: string | null;
+  courseSlug: string | null;
+  source: string;
+}) {
+  const { from } = getEmailConfig();
+  const notify = process.env.NOTIFY_EMAIL || from.replace(/^.*</, "").replace(/>$/, "");
+
+  await Promise.allSettled([
+    getResend().emails.send({
+      from,
+      to: details.email,
+      subject: details.courseTitle
+        ? `We have your enquiry about ${details.courseTitle}`
+        : "We have your training enquiry",
+      react: EnquiryReceivedEmail({
+        recipientName: details.name,
+        courseTitle: details.courseTitle,
+      }),
+    }),
+    getResend().emails.send({
+      from,
+      to: notify,
+      replyTo: details.email,
+      subject: details.courseTitle
+        ? `Enquiry: ${details.courseTitle} — ${details.organisationName || details.name}`
+        : `Training enquiry — ${details.organisationName || details.name}`,
+      react: EnquiryAlertEmail({
+        name: details.name,
+        email: details.email,
+        organisationName: details.organisationName,
+        courseTitle: details.courseTitle,
+        seats: details.seats,
+        message: details.message,
+        source: details.source,
+      }),
+    }),
+  ]);
 }

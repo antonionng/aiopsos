@@ -168,6 +168,18 @@ export const evidencePackSchema = z.object({
   declaration: z.string().max(5000).default(""),
 });
 
+export const courseEnquirySchema = z.object({
+  course_slug: z.string().max(200).optional().nullable(),
+  name: z.string().min(1, "Name is required").max(200),
+  email: z.string().email("Invalid email address"),
+  organisation_name: z.string().max(300).default(""),
+  message: z.string().max(3000).default(""),
+  seats: z.number().int().min(1).max(10_000).optional().nullable(),
+  source: z
+    .enum(["course_page", "assessment_results", "catalogue", "dashboard"])
+    .default("course_page"),
+});
+
 export function validateBody<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: string } {
   const result = schema.safeParse(data);
   if (!result.success) {

@@ -93,6 +93,8 @@ Delivery: `facilitators`, `cohorts`, `sessions`, `enrolments`, `attendance`,
 `submissions`, `grades`, `certificates`, plus `session_reminders` for reminder
 de-duplication.
 
+Enquiries: `course_enquiries` — the only table anonymous visitors may write to.
+
 Evidence: `evidence_packs`. The `payload` column is a frozen snapshot — a pack
 regenerated for a past period must produce the same document, so nothing
 downstream re-reads live tables. There is deliberately no UPDATE policy on it.
@@ -177,6 +179,7 @@ runs inside a transaction that is rolled back:
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_public_catalogue.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_cohorts.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_evidence_packs.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_course_enquiries.sql
 ```
 
 Point it at a branch or a local stack, never at production.
