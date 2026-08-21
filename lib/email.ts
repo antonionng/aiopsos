@@ -542,7 +542,6 @@ export async function sendCertificateIssuedEmail(
  * alert reaching us - the lead is the thing that matters.
  */
 export async function sendEnquiryEmails(details: {
-  enquiryId: string;
   name: string;
   email: string;
   organisationName: string;
