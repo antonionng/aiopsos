@@ -25,6 +25,11 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/api/lunchandlearn") ||
     pathname === "/api/assessment/public-submit" ||
     /^\/api\/assessment\/[^/]+\/public-info$/.test(pathname) ||
+    // Anonymous by definition: you have no session while creating one.
+    // "/contact" below matches the page, not the endpoint the form posts to.
+    pathname === "/api/auth/register" ||
+    pathname === "/api/contact" ||
+    pathname.startsWith("/auth/callback") ||
     pathname.startsWith("/terms") ||
     pathname.startsWith("/privacy") ||
     pathname.startsWith("/cookies") ||

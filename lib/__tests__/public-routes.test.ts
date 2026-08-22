@@ -16,6 +16,15 @@ test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/blog/anything"), true);
 });
 
+test("the endpoints that create a session are reachable without one", () => {
+  // Each of these 307'd to /login in production, which is what surfaced as
+  // "Registration failed (405)" on the homepage CTA.
+  assert.equal(isPublicPath("/api/auth/register"), true);
+  assert.equal(isPublicPath("/api/contact"), true);
+  assert.equal(isPublicPath("/auth/callback"), true);
+  assert.equal(isPublicPath("/auth/callback/"), true);
+});
+
 test("private app routes stay gated", () => {
   assert.equal(isPublicPath("/dashboard"), false);
   assert.equal(isPublicPath("/dashboard/enquiries"), false);
