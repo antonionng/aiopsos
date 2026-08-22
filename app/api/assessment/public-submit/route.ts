@@ -66,7 +66,12 @@ export async function POST(req: NextRequest) {
     const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name, org_id: orgId } },
+      options: {
+        data: { name, org_id: orgId },
+        // Email confirmation is ON for this project; the link must land
+        // on our callback so the code can be exchanged for a session.
+        emailRedirectTo: `${req.nextUrl.origin}/auth/callback?next=/dashboard/my-results`,
+      },
     });
 
     if (signUpError || !authData.user) {
@@ -91,9 +96,7 @@ export async function POST(req: NextRequest) {
       email,
       password,
     });
-    if (signInError) {
-      console.error("Post-signup sign-in failed:", signInError.message);
-    }
+    const needsConfirmation = !!signInError;
 
     let departmentId: string | null = null;
     if (department) {
@@ -247,6 +250,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      needs_confirmation: needsConfirmation,
       scores,
       overall,
       tier: { tier: tier.tier, label: tier.label, color: tier.color },

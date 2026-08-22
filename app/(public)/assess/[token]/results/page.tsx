@@ -55,6 +55,7 @@ export default function AssessResultsPage() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [completedCount, setCompletedCount] = useState<number>(0);
   const [courses, setCourses] = useState<CourseRecommendation[]>([]);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`assess_results_${token}`);
@@ -139,6 +140,15 @@ export default function AssessResultsPage() {
         setLoading(false);
         return;
       }
+      // Email confirmation is on: the account and the claimed assessment
+      // exist, but there is no session until the emailed link is clicked.
+      // Keep the results in sessionStorage - nothing is lost - and say so.
+      if (data.needs_confirmation) {
+        setAwaitingConfirmation(true);
+        setLoading(false);
+        return;
+      }
+
       sessionStorage.removeItem(`assess_results_${token}`);
       router.push(data.redirect || "/dashboard/my-results");
     } catch {
@@ -242,7 +252,21 @@ export default function AssessResultsPage() {
         className="mb-8"
       />
 
+      {awaitingConfirmation && (
+        <div className="mb-8 rounded-2xl border-2 border-brand/20 bg-card p-6 text-center">
+          <h3 className="mb-2 text-lg font-semibold">Check your email</h3>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Your account and your results are saved. We&apos;ve sent a
+            confirmation link to{" "}
+            <span className="font-medium text-foreground">{email}</span> —
+            click it and you&apos;ll land on your full results, including your
+            recommended courses.
+          </p>
+        </div>
+      )}
+
       {/* Signup card -- always visible */}
+      {!awaitingConfirmation && (
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -384,6 +408,7 @@ export default function AssessResultsPage() {
           </a>
         </p>
       </motion.div>
+      )}
     </motion.div>
   );
 }

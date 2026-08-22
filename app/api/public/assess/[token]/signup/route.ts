@@ -52,7 +52,12 @@ export async function POST(
     const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name, org_id: link.org_id } },
+      options: {
+        data: { name, org_id: link.org_id },
+        // Email confirmation is ON for this project; the link must land
+        // on our callback so the code can be exchanged for a session.
+        emailRedirectTo: `${req.nextUrl.origin}/auth/callback?next=/dashboard/my-results`,
+      },
     });
 
     if (signUpError || !authData.user) {
@@ -73,14 +78,16 @@ export async function POST(
 
     const userId = authData.user.id;
 
-    // Sign in immediately so session cookies are set on the response
+    // Sign in immediately so session cookies are set on the response. With
+    // email confirmation on this fails until the link is clicked - that is
+    // fine: everything below uses the admin client, so the assessment still
+    // gets claimed, and we tell the client to show the check-your-email
+    // screen instead of bouncing them into a login wall.
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (signInError) {
-      console.error("Post-signup sign-in failed:", signInError.message);
-    }
+    const needsConfirmation = !!signInError;
 
     let departmentId: string | null = null;
     if (department) {
@@ -273,7 +280,11 @@ export async function POST(
     });
     await sendAdminNewMemberEmail(link.org_id, org?.name ?? "Organisation", name, email, department);
 
-    const response = NextResponse.json({ success: true, redirect: "/dashboard/my-results" });
+    const response = NextResponse.json(
+      needsConfirmation
+        ? { success: true, needs_confirmation: true }
+        : { success: true, redirect: "/dashboard/my-results" }
+    );
 
     response.cookies.delete("assess_session");
 
