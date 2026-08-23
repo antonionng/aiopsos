@@ -78,7 +78,11 @@ export const RATE_LIMITS = {
   chat: { limit: 30, windowMs: 60_000 },
   auth: { limit: 10, windowMs: 60_000 },
   upload: { limit: 20, windowMs: 60_000 },
-  publicSubmit: { limit: 5, windowMs: 60_000 },
+  // Keyed by assessment token + IP, not IP alone: the canonical use of this
+  // product is a facilitator putting a whole team through the assessment in
+  // one room, behind one NAT address. At 5/min the sixth person was told to
+  // try again later.
+  publicSubmit: { limit: 30, windowMs: 60_000 },
 } as const;
 
 export function getRateLimitHeaders(result: RateLimitResult): Record<string, string> {

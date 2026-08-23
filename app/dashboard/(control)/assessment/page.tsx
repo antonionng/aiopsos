@@ -500,6 +500,48 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.25 } },
 };
 
+/**
+ * Starts an assessment even when nobody has created one.
+ *
+ * The empty state used to be a wall - "your admin hasn't created an
+ * assessment yet" - which every Take Assessment CTA in the product led to.
+ * The org's active assessment is now created on demand.
+ */
+function StartAssessmentButton() {
+  const router = useRouter();
+  const [starting, setStarting] = useState(false);
+  const [error, setError] = useState("");
+
+  async function start() {
+    setError("");
+    setStarting(true);
+    try {
+      const res = await fetch("/api/assessment/ensure", { method: "POST" });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.assessment_id) {
+        setError(data?.error ?? "Could not start the assessment.");
+        return;
+      }
+      router.push(`/dashboard/assessment/${data.assessment_id}/take`);
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setStarting(false);
+    }
+  }
+
+  return (
+    <>
+      <Button onClick={start} disabled={starting} className="bg-brand text-brand-foreground hover:bg-brand/90">
+        <BrainCircuit className="mr-2 h-4 w-4" />
+        {starting ? "Starting..." : "Start assessment"}
+        {!starting && <ArrowRight className="ml-2 h-4 w-4" />}
+      </Button>
+      {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+    </>
+  );
+}
+
 function EmployeeAssessmentView({
   assessments,
   personalResults,
@@ -614,13 +656,13 @@ function EmployeeAssessmentView({
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
               <BrainCircuit className="h-7 w-7 text-muted-foreground" />
             </div>
-            <h3 className="mb-1 text-base font-semibold">No assessment available yet</h3>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Your admin hasn&apos;t created an assessment yet. Once it&apos;s ready, you&apos;ll be able to measure your AI maturity and get personalised recommendations.
+            <h3 className="mb-1 text-base font-semibold">Ready when you are</h3>
+            <p className="mb-5 max-w-sm text-sm text-muted-foreground">
+              Five minutes, fifteen questions. You&apos;ll get your AI maturity
+              score across five dimensions and the courses matched to your
+              weakest ones.
             </p>
-            <p className="mt-2 text-xs text-muted-foreground/70">
-              Assessments take about 5 minutes and your responses are anonymous.
-            </p>
+            <StartAssessmentButton />
           </div>
         </motion.div>
       )}

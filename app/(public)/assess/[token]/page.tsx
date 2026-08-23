@@ -108,6 +108,7 @@ export default function PublicAssessPage() {
       </div>
 
       <AssessmentWizard
+          draftKey={token}
         onComplete={handleComplete}
         branding={
           linkData.org

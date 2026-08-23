@@ -96,6 +96,7 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
 
   let orgId: string | null = null;
+  let departmentId: string | null = null;
   let plan: PlanType = "basic";
   let orgContext = "";
   let userContext = "";
@@ -103,7 +104,7 @@ export async function POST(req: Request) {
   if (user) {
     const { data: profile } = await supabase
       .from("user_profiles")
-      .select("org_id, name, job_title, bio, skills, preferences")
+      .select("org_id, department_id, name, job_title, bio, skills, preferences")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -121,6 +122,8 @@ export async function POST(req: Request) {
       if (parts.length > 0)
         userContext = `\n\nUSER CONTEXT:\n${parts.join("\n")}`;
     }
+
+    departmentId = profile?.department_id ?? null;
 
     if (profile?.org_id) {
       orgId = profile.org_id;
@@ -245,6 +248,11 @@ export async function POST(req: Request) {
       await supabase.from("usage_logs").insert({
         org_id: orgId,
         user_id: user.id,
+        // Never populated before, and this route is the only writer - so
+        // fetchPracticeDelta bucketed every usage row under "no department"
+        // and the evidence pack's observed-practice section was silently
+        // wrong for every real department.
+        department_id: departmentId,
         model: modelId,
         tokens_in: inputTokens,
         tokens_out: outputTokens,

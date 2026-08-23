@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { calculateDimensionScores, calculateOverallScore } from "@/lib/scoring";
+import { ASSESSMENT_QUESTIONS, calculateDimensionScores, calculateOverallScore } from "@/lib/scoring";
 import { getTierForScore } from "@/lib/constants";
+import { findMissingAnswers } from "@/lib/assessment-completeness";
 import { randomUUID } from "crypto";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  const { token } = await params;
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const { rateLimit, RATE_LIMITS, getRateLimitHeaders } = await import("@/lib/rate-limit");
-  const rl = rateLimit(`publicSubmit:${ip}`, RATE_LIMITS.publicSubmit);
+  // Keyed by token as well as IP: a whole team taking the assessment together
+  // shares one NAT address, and that is the normal case for this product.
+  const rl = rateLimit(`publicSubmit:${token}:${ip}`, RATE_LIMITS.publicSubmit);
   if (!rl.success) {
     return NextResponse.json(
       { error: "Too many submissions. Please try again later." },
@@ -18,7 +23,6 @@ export async function POST(
     );
   }
 
-  const { token } = await params;
   const supabase = await createClient();
 
   const { data: link } = await supabase
@@ -42,11 +46,24 @@ export async function POST(
     );
   }
 
-  const body = await req.json();
-  const { answers, respondent_role, tools_used } = body;
+  const { assessmentAnswersSchema, validateBody } = await import("@/lib/validations");
+  const validation = validateBody(assessmentAnswersSchema, await req.json().catch(() => null));
+  if (!validation.success) {
+    return NextResponse.json({ error: validation.error }, { status: 400 });
+  }
+  const { answers, respondent_role, tools_used } = validation.data;
 
-  if (!answers || typeof answers !== "object") {
-    return NextResponse.json({ error: "Missing answers" }, { status: 400 });
+  // Every question must be answered. Missing keys used to score zero and
+  // persist as a real result, which is worse than refusing the submission.
+  const missing = findMissingAnswers(
+    ASSESSMENT_QUESTIONS.map((q) => q.id),
+    answers
+  );
+  if (missing.length > 0) {
+    return NextResponse.json(
+      { error: `Incomplete assessment: ${missing.length} unanswered question(s).` },
+      { status: 400 }
+    );
   }
 
   const scores = calculateDimensionScores(answers);

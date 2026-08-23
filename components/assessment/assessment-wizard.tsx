@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,12 @@ interface AssessmentWizardProps {
   submitting?: boolean;
   questions?: AssessmentQuestion[];
   dimensionLabels?: Record<string, string>;
+  /**
+   * Namespace for the saved draft. Answers are kept in localStorage under
+   * this key so a refresh or an accidental back-navigation part-way through
+   * does not throw away everything already answered. Omit to disable.
+   */
+  draftKey?: string;
 }
 
 type Step = "role" | "questions" | "tools";
@@ -31,6 +37,7 @@ export function AssessmentWizard({
   submitting,
   questions: questionsProp,
   dimensionLabels: dimensionLabelsProp,
+  draftKey,
 }: AssessmentWizardProps) {
   const questions = questionsProp ?? ASSESSMENT_QUESTIONS;
   const dimLabels = (dimensionLabelsProp ?? DIMENSION_LABELS) as Record<Dimension, string>;
@@ -41,6 +48,43 @@ export function AssessmentWizard({
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [swipeDir, setSwipeDir] = useState<1 | -1>(1);
+  const [draftLoaded, setDraftLoaded] = useState(!draftKey);
+
+  const storageKey = draftKey ? `assess_draft_${draftKey}` : null;
+
+  // Restore a part-finished assessment. Fifteen questions is long enough that
+  // losing them to a stray refresh is a real abandonment cause.
+  useEffect(() => {
+    if (!storageKey) return;
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft.role) setRole(draft.role);
+        if (draft.answers) setAnswers(draft.answers);
+        if (Array.isArray(draft.selectedTools)) setSelectedTools(draft.selectedTools);
+        if (typeof draft.currentIndex === "number") setCurrentIndex(draft.currentIndex);
+        if (draft.step) setStep(draft.step);
+      }
+    } catch {
+      // A corrupt draft should never block starting the assessment.
+    }
+    setDraftLoaded(true);
+  }, [storageKey]);
+
+  // Persist after each change, but not before the restore has run - that
+  // would write the empty initial state over a saved draft.
+  useEffect(() => {
+    if (!storageKey || !draftLoaded) return;
+    try {
+      window.localStorage.setItem(
+        storageKey,
+        JSON.stringify({ step, role, answers, selectedTools, currentIndex })
+      );
+    } catch {
+      // Private browsing and full quotas are not worth failing over.
+    }
+  }, [storageKey, draftLoaded, step, role, answers, selectedTools, currentIndex]);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const question = questions[currentIndex];
@@ -104,6 +148,15 @@ export function AssessmentWizard({
         setStep("tools");
       }
     } else {
+      // The draft has served its purpose; keeping it would restore a
+      // completed assessment on the next visit.
+      if (storageKey) {
+        try {
+          window.localStorage.removeItem(storageKey);
+        } catch {
+          // Nothing actionable.
+        }
+      }
       onComplete(answers, { role: role!, toolsUsed: selectedTools });
     }
   }

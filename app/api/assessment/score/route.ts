@@ -7,6 +7,10 @@ import {
   sendAssessmentResultsEmail,
   sendAdminAssessmentCompletedEmail,
 } from "@/lib/email";
+import { fetchPublishedCourses } from "@/lib/courses";
+import { rankCourses } from "@/lib/recommendation-engine";
+import type { CourseRecommendation } from "@/lib/types";
+import type { RespondentRole } from "@/lib/constants";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -117,5 +121,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({ response: data, scores });
+  // Return the matched courses with the score. The moment someone finishes
+  // is when they are most receptive to being told what to do about it, and
+  // making them navigate to My Results to find out lost most of them.
+  const recommendedCourses: CourseRecommendation[] = rankCourses(
+    scores,
+    (respondent_role as RespondentRole | null) ?? "individual_contributor",
+    await fetchPublishedCourses()
+  ).map(({ course, score, matched_dimensions }) => ({
+    slug: course.slug,
+    title: course.title,
+    summary: course.summary,
+    level: course.level,
+    duration_hours: course.duration_hours,
+    delivery_modes: course.delivery_modes,
+    match_score: score,
+    matched_dimensions,
+  }));
+
+  return NextResponse.json({
+    response: data,
+    scores,
+    recommended_courses: recommendedCourses,
+  });
 }
