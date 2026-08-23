@@ -7,6 +7,7 @@ import {
   sendAdminNewMemberEmail,
 } from "@/lib/email";
 import { calculateOverallScore } from "@/lib/scoring";
+import { claimPendingResponse } from "@/lib/assess-claim";
 import { getTierForScore, DIMENSION_LABELS, DIMENSIONS, RESPONDENT_ROLE_LABELS, type Dimension } from "@/lib/constants";
 
 export async function POST(
@@ -34,12 +35,15 @@ export async function POST(
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Deliberately NOT filtered on claimed_by: a retry after a partial
+    // failure arrives with the row already latched to the new user, and
+    // filtering it out here would 404 before the idempotent claim could
+    // finish the job. Ownership is enforced by the claim's latch.
     const { data: pending, error: pendingError } = await supabaseAdmin
       .from("pending_responses")
       .select("*")
       .eq("session_token", session_token)
       .eq("link_id", link.id)
-      .is("claimed_by", null)
       .single();
 
     if (pendingError || !pending) {
@@ -71,7 +75,10 @@ export async function POST(
     const identities = (authData.user as any).identities;
     if (Array.isArray(identities) && identities.length === 0) {
       return NextResponse.json(
-        { error: "An account with this email already exists. Please sign in instead." },
+        {
+          error: "An account with this email already exists.",
+          code: "email_exists",
+        },
         { status: 409 }
       );
     }
@@ -89,119 +96,35 @@ export async function POST(
     });
     const needsConfirmation = !!signInError;
 
-    let departmentId: string | null = null;
-    if (department) {
-      const { data: existingDept } = await supabaseAdmin
-        .from("departments")
-        .select("id")
-        .eq("org_id", link.org_id)
-        .eq("type", department)
-        .limit(1)
-        .single();
-
-      if (existingDept) {
-        departmentId = existingDept.id;
-      } else {
-        const deptLabels: Record<string, string> = {
-          engineering: "Engineering", sales: "Sales", operations: "Operations",
-          leadership: "Leadership", marketing: "Marketing", legal: "Legal & Compliance",
-          hr: "Human Resources", finance: "Finance", product: "Product", support: "Support",
-        };
-        const { data: newDept, error: deptError } = await supabaseAdmin
-          .from("departments")
-          .insert({ org_id: link.org_id, name: deptLabels[department] || department, type: department })
-          .select("id")
-          .single();
-        if (deptError) {
-          console.error("Department creation failed:", deptError.message);
-        }
-        if (newDept) departmentId = newDept.id;
-      }
-    }
-
-    const { error: profileError } = await supabaseAdmin.from("user_profiles").upsert({
-      id: userId,
-      org_id: link.org_id,
-      department_id: departmentId,
-      email,
-      name,
-      role: "user",
+    // Everything that attaches the assessment to the account lives in the
+    // shared claim, which is idempotent: if anything below fails, retrying
+    // through /claim after signing in completes it instead of losing it.
+    const claim = await claimPendingResponse({
+      userId,
+      userEmail: email,
+      userName: name,
+      linkOrgId: link.org_id,
+      sessionToken: session_token,
+      department: department || null,
     });
 
-    if (profileError) {
-      console.error("Profile upsert failed:", profileError.message);
+    if (claim.notFound) {
       return NextResponse.json(
-        { error: "Failed to create your profile. Please try again." },
-        { status: 500 }
+        { error: "No pending assessment found for this session" },
+        { status: 404 }
       );
     }
-
-    let assessmentId: string;
-    const { data: existingAssessment } = await supabaseAdmin
-      .from("assessments")
-      .select("id")
-      .eq("org_id", link.org_id)
-      .eq("status", "active")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
-
-    if (existingAssessment) {
-      assessmentId = existingAssessment.id;
-    } else {
-      const { data: newAssessment, error: assessmentError } = await supabaseAdmin
-        .from("assessments")
-        .insert({
-          org_id: link.org_id,
-          created_by: userId,
-          title: "AI Readiness Assessment",
-          status: "active",
-        })
-        .select("id")
-        .single();
-      if (assessmentError || !newAssessment) {
-        console.error("Assessment creation failed:", assessmentError?.message);
-        return NextResponse.json(
-          { error: "Failed to create assessment record" },
-          { status: 500 }
-        );
-      }
-      assessmentId = newAssessment.id;
-    }
-
-    const responseInsert: Record<string, unknown> = {
-      assessment_id: assessmentId,
-      user_id: userId,
-      confidence_score: pending.confidence_score,
-      practice_score: pending.practice_score,
-      tools_score: pending.tools_score,
-      responsible_score: pending.responsible_score,
-      culture_score: pending.culture_score,
-      respondent_role: pending.respondent_role,
-      tools_used: pending.tools_used,
-      raw_answers: pending.raw_answers,
-    };
-    if (departmentId) responseInsert.department_id = departmentId;
-
-    const { error: responseError } = await supabaseAdmin
-      .from("assessment_responses")
-      .insert(responseInsert);
-
-    if (responseError) {
-      console.error("Assessment response insert failed:", responseError.message);
+    if (!claim.ok) {
+      // The account exists and the pending response is untouched or latched
+      // to this user - /claim can finish the job. Say so rather than
+      // pretending nothing happened.
       return NextResponse.json(
-        { error: "Failed to save your assessment response. Please try again." },
+        {
+          error: "Your account was created but attaching your results failed. Sign in and we will attach them automatically.",
+          code: "claim_failed",
+        },
         { status: 500 }
       );
-    }
-
-    const { error: claimError } = await supabaseAdmin
-      .from("pending_responses")
-      .update({ claimed_by: userId })
-      .eq("id", pending.id);
-
-    if (claimError) {
-      console.error("Pending response claim failed:", claimError.message);
     }
 
     const { data: org } = await supabaseAdmin
