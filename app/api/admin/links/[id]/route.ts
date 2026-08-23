@@ -11,7 +11,7 @@ async function getAdminProfile(supabase: Awaited<ReturnType<typeof createClient>
     .eq("id", user.id)
     .single();
 
-  if (!profile || !["super_admin", "admin"].includes(profile.role)) return null;
+  if (!profile || !["super_admin", "admin", "manager"].includes(profile.role)) return null;
   return profile;
 }
 

@@ -212,7 +212,7 @@ export default function ControlHubPage() {
     return <EmployeeHub firstName={firstName} personal={personal} personalResults={personalResults} profile={profile} />;
   }
 
-  return <AdminHub firstName={firstName} profile={profile} usage={usage} personal={personal} activity={activity} isOrgViewer={isOrgViewer} />;
+  return <AdminHub firstName={firstName} profile={profile} usage={usage} personal={personal} personalResults={personalResults} activity={activity} isOrgViewer={isOrgViewer} />;
 }
 
 /* ---------- Employee Hub ---------- */
@@ -486,6 +486,7 @@ function AdminHub({
   profile,
   usage,
   personal,
+  personalResults,
   activity,
   isOrgViewer,
 }: {
@@ -495,6 +496,7 @@ function AdminHub({
   personal: PersonalStats | null;
   activity: AuditEntry[];
   isOrgViewer: boolean;
+  personalResults: PersonalResults | null;
 }) {
   return (
     <div>
@@ -626,6 +628,58 @@ function AdminHub({
           </div>
         </motion.div>
       )}
+
+      {/* Personal readiness. Admins are people too: the assessment prompt
+          used to live only in EmployeeHub, so anyone who self-registered
+          (and is therefore an admin) was never asked to take it, and never
+          saw a course recommendation. */}
+      <motion.div variants={item} className="mt-8">
+        {personalResults ? (
+          <div className="rounded-xl border border-border bg-card p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                  Your own readiness
+                </p>
+                <p className="mt-1 text-2xl font-bold">
+                  {personalResults.overall.toFixed(1)}
+                  <span className="text-base font-normal text-muted-foreground"> / 5</span>
+                  <span className="ml-3 text-sm font-medium text-muted-foreground">
+                    Tier {personalResults.tier.tier}: {personalResults.tier.label}
+                  </span>
+                </p>
+              </div>
+              <Link href="/dashboard/my-results">
+                <Button variant="outline" size="sm">
+                  My results and courses
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-border bg-card p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold">
+                  You haven&apos;t taken the assessment yet
+                </p>
+                <p className="mt-1 max-w-lg text-sm text-muted-foreground">
+                  Five minutes. You&apos;ll see your own maturity score and the
+                  courses matched to it — and it is the same thing your team
+                  will be asked to do.
+                </p>
+              </div>
+              <Link href="/dashboard/assessment">
+                <Button size="sm" className="bg-brand text-brand-foreground hover:bg-brand/90">
+                  <BrainCircuit className="mr-2 h-4 w-4" />
+                  Take the assessment
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </motion.div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
         {/* Quick links */}

@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [orgName, setOrgName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const router = useRouter();
 
   async function handleRegister(e: React.FormEvent) {
@@ -43,12 +44,49 @@ export default function RegisterPage() {
         return;
       }
 
+      // Email confirmation is on: the account exists but there is no session
+      // until the link in the email is clicked. Navigating to the dashboard
+      // here would just bounce to /login with no explanation.
+      if (data.needs_confirmation) {
+        setAwaitingConfirmation(true);
+        setLoading(false);
+        return;
+      }
+
       router.push("/dashboard");
       router.refresh();
     } catch {
       setError("Network error. Please check your connection and try again.");
       setLoading(false);
     }
+  }
+
+  if (awaitingConfirmation) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="w-full max-w-sm text-center">
+          <Wordmark size="lg" className="mx-auto mb-6" />
+          <h1 className="mb-2 text-2xl font-bold tracking-[-0.02em]">
+            Check your email
+          </h1>
+          <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+            We&apos;ve sent a confirmation link to{" "}
+            <span className="font-medium text-foreground">{email}</span>. Click
+            it and you&apos;ll land straight in your dashboard.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Nothing arrived? Check spam, or{" "}
+            <Link
+              href="/login"
+              className="text-foreground underline underline-offset-4"
+            >
+              sign in
+            </Link>{" "}
+            once you&apos;ve confirmed.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

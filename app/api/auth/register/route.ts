@@ -24,11 +24,16 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createClient();
 
+    const origin = req.nextUrl.origin;
     const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { name, org_name: orgName },
+        // Email confirmation is ON for this project (verified 22 Aug 2026):
+        // the link in the email must land on our callback, which exchanges
+        // the code for a session and forwards to the dashboard.
+        emailRedirectTo: `${origin}/auth/callback?next=/dashboard`,
       },
     });
 
@@ -93,11 +98,16 @@ export async function POST(req: NextRequest) {
       email,
       password,
     });
-    if (signInError) {
-      console.error("Post-signup sign-in failed:", signInError.message);
-    }
 
     await sendWelcomeEmail(email, name, orgName);
+
+    // With email confirmation on, the sign-in fails until the link in the
+    // email is clicked. That is expected, not an error - but it must be
+    // said, because silently returning success used to bounce people to
+    // /login with no explanation of why they had no session.
+    if (signInError) {
+      return NextResponse.json({ success: true, needs_confirmation: true });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

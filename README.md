@@ -146,6 +146,12 @@ dropped and recreated rather than altered — so re-running the directory is saf
 Apply with the Supabase CLI (`supabase db push`) or by running the files in
 order against the project.
 
+Two files share the number `015` (`015_fix_model_ids.sql` and
+`015_nullable_department_id.sql`). They are independent and order between
+them does not matter. They are deliberately **not** renamed: the applied
+migration history on the live project records the existing names, and
+renaming them would desynchronise it.
+
 Any new table holding participant data must ship with RLS enabled in the same
 migration that creates it, not in a follow-up.
 

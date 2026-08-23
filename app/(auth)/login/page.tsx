@@ -1,20 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Wordmark } from "@/components/wordmark";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +34,16 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    // `next` comes from our own links (e.g. "sign in and we'll attach your
+    // assessment results"). Only same-site paths are honoured - a bare
+    // "//host" or "@host" would be an open redirect.
+    const requestedNext = searchParams.get("next");
+    const next =
+      requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//")
+        ? requestedNext
+        : "/dashboard";
+
+    router.push(next);
     router.refresh();
   }
 
@@ -105,5 +115,19 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  // useSearchParams opts the subtree into client-side rendering, which Next
+  // requires be wrapped so the rest of the page can still prerender.
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background" />
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

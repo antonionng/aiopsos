@@ -180,6 +180,20 @@ export const courseEnquirySchema = z.object({
     .default("course_page"),
 });
 
+/**
+ * Answers to the public assessment.
+ *
+ * Previously the route checked only `typeof answers === "object"`, so a
+ * payload missing questions scored 0 for each one (`?? 0` in the scorer) and
+ * persisted as a genuine "Tier 0" result. A partial submission should be
+ * rejected, not recorded as a bad score.
+ */
+export const assessmentAnswersSchema = z.object({
+  answers: z.record(z.string().min(1).max(50), z.number().min(0).max(5)),
+  respondent_role: z.enum(RESPONDENT_ROLES).optional().nullable(),
+  tools_used: z.array(z.string().max(100)).max(50).optional().nullable(),
+});
+
 export function validateBody<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; error: string } {
   const result = schema.safeParse(data);
   if (!result.success) {

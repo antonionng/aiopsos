@@ -55,15 +55,79 @@ export default function AssessResultsPage() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [completedCount, setCompletedCount] = useState<number>(0);
   const [courses, setCourses] = useState<CourseRecommendation[]>([]);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(`assess_results_${token}`);
     if (stored) {
       setResults(JSON.parse(stored));
-    } else {
-      router.push(`/assess/${token}`);
+      return;
     }
+    // sessionStorage does not survive a refresh in some browsers, a new tab,
+    // or iOS tab eviction. The submit route set an httpOnly cookie for this
+    // moment - recover from it before forcing anyone into a retake.
+    let cancelled = false;
+    fetch(`/api/public/assess/${token}/session`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled) return;
+        if (d && d.scores) {
+          const recovered = {
+            scores: d.scores,
+            overall: d.overall,
+            tier: d.tier,
+            session_token: d.session_token,
+            respondent_role: d.respondent_role,
+          };
+          sessionStorage.setItem(
+            `assess_results_${token}`,
+            JSON.stringify(recovered)
+          );
+          setResults(recovered);
+        } else {
+          router.push(`/assess/${token}`);
+        }
+      })
+      .catch(() => router.push(`/assess/${token}`));
+    return () => {
+      cancelled = true;
+    };
   }, [token, router]);
+
+  // Already signed in (e.g. came back after the email-exists path, or was
+  // signed in all along): attach the results to their account directly -
+  // the signup form below would only fail with 409 anyway.
+  useEffect(() => {
+    if (!results?.session_token) return;
+    let cancelled = false;
+
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient()
+        .auth.getUser()
+        .then(({ data }) => {
+          if (cancelled || !data.user) return;
+          fetch(`/api/public/assess/${token}/claim`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ session_token: results.session_token }),
+          })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => {
+              if (cancelled || !d?.success) return;
+              sessionStorage.removeItem(`assess_results_${token}`);
+              router.push(d.redirect || "/dashboard/my-results");
+            })
+            .catch(() => {
+              // Claiming is a convenience here; the signup form remains.
+            });
+        });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [results, token, router]);
 
   // The scores are already in the browser, so asking the server which
   // courses they map to discloses nothing new. The catalogue itself is public.
@@ -128,6 +192,15 @@ export default function AssessResultsPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
+        // The account exists (409) or was created but claiming failed (500
+        // with code). Either way the fix is the same: sign in, come back
+        // here, and the page claims the results automatically.
+        if (data?.code === "email_exists" || data?.code === "claim_failed") {
+          setEmailExists(true);
+          setError(data.error);
+          setLoading(false);
+          return;
+        }
         setError(data?.error || `Signup failed (${res.status}). Please try again.`);
         setLoading(false);
         return;
@@ -139,6 +212,15 @@ export default function AssessResultsPage() {
         setLoading(false);
         return;
       }
+      // Email confirmation is on: the account and the claimed assessment
+      // exist, but there is no session until the emailed link is clicked.
+      // Keep the results in sessionStorage - nothing is lost - and say so.
+      if (data.needs_confirmation) {
+        setAwaitingConfirmation(true);
+        setLoading(false);
+        return;
+      }
+
       sessionStorage.removeItem(`assess_results_${token}`);
       router.push(data.redirect || "/dashboard/my-results");
     } catch {
@@ -242,7 +324,21 @@ export default function AssessResultsPage() {
         className="mb-8"
       />
 
+      {awaitingConfirmation && (
+        <div className="mb-8 rounded-2xl border-2 border-brand/20 bg-card p-6 text-center">
+          <h3 className="mb-2 text-lg font-semibold">Check your email</h3>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Your account and your results are saved. We&apos;ve sent a
+            confirmation link to{" "}
+            <span className="font-medium text-foreground">{email}</span> —
+            click it and you&apos;ll land on your full results, including your
+            recommended courses.
+          </p>
+        </div>
+      )}
+
       {/* Signup card -- always visible */}
+      {!awaitingConfirmation && (
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -355,6 +451,14 @@ export default function AssessResultsPage() {
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
+          {emailExists && (
+            <a
+              href={`/login?next=${encodeURIComponent(`/assess/${token}/results`)}`}
+              className="block rounded-lg border border-brand/30 bg-brand/5 px-4 py-3 text-center text-sm font-medium text-foreground transition-colors hover:bg-brand/10"
+            >
+              Sign in — your results will be attached automatically
+            </a>
+          )}
 
           <Button
             type="submit"
@@ -384,6 +488,7 @@ export default function AssessResultsPage() {
           </a>
         </p>
       </motion.div>
+      )}
     </motion.div>
   );
 }

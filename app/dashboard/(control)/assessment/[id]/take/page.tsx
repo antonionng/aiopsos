@@ -13,11 +13,15 @@ import {
 } from "@/lib/scoring";
 import { DIMENSION_LABELS, DIMENSIONS, getTierForScore } from "@/lib/constants";
 import { getTemplate } from "@/lib/assessment-templates";
+import { RecommendedCourses } from "@/components/recommended-courses";
+import type { CourseRecommendation } from "@/lib/types";
 
 export default function TakeAssessmentPage() {
   const { id } = useParams<{ id: string }>();
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [recommendedCourses, setRecommendedCourses] = useState<CourseRecommendation[]>([]);
   const [scores, setScores] = useState<ReturnType<typeof calculateDimensionScores> | null>(null);
   const [templateQuestions, setTemplateQuestions] = useState<AssessmentQuestion[] | undefined>(undefined);
   const [loading, setLoading] = useState(true);
@@ -50,20 +54,45 @@ export default function TakeAssessmentPage() {
           tools_used: meta.toolsUsed,
         }),
       });
-      const data = await res.json();
-      if (data.scores) {
-        setScores(data.scores);
-      } else {
-        const dimScores = calculateDimensionScores(answers, templateQuestions);
-        setScores(dimScores);
+      const data = await res.json().catch(() => null);
+
+      // This used to fall back to scoring client-side and render a full
+      // "Assessment Complete" screen when the save had failed - so people
+      // saw a score, believed they were done, and then found nothing in My
+      // Results. A failure to persist has to be shown as a failure.
+      if (!res.ok || !data?.scores) {
+        setSaveError(
+          data?.error ??
+            "We could not save your answers. Nothing has been recorded - please try again."
+        );
+        setSubmitting(false);
+        return;
       }
+
+      setScores(data.scores);
+      setRecommendedCourses(data.recommended_courses ?? []);
+      setSubmitted(true);
     } catch {
-      const dimScores = calculateDimensionScores(answers, templateQuestions);
-      setScores(dimScores);
+      setSaveError(
+        "Network error - your answers were not saved. Please check your connection and try again."
+      );
     } finally {
       setSubmitting(false);
-      setSubmitted(true);
     }
+  }
+
+  if (saveError) {
+    return (
+      <div className="mx-auto max-w-lg py-16 text-center">
+        <h1 className="mb-2 text-2xl">We could not save your answers</h1>
+        <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+          {saveError}
+        </p>
+        <Button onClick={() => setSaveError("")} variant="outline">
+          Try again
+        </Button>
+      </div>
+    );
   }
 
   if (loading) {
@@ -108,12 +137,22 @@ export default function TakeAssessmentPage() {
           Tier {tier.tier}: {tier.label}
         </div>
 
+        {recommendedCourses.length > 0 && (
+          <div className="mb-8 text-left">
+            <RecommendedCourses
+              recommendations={recommendedCourses}
+              heading="Courses matched to your results"
+              description="Based on your weakest dimensions and your role. Delivered live by a facilitator."
+            />
+          </div>
+        )}
+
         <div>
           <Button
-            onClick={() => router.push(`/dashboard/assessment/${id}/results`)}
+            onClick={() => router.push("/dashboard/my-results")}
             className="bg-brand text-brand-foreground hover:bg-brand/90"
           >
-            View Full Results
+            View my full results
           </Button>
         </div>
       </motion.div>
