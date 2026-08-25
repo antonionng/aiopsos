@@ -3,6 +3,13 @@ import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
 
+/**
+ * TRANSITIONAL. Payments moved to Mooov (app/api/mooov/webhook); this
+ * endpoint remains only so Stripe checkout sessions created before the
+ * cutover can still complete (they expire within 24h). Delete this route,
+ * lib/stripe.ts and the `stripe` dependency one deploy after cutover.
+ */
+
 export async function POST(req: Request) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");

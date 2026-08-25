@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { generateText } from "ai";
 import { getLanguageModel } from "@/lib/model-router";
 import { createClient } from "@/lib/supabase/server";
+import { meterTokenUsage } from "@/lib/meter";
 
 export async function POST(
   _req: Request,
@@ -32,7 +33,7 @@ export async function POST(
   const assistantMsg =
     messages.find((m) => m.role === "assistant")?.content ?? "";
 
-  const { text: title } = await generateText({
+  const result = await generateText({
     model: getLanguageModel("gpt-4o-mini"),
     system:
       "Generate a concise 3-6 word title for this conversation. Return only the title text, no quotes or punctuation.",
@@ -45,7 +46,24 @@ export async function POST(
     ],
   });
 
-  const cleanTitle = title.replace(/^["']|["']$/g, "").trim() || "New conversation";
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("org_id")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile?.org_id) {
+    await meterTokenUsage({
+      orgId: profile.org_id,
+      userId: user.id,
+      model: "gpt-4o-mini",
+      inputTokens: result.usage?.inputTokens ?? 0,
+      outputTokens: result.usage?.outputTokens ?? 0,
+      endpoint: "/api/conversations/title",
+      description: "Conversation title",
+    });
+  }
+
+  const cleanTitle = result.text.replace(/^["']|["']$/g, "").trim() || "New conversation";
 
   await supabase
     .from("conversations")

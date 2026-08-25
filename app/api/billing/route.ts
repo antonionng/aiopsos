@@ -70,6 +70,41 @@ export async function GET() {
     .select("id", { count: "exact", head: true })
     .eq("org_id", profile.org_id);
 
+  // Credit system: wallet, price list, recent ledger, and - for invoice
+  // orgs or anyone with history - their invoices. All RLS-scoped reads on
+  // the caller's own client.
+  const [{ data: wallet }, { data: packs }, { data: ledger }, { data: invoices }] =
+    await Promise.all([
+      supabase
+        .from("credit_wallets")
+        .select("balance, updated_at")
+        .eq("org_id", profile.org_id)
+        .maybeSingle(),
+      supabase
+        .from("credit_packs")
+        .select("id, name, credits, price_amount, currency")
+        .eq("active", true)
+        .order("sort"),
+      supabase
+        .from("credit_ledger")
+        .select("id, credits_delta, balance_after, reason, model, description, created_at")
+        .eq("org_id", profile.org_id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("billing_invoices")
+        .select("id, invoice_number, status, issue_date, due_date, currency, total_amount")
+        .eq("org_id", profile.org_id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
+
+  const { data: orgBilling } = await supabase
+    .from("organisations")
+    .select("billing_method")
+    .eq("id", profile.org_id)
+    .single();
+
   return NextResponse.json({
     plan,
     status: org?.subscription_status ?? "trialing",
@@ -78,5 +113,10 @@ export async function GET() {
     memberCount: memberCount ?? 0,
     currentMonthUsage,
     featureUsage,
+    billingMethod: orgBilling?.billing_method ?? "card",
+    creditBalance: wallet?.balance ?? null,
+    creditPacks: packs ?? [],
+    creditHistory: ledger ?? [],
+    invoices: invoices ?? [],
   });
 }

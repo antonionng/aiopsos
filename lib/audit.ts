@@ -29,6 +29,14 @@ export const AUDIT_ACTIONS = {
   CERTIFICATE_ISSUED: "certificate.issued",
   CERTIFICATE_REVOKED: "certificate.revoked",
   EVIDENCE_PACK_GENERATED: "evidence_pack.generated",
+  INVOICE_CREATED: "invoice.created",
+  INVOICE_SENT: "invoice.sent",
+  /** Money was acknowledged received - the event an auditor traces first. */
+  INVOICE_MARKED_PAID: "invoice.marked_paid",
+  INVOICE_VOIDED: "invoice.voided",
+  BILLING_METHOD_CHANGED: "billing_method.changed",
+  /** A super admin moved a wallet by hand, outside purchase/usage. */
+  CREDITS_ADJUSTED: "credits.adjusted",
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

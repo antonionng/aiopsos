@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStripe, getStripeCustomerPortalUrl } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createPaymentIntent, newMooovPaymentId } from "@/lib/mooov";
 import { getActor } from "@/lib/cohorts";
 
 export const dynamic = "force-dynamic";
@@ -10,9 +11,12 @@ export const dynamic = "force-dynamic";
  *
  * Pricing is per cohort, not per seat: a facilitator, a date and a seat limit
  * are a fixed cost regardless of whether ten or twelve people sit in the
- * room. So this is a one-off `payment`, separate from the org's seat
- * subscription, and uses inline `price_data` rather than a catalogue Price -
- * training is quoted per engagement and rarely twice at the same number.
+ * room. So this is a one-off payment - training is quoted per engagement and
+ * rarely twice at the same number.
+ *
+ * Card orgs get a Mooov hosted-checkout redirect; the mooov_payments row we
+ * insert first is what the webhook routes on (Mooov intents carry no
+ * metadata). Invoice orgs are handled by the invoicing flow instead.
  */
 export async function POST(
   _req: NextRequest,
@@ -26,7 +30,7 @@ export async function POST(
 
   const { data: cohort } = await supabase
     .from("cohorts")
-    .select("id, org_id, title, price_amount, currency, paid_at, courses:course_id(title)")
+    .select("id, org_id, title, price_amount, currency, paid_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -52,63 +56,49 @@ export async function POST(
 
   const { data: org } = await supabase
     .from("organisations")
-    .select("stripe_customer_id, name")
+    .select("billing_method")
     .eq("id", cohort.org_id)
     .single();
 
-  const stripe = getStripe();
-  let customerId = org?.stripe_customer_id;
-
-  if (!customerId) {
-    const { data: profile } = await supabase
-      .from("user_profiles")
-      .select("email")
-      .eq("id", actor.userId)
-      .maybeSingle();
-
-    const customer = await stripe.customers.create({
-      email: profile?.email ?? undefined,
-      name: org?.name ?? undefined,
-      metadata: { org_id: cohort.org_id },
+  if (org?.billing_method === "invoice") {
+    const { createInvoiceForCohort, sendInvoice } = await import("@/lib/invoices");
+    const invoice = await createInvoiceForCohort(cohort.org_id, id, actor.userId);
+    const payload = await sendInvoice(invoice.id);
+    return NextResponse.json({
+      invoice_id: invoice.id,
+      invoice_number: payload.invoice_number,
     });
-    customerId = customer.id;
-
-    await supabase
-      .from("organisations")
-      .update({ stripe_customer_id: customerId })
-      .eq("id", cohort.org_id);
   }
 
-  const course = cohort.courses as unknown as { title: string } | null;
-  const baseUrl = getStripeCustomerPortalUrl();
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const paymentId = newMooovPaymentId();
 
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    mode: "payment",
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: cohort.currency.toLowerCase(),
-          unit_amount: cohort.price_amount,
-          product_data: {
-            name: course?.title ?? cohort.title,
-            description: `Facilitated cohort: ${cohort.title}`,
-          },
-        },
-      },
-    ],
-    success_url: `${baseUrl}/dashboard/cohorts/${id}?paid=1`,
-    cancel_url: `${baseUrl}/dashboard/cohorts/${id}`,
-    // The webhook keys off cohort_id. `plan` is deliberately absent so the
-    // subscription branch of the webhook ignores this session entirely.
-    metadata: { org_id: cohort.org_id, cohort_id: id },
+  const { error: insertError } = await supabaseAdmin.from("mooov_payments").insert({
+    payment_id: paymentId,
+    org_id: cohort.org_id,
+    initiated_by: actor.userId,
+    purpose: "cohort",
+    cohort_id: id,
+    amount: cohort.price_amount,
+    currency: cohort.currency,
+  });
+  if (insertError) {
+    return NextResponse.json({ error: "Could not start payment" }, { status: 500 });
+  }
+
+  const intent = await createPaymentIntent({
+    paymentId,
+    amount: cohort.price_amount,
+    currency: cohort.currency,
+    successUrl: `${baseUrl}/dashboard/cohorts/${id}?paid=1`,
   });
 
-  await supabase
-    .from("cohorts")
-    .update({ stripe_session_id: session.id })
-    .eq("id", id);
+  if (intent.hosted_url) {
+    await supabaseAdmin
+      .from("mooov_payments")
+      .update({ hosted_url: intent.hosted_url })
+      .eq("payment_id", paymentId);
+  }
 
-  return NextResponse.json({ url: session.url });
+  return NextResponse.json({ url: intent.hosted_url });
 }

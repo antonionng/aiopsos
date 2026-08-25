@@ -25,6 +25,13 @@ interface RevenueData {
   conversion_rate: number;
   usage_revenue: number;
   plan_breakdown: { plan: string; mrr: number; count: number }[];
+  credit_pack_sales?: number;
+  cohort_sales?: number;
+  invoices_outstanding?: number;
+  invoices_overdue?: number;
+  invoices_paid_this_month?: number;
+  credits_used_face_value?: number;
+  credit_margin?: number;
 }
 
 const container = {
@@ -126,6 +133,55 @@ export default function RevenueDashboardPage() {
             <AlertTriangle className="h-3.5 w-3.5" /> Churn Rate
           </div>
           <p className="mt-2 text-2xl font-bold">{data.churn_rate}%</p>
+        </div>
+      </motion.div>
+
+      {/* Payments & credits (MTD) */}
+      <motion.div variants={item} className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <CreditCard className="h-3.5 w-3.5" /> Credit Pack Sales (MTD)
+          </div>
+          <p className="mt-2 text-2xl font-bold">
+            {formatCurrency(data.credit_pack_sales ?? 0, data.currency)}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <DollarSign className="h-3.5 w-3.5" /> Cohort Sales (MTD)
+          </div>
+          <p className="mt-2 text-2xl font-bold">
+            {formatCurrency(data.cohort_sales ?? 0, data.currency)}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <TrendingUp className="h-3.5 w-3.5" /> Credit Margin (MTD)
+          </div>
+          <p
+            className={`mt-2 text-2xl font-bold ${
+              (data.credit_margin ?? 0) < 0 ? "text-red-500" : "text-emerald-500"
+            }`}
+          >
+            {formatCurrency(data.credit_margin ?? 0, data.currency)}
+          </p>
+          <p className="mt-1 text-[10px] text-muted-foreground">
+            Usage at face value {formatCurrency(data.credits_used_face_value ?? 0, data.currency)}{" "}
+            − provider cost
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <AlertTriangle className="h-3.5 w-3.5" /> Invoices Outstanding
+          </div>
+          <p className="mt-2 text-2xl font-bold">
+            {formatCurrency(data.invoices_outstanding ?? 0, data.currency)}
+          </p>
+          {(data.invoices_overdue ?? 0) > 0 && (
+            <p className="mt-1 text-[10px] text-red-500">
+              {formatCurrency(data.invoices_overdue ?? 0, data.currency)} overdue
+            </p>
+          )}
         </div>
       </motion.div>
 

@@ -15,6 +15,8 @@ import { CohortEnrolmentEmail } from "./emails/cohort-enrolment";
 import { SessionReminderEmail } from "./emails/session-reminder";
 import { CertificateIssuedEmail } from "./emails/certificate-issued";
 import { EnquiryReceivedEmail, EnquiryAlertEmail } from "./emails/enquiry-received";
+import { InvoiceEmail } from "./emails/invoice-email";
+import type { InvoicePayload } from "./invoices";
 import { ContactAlertEmail } from "./emails/contact-alert";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
@@ -535,6 +537,81 @@ export async function sendCertificateIssuedEmail(
   } catch (error) {
     console.error("Failed to send certificate issued email:", error);
   }
+}
+
+/**
+ * The wallet just crossed the low-balance threshold: tell the people who
+ * can top it up before AI features stop for the whole org.
+ */
+export async function sendLowCreditsEmail(orgId: string, balance: number) {
+  try {
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) return;
+    const admins = await getOrgAdminEmails(orgId);
+    if (admins.length === 0) return;
+
+    const { LowCreditsEmail } = await import("./emails/low-credits");
+    await getResend().emails.send({
+      from,
+      to: admins.map((a) => a.email),
+      subject: `AI credits running low — ${balance.toLocaleString()} left`,
+      react: LowCreditsEmail({
+        balance,
+        billingUrl: `${BASE_URL}/dashboard/billing`,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send low-credits email:", error);
+  }
+}
+
+/**
+ * An invoice (or overdue reminder), PDF attached, to the org's billing
+ * contact - or all its admins when none is set. Throws on Resend error so
+ * lib/invoices can log that delivery failed while keeping the invoice sent.
+ */
+export async function sendInvoiceEmail(
+  recipients: { email: string; name: string }[],
+  payload: InvoicePayload,
+  pdf: Buffer,
+  options: { isReminder?: boolean } = {}
+) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping invoice email");
+    return;
+  }
+  const to = recipients.map((r) => r.email).filter(Boolean);
+  if (to.length === 0) {
+    console.warn("[email] invoice has no recipients", payload.invoice_number);
+    return;
+  }
+  await getResend().emails.send({
+    from,
+    to,
+    subject: options.isReminder
+      ? `Payment reminder: invoice ${payload.invoice_number}`
+      : `Invoice ${payload.invoice_number} from Experrt`,
+    react: InvoiceEmail({
+      orgName: payload.org.name,
+      invoiceNumber: payload.invoice_number,
+      totalAmount: payload.total_amount,
+      currency: payload.currency,
+      dueDate: payload.due_date,
+      termsDays: payload.terms_days,
+      lines: payload.lines.map((l) => ({
+        description: l.description,
+        total_amount: l.total_amount,
+      })),
+      isReminder: options.isReminder,
+    }),
+    attachments: [
+      {
+        filename: `${payload.invoice_number}.pdf`,
+        content: pdf,
+      },
+    ],
+  });
 }
 
 /**

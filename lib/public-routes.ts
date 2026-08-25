@@ -15,14 +15,12 @@ export function isAuthPath(pathname: string): boolean {
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/" ||
-    pathname.startsWith("/lunchandlearn") ||
     pathname.startsWith("/verify/") ||
     pathname === "/courses" ||
     pathname.startsWith("/courses/") ||
     pathname.startsWith("/assess/") ||
     pathname.startsWith("/assessment/") ||
     pathname.startsWith("/api/public/") ||
-    pathname.startsWith("/api/lunchandlearn") ||
     pathname === "/api/assessment/public-submit" ||
     /^\/api\/assessment\/[^/]+\/public-info$/.test(pathname) ||
     // Anonymous by definition: you have no session while creating one.
