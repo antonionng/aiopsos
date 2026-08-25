@@ -25,6 +25,12 @@ test("the endpoints that create a session are reachable without one", () => {
   assert.equal(isPublicPath("/auth/callback/"), true);
 });
 
+test("the Mooov webhook is reachable by Mooov's servers", () => {
+  // Signature-authenticated, not session-authenticated. A 307 to /login
+  // here means payments never confirm.
+  assert.equal(isPublicPath("/api/mooov/webhook"), true);
+});
+
 test("social cards are crawlable without a session", () => {
   // Next serves the root card at /opengraph-image plus a build suffix.
   assert.equal(isPublicPath("/opengraph-image"), true);
