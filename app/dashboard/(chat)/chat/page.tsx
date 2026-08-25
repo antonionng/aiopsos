@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
   BookOpen,
-  FileText,
   Bot,
   Sparkles,
   ArrowDown,
@@ -37,15 +36,14 @@ import { MODEL_REGISTRY } from "@/lib/model-router";
 import { useChatContext } from "@/components/chat/chat-context";
 import { downloadMarkdown } from "@/lib/export-conversation";
 import { createClient } from "@/lib/supabase/client";
-import { ChatMarketingGate } from "@/components/chat/chat-marketing-gate";
-
-interface Persona {
-  id: string;
-  name: string;
-  system_prompt: string;
-  icon: string;
-  department_type: string | null;
-}
+import {
+  COMPANION_META,
+  companionsForRole,
+  canSelectModel,
+  type CompanionId,
+} from "@/lib/companion-meta";
+import type { UserRole } from "@/lib/role-helpers";
+import type { PlanType } from "@/lib/constants";
 
 interface SavedPrompt {
   id: string;
@@ -56,6 +54,27 @@ interface SavedPrompt {
 
 const SCROLL_THRESHOLD = 80;
 
+const COMPANION_SUGGESTIONS: Record<CompanionId, string[]> = {
+  learning: [
+    "What should I learn next?",
+    "How am I doing on my current course?",
+    "Show my certificates",
+    "What does the prompting course cover?",
+  ],
+  ld: [
+    "How are our cohorts progressing?",
+    "Which departments have the biggest readiness gaps?",
+    "Who has completed training so far?",
+    "Summarise attendance across running cohorts",
+  ],
+  insights: [
+    "Which teams are actually using AI?",
+    "Show me our assessment results by department",
+    "What training has my team completed?",
+    "Where should we invest in training next?",
+  ],
+};
+
 export default function ChatPage() {
   const {
     activeSession: conversationId,
@@ -63,14 +82,13 @@ export default function ChatPage() {
     onConversationCreated,
     updateSessionTitle,
     sessions,
+    createNewChat,
   } = useChatContext();
 
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [companion, setCompanion] = useState<CompanionId>("learning");
   const [model, setModel] = useState("gpt-4o-mini");
-  const [personas, setPersonas] = useState<Persona[]>([]);
-  const [selectedPersona, setSelectedPersona] = useState<string>("");
   const [savedPrompts, setSavedPrompts] = useState<SavedPrompt[]>([]);
-  const [useKnowledge, setUseKnowledge] = useState(false);
   const [pendingConvId, setPendingConvId] = useState<string | null>(null);
   const [feedbackMap, setFeedbackMap] = useState<Record<string, "up" | "down">>({});
   const [shareToken, setShareToken] = useState<string | null>(null);
@@ -91,17 +109,27 @@ export default function ChatPage() {
         .select("role")
         .eq("id", user.id)
         .maybeSingle();
-      setUserRole(profile?.role ?? "user");
+      setUserRole((profile?.role ?? "user") as UserRole);
     }
     checkRole();
   }, []);
+
+  const activeCompanion = COMPANION_META[companion];
+  const showModelSelector = userRole ? canSelectModel(userRole) : false;
+
+  function switchCompanion(next: CompanionId) {
+    if (next === companion) return;
+    setCompanion(next);
+    setModel(COMPANION_META[next].defaultModel);
+    // A conversation's companion is fixed at creation, so switching starts
+    // a fresh thread rather than re-homing the current one.
+    createNewChat();
+  }
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
-
-  const activePersona = personas.find((p) => p.id === selectedPersona);
 
   const currentConvId = conversationId ?? pendingConvId;
 
@@ -115,12 +143,12 @@ export default function ChatPage() {
         api: "/api/chat",
         body: {
           model,
-          persona: activePersona?.system_prompt ?? undefined,
+          companion,
           conversation_id: currentConvId ?? undefined,
           web_search_results: pendingSearchResults ?? undefined,
         },
       }),
-    [model, activePersona?.system_prompt, currentConvId, pendingSearchResults]
+    [model, companion, currentConvId, pendingSearchResults]
   );
 
   const chat = useChat({
@@ -175,6 +203,10 @@ export default function ChatPage() {
     fetch(`/api/conversations/${conversationId}`)
       .then((r) => r.json())
       .then((d) => {
+        // Reopening a thread restores the companion it was created with.
+        if (d.conversation?.companion && COMPANION_META[d.conversation.companion as CompanionId]) {
+          setCompanion(d.conversation.companion as CompanionId);
+        }
         if (d.messages && Array.isArray(d.messages)) {
           const uiMessages = d.messages.map(
             (m: { id: string; role: string; content: string }) => ({
@@ -214,13 +246,6 @@ export default function ChatPage() {
     setShowScrollButton(false);
   }, []);
 
-  const loadPersonas = useCallback(() => {
-    fetch("/api/personas")
-      .then((r) => r.json())
-      .then((d) => setPersonas(d.personas ?? []))
-      .catch(() => {});
-  }, []);
-
   const loadPrompts = useCallback(() => {
     fetch("/api/prompts")
       .then((r) => r.json())
@@ -229,7 +254,6 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    loadPersonas();
     loadPrompts();
     fetch("/api/billing")
       .then((r) => r.json())
@@ -237,7 +261,7 @@ export default function ChatPage() {
         if (d.plan) setUserPlan(d.plan);
       })
       .catch(() => {});
-  }, [loadPersonas, loadPrompts]);
+  }, [loadPrompts]);
 
   const modelLabel = MODEL_REGISTRY[model]?.label ?? model;
 
@@ -250,6 +274,7 @@ export default function ChatPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model,
+          companion,
           project_id: activeProjectFilter ?? undefined,
         }),
       });
@@ -572,44 +597,32 @@ export default function ChatPage() {
     return null;
   }
 
-  if (userRole !== "super_admin") {
-    return <ChatMarketingGate />;
-  }
+  const availableCompanions = companionsForRole(userRole);
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* Toolbar */}
       <div className="flex shrink-0 items-center justify-center gap-3 border-b border-border py-2 px-4">
-        <ModelSelector value={model} onChange={setModel} />
-
-        {personas.length > 0 && (
-          <Select value={selectedPersona} onValueChange={setSelectedPersona}>
-            <SelectTrigger className="h-7 w-auto gap-1.5 rounded-full border-border bg-surface px-3 text-xs font-medium">
-              <Bot className="h-3 w-3" />
-              <SelectValue placeholder="No persona" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">No persona</SelectItem>
-              {personas.map((p) => (
-                <SelectItem key={p.id} value={p.id} className="text-sm">
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-
-        <button
-          onClick={() => setUseKnowledge(!useKnowledge)}
-          className={`flex h-7 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors ${
-            useKnowledge
-              ? "border-brand bg-brand/10 text-brand"
-              : "border-border bg-surface text-muted-foreground hover:text-foreground"
-          }`}
+        <Select
+          value={companion}
+          onValueChange={(v) => switchCompanion(v as CompanionId)}
         >
-          <FileText className="h-3 w-3" />
-          Company docs
-        </button>
+          <SelectTrigger className="h-7 w-auto gap-1.5 rounded-full border-brand/30 bg-brand/5 px-3 text-xs font-medium text-brand">
+            <Bot className="h-3 w-3" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {availableCompanions.map((c) => (
+              <SelectItem key={c.id} value={c.id} className="text-sm">
+                {c.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {showModelSelector && (
+          <ModelSelector value={model} onChange={setModel} plan={userPlan as PlanType} />
+        )}
 
         <button
           onClick={handleWebSearchToggle}
@@ -710,28 +723,35 @@ export default function ChatPage() {
                   <MessageSquare className="h-8 w-8 text-brand" />
                 </div>
                 <h2 className="mb-2 text-2xl font-semibold tracking-tight">
-                  How can I help you today?
+                  {activeCompanion.label}
                 </h2>
                 <p className="max-w-md text-sm text-muted-foreground leading-relaxed">
-                  Ask anything about your work, projects, or data.
-                  {activePersona
-                    ? ` Using ${activePersona.name} persona.`
-                    : ""}
+                  {activeCompanion.description}
                 </p>
-                {useKnowledge && (
-                  <Badge variant="secondary" className="mt-3 text-xs">
-                    <FileText className="mr-1 h-3 w-3" />
-                    Company docs enabled
-                  </Badge>
+
+                {availableCompanions.length > 1 && (
+                  <div className="mt-6 grid w-full max-w-2xl gap-2 sm:grid-cols-3">
+                    {availableCompanions.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => switchCompanion(c.id)}
+                        className={`rounded-xl border p-4 text-left transition-colors ${
+                          c.id === companion
+                            ? "border-brand/40 bg-brand/5"
+                            : "border-border bg-card hover:border-brand/20 hover:bg-accent"
+                        }`}
+                      >
+                        <p className="mb-1 text-sm font-semibold">{c.label}</p>
+                        <p className="text-xs leading-relaxed text-muted-foreground">
+                          {c.description}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
                 )}
 
                 <div className="mt-8 grid w-full max-w-lg grid-cols-2 gap-2">
-                  {[
-                    "Summarise our AI readiness scores",
-                    "Draft a project status update",
-                    "What models should our team use?",
-                    "Help me write a business case for AI",
-                  ].map((suggestion) => (
+                  {COMPANION_SUGGESTIONS[companion].map((suggestion) => (
                     <button
                       key={suggestion}
                       onClick={() => handleSend(suggestion)}
@@ -799,7 +819,7 @@ export default function ChatPage() {
                     </div>
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {activePersona?.name ?? modelLabel} is thinking…
+                    {activeCompanion.label} is thinking…
                   </span>
                 </motion.div>
               )}

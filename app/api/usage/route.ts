@@ -11,12 +11,17 @@ export async function GET() {
 
   const { data: profile } = await supabaseAdmin
     .from("user_profiles")
-    .select("org_id")
+    .select("org_id, role")
     .eq("id", user.id)
     .maybeSingle();
 
   if (!profile?.org_id) {
     return NextResponse.json({ error: "No organisation" }, { status: 404 });
+  }
+
+  // Org-wide usage is staff reporting, not something every member may read.
+  if (!["admin", "manager", "super_admin"].includes(profile.role ?? "user")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const orgId = profile.org_id;

@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     );
 
   const body = await req.json();
-  const { model = "gpt-4o-mini", project_id } = body;
+  const { model = "gpt-4o-mini", project_id, companion } = body;
 
   const { data: conversation, error } = await supabase
     .from("conversations")
@@ -68,6 +68,10 @@ export async function POST(req: Request) {
       model,
       title: "New conversation",
       project_id: project_id || null,
+      // The companion is fixed at creation; /api/chat reads it back from the
+      // row, so a later request cannot switch an insights thread to another
+      // audience's toolset.
+      companion: ["learning", "ld", "insights"].includes(companion) ? companion : "learning",
     })
     .select()
     .single();
