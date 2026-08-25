@@ -26,18 +26,18 @@ type SortKey = "department" | "overall" | Dimension;
 type SortDir = "asc" | "desc";
 
 function getHeatColor(value: number): string {
-  if (value >= 4) return "bg-emerald-500";
-  if (value >= 3) return "bg-emerald-500/70";
-  if (value >= 2) return "bg-amber-500";
-  if (value >= 1) return "bg-orange-500";
-  return "bg-red-500";
+  if (value >= 4) return "bg-success";
+  if (value >= 3) return "bg-success/70";
+  if (value >= 2) return "bg-warning";
+  if (value >= 1) return "bg-cat-robotics";
+  return "bg-danger";
 }
 
 function getBenchmarkDelta(value: number, benchmark: number): { color: string; symbol: string } {
   const delta = value - benchmark;
-  if (delta >= 0.3) return { color: "text-emerald-500", symbol: "+" };
+  if (delta >= 0.3) return { color: "text-success", symbol: "+" };
   if (delta >= -0.3) return { color: "text-muted-foreground", symbol: "~" };
-  return { color: "text-red-500", symbol: "-" };
+  return { color: "text-danger", symbol: "-" };
 }
 
 const dimensions: Dimension[] = [...DIMENSIONS];
@@ -141,7 +141,7 @@ export function Heatmap({ data, showBenchmarks = true, showOverall = true }: Pro
                     <TooltipTrigger asChild>
                       <div className="flex justify-center">
                         <div
-                          className={`flex h-9 w-14 items-center justify-center rounded-md text-xs font-semibold text-white ${getHeatColor(
+                          className={`flex h-9 w-14 items-center justify-center rounded-md text-xs font-semibold text-white dark:text-background ${getHeatColor(
                             row.overall
                           )}`}
                         >
@@ -165,7 +165,7 @@ export function Heatmap({ data, showBenchmarks = true, showOverall = true }: Pro
                       <TooltipTrigger asChild>
                         <div className="flex flex-col items-center">
                           <div
-                            className={`flex h-9 w-14 items-center justify-center rounded-md text-xs font-semibold text-white ${getHeatColor(
+                            className={`flex h-9 w-14 items-center justify-center rounded-md text-xs font-semibold text-white dark:text-background ${getHeatColor(
                               row.scores[dim]
                             )}`}
                           >
@@ -227,19 +227,19 @@ export function Heatmap({ data, showBenchmarks = true, showOverall = true }: Pro
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-[10px] text-muted-foreground">
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-red-500" /> 0-1
+          <span className="h-3 w-3 rounded bg-danger" /> 0-1
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-orange-500" /> 1-2
+          <span className="h-3 w-3 rounded bg-cat-robotics" /> 1-2
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-amber-500" /> 2-3
+          <span className="h-3 w-3 rounded bg-warning" /> 2-3
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-emerald-500/70" /> 3-4
+          <span className="h-3 w-3 rounded bg-success/70" /> 3-4
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-emerald-500" /> 4-5
+          <span className="h-3 w-3 rounded bg-success" /> 4-5
         </span>
       </div>
     </div>

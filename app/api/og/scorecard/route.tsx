@@ -1,7 +1,13 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import { MATURITY_TIERS } from "@/lib/constants";
 
 export const runtime = "edge";
+
+// The card is always dark, whatever theme the viewer uses, so colors are
+// literals - but the tier scale itself comes from MATURITY_TIERS, the same
+// source the in-app gauge reads. Amber is the brand accent (see globals.css).
+const BRAND = "#fbbf24";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -13,16 +19,8 @@ export async function GET(req: NextRequest) {
   const resp = parseFloat(searchParams.get("resp") ?? "0");
   const cult = parseFloat(searchParams.get("cult") ?? "0");
 
-  const tiers = [
-    { label: "No Structured Usage", min: 0, max: 0.99 },
-    { label: "Ad Hoc Usage", min: 1, max: 1.99 },
-    { label: "Repeatable Usage", min: 2, max: 2.99 },
-    { label: "Workflow Embedded", min: 3, max: 3.99 },
-    { label: "Automation Ready", min: 4, max: 4.49 },
-    { label: "Agent Orchestration Ready", min: 4.5, max: 5 },
-  ];
   const tier =
-    tiers.find((t) => score >= t.min && score <= t.max)?.label ??
+    MATURITY_TIERS.find((t) => score >= t.min && score <= t.max)?.label ??
     "Not Assessed";
 
   const dims = [
@@ -69,7 +67,7 @@ export async function GET(req: NextRequest) {
             fontWeight: 700,
             letterSpacing: "-0.05em",
             lineHeight: 1,
-            color: "#ffffff",
+            color: BRAND,
           }}
         >
           {score.toFixed(1)}
@@ -130,7 +128,7 @@ export async function GET(req: NextRequest) {
                   style={{
                     width: `${(d.score / 5) * 100}%`,
                     height: "100%",
-                    backgroundColor: "#ffffff",
+                    backgroundColor: BRAND,
                     borderRadius: "4px",
                   }}
                 />

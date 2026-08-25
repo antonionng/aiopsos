@@ -41,6 +41,20 @@ function isCourseCategory(value: string | undefined): value is CourseCategory {
   return !!value && (COURSE_CATEGORIES as readonly string[]).includes(value);
 }
 
+// Active filter pill takes its subject's hue, so the filter you applied and
+// the badges on the matching cards visibly agree.
+const CATEGORY_PILL_ACTIVE: Record<CourseCategory, string> = {
+  ai: "border-cat-ai/40 bg-cat-ai-soft text-cat-ai",
+  technology: "border-cat-technology/40 bg-cat-technology-soft text-cat-technology",
+  robotics: "border-cat-robotics/40 bg-cat-robotics-soft text-cat-robotics",
+};
+
+const CATEGORY_BADGE: Record<CourseCategory, string> = {
+  ai: "bg-cat-ai-soft text-cat-ai",
+  technology: "bg-cat-technology-soft text-cat-technology",
+  robotics: "bg-cat-robotics-soft text-cat-robotics",
+};
+
 /** Preserve the other filter when building a pill's href. */
 function hrefFor(params: { category?: string | null; level?: string | null }) {
   const query = new URLSearchParams();
@@ -72,7 +86,7 @@ export default async function CoursesPage({
     <div>
       <StructuredData data={ORGANISATION_LD} />
       <header className="mb-12">
-        <h1 className="mb-4 text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
+        <h1 className="mb-4 font-display text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
           Training courses
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
@@ -101,7 +115,7 @@ export default async function CoursesPage({
             href={hrefFor({ category: cat, level: activeLevel })}
             className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
               activeCategory === cat
-                ? "border-foreground bg-foreground text-background"
+                ? CATEGORY_PILL_ACTIVE[cat]
                 : "border-border text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -173,7 +187,11 @@ export default async function CoursesPage({
               </div>
               <div className="flex flex-1 flex-col p-6">
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-medium text-brand">
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    CATEGORY_BADGE[course.category] ?? "bg-brand/10 text-brand"
+                  }`}
+                >
                   {COURSE_CATEGORY_LABELS[course.category] ?? course.category}
                 </span>
                 <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
@@ -241,7 +259,7 @@ export default async function CoursesPage({
         </p>
         <Link
           href="/register"
-          className="inline-flex h-11 items-center justify-center rounded-full bg-foreground px-6 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+          className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
         >
           Run an assessment
           <ArrowRight className="ml-2 h-4 w-4" />

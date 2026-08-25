@@ -42,6 +42,16 @@
   --color-brand-foreground: var(--brand-foreground);
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-cat-ai: var(--cat-ai);
+  --color-cat-ai-soft: var(--cat-ai-soft);
+  --color-cat-technology: var(--cat-technology);
+  --color-cat-technology-soft: var(--cat-technology-soft);
+  --color-cat-robotics: var(--cat-robotics);
+  --color-cat-robotics-soft: var(--cat-robotics-soft);
+  --font-display: var(--font-space-grotesk);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -66,21 +76,34 @@
   --secondary-foreground: #191919;
   --muted: #f5f5f4;
   --muted-foreground: #6b6b6b;
-  --accent: #f5f5f4;
+  /* A real highlight, not a muted twin: warm amber wash for hovers and
+     selected states. Distinct from --muted so highlighting reads at all. */
+  --accent: #f7f1e8;
   --accent-foreground: #191919;
   --destructive: #ef4444;
   --border: #e5e5e5;
   --input: #e5e5e5;
-  --ring: #0d0d0d;
-  --brand: #0d0d0d;
+  --ring: #b45309;
+  /* amber-700, not amber-500: brand renders as text and small UI on white
+     in ~500 places, and amber-500 fails AA there (2.2:1). */
+  --brand: #b45309;
   --brand-foreground: #ffffff;
   --surface: #ffffff;
   --surface-elevated: #f9f9f8;
-  --chart-1: #191919;
-  --chart-2: #6b6b6b;
-  --chart-3: #a0a0a0;
-  --chart-4: #444444;
-  --chart-5: #888888;
+  --success: #047857;
+  --warning: #b45309;
+  --danger: #dc2626;
+  --cat-ai: #7c3aed;
+  --cat-ai-soft: #f3eefc;
+  --cat-technology: #b45309;
+  --cat-technology-soft: #faf1e4;
+  --cat-robotics: #c2410c;
+  --cat-robotics-soft: #fdeee4;
+  --chart-1: #b45309;
+  --chart-2: #7c3aed;
+  --chart-3: #c2410c;
+  --chart-4: #047857;
+  --chart-5: #6b7280;
   --sidebar: #f7f7f5;
   --sidebar-foreground: #191919;
   --sidebar-primary: #0d0d0d;
@@ -105,21 +128,30 @@
   --secondary-foreground: #ececec;
   --muted: #252525;
   --muted-foreground: #888888;
-  --accent: #1e1e1e;
+  --accent: #292216;
   --accent-foreground: #ececec;
   --destructive: #ef4444;
   --border: rgba(255, 255, 255, 0.06);
   --input: rgba(255, 255, 255, 0.1);
-  --ring: #ffffff;
-  --brand: #ffffff;
-  --brand-foreground: #0d0d0d;
+  --ring: #fbbf24;
+  --brand: #fbbf24;
+  --brand-foreground: #1c1503;
   --surface: #1e1e1e;
   --surface-elevated: #252525;
-  --chart-1: #ececec;
-  --chart-2: #a0a0a0;
-  --chart-3: #666666;
-  --chart-4: #888888;
-  --chart-5: #cccccc;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --cat-ai: #a78bfa;
+  --cat-ai-soft: rgba(167, 139, 250, 0.13);
+  --cat-technology: #fbbf24;
+  --cat-technology-soft: rgba(251, 191, 36, 0.11);
+  --cat-robotics: #fb923c;
+  --cat-robotics-soft: rgba(251, 146, 60, 0.12);
+  --chart-1: #fbbf24;
+  --chart-2: #a78bfa;
+  --chart-3: #fb923c;
+  --chart-4: #34d399;
+  --chart-5: #888888;
   --sidebar: #171717;
   --sidebar-foreground: #ececec;
   --sidebar-primary: #ffffff;
@@ -146,6 +178,24 @@
   h3 {
     @apply text-base font-semibold;
   }
+}
+
+/* Faint layout grid for hero sections. The old inline version hardcoded
+   white lines, which vanished on the light theme; foreground-derived lines
+   survive both. */
+.bg-grid-faint {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--foreground) 4%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--foreground) 4%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 72px 72px;
 }
 
 @keyframes shimmer {

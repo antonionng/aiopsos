@@ -52,7 +52,7 @@ function DimensionBar({
             height: "100%",
             width: `${pct}%`,
             borderRadius: "3px",
-            backgroundColor: "#ffffff",
+            backgroundColor: "#fbbf24",
           }}
         />
       </div>
@@ -165,8 +165,8 @@ export function ScoreCardEmail({
             href={resultsUrl}
             style={{
               display: "inline-block",
-              backgroundColor: "#ffffff",
-              color: "#0d0d0d",
+              backgroundColor: "#fbbf24",
+              color: "#1c1503",
               fontSize: "14px",
               fontWeight: 600,
               padding: "12px 24px",

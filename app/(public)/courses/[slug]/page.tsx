@@ -2,17 +2,31 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, ExternalLink } from "lucide-react";
-import { fetchCourseBySlug } from "@/lib/courses";
+import { fetchCourseBySlug, fetchPublishedCourses } from "@/lib/courses";
 import { insightForCourse } from "@/lib/insights/catalog";
 import { StructuredData, courseLd } from "@/components/structured-data";
 import { CourseEnquiryForm } from "@/components/course-enquiry-form";
 import { CourseArtwork } from "@/components/course-artwork";
 import {
+  COURSE_CATEGORY_LABELS,
   COURSE_LEVEL_LABELS,
   DELIVERY_MODE_LABELS,
   DIMENSION_LABELS,
   RESPONDENT_ROLE_LABELS,
+  type CourseCategory,
 } from "@/lib/constants";
+
+const CATEGORY_BAND: Record<CourseCategory, string> = {
+  ai: "bg-cat-ai-soft",
+  technology: "bg-cat-technology-soft",
+  robotics: "bg-cat-robotics-soft",
+};
+
+const CATEGORY_BADGE: Record<CourseCategory, string> = {
+  ai: "bg-cat-ai-soft text-cat-ai",
+  technology: "bg-cat-technology-soft text-cat-technology",
+  robotics: "bg-cat-robotics-soft text-cat-robotics",
+};
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +65,10 @@ export default async function CoursePage({
   const moduleHours = modules.reduce((sum, m) => sum + m.duration_hours, 0);
   const relatedInsight = insightForCourse(course.slug);
 
+  const related = (await fetchPublishedCourses())
+    .filter((c) => c.category === course.category && c.slug !== course.slug)
+    .slice(0, 3);
+
   return (
     <article>
       <StructuredData data={courseLd(course)} />
@@ -63,10 +81,21 @@ export default async function CoursePage({
       </Link>
 
       <header className="mb-10">
-        <div className="mb-6 flex h-32 items-center justify-center overflow-hidden rounded-2xl border border-border bg-card">
+        <div
+          className={`mb-6 flex h-32 items-center justify-center overflow-hidden rounded-2xl border border-border ${
+            CATEGORY_BAND[course.category] ?? "bg-card"
+          }`}
+        >
           <CourseArtwork category={course.category} className="h-24 w-32" />
         </div>
         <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              CATEGORY_BADGE[course.category] ?? "bg-brand/10 text-brand"
+            }`}
+          >
+            {COURSE_CATEGORY_LABELS[course.category] ?? course.category}
+          </span>
           <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
             {COURSE_LEVEL_LABELS[course.level]}
           </span>
@@ -81,7 +110,7 @@ export default async function CoursePage({
           </span>
         </div>
 
-        <h1 className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
+        <h1 className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
           {course.title}
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
@@ -198,6 +227,42 @@ export default async function CoursePage({
                 {" "}
                 is the public briefing that sits next to this course.
               </p>
+            </section>
+          )}
+
+          {related.length > 0 && (
+            <section>
+              <h2 className="mb-4 text-xl font-semibold tracking-[-0.01em]">
+                More {COURSE_CATEGORY_LABELS[course.category].toLowerCase()}{" "}
+                courses
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {related.map((rc) => (
+                  <Link
+                    key={rc.slug}
+                    href={`/courses/${rc.slug}`}
+                    className="group flex flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-foreground/30"
+                  >
+                    <span
+                      className={`mb-2 w-fit rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                        CATEGORY_BADGE[rc.category] ?? "bg-brand/10 text-brand"
+                      }`}
+                    >
+                      {COURSE_LEVEL_LABELS[rc.level]}
+                    </span>
+                    <span className="mb-1 text-sm font-semibold leading-snug">
+                      {rc.title}
+                    </span>
+                    <span className="mb-3 line-clamp-3 flex-1 text-xs leading-relaxed text-muted-foreground">
+                      {rc.summary}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      {rc.duration_hours} hrs
+                    </span>
+                  </Link>
+                ))}
+              </div>
             </section>
           )}
         </div>

@@ -75,6 +75,13 @@ const ARTWORK: Record<CourseCategory, () => React.JSX.Element> = {
   robotics: RoboticsArtwork,
 };
 
+// The SVGs draw in currentColor, so the subject hue is one class here.
+const ARTWORK_COLOR: Record<CourseCategory, string> = {
+  ai: "text-cat-ai",
+  technology: "text-cat-technology",
+  robotics: "text-cat-robotics",
+};
+
 export function CourseArtwork({
   category,
   className = "",
@@ -83,8 +90,9 @@ export function CourseArtwork({
   className?: string;
 }) {
   const Art = ARTWORK[category] ?? AiArtwork;
+  const color = ARTWORK_COLOR[category] ?? "text-foreground/70";
   return (
-    <div className={`pointer-events-none text-foreground/70 ${className}`}>
+    <div className={`pointer-events-none ${color} ${className}`}>
       <Art />
     </div>
   );
