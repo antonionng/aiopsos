@@ -25,6 +25,12 @@ test("the endpoints that create a session are reachable without one", () => {
   assert.equal(isPublicPath("/auth/callback/"), true);
 });
 
+test("social cards are crawlable without a session", () => {
+  // Next serves the root card at /opengraph-image plus a build suffix.
+  assert.equal(isPublicPath("/opengraph-image"), true);
+  assert.equal(isPublicPath("/opengraph-image-abc123"), true);
+});
+
 test("private app routes stay gated", () => {
   assert.equal(isPublicPath("/dashboard"), false);
   assert.equal(isPublicPath("/dashboard/enquiries"), false);

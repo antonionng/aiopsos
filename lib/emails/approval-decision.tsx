@@ -102,8 +102,8 @@ export function ApprovalDecisionEmail({
           href={dashboardUrl}
           style={{
             display: "inline-block",
-            backgroundColor: "#ffffff",
-            color: "#0d0d0d",
+            backgroundColor: "#fbbf24",
+            color: "#1c1503",
             fontSize: "14px",
             fontWeight: 600,
             padding: "12px 28px",

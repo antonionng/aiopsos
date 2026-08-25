@@ -30,6 +30,8 @@ export function isPublicPath(pathname: string): boolean {
     pathname === "/api/auth/register" ||
     pathname === "/api/contact" ||
     pathname.startsWith("/auth/callback") ||
+    // Social-card crawlers never carry a session.
+    pathname.startsWith("/opengraph-image") ||
     pathname.startsWith("/terms") ||
     pathname.startsWith("/privacy") ||
     pathname.startsWith("/cookies") ||

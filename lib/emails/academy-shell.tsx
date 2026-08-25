@@ -1,4 +1,5 @@
 import * as React from "react";
+import { EMAIL_BRAND, EMAIL_BRAND_FOREGROUND } from "@/lib/email-theme";
 
 /**
  * Shared shell for the academy emails.
@@ -48,8 +49,8 @@ const styles = {
   strong: { color: "#cccccc" },
   button: {
     display: "inline-block",
-    backgroundColor: "#ffffff",
-    color: "#0d0d0d",
+    backgroundColor: EMAIL_BRAND,
+    color: EMAIL_BRAND_FOREGROUND,
     fontSize: "14px",
     fontWeight: 600,
     padding: "12px 28px",

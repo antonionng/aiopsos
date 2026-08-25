@@ -303,8 +303,8 @@ export function AdminAssessmentCompletedEmail({
           href={resultsUrl}
           style={{
             display: "inline-block",
-            backgroundColor: "#ffffff",
-            color: "#0d0d0d",
+            backgroundColor: "#fbbf24",
+            color: "#1c1503",
             fontSize: "15px",
             fontWeight: 700,
             padding: "14px 36px",
