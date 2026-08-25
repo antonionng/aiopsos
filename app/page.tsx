@@ -3,14 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Wordmark } from "@/components/wordmark";
+import { CompanionShowcase } from "@/components/marketing/companion-showcase";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Check,
-  X,
-  Sparkles,
-  Users,
   Menu,
   Search,
   Plus,
@@ -20,15 +18,6 @@ import {
   Send,
   Bot,
 } from "lucide-react";
-import {
-  SUBSCRIPTION_PLANS,
-  PLAN_FEATURES,
-  PLAN_MODELS,
-  FEATURE_QUOTAS,
-  FEATURE_LABELS,
-  FEATURE_UNITS,
-  type PlanType,
-} from "@/lib/constants";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -135,29 +124,37 @@ const STEPS = [
   },
 ];
 
-const MODELS = [
-  { name: "GPT-5.2", provider: "OpenAI" },
-  { name: "GPT-4o", provider: "OpenAI" },
-  { name: "GPT-4o Mini", provider: "OpenAI" },
-  { name: "o3-mini", provider: "OpenAI" },
-];
-
-const TRUST = [
-  "Role-proportionate training records",
-  "Attendance and grading held per cohort",
-  "Third-party certificate verification",
-  "Dated, frozen evidence packs",
-  "Facilitator credentials on record",
-  "Department-level usage reporting",
-  "Row-level data isolation per tenant",
-  "Automated PII detection and guardrails",
+const TRUST_GROUPS = [
+  {
+    title: "The record",
+    items: [
+      "Role-proportionate training records",
+      "Attendance and grading held per cohort",
+      "Facilitator credentials on record",
+    ],
+  },
+  {
+    title: "Verification",
+    items: [
+      "Third-party certificate verification",
+      "Dated, frozen evidence packs",
+    ],
+  },
+  {
+    title: "Privacy by structure",
+    items: [
+      "Usage reported by department, never by person",
+      "Row-level data isolation per tenant",
+      "Automated PII detection and guardrails",
+    ],
+  },
 ];
 
 const WORKSPACE_QUICK_ACTIONS = [
-  "Summarise our AI readiness scores",
-  "Draft a project status update",
-  "What models should our team use?",
-  "Help me write a business case for AI",
+  "What should I learn next?",
+  "How is my current course going?",
+  "Show my certificates",
+  "Which cohorts run this month?",
 ];
 
 const PROJECT_THREAD = [
@@ -283,9 +280,6 @@ export default function Home() {
               </Link>
               <a href="#enterprise" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Enterprise
-              </a>
-              <a href="#models" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                Models
               </a>
               <a href="#pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Pricing
@@ -529,7 +523,7 @@ export default function Home() {
 
                 <div className="flex flex-col p-4 sm:p-6">
                   <div className="mb-5 flex flex-wrap items-center gap-2">
-                    {["GPT-4o Mini", "Company docs", "Search", "Prompts"].map((chip) => (
+                    {["Learning companion", "GPT-4o Mini", "Search", "Prompts"].map((chip) => (
                       <span
                         key={chip}
                         className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/75"
@@ -572,7 +566,8 @@ export default function Home() {
                       How can I help you today?
                     </h3>
                     <p className="mb-6 text-sm text-white/55">
-                      Ask anything about your work, projects, or data.
+                      A companion for every role: learners, L&D, and owners each
+                      get their own.
                     </p>
                     <div className="grid w-full max-w-xl gap-2 sm:grid-cols-2">
                       {WORKSPACE_QUICK_ACTIONS.map((prompt, i) => (
@@ -692,7 +687,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Collaboration */}
+      {/* Companions */}
       <section className="border-y border-border/40 py-24">
         <div className="mx-auto max-w-6xl px-6">
           <motion.div
@@ -702,87 +697,17 @@ export default function Home() {
             variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
           >
             <motion.h2 variants={fadeUp} custom={0} className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
-              Project collaboration in motion
+              Conversations in action
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="mb-12 max-w-2xl text-muted-foreground">
-              Teams collaborate with AI in shared project spaces, hand off work across departments, and keep policy and context attached to every decision.
+              Every member gets an AI companion matched to their role. Learners
+              get help between live sessions, L&amp;D sees cohorts and gaps, and
+              owners get answers about their people &mdash; with individual
+              privacy built in as a hard rule, not a promise.
             </motion.p>
 
-            <motion.div variants={fadeUp} custom={2} className="grid gap-6 lg:grid-cols-[1.2fr_minmax(0,1fr)]">
-              <div className="rounded-2xl border border-border bg-card p-5">
-                <p className="mb-4 text-sm font-semibold">Live project room</p>
-                <div className="space-y-3">
-                  {COLLAB_PEOPLE.map((person, i) => (
-                    <motion.div
-                      key={person.name}
-                      className="flex items-center justify-between rounded-lg border border-border bg-muted/20 px-3 py-2.5"
-                      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: i * 0.08 }}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div className="relative h-8 w-8 overflow-hidden rounded-full border border-border">
-                          <img
-                            src={person.avatarPath}
-                            alt={`${person.name} avatar`}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-card bg-emerald-400" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium">{person.name}</p>
-                          <p className="text-xs text-muted-foreground">{person.team}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <motion.p
-                          className="text-xs text-muted-foreground"
-                          animate={reduceMotion ? undefined : { opacity: [0.35, 1, 0.35] }}
-                          transition={{ duration: 1.3, repeat: Infinity, delay: i * 0.25 }}
-                        >
-                          with AI
-                        </motion.p>
-                        <p className="text-[11px] text-muted-foreground">{person.aiTask}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-border bg-card p-5">
-                <p className="mb-4 text-sm font-semibold">Project timeline + AI handoffs</p>
-                <div className="mb-4 rounded-lg border border-border bg-muted/20 p-3">
-                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">AI co-pilot thread</p>
-                  <motion.div
-                    className="rounded-md border border-border bg-card px-3 py-2 text-xs"
-                    animate={reduceMotion ? undefined : { y: [0, -1, 0] }}
-                    transition={{ duration: 1.6, repeat: Infinity }}
-                  >
-                    Product asked AI for a rollout draft, operations refined the plan,
-                    finance requested compliance checks, and engineering received the final
-                    approved handoff.
-                  </motion.div>
-                </div>
-                <div className="space-y-3">
-                  {[
-                    "Kickoff and requirements aligned",
-                    "Knowledge base docs linked to AI project space",
-                    "Policy checks completed with AI guardrails",
-                    "Launch review approved",
-                  ].map((item, i) => (
-                    <div key={item} className="relative rounded-lg border border-border bg-muted/20 px-3 py-2.5">
-                      <motion.span
-                        className="absolute left-0 top-0 h-full w-1 rounded-l-lg bg-foreground/70"
-                        animate={reduceMotion ? undefined : { opacity: [0.25, 0.9, 0.25] }}
-                        transition={{ duration: 1.7, repeat: Infinity, delay: i * 0.28 }}
-                      />
-                      <p className="pl-2 text-sm">{item}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <motion.div variants={fadeUp} custom={2}>
+              <CompanionShowcase />
             </motion.div>
           </motion.div>
         </div>
@@ -822,75 +747,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Multi-model */}
-      <section id="models" className="py-28">
-        <div className="mx-auto max-w-6xl px-6">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
-          >
-            <motion.h2
-              variants={fadeUp}
-              custom={0}
-              className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
-            >
-              One provider, deliberately.
-            </motion.h2>
-            <motion.p
-              variants={fadeUp}
-              custom={1}
-              className="mb-16 max-w-lg text-muted-foreground"
-            >
-              We run on OpenAI and say so. Every organisation that buys training
-              has to list who processes its data, and one named sub-processor is
-              a far easier approval than four. Routing and governance match the
-              right model, policy, and context to each task.
-            </motion.p>
-
-            <motion.div
-              variants={fadeUp}
-              custom={2}
-              className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4"
-            >
-              {MODELS.map((m) => (
-                <div key={m.name} className="bg-card p-6">
-                  <p className="text-sm font-semibold">{m.name}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {m.provider}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
-
-            <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
-              {[
-                {
-                  title: "Right model, right team",
-                  body: "Department-level routing ensures engineering gets code-optimised models while commercial teams get conversational ones. No one-size-fits-all setup for the entire company.",
-                },
-                {
-                  title: "Company policies built into daily work",
-                  body: "PII detection, guardrails, and role-based policy controls are embedded where people actually use AI, so governance becomes part of execution instead of an afterthought.",
-                },
-                {
-                  title: "Projects, documents, and collaboration in context",
-                  body: "Attach internal documents, work in shared projects, and collaborate with AI as a team. Track adoption, usage, and ROI so you can scale what works.",
-                },
-              ].map((card) => (
-                <div key={card.title} className="bg-card p-8 md:p-10">
-                  <h3 className="mb-3 text-base font-semibold">{card.title}</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {card.body}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Enterprise trust */}
       <section id="enterprise" className="border-y border-border/40 py-28">
         <div className="mx-auto max-w-6xl px-6">
@@ -899,27 +755,89 @@ export default function Home() {
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={{ visible: { transition: { staggerChildren: 0.06 } } }}
+            className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_1.2fr] lg:gap-16"
           >
-            <motion.h2
-              variants={fadeUp}
-              custom={0}
-              className="mb-16 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
-            >
-              What you get in writing.
-            </motion.h2>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {TRUST.map((item, i) => (
-                <motion.div
-                  key={item}
-                  variants={fadeUp}
-                  custom={i}
-                  className="rounded-xl border border-border bg-card px-5 py-4"
+            <div>
+              <motion.h2
+                variants={fadeUp}
+                custom={0}
+                className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+              >
+                What you get in writing.
+              </motion.h2>
+              <motion.p variants={fadeUp} custom={1} className="mb-6 text-muted-foreground">
+                When a funding body, an auditor or your board asks what you did
+                about AI capability, you hand them a dated pack &mdash; who was
+                assessed, who was trained, by whom, and what changed afterwards.
+                Not a slide of good intentions.
+              </motion.p>
+              <motion.p variants={fadeUp} custom={2} className="mb-8 text-sm text-muted-foreground">
+                Every item below is a record the platform keeps as the training
+                runs, frozen at export so later edits can never rewrite what a
+                certificate or a pack already says.
+              </motion.p>
+              <motion.div variants={fadeUp} custom={3}>
+                <Link
+                  href="/docs"
+                  className="inline-flex items-center text-sm font-medium text-brand hover:underline"
                 >
-                  <p className="text-sm font-medium">{item}</p>
-                </motion.div>
-              ))}
+                  How the records work
+                  <ArrowRight className="ml-1.5 h-4 w-4" />
+                </Link>
+              </motion.div>
             </div>
+
+            {/* The evidence-pack document */}
+            <motion.div
+              variants={fadeUp}
+              custom={2}
+              className="relative rounded-2xl border border-border bg-card p-6 sm:p-8"
+            >
+              <div className="mb-6 flex items-start justify-between gap-4 border-b border-border/60 pb-5">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                    Evidence pack
+                  </p>
+                  <p className="mt-1 font-display text-lg font-semibold tracking-tight">
+                    Your organisation
+                  </p>
+                </div>
+                <motion.span
+                  initial={reduceMotion ? false : { opacity: 0, rotate: -12, scale: 1.15 }}
+                  whileInView={{ opacity: 1, rotate: -6, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: 0.4 }}
+                  className="rounded-md border-2 border-brand/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-brand"
+                >
+                  Dated &amp; frozen
+                </motion.span>
+              </div>
+
+              <div className="space-y-6">
+                {TRUST_GROUPS.map((group) => (
+                  <div key={group.title}>
+                    <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                      {group.title}
+                    </p>
+                    <ul className="space-y-2">
+                      {group.items.map((item, i) => (
+                        <motion.li
+                          key={item}
+                          initial={reduceMotion ? false : { opacity: 0, x: 8 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.25, delay: i * 0.06 }}
+                          className="flex items-start gap-2.5 text-sm"
+                        >
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                          {item}
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -938,158 +856,151 @@ export default function Home() {
               custom={0}
               className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
-              Simple, transparent pricing
+              Pricing that follows the training
             </motion.h2>
             <motion.p
               variants={fadeUp}
               custom={1}
-              className="mb-16 max-w-lg text-muted-foreground"
+              className="mb-16 max-w-xl text-muted-foreground"
             >
-              Every plan includes unlimited free seats for AI readiness assessments.
-              Pay only for premium AI features your team needs.
+              The platform is free for your whole organisation. You pay for the
+              training you book, and for the AI your people actually use &mdash;
+              metered, capped, and itemised. No seat licences.
             </motion.p>
 
             <div className="grid gap-6 lg:grid-cols-3">
-              {(["basic", "pro", "enterprise"] as const).map((planKey, idx) => {
-                const plan = SUBSCRIPTION_PLANS[planKey];
-                const features = PLAN_FEATURES[planKey];
-                const models = PLAN_MODELS[planKey];
-                const quotas = FEATURE_QUOTAS[planKey];
-
-                return (
-                  <motion.div
-                    key={planKey}
-                    variants={fadeUp}
-                    custom={idx + 2}
-                    className={`relative flex flex-col rounded-2xl border bg-card p-8 ${
-                      planKey === "pro"
-                        ? "border-brand/40 ring-2 ring-brand/60"
-                        : planKey === "enterprise"
-                        ? "border-foreground/20 ring-1 ring-foreground/10"
-                        : "border-border"
-                    }`}
+              {/* Platform */}
+              <motion.div
+                variants={fadeUp}
+                custom={2}
+                className="relative flex flex-col rounded-2xl border border-border bg-card p-8"
+              >
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold">Platform</h3>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="font-display text-4xl font-bold tracking-tight">£0</span>
+                    <span className="text-sm text-muted-foreground">for everyone, always</span>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Unlimited members. No trial clock.
+                  </p>
+                </div>
+                <ul className="flex-1 space-y-2.5">
+                  {[
+                    "Readiness assessments for the whole workforce",
+                    "Scores by department, role and dimension",
+                    "Training records, attendance and grades",
+                    "Dated evidence packs and certificate verification",
+                    "A role-based AI companion for every member",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6">
+                  <Link
+                    href="/register"
+                    className="flex h-11 w-full items-center justify-center rounded-full border border-border bg-card text-sm font-semibold transition-colors hover:bg-accent"
                   >
-                    {planKey === "pro" && (
-                      <span className="absolute -top-3 left-6 rounded-full bg-brand px-3 py-0.5 text-[11px] font-semibold text-brand-foreground">
-                        Most Popular
-                      </span>
-                    )}
-                    {planKey === "enterprise" && (
-                      <span className="absolute -top-3 left-6 rounded-full bg-foreground px-3 py-0.5 text-[11px] font-semibold text-background">
-                        Best Value
-                      </span>
-                    )}
+                    Create your organisation
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </div>
+              </motion.div>
 
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold">{plan.name}</h3>
-                      <div className="mt-2 flex items-baseline gap-1">
-                        <span className="text-4xl font-bold tracking-tight">
-                          £{plan.monthlyPricePerSeat}
-                        </span>
-                        <span className="text-sm text-muted-foreground">/user/month</span>
-                      </div>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Paid from £{plan.monthlyPricePerSeat * plan.minSeats}/mo ({plan.minSeats}+ seats)
-                      </p>
-                    </div>
+              {/* AI usage */}
+              <motion.div
+                variants={fadeUp}
+                custom={3}
+                className="relative flex flex-col rounded-2xl border border-border bg-card p-8"
+              >
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold">AI usage</h3>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="font-display text-4xl font-bold tracking-tight">Pay as you go</span>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Metered at model rates. Nothing when nobody uses it.
+                  </p>
+                </div>
+                <ul className="flex-1 space-y-2.5">
+                  {[
+                    "Charged per request, at the rate of the model used",
+                    "Daily and monthly ceilings per person, on by default",
+                    "Itemised by department on your statement",
+                    "Learners run on the efficient model automatically",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6 rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-xs text-muted-foreground">
+                  Capped by default &mdash; nobody can run up a bill you did not
+                  agree to.
+                </div>
+              </motion.div>
 
-                    <div className="mb-5 flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
-                      <Users className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <span className="text-xs font-medium">Unlimited free seats for assessments</span>
-                    </div>
-
-                    <div className="mb-4">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {models.length} AI models included
-                      </span>
-                    </div>
-
-                    <div className="flex-1 space-y-2.5">
-                      {[
-                        { label: "Knowledge base", on: features.knowledgeBase },
-                        { label: "Custom personas", on: features.personas },
-                        { label: "Team collaboration", on: features.teamCollaboration },
-                        { label: "Approval workflows", on: features.approvalWorkflows },
-                        { label: "Stack recommendation", on: features.stackRecommendation },
-                        { label: "Roadmap generator", on: features.roadmapGenerator },
-                        { label: "Advanced analytics", on: features.advancedAnalytics },
-                        { label: "PDF export", on: features.pdfExport },
-                        { label: "Web search", on: features.webSearch },
-                        { label: "Voice chat", on: features.voiceChat },
-                        { label: "Image generation", on: features.imageGeneration },
-                        { label: "Deep research", on: features.deepResearch },
-                      ].map((f) => (
-                        <div key={f.label} className="flex items-center gap-2.5 text-sm">
-                          {f.on ? (
-                            <Check className="h-4 w-4 shrink-0 text-foreground" />
-                          ) : (
-                            <X className="h-4 w-4 shrink-0 text-muted-foreground/30" />
-                          )}
-                          <span className={f.on ? "" : "text-muted-foreground/50"}>
-                            {f.label}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {(quotas.voice > 0 || quotas.web_search > 0 || quotas.image_gen > 0 || quotas.deep_research > 0) && (
-                      <div className="mt-5 rounded-lg border border-border bg-muted/50 px-3 py-2.5">
-                        <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                          Included per seat / month
-                        </p>
-                        <div className="space-y-0.5">
-                          {(["voice", "web_search", "image_gen", "deep_research"] as const).map((f) =>
-                            quotas[f] > 0 ? (
-                              <p key={f} className="text-xs">
-                                <span className="font-medium">{quotas[f]}</span>{" "}
-                                <span className="text-muted-foreground">
-                                  {FEATURE_UNITS[f]} ({FEATURE_LABELS[f]})
-                                </span>
-                              </p>
-                            ) : null
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {planKey === "enterprise" && (
-                      <div className="mt-4 space-y-1.5">
-                        {["SSO & SAML authentication", "Dedicated customer success manager", "Custom model fine-tuning", "Priority support with SLA"].map((perk) => (
-                          <div key={perk} className="flex items-center gap-2 text-xs">
-                            <Sparkles className="h-3 w-3 shrink-0 text-foreground" />
-                            <span className="font-medium">{perk}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="mt-6">
-                      <Link
-                        href="/register"
-                        className={`flex h-11 w-full items-center justify-center rounded-full text-sm font-semibold transition-opacity hover:opacity-90 ${
-                          planKey === "pro"
-                            ? "bg-brand text-brand-foreground"
-                            : planKey === "enterprise"
-                            ? "bg-foreground text-background"
-                            : "border border-border bg-card text-foreground hover:bg-muted"
-                        }`}
-                      >
-                        Get Started
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              {/* Courses */}
+              <motion.div
+                variants={fadeUp}
+                custom={4}
+                className="relative flex flex-col rounded-2xl border border-brand/40 bg-card p-8 ring-2 ring-brand/60"
+              >
+                <span className="absolute -top-3 left-6 rounded-full bg-brand px-3 py-0.5 text-[11px] font-semibold text-brand-foreground">
+                  What you come for
+                </span>
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold">Courses</h3>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="font-display text-4xl font-bold tracking-tight">Per cohort</span>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Priced for the cohort, not per licence.
+                  </p>
+                </div>
+                <ul className="flex-1 space-y-2.5">
+                  {[
+                    "Facilitated live \u2014 in your room or online",
+                    "Built around your team's real work",
+                    "Attendance taken, work graded by the facilitator",
+                    "Certificates any third party can verify",
+                    "The records land in your evidence pack automatically",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-6 space-y-2">
+                  <Link
+                    href="/courses"
+                    className="flex h-11 w-full items-center justify-center rounded-full bg-brand text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
+                  >
+                    Browse the catalogue
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="flex h-11 w-full items-center justify-center rounded-full border border-border text-sm font-semibold transition-colors hover:bg-accent"
+                  >
+                    Ask about a cohort
+                  </Link>
+                </div>
+              </motion.div>
             </div>
 
             <motion.p
               variants={fadeUp}
-              custom={6}
-              className="mt-8 text-center text-xs text-muted-foreground"
+              custom={5}
+              className="mt-8 max-w-2xl text-xs text-muted-foreground"
             >
-              All plans include unlimited team members for AI readiness assessments.
-              Paid seats unlock premium AI features. 14-day Pro trial included.
+              Cohort pricing depends on course, group size and delivery mode
+              &mdash; ask and you will get a number, not a call-back sequence.
             </motion.p>
           </motion.div>
         </div>
