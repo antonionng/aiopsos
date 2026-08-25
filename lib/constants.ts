@@ -1,10 +1,14 @@
+// Neutral -> amber -> green as maturity climbs. These render as inline
+// styles on both themes and as literals in the OG scorecard, so they are
+// picked to hold at least 3:1 against white AND against the dark card
+// surface (#1e1e1e) - mid-tones, not theme-specific ones.
 export const MATURITY_TIERS = [
-  { tier: 0, label: "No Structured Usage", min: 0, max: 0.99, color: "#555555" },
-  { tier: 1, label: "Ad Hoc Usage", min: 1, max: 1.99, color: "#777777" },
-  { tier: 2, label: "Repeatable Usage", min: 2, max: 2.99, color: "#999999" },
-  { tier: 3, label: "Workflow Embedded", min: 3, max: 3.99, color: "#aaaaaa" },
-  { tier: 4, label: "Automation Ready", min: 4, max: 4.49, color: "#cccccc" },
-  { tier: 5, label: "Agent Orchestration Ready", min: 4.5, max: 5, color: "#ececec" },
+  { tier: 0, label: "No Structured Usage", min: 0, max: 0.99, color: "#6b7280" },
+  { tier: 1, label: "Ad Hoc Usage", min: 1, max: 1.99, color: "#b45309" },
+  { tier: 2, label: "Repeatable Usage", min: 2, max: 2.99, color: "#a16207" },
+  { tier: 3, label: "Workflow Embedded", min: 3, max: 3.99, color: "#4d7c0f" },
+  { tier: 4, label: "Automation Ready", min: 4, max: 4.49, color: "#047857" },
+  { tier: 5, label: "Agent Orchestration Ready", min: 4.5, max: 5, color: "#0f766e" },
 ] as const;
 
 export const DIMENSIONS = [
@@ -370,6 +374,20 @@ export const COURSE_CATEGORY_LABELS: Record<CourseCategory, string> = {
   ai: "Applied AI",
   technology: "Technology adoption",
   robotics: "Applied robotics",
+};
+
+/**
+ * Literal hues per subject for surfaces where CSS variables do not exist:
+ * OG images and email HTML. Components should use the `cat-*` design tokens
+ * (bg-cat-ai-soft, text-cat-ai, ...) instead, which carry a dark variant.
+ */
+export const COURSE_CATEGORY_COLORS: Record<
+  CourseCategory,
+  { base: string; soft: string }
+> = {
+  ai: { base: "#7c3aed", soft: "#f3eefc" },
+  technology: { base: "#b45309", soft: "#faf1e4" },
+  robotics: { base: "#c2410c", soft: "#fdeee4" },
 };
 
 export const COURSE_CATEGORY_DESCRIPTIONS: Record<CourseCategory, string> = {

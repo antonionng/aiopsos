@@ -302,7 +302,7 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-14">
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        <div className="pointer-events-none absolute inset-0 bg-grid-faint" />
 
         <motion.div
           className="relative z-10 mx-auto max-w-4xl text-center"
