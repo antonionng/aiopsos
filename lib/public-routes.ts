@@ -27,6 +27,9 @@ export function isPublicPath(pathname: string): boolean {
     // "/contact" below matches the page, not the endpoint the form posts to.
     pathname === "/api/auth/register" ||
     pathname === "/api/contact" ||
+    // Mooov's servers post here with an HMAC signature, not a session;
+    // the route verifies the signature itself.
+    pathname === "/api/mooov/webhook" ||
     pathname.startsWith("/auth/callback") ||
     // Social-card crawlers never carry a session.
     pathname.startsWith("/opengraph-image") ||
