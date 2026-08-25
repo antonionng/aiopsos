@@ -328,7 +328,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={8}>
-              AI Chat -- Upgrade to Pro
+              AI companions
             </TooltipContent>
           </Tooltip>
         ) : (
@@ -338,10 +338,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             className="flex h-9 w-full items-center gap-2.5 rounded-lg bg-gradient-to-r from-brand/10 to-brand/5 px-3 text-sm font-medium text-muted-foreground transition-colors hover:from-brand/20 hover:to-brand/10"
           >
             <MessageSquare className="h-4 w-4 shrink-0" />
-            <span className="flex-1">AI Chat</span>
-            <span className="animate-pulse rounded-full bg-brand/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-brand">
-              Pro
-            </span>
+            <span className="flex-1">AI companions</span>
           </Link>
         )}
       </div>

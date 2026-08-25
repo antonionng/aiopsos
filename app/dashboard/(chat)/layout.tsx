@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Wordmark } from "@/components/wordmark";
 import { Menu, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,30 +8,16 @@ import { UserAvatarMenu } from "@/components/layout/user-avatar-menu";
 import { ConversationSidebar } from "@/components/chat/conversation-sidebar";
 import { ChatProvider, useChatContext } from "@/components/chat/chat-context";
 import { ProjectDialog } from "@/components/chat/project-dialog";
-import { createClient } from "@/lib/supabase/client";
 import type { Project } from "@/lib/types";
 
+// Chat is open to every signed-in member: the companions themselves are
+// role-gated server-side (lib/companions.ts), so there is nothing here for
+// a role check to protect. The old super_admin gate predates companions.
 function ChatLayoutInner({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { createNewChat, refreshProjects } = useChatContext();
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [isSuperAdmin, setIsSuperAdmin] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    async function checkRole() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setIsSuperAdmin(false); return; }
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
-      setIsSuperAdmin(profile?.role === "super_admin");
-    }
-    checkRole();
-  }, []);
 
   const handleOpenProjectDialog = useCallback((project?: Project) => {
     setEditingProject(project ?? null);
@@ -42,36 +28,18 @@ function ChatLayoutInner({ children }: { children: React.ReactNode }) {
     refreshProjects();
   }, [refreshProjects]);
 
-  if (isSuperAdmin === false) {
-    return (
-      <div className="flex h-screen overflow-hidden">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
-            <Wordmark size="sm" />
-            <UserAvatarMenu />
-          </header>
-          <main className="flex flex-1 flex-col overflow-hidden">
-            {children}
-          </main>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-screen overflow-hidden">
-      {isSuperAdmin && (
-        <ConversationSidebar
-          open={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          onOpenProjectDialog={handleOpenProjectDialog}
-        />
-      )}
+      <ConversationSidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        onOpenProjectDialog={handleOpenProjectDialog}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-4">
           <div className="flex items-center gap-2">
-            {isSuperAdmin && !sidebarOpen && (
+            {!sidebarOpen && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -81,7 +49,7 @@ function ChatLayoutInner({ children }: { children: React.ReactNode }) {
                 <Menu className="h-4 w-4" />
               </Button>
             )}
-            {isSuperAdmin && !sidebarOpen && (
+            {!sidebarOpen && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -91,7 +59,7 @@ function ChatLayoutInner({ children }: { children: React.ReactNode }) {
                 <Plus className="h-4 w-4" />
               </Button>
             )}
-            {isSuperAdmin && sidebarOpen && (
+            {sidebarOpen && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -112,14 +80,12 @@ function ChatLayoutInner({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      {isSuperAdmin && (
-        <ProjectDialog
-          open={projectDialogOpen}
-          onClose={() => setProjectDialogOpen(false)}
-          project={editingProject}
-          onSaved={handleProjectSaved}
-        />
-      )}
+      <ProjectDialog
+        open={projectDialogOpen}
+        onClose={() => setProjectDialogOpen(false)}
+        project={editingProject}
+        onSaved={handleProjectSaved}
+      />
     </div>
   );
 }

@@ -16,12 +16,16 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from("user_profiles")
-    .select("org_id")
+    .select("org_id, role")
     .eq("id", user.id)
     .single();
 
   if (!profile?.org_id)
     return NextResponse.json({ data: null });
+
+  // Department-level score aggregates are staff reporting.
+  if (!["admin", "manager", "super_admin"].includes(profile.role ?? "user"))
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { data: orgAssessments } = await supabaseAdmin
     .from("assessments")

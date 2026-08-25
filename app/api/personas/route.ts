@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.org_id || profile.role !== "admin") {
+  if (!profile?.org_id || !["admin", "super_admin"].includes(profile.role ?? "")) {
     return NextResponse.json({ error: "Only admins can create personas" }, { status: 403 });
   }
 
