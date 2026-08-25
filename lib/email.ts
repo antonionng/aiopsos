@@ -15,6 +15,7 @@ import { CohortEnrolmentEmail } from "./emails/cohort-enrolment";
 import { SessionReminderEmail } from "./emails/session-reminder";
 import { CertificateIssuedEmail } from "./emails/certificate-issued";
 import { EnquiryReceivedEmail, EnquiryAlertEmail } from "./emails/enquiry-received";
+import { ContactAlertEmail } from "./emails/contact-alert";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
 import type { DimensionScores } from "./types";
@@ -542,6 +543,30 @@ export async function sendCertificateIssuedEmail(
  * Both are attempted independently. A bounced confirmation must not stop the
  * alert reaching us - the lead is the thing that matters.
  */
+/** The contact-form alert, on the branded shell. Throws on Resend error so
+ * the route can tell the sender their message did not go through. */
+export async function sendContactAlert(details: {
+  name: string;
+  email: string;
+  message: string;
+}) {
+  const { from } = getEmailConfig();
+  const notify = getNotifyEmail();
+  console.log("[email] contact notify-to", notify);
+
+  const { error } = await getResend().emails.send({
+    from,
+    to: notify,
+    replyTo: details.email,
+    subject: `Contact form: ${details.name}`,
+    react: ContactAlertEmail(details),
+  });
+
+  if (error) {
+    throw new Error(`Resend error: ${JSON.stringify(error)}`);
+  }
+}
+
 export async function sendEnquiryEmails(details: {
   name: string;
   email: string;
