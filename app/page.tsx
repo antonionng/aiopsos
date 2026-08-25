@@ -42,18 +42,27 @@ const fadeUp = {
 const PILLARS = [
   {
     title: "Applied AI",
+    href: "/courses?category=ai",
+    accentBar: "bg-cat-ai",
+    accentText: "text-cat-ai",
     description:
       "Using AI on the work your team already does: drafting, analysis, research, summarising a document nobody has time to read. Built around verification habits, because an answer nobody checks is a liability rather than a saving.",
     sharpEdge: "Not prompt tricks. The judgement to know when the output is wrong.",
   },
   {
     title: "Technology adoption",
+    href: "/courses?category=technology",
+    accentBar: "bg-cat-technology",
+    accentText: "text-cat-technology",
     description:
       "The tools your organisation already pays for, actually used. Most companies have more capability sitting unopened in their existing licences than in anything they are about to buy.",
     sharpEdge: "Not a product demo. Your stack, your workflows, your people.",
   },
   {
     title: "Applied robotics",
+    href: "/courses?category=robotics",
+    accentBar: "bg-cat-robotics",
+    accentText: "text-cat-robotics",
     description:
       "Robotics as an operational question rather than an engineering one: what to specify, how to put it into a real process, who owns it, and what happens on the shift when it stops.",
     sharpEdge: "Not how they are built. How they are put to work.",
@@ -313,7 +322,7 @@ export default function Home() {
           <motion.h1
             variants={fadeUp}
             custom={1}
-            className="mb-6 text-5xl font-bold leading-[1.08] tracking-[-0.04em] text-foreground sm:text-6xl lg:text-[4.5rem]"
+            className="mb-6 font-display text-5xl font-bold leading-[1.08] tracking-[-0.04em] text-foreground sm:text-6xl lg:text-[4.5rem]"
           >
             We train your people to
             <br />
@@ -334,7 +343,7 @@ export default function Home() {
           <motion.div variants={fadeUp} custom={3}>
             <Link
               href="/contact"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-8 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-8 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
             >
               Book a conversation
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -361,7 +370,7 @@ export default function Home() {
             <motion.h2
               variants={fadeUp}
               custom={0}
-              className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+              className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
               What we train
             </motion.h2>
@@ -377,21 +386,30 @@ export default function Home() {
 
             <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
               {PILLARS.map((pillar) => (
-                <motion.div
-                  key={pillar.title}
-                  variants={fadeUp}
-                  custom={2}
-                  className="bg-card p-8 md:p-10"
-                >
-                  <h3 className="mb-3 text-lg font-semibold tracking-[-0.01em]">
-                    {pillar.title}
-                  </h3>
-                  <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-                    {pillar.description}
-                  </p>
-                  <p className="text-sm font-medium text-foreground/80">
-                    {pillar.sharpEdge}
-                  </p>
+                <motion.div key={pillar.title} variants={fadeUp} custom={2}>
+                  <Link
+                    href={pillar.href}
+                    className="group flex h-full flex-col bg-card p-8 transition-colors hover:bg-accent/50 md:p-10"
+                  >
+                    <span
+                      className={`mb-5 h-1 w-10 rounded-full ${pillar.accentBar}`}
+                    />
+                    <h3 className="mb-3 text-lg font-semibold tracking-[-0.01em]">
+                      {pillar.title}
+                    </h3>
+                    <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                      {pillar.description}
+                    </p>
+                    <p className="mb-6 text-sm font-medium text-foreground/80">
+                      {pillar.sharpEdge}
+                    </p>
+                    <span
+                      className={`mt-auto inline-flex items-center text-sm font-medium ${pillar.accentText}`}
+                    >
+                      See the courses
+                      <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </Link>
                 </motion.div>
               ))}
             </div>
@@ -411,7 +429,7 @@ export default function Home() {
             <motion.h2
               variants={fadeUp}
               custom={0}
-              className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+              className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
               Why now
             </motion.h2>
@@ -683,7 +701,7 @@ export default function Home() {
             viewport={{ once: true, margin: "-100px" }}
             variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
           >
-            <motion.h2 variants={fadeUp} custom={0} className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
+            <motion.h2 variants={fadeUp} custom={0} className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
               Project collaboration in motion
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="mb-12 max-w-2xl text-muted-foreground">
@@ -816,7 +834,7 @@ export default function Home() {
             <motion.h2
               variants={fadeUp}
               custom={0}
-              className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+              className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
               One provider, deliberately.
             </motion.h2>
@@ -918,7 +936,7 @@ export default function Home() {
             <motion.h2
               variants={fadeUp}
               custom={0}
-              className="mb-4 text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+              className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
             >
               Simple, transparent pricing
             </motion.h2>
@@ -944,15 +962,15 @@ export default function Home() {
                     variants={fadeUp}
                     custom={idx + 2}
                     className={`relative flex flex-col rounded-2xl border bg-card p-8 ${
-                      planKey === "enterprise"
+                      planKey === "pro"
+                        ? "border-brand/40 ring-2 ring-brand/60"
+                        : planKey === "enterprise"
                         ? "border-foreground/20 ring-1 ring-foreground/10"
-                        : planKey === "pro"
-                        ? "border-border ring-1 ring-border"
                         : "border-border"
                     }`}
                   >
                     {planKey === "pro" && (
-                      <span className="absolute -top-3 left-6 rounded-full bg-foreground px-3 py-0.5 text-[11px] font-semibold text-background">
+                      <span className="absolute -top-3 left-6 rounded-full bg-brand px-3 py-0.5 text-[11px] font-semibold text-brand-foreground">
                         Most Popular
                       </span>
                     )}
@@ -1049,7 +1067,9 @@ export default function Home() {
                       <Link
                         href="/register"
                         className={`flex h-11 w-full items-center justify-center rounded-full text-sm font-semibold transition-opacity hover:opacity-90 ${
-                          planKey === "enterprise"
+                          planKey === "pro"
+                            ? "bg-brand text-brand-foreground"
+                            : planKey === "enterprise"
                             ? "bg-foreground text-background"
                             : "border border-border bg-card text-foreground hover:bg-muted"
                         }`}
@@ -1105,7 +1125,7 @@ export default function Home() {
             <motion.div variants={fadeUp} custom={2}>
               <Link
                 href="/register"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-foreground px-10 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-10 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
               >
                 Get Started
                 <ArrowRight className="ml-2 h-4 w-4" />
