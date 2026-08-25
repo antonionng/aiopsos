@@ -127,8 +127,11 @@ the `ai` SDK, so they only need to be present in the environment.
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key. Server-side only, bypasses RLS |
 | `NEXT_PUBLIC_APP_URL` | Public base URL, used in emails and share links |
 | `OPENAI_API_KEY` | Models, image generation, voice. OpenAI is the only model provider — see `lib/model-router.ts` |
-| `STRIPE_SECRET_KEY` | Billing |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signature verification |
+| `MOOOV_API_KEY_ID` | Mooov.money key id (`mk_test_*` / `mk_live_*`). Mooov orchestrates all card payments |
+| `MOOOV_API_SECRET` | Mooov request-signing secret |
+| `MOOOV_WEBHOOK_SECRET` | Mooov webhook signature verification (`/api/mooov/webhook`) |
+| `STRIPE_SECRET_KEY` | Transitional — only the legacy webhook still reads it; remove after Mooov cutover |
+| `STRIPE_WEBHOOK_SECRET` | Transitional, as above |
 | `RESEND_API_KEY` | Transactional email |
 | `EMAIL_FROM` | Sender address for transactional email |
 | `NOTIFY_EMAIL` | Where contact-form and course-enquiry alerts go. Defaults to `ag@experrt.com` if unset |

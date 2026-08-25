@@ -13,11 +13,6 @@ export const teamInviteSchema = z.object({
   role: z.enum(["user", "manager", "admin"]).optional().default("user"),
 });
 
-export const stripeCheckoutSchema = z.object({
-  priceId: z.string().min(1, "Price ID is required"),
-  plan: z.enum(["basic", "pro", "enterprise"]),
-});
-
 export const assessmentCreateSchema = z.object({
   title: z.string().min(1).max(500).optional().default("AI Readiness Assessment"),
   template_id: z.string().min(1).max(100).optional().default("org-wide"),

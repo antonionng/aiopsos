@@ -157,7 +157,7 @@ export default function SettingsPage() {
 
   const [billing, setBilling] = useState<BillingData | null>(null);
   const [billingLoading, setBillingLoading] = useState(false);
-  const [stripeLoading, setStripeLoading] = useState(false);
+  const stripeLoading = false;
 
   const currentOrgId = useCurrentOrgId();
 
@@ -176,30 +176,16 @@ export default function SettingsPage() {
     }
   }, []);
 
-  async function handleCheckout(plan: PlanType) {
-    setStripeLoading(true);
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, priceId: `price_${plan}` }),
-      });
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-    } finally {
-      setStripeLoading(false);
-    }
+  // Self-serve seat subscriptions are retired: tiers are arranged with
+  // sales, and day-to-day spend is AI credits, managed on the billing page.
+  function handleCheckout(plan: PlanType) {
+    window.location.href = `mailto:sales@experrt.com?subject=${encodeURIComponent(
+      `Plan enquiry: ${plan}`
+    )}`;
   }
 
-  async function handlePortal() {
-    setStripeLoading(true);
-    try {
-      const res = await fetch("/api/stripe/portal", { method: "POST" });
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-    } finally {
-      setStripeLoading(false);
-    }
+  function handlePortal() {
+    window.location.href = "/dashboard/billing";
   }
 
   const loadOrg = useCallback(() => {
@@ -873,7 +859,7 @@ export default function SettingsPage() {
                         onClick={() => handleCheckout("pro")}
                         disabled={stripeLoading}
                       >
-                        Subscribe Now
+                        Talk to Sales
                       </Button>
                     </div>
                   )}
@@ -902,7 +888,7 @@ export default function SettingsPage() {
                               onClick={handlePortal}
                               disabled={stripeLoading}
                             >
-                              Manage Subscription
+                              Billing & Credits
                               <ExternalLink className="ml-1.5 h-3 w-3" />
                             </Button>
                           )}
@@ -916,7 +902,7 @@ export default function SettingsPage() {
                               disabled={stripeLoading}
                             >
                               <Zap className="mr-1.5 h-3.5 w-3.5" />
-                              Upgrade Plan
+                              Talk to Sales
                             </Button>
                           )}
                         </div>

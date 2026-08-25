@@ -69,10 +69,64 @@ export async function GET() {
 
   const { data: monthUsage } = await supabaseAdmin
     .from("usage_logs")
-    .select("customer_charge")
+    .select("customer_charge, cost")
     .gte("created_at", monthStart.toISOString());
 
   const usageRevenue = (monthUsage ?? []).reduce((s, l) => s + Number(l.customer_charge || 0), 0);
+
+  // The money that actually moves now: credit-pack sales (Mooov, captured),
+  // cohort payments, invoice pipeline, and realised credit margin - what
+  // usage debited at face value versus what the providers billed us.
+  const [
+    { data: monthPayments },
+    { data: openInvoices },
+    { data: paidInvoices },
+    { data: monthDebits },
+    { data: fxRow },
+  ] = await Promise.all([
+    supabaseAdmin
+      .from("mooov_payments")
+      .select("amount, purpose")
+      .eq("status", "captured")
+      .gte("captured_at", monthStart.toISOString()),
+    supabaseAdmin
+      .from("billing_invoices")
+      .select("total_amount, status")
+      .in("status", ["sent", "overdue"]),
+    supabaseAdmin
+      .from("billing_invoices")
+      .select("total_amount")
+      .eq("status", "paid")
+      .gte("paid_at", monthStart.toISOString()),
+    supabaseAdmin
+      .from("credit_ledger")
+      .select("credits_delta")
+      .eq("reason", "usage")
+      .gte("created_at", monthStart.toISOString()),
+    supabaseAdmin.from("academy_settings").select("value").eq("key", "usd_to_gbp").maybeSingle(),
+  ]);
+
+  const packSalesPence = (monthPayments ?? [])
+    .filter((p) => p.purpose === "credit_pack")
+    .reduce((s, p) => s + p.amount, 0);
+  const cohortSalesPence = (monthPayments ?? [])
+    .filter((p) => p.purpose === "cohort")
+    .reduce((s, p) => s + p.amount, 0);
+  const invoicesOutstandingPence = (openInvoices ?? []).reduce((s, i) => s + i.total_amount, 0);
+  const invoicesOverduePence = (openInvoices ?? [])
+    .filter((i) => i.status === "overdue")
+    .reduce((s, i) => s + i.total_amount, 0);
+  const invoicesPaidPence = (paidInvoices ?? []).reduce((s, i) => s + i.total_amount, 0);
+
+  const usdToGbp = Number(fxRow?.value) || 0.8;
+  // Debits are negative deltas; face value is 1p per credit.
+  const creditsUsedFacePence = (monthDebits ?? []).reduce(
+    (s, row) => s + Math.max(0, -row.credits_delta),
+    0
+  );
+  const providerCostGbp =
+    (monthUsage ?? []).reduce((s, l) => s + Number(l.cost || 0), 0) * usdToGbp;
+  const creditMarginPence = creditsUsedFacePence - Math.round(providerCostGbp * 100);
 
   return NextResponse.json({
     mrr: Number(mrr.toFixed(2)),
@@ -88,5 +142,12 @@ export async function GET() {
       ...p,
       mrr: Number(p.mrr.toFixed(2)),
     })),
+    credit_pack_sales: Number((packSalesPence / 100).toFixed(2)),
+    cohort_sales: Number((cohortSalesPence / 100).toFixed(2)),
+    invoices_outstanding: Number((invoicesOutstandingPence / 100).toFixed(2)),
+    invoices_overdue: Number((invoicesOverduePence / 100).toFixed(2)),
+    invoices_paid_this_month: Number((invoicesPaidPence / 100).toFixed(2)),
+    credits_used_face_value: Number((creditsUsedFacePence / 100).toFixed(2)),
+    credit_margin: Number((creditMarginPence / 100).toFixed(2)),
   });
 }

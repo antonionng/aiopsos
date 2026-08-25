@@ -4,6 +4,8 @@ import { checkInput, checkOutput } from "@/lib/guardrails";
 import { createClient } from "@/lib/supabase/server";
 import { resolveCompanion, type CompanionContext } from "@/lib/companions";
 import { checkBudget } from "@/lib/cost-ceiling";
+import { checkOrgCredits, debitCredits, getCreditSettings } from "@/lib/credits";
+import { creditsForTokenUsage } from "@/lib/credit-math";
 import type { UserRole } from "@/lib/role-helpers";
 import type { PlanType } from "@/lib/constants";
 import { PLAN_TYPES } from "@/lib/constants";
@@ -194,6 +196,25 @@ export async function POST(req: Request) {
     );
   }
 
+  // The org wallet is the commercial control on top of the per-user abuse
+  // ceiling above: out of credits means no new requests until an admin
+  // tops up. Orgs that have never bought credits are not blocked (see
+  // checkOrgCredits).
+  if (orgId) {
+    const credits = await checkOrgCredits(orgId);
+    if (!credits.allowed) {
+      return json(
+        {
+          error: "insufficient_credits",
+          message:
+            "Your organisation is out of AI credits. An admin can top up from the Billing page.",
+          balance: credits.balance,
+        },
+        402
+      );
+    }
+  }
+
   // ── model ─────────────────────────────────────────────────────────────
 
   // Learners get the companion's default and no choice (brief §7.3); staff
@@ -289,17 +310,31 @@ export async function POST(req: Request) {
       const outCheck = checkOutput(text);
       const storedText = outCheck.redactedText ?? text;
 
-      await supabase.from("usage_logs").insert({
-        org_id: orgId,
-        user_id: user.id,
-        department_id: departmentId,
-        model: modelId,
-        tokens_in: inputTokens,
-        tokens_out: outputTokens,
-        cost: rawCost,
-        customer_charge: customerCharge,
-        endpoint: "/api/chat",
-      });
+      const { data: usageRow } = await supabase
+        .from("usage_logs")
+        .insert({
+          org_id: orgId,
+          user_id: user.id,
+          department_id: departmentId,
+          model: modelId,
+          tokens_in: inputTokens,
+          tokens_out: outputTokens,
+          cost: rawCost,
+          customer_charge: customerCharge,
+          endpoint: "/api/chat",
+        })
+        .select("id")
+        .maybeSingle();
+
+      if (orgId && rawCost > 0) {
+        const settings = await getCreditSettings();
+        await debitCredits(orgId, creditsForTokenUsage(rawCost, settings), {
+          usageLogId: usageRow?.id,
+          model: modelId,
+          description: "Chat",
+          userId: user.id,
+        });
+      }
 
       if (conversationId && lastMessage?.role === "user") {
         await supabase.from("messages").insert([

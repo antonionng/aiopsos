@@ -2,26 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   CreditCard,
-  Crown,
   Lock,
   Check,
-  ExternalLink,
   Zap,
-  TrendingUp,
   Mic,
   Globe,
   Image,
   FlaskConical,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   SUBSCRIPTION_PLANS,
   PLAN_MODELS,
-  PLAN_FEATURES,
   FEATURE_LABELS,
   FEATURE_UNITS,
   FEATURE_OVERAGE_RATES,
@@ -29,6 +25,10 @@ import {
   type FeatureType,
 } from "@/lib/constants";
 import { MODEL_REGISTRY } from "@/lib/model-router";
+import { CreditBalanceCard } from "@/components/billing/credit-balance-card";
+import { CreditPackPicker, type CreditPack } from "@/components/billing/credit-pack-picker";
+import { CreditHistory, type LedgerRow } from "@/components/billing/credit-history";
+import { InvoicesList, type InvoiceRow } from "@/components/billing/invoices-list";
 
 interface FeatureUsageItem {
   used: number;
@@ -41,12 +41,18 @@ interface BillingData {
   status: string;
   trialEndsAt: string | null;
   seatCount: number;
+  memberCount?: number;
   currentMonthUsage: {
     totalRequests: number;
     totalTokens: number;
     totalCharge: number;
   };
   featureUsage?: Record<FeatureType, FeatureUsageItem>;
+  billingMethod?: string;
+  creditBalance?: number | null;
+  creditPacks?: CreditPack[];
+  creditHistory?: LedgerRow[];
+  invoices?: InvoiceRow[];
 }
 
 const FEATURE_ICONS: Record<FeatureType, typeof Mic> = {
@@ -67,52 +73,20 @@ const item = {
 
 export default function BillingPage() {
   const [billing, setBilling] = useState<BillingData | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/billing")
       .then((r) => r.json())
       .then(setBilling)
-      .catch(() => {
-        setBilling({
-          plan: "pro",
-          status: "trialing",
-          trialEndsAt: new Date(Date.now() + 12 * 86400000).toISOString(),
-          seatCount: 10,
-          currentMonthUsage: { totalRequests: 142, totalTokens: 215000, totalCharge: 8.64 },
-        });
-      });
+      .catch(() => setBilling(null));
+
+    // Back from Mooov hosted checkout. The wallet is credited by the
+    // webhook, which may land a beat after the redirect - hence "shortly".
+    if (new URLSearchParams(window.location.search).get("topup") === "success") {
+      toast.success("Payment received — your credits will appear shortly.");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, []);
-
-  const trialDaysLeft = billing?.trialEndsAt
-    ? Math.max(0, Math.ceil((new Date(billing.trialEndsAt).getTime() - Date.now()) / 86400000))
-    : 0;
-
-  async function handleCheckout(plan: PlanType) {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, priceId: `price_${plan}` }),
-      });
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handlePortal() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/stripe/portal", { method: "POST" });
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-    } finally {
-      setLoading(false);
-    }
-  }
 
   if (!billing) {
     return (
@@ -125,78 +99,24 @@ export default function BillingPage() {
   }
 
   const currentPlan = SUBSCRIPTION_PLANS[billing.plan];
-  const isTrialing = billing.status === "trialing";
-  const isActive = billing.status === "active" || isTrialing;
+  const isAdminView = billing.creditPacks !== undefined;
 
   return (
     <motion.div variants={container} initial="hidden" animate="show">
       <motion.div variants={item}>
         <h1 className="mb-1">Billing</h1>
         <p className="text-sm text-muted-foreground">
-          Manage your subscription, view usage, and control access to AI models.
+          AI credits, usage, and invoices for your organisation.
         </p>
       </motion.div>
 
-      {/* Trial banner */}
-      {isTrialing && trialDaysLeft > 0 && (
-        <motion.div
-          variants={item}
-          className="mt-6 flex items-center gap-3 rounded-xl border border-border bg-muted p-4"
-        >
-          <Crown className="h-5 w-5 text-foreground" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">
-              Pro trial -- {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining
-            </p>
-            <p className="text-xs text-muted-foreground">
-              You have full Pro access. Choose a plan before your trial ends.
-            </p>
-          </div>
-          <Button size="sm" onClick={() => handleCheckout("pro")} disabled={loading}>
-            Subscribe to Pro
-          </Button>
-        </motion.div>
-      )}
-
-      {/* Current plan + usage */}
+      {/* Balance + plan + usage */}
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <motion.div variants={item}>
-          <Card className="border-border bg-card h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                <CreditCard className="h-4 w-4 text-brand" />
-                Current Plan
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">
-                  {currentPlan.name}
-                </span>
-                <Badge variant={isActive ? "default" : "destructive"} className="text-[10px]">
-                  {isTrialing ? "Trial" : billing.status}
-                </Badge>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                £{currentPlan.monthlyPricePerSeat}/user/month
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {billing.seatCount} seats = £{currentPlan.monthlyPricePerSeat * billing.seatCount}/mo
-              </p>
-              {billing.status === "active" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4 w-full"
-                  onClick={handlePortal}
-                  disabled={loading}
-                >
-                  Manage Subscription
-                  <ExternalLink className="ml-1.5 h-3 w-3" />
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          <CreditBalanceCard
+            balance={billing.creditBalance ?? null}
+            billingMethod={billing.billingMethod ?? "card"}
+          />
         </motion.div>
 
         <motion.div variants={item}>
@@ -211,7 +131,7 @@ export default function BillingPage() {
               <p className="text-3xl font-bold">
                 £{billing.currentMonthUsage.totalCharge.toFixed(2)}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">AI usage charges (cost + 20%)</p>
+              <p className="mt-1 text-xs text-muted-foreground">AI usage at credit face value</p>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div>
                   <p className="text-lg font-semibold">
@@ -234,46 +154,60 @@ export default function BillingPage() {
           <Card className="border-border bg-card h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                <TrendingUp className="h-4 w-4 text-foreground" />
-                Total Monthly Cost
+                <CreditCard className="h-4 w-4 text-brand" />
+                Platform
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {(() => {
-                const featureOverage = billing.featureUsage
-                  ? Object.values(billing.featureUsage).reduce((s, f) => s + f.overageCharge, 0)
-                  : 0;
-                const total =
-                  currentPlan.monthlyPricePerSeat * billing.seatCount +
-                  billing.currentMonthUsage.totalCharge +
-                  featureOverage;
-                return (
-                  <>
-                    <p className="text-3xl font-bold">£{total.toFixed(2)}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Subscription + usage</p>
-                    <div className="mt-4 space-y-1.5">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Subscription</span>
-                        <span>£{(currentPlan.monthlyPricePerSeat * billing.seatCount).toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">AI usage</span>
-                        <span>£{billing.currentMonthUsage.totalCharge.toFixed(2)}</span>
-                      </div>
-                      {featureOverage > 0 && (
-                        <div className="flex justify-between text-xs">
-                          <span className="text-red-500">Feature overages</span>
-                          <span className="text-red-500">£{featureOverage.toFixed(2)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                );
-              })()}
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">£0</span>
+                <Badge variant="default" className="text-[10px]">
+                  Included
+                </Badge>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                The platform is free — you pay for AI credits and facilitated courses.
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {currentPlan.name} tier · {billing.seatCount} seats
+              </p>
             </CardContent>
           </Card>
         </motion.div>
       </div>
+
+      {/* Buy credits */}
+      {isAdminView && (
+        <motion.div variants={item} className="mt-8">
+          <h2 className="mb-1 text-lg font-semibold">Top up credits</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            {billing.billingMethod === "invoice"
+              ? "Your organisation pays by invoice — requesting a pack emails an invoice to your billing contact, and credits are added when it's paid."
+              : "Card payments are processed securely at checkout. Credits are added the moment payment completes."}
+          </p>
+          <CreditPackPicker
+            packs={billing.creditPacks ?? []}
+            canBuy
+            billingMethod={billing.billingMethod ?? "card"}
+          />
+        </motion.div>
+      )}
+
+      {/* Invoices */}
+      {isAdminView && (billing.invoices?.length ?? 0) > 0 && (
+        <motion.div variants={item} className="mt-8">
+          <h2 className="mb-4 text-lg font-semibold">Invoices</h2>
+          <InvoicesList invoices={billing.invoices ?? []} />
+        </motion.div>
+      )}
+
+      {/* Credit history */}
+      {isAdminView && (
+        <motion.div variants={item} className="mt-8">
+          <h2 className="mb-4 text-lg font-semibold">Credit history</h2>
+          <CreditHistory rows={billing.creditHistory ?? []} />
+        </motion.div>
+      )}
 
       {/* Feature Usage Meters */}
       {billing.featureUsage && (
@@ -340,138 +274,8 @@ export default function BillingPage() {
               );
             })}
           </div>
-
-          {/* Total overage charges */}
-          {(() => {
-            const totalOverage = Object.values(billing.featureUsage!).reduce(
-              (sum, f) => sum + f.overageCharge,
-              0
-            );
-            if (totalOverage <= 0) return null;
-            return (
-              <Card className="mt-4 border-red-500/20 bg-red-500/5">
-                <CardContent className="flex items-center justify-between pt-5">
-                  <div>
-                    <p className="text-sm font-medium text-red-600">Overage Charges This Month</p>
-                    <p className="text-xs text-muted-foreground">
-                      Charged at overage rates for usage beyond included quotas
-                    </p>
-                  </div>
-                  <p className="text-2xl font-bold text-red-600">
-                    £{totalOverage.toFixed(2)}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })()}
         </motion.div>
       )}
-
-      {/* Plan comparison */}
-      <motion.div variants={item} className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold">Plans</h2>
-        <div className="grid gap-4 lg:grid-cols-3">
-          {(["basic", "pro", "enterprise"] as const).map((planKey) => {
-            const plan = SUBSCRIPTION_PLANS[planKey];
-            const models = PLAN_MODELS[planKey];
-            const features = PLAN_FEATURES[planKey];
-            const isCurrent = billing.plan === planKey;
-
-            return (
-              <Card
-                key={planKey}
-                className={`border-border bg-card relative ${
-                  planKey === "enterprise" ? "ring-1 ring-brand/30" : ""
-                }`}
-              >
-                {planKey === "enterprise" && (
-                  <div className="absolute -top-3 left-4">
-                    <Badge className="bg-brand text-brand-foreground text-[10px]">
-                      Best Value
-                    </Badge>
-                  </div>
-                )}
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="text-base font-semibold">{plan.name}</span>
-                    <span className="text-xl font-bold">
-                      £{plan.monthlyPricePerSeat}
-                      <span className="text-xs font-normal text-muted-foreground">/user/mo</span>
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="mb-4 text-xs text-muted-foreground">
-                    Minimum {plan.minSeats} seats (£{plan.monthlyPricePerSeat * plan.minSeats}/mo)
-                  </p>
-
-                  <div className="mb-4">
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      Models ({models.length})
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {models.map((id) => (
-                        <Badge key={id} variant="secondary" className="text-[10px]">
-                          {MODEL_REGISTRY[id]?.label ?? id}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    {[
-                      { label: "Knowledge base", enabled: features.knowledgeBase },
-                      { label: "Custom personas", enabled: features.personas },
-                      { label: "Approval workflows", enabled: features.approvalWorkflows },
-                      { label: "Stack recommendation", enabled: features.stackRecommendation },
-                      { label: "Roadmap generator", enabled: features.roadmapGenerator },
-                      { label: "Advanced analytics", enabled: features.advancedAnalytics },
-                      { label: "PDF export", enabled: features.pdfExport },
-                      { label: "Team collaboration", enabled: features.teamCollaboration },
-                      { label: "Web search", enabled: features.webSearch },
-                      { label: "Voice chat", enabled: features.voiceChat },
-                      { label: "Image generation", enabled: features.imageGeneration },
-                      { label: "Deep research", enabled: features.deepResearch },
-                    ].map((f) => (
-                      <div key={f.label} className="flex items-center gap-2 text-xs">
-                        {f.enabled ? (
-                          <Check className="h-3.5 w-3.5 text-brand" />
-                        ) : (
-                          <Lock className="h-3.5 w-3.5 text-muted-foreground/40" />
-                        )}
-                        <span className={f.enabled ? "" : "text-muted-foreground/50"}>
-                          {f.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-6">
-                    {isCurrent ? (
-                      <Button variant="outline" className="w-full" disabled>
-                        Current Plan
-                      </Button>
-                    ) : (
-                      <Button
-                        className="w-full"
-                        variant={planKey === "enterprise" ? "default" : "outline"}
-                        onClick={() => handleCheckout(planKey)}
-                        disabled={loading}
-                      >
-                        {(["basic", "pro", "enterprise"].indexOf(billing.plan) >
-                          ["basic", "pro", "enterprise"].indexOf(planKey))
-                          ? "Downgrade"
-                          : "Upgrade"}{" "}
-                        to {plan.name}
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </motion.div>
 
       {/* All available models */}
       <motion.div variants={item} className="mt-8">

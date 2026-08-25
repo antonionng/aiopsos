@@ -7,6 +7,8 @@ import {
   type PlanType,
   type FeatureType,
 } from "@/lib/constants";
+import { checkOrgCredits, debitCredits, getCreditSettings } from "@/lib/credits";
+import { creditsForGbpCost } from "@/lib/credit-math";
 
 export interface QuotaCheckResult {
   allowed: boolean;
@@ -15,6 +17,8 @@ export interface QuotaCheckResult {
   isOverage: boolean;
   overageCharge: number;
   requiresUpgrade: boolean;
+  /** Set when the org wallet is empty - distinct from a plan quota denial. */
+  outOfCredits?: boolean;
 }
 
 export interface FeatureUsageSummary {
@@ -48,6 +52,22 @@ export async function checkFeatureQuota(
       isOverage: false,
       overageCharge: 0,
       requiresUpgrade: true,
+    };
+  }
+
+  // The org wallet gates every paid feature the same way it gates chat:
+  // empty means blocked until an admin tops up. Orgs that never bought
+  // credits pass (see checkOrgCredits).
+  const credits = await checkOrgCredits(orgId);
+  if (!credits.allowed) {
+    return {
+      allowed: false,
+      used: 0,
+      limit: 0,
+      isOverage: false,
+      overageCharge: 0,
+      requiresUpgrade: false,
+      outOfCredits: true,
     };
   }
 
@@ -94,14 +114,27 @@ export async function logFeatureUsage(
   const customerCharge = rawCost * USAGE_MARKUP;
 
   const supabase = await createClient();
-  await supabase.from("feature_usage_logs").insert({
-    org_id: orgId,
-    user_id: userId,
-    feature,
-    units,
-    cost: rawCost,
-    customer_charge: customerCharge,
-    metadata,
+  const { data: logRow } = await supabase
+    .from("feature_usage_logs")
+    .insert({
+      org_id: orgId,
+      user_id: userId,
+      feature,
+      units,
+      cost: rawCost,
+      customer_charge: customerCharge,
+      metadata,
+    })
+    .select("id")
+    .maybeSingle();
+
+  // Every feature route funnels through here, so this is the single debit
+  // point for non-chat AI spend. Never throws (see debitCredits).
+  const settings = await getCreditSettings();
+  await debitCredits(orgId, creditsForGbpCost(rawCost, settings), {
+    featureUsageLogId: logRow?.id,
+    description: feature,
+    userId,
   });
 }
 

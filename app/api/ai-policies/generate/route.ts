@@ -4,6 +4,7 @@ import { getLanguageModel } from "@/lib/model-router";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { AI_POLICY_TEMPLATES, POLICY_CATEGORY_LABELS } from "@/lib/ai-policy-templates";
+import { meterTokenUsage } from "@/lib/meter";
 
 export const maxDuration = 60;
 
@@ -96,6 +97,16 @@ ${customInstructions ? `Additional instructions from the admin:\n${customInstruc
       system: systemPrompt,
       prompt: userPrompt,
       maxOutputTokens: 4000,
+    });
+
+    await meterTokenUsage({
+      orgId: caller.org_id,
+      userId: caller.id,
+      model: "gpt-4o",
+      inputTokens: result.usage?.inputTokens ?? 0,
+      outputTokens: result.usage?.outputTokens ?? 0,
+      endpoint: "/api/ai-policies/generate",
+      description: "Policy generation",
     });
 
     return NextResponse.json({
