@@ -21,6 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LearningOverview } from "@/components/dashboard/learning-overview";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -599,6 +600,10 @@ function AdminHub({
           transition={{ duration: 0.2, delay: 0.15 }}
           className="mt-6"
         >
+          <h2 className="mb-3 text-sm font-semibold">Learning</h2>
+          <div className="mb-6">
+            <LearningOverview />
+          </div>
           <h2 className="mb-3 text-sm font-semibold">Organisation Overview</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card className="border-border bg-card">

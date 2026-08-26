@@ -37,6 +37,10 @@ export const AUDIT_ACTIONS = {
   BILLING_METHOD_CHANGED: "billing_method.changed",
   /** A super admin moved a wallet by hand, outside purchase/usage. */
   CREDITS_ADJUSTED: "credits.adjusted",
+  /** Staff opened an individual's training record - itself a record. */
+  MEMBER_RECORD_VIEWED: "member_record.viewed",
+  /** Staff exported an individual's training record as PDF. */
+  MEMBER_RECORD_EXPORTED: "member_record.exported",
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];

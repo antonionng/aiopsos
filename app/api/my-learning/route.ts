@@ -1,7 +1,95 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getActor } from "@/lib/cohorts";
 import { evaluateCertificateEligibility } from "@/lib/certification";
+import { fetchPublishedCourses } from "@/lib/courses";
+import { rankCourses } from "@/lib/recommendation-engine";
+import { rankCoursesByNeed } from "@/lib/training-needs";
+import { RESPONDENT_ROLES, type RespondentRole } from "@/lib/constants";
+import type { DimensionScores } from "@/lib/types";
+
+/**
+ * "What's next": courses ranked from the learner's latest assessment,
+ * excluding anything they are already enrolled on. Prefers the direct
+ * training-needs measurement when one exists; falls back to maturity gaps.
+ */
+async function recommendNext(userId: string, enrolledSlugs: Set<string>) {
+  const [{ data: tna }, { data: maturity }] = await Promise.all([
+    supabaseAdmin
+      .from("assessment_responses")
+      .select("dimension_scores, respondent_role")
+      .eq("user_id", userId)
+      .eq("template_id", "training-needs")
+      .order("submitted_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabaseAdmin
+      .from("assessment_responses")
+      .select("confidence_score, practice_score, tools_score, responsible_score, culture_score, respondent_role")
+      .eq("user_id", userId)
+      .or("template_id.is.null,template_id.neq.training-needs")
+      .order("submitted_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const catalogue = (await fetchPublishedCourses()).filter(
+    (c) => !enrolledSlugs.has(c.slug)
+  );
+  if (catalogue.length === 0) return [];
+
+  const roleOf = (raw: unknown): RespondentRole | null =>
+    (RESPONDENT_ROLES as readonly string[]).includes(raw as string)
+      ? (raw as RespondentRole)
+      : null;
+
+  if (tna?.dimension_scores) {
+    return rankCoursesByNeed(
+      tna.dimension_scores as Record<string, number>,
+      roleOf(tna.respondent_role),
+      catalogue
+    )
+      .filter((s) => s.band.id !== "low")
+      .flatMap((s) =>
+        s.courses.slice(0, 2).map((c) => ({
+          slug: c.slug,
+          title: c.title,
+          summary: c.summary,
+          category: c.category,
+          level: c.level,
+          duration_hours: c.duration_hours,
+          reason: `${s.band.label} need in this subject`,
+        }))
+      )
+      .slice(0, 3);
+  }
+
+  if (maturity) {
+    const scores: DimensionScores = {
+      confidence: Number(maturity.confidence_score),
+      practice: Number(maturity.practice_score),
+      tools: Number(maturity.tools_score),
+      responsible: Number(maturity.responsible_score),
+      culture: Number(maturity.culture_score),
+    };
+    return rankCourses(
+      scores,
+      roleOf(maturity.respondent_role) ?? "individual_contributor",
+      catalogue
+    ).map((m) => ({
+      slug: m.course.slug,
+      title: m.course.title,
+      summary: m.course.summary,
+      category: m.course.category,
+      level: m.course.level,
+      duration_hours: m.course.duration_hours,
+      reason: "Matched to your assessment gaps",
+    }));
+  }
+
+  return [];
+}
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +114,11 @@ export async function GET() {
     .order("enrolled_at", { ascending: false });
 
   if (!enrolments || enrolments.length === 0) {
-    return NextResponse.json({ enrolments: [] }, { headers: { "Cache-Control": "no-store" } });
+    const recommended = await recommendNext(actor.userId, new Set());
+    return NextResponse.json(
+      { enrolments: [], recommended },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   }
 
   const cohortIds = enrolments.map((e) => e.cohort_id);
@@ -112,8 +204,15 @@ export async function GET() {
     };
   });
 
+  const enrolledSlugs = new Set(
+    (cohorts ?? [])
+      .map((c) => (c.courses as unknown as { slug: string } | null)?.slug)
+      .filter((slug): slug is string => !!slug)
+  );
+  const recommended = await recommendNext(actor.userId, enrolledSlugs);
+
   return NextResponse.json(
-    { enrolments: payload },
+    { enrolments: payload, recommended },
     { headers: { "Cache-Control": "no-store" } }
   );
 }

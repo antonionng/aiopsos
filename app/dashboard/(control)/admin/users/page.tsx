@@ -3,6 +3,7 @@
 import { Component, useCallback, useEffect, useState } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
   Users,
   Shield,
@@ -290,7 +291,12 @@ export default function UserDirectoryPage() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{u.name || u.email || "Unknown"}</p>
+                      <Link
+                        href={`/dashboard/admin/users/${u.id}`}
+                        className="block truncate text-sm font-medium hover:text-brand hover:underline"
+                      >
+                        {u.name || u.email || "Unknown"}
+                      </Link>
                       <p className="text-xs text-muted-foreground truncate">{u.email || "-"}</p>
                     </div>
                   </div>
