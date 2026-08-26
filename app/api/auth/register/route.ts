@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { sendWelcomeEmail } from "@/lib/email";
+import { sendConfirmWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,36 +21,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const supabase = await createClient();
-
+    // Create the account WITHOUT triggering Supabase's own confirmation
+    // email: generateLink creates the (unconfirmed) user and hands back the
+    // confirmation URL, and we send the one branded email ourselves. Two
+    // emails per signup was a bug, not a feature.
     const origin = req.nextUrl.origin;
-    const { data: authData, error: signUpError } = await supabase.auth.signUp({
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "signup",
       email,
       password,
       options: {
         data: { name, org_name: orgName },
-        // Email confirmation is ON for this project (verified 22 Aug 2026):
-        // the link in the email must land on our callback, which exchanges
-        // the code for a session and forwards to the dashboard.
-        emailRedirectTo: `${origin}/auth/callback?next=/dashboard`,
+        redirectTo: `${origin}/auth/callback?next=/dashboard`,
       },
     });
 
-    if (signUpError || !authData.user) {
-      return NextResponse.json(
-        { error: signUpError?.message || "Failed to create account" },
-        { status: 400 }
-      );
+    if (linkError || !linkData?.user) {
+      const message = linkError?.message ?? "Failed to create account";
+      if (/already|registered|exists/i.test(message)) {
+        return NextResponse.json(
+          { error: "An account with this email already exists. Please sign in instead." },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const identities = (authData.user as any).identities;
-    if (Array.isArray(identities) && identities.length === 0) {
-      return NextResponse.json(
-        { error: "An account with this email already exists. Please sign in instead." },
-        { status: 409 }
-      );
-    }
+    const userId = linkData.user.id;
+    const confirmUrl = linkData.properties?.action_link;
 
     const { data: org, error: orgError } = await supabaseAdmin
       .from("organisations")
@@ -61,6 +58,7 @@ export async function POST(req: NextRequest) {
 
     if (orgError || !org) {
       console.error("Organisation creation failed:", orgError?.message);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
       return NextResponse.json(
         { error: "Failed to create organisation" },
         { status: 500 }
@@ -70,7 +68,7 @@ export async function POST(req: NextRequest) {
     const { error: profileError } = await supabaseAdmin
       .from("user_profiles")
       .upsert({
-        id: authData.user.id,
+        id: userId,
         email,
         name,
         org_id: org.id,
@@ -79,6 +77,8 @@ export async function POST(req: NextRequest) {
 
     if (profileError) {
       console.error("Profile upsert failed:", profileError.message);
+      await supabaseAdmin.from("organisations").delete().eq("id", org.id);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
       return NextResponse.json(
         { error: "Failed to create user profile" },
         { status: 500 }
@@ -87,29 +87,31 @@ export async function POST(req: NextRequest) {
 
     const { error: ownerError } = await supabaseAdmin
       .from("organisations")
-      .update({ owner_id: authData.user.id })
+      .update({ owner_id: userId })
       .eq("id", org.id);
 
     if (ownerError) {
       console.error("Failed to set org owner:", ownerError.message);
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    await sendWelcomeEmail(email, name, orgName);
-
-    // With email confirmation on, the sign-in fails until the link in the
-    // email is clicked. That is expected, not an error - but it must be
-    // said, because silently returning success used to bounce people to
-    // /login with no explanation of why they had no session.
-    if (signInError) {
-      return NextResponse.json({ success: true, needs_confirmation: true });
+    // The email IS the activation path. If it cannot be sent, roll the
+    // account back entirely so a retry starts clean instead of hitting
+    // "email already exists" on an account that never got its link.
+    try {
+      if (!confirmUrl) throw new Error("generateLink returned no action_link");
+      await sendConfirmWelcomeEmail(email, name, orgName || null, confirmUrl);
+    } catch (emailError) {
+      console.error("Confirm email failed:", emailError);
+      await supabaseAdmin.from("user_profiles").delete().eq("id", userId);
+      await supabaseAdmin.from("organisations").delete().eq("id", org.id);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      return NextResponse.json(
+        { error: "We could not send your confirmation email. Please try again." },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, needs_confirmation: true });
   } catch (err) {
     console.error("Register route error:", err);
     return NextResponse.json(

@@ -18,6 +18,7 @@ import { EnquiryReceivedEmail, EnquiryAlertEmail } from "./emails/enquiry-receiv
 import { InvoiceEmail } from "./emails/invoice-email";
 import type { InvoicePayload } from "./invoices";
 import { ContactAlertEmail } from "./emails/contact-alert";
+import { ConfirmWelcomeEmail, ResetPasswordEmail } from "./emails/confirm-welcome";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
 import type { DimensionScores } from "./types";
@@ -620,6 +621,41 @@ export async function sendInvoiceEmail(
  * Both are attempted independently. A bounced confirmation must not stop the
  * alert reaching us - the lead is the thing that matters.
  */
+/**
+ * The single signup email: welcome + confirmation in one. Throws on Resend
+ * error so the caller can fail the registration visibly rather than leaving
+ * an account nobody can activate.
+ */
+export async function sendConfirmWelcomeEmail(
+  to: string,
+  name: string,
+  organisationName: string | null | undefined,
+  confirmUrl: string
+) {
+  const { from } = getEmailConfig();
+  const { error } = await getResend().emails.send({
+    from,
+    to,
+    subject: organisationName
+      ? `Confirm your email to join ${organisationName} on Experrt`
+      : "Confirm your email to get started with Experrt",
+    react: ConfirmWelcomeEmail({ name, organisationName, confirmUrl }),
+  });
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+}
+
+/** Branded password reset. Throws on Resend error. */
+export async function sendResetPasswordEmail(to: string, resetUrl: string) {
+  const { from } = getEmailConfig();
+  const { error } = await getResend().emails.send({
+    from,
+    to,
+    subject: "Reset your Experrt password",
+    react: ResetPasswordEmail({ resetUrl }),
+  });
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+}
+
 /** The contact-form alert, on the branded shell. Throws on Resend error so
  * the route can tell the sender their message did not go through. */
 export async function sendContactAlert(details: {

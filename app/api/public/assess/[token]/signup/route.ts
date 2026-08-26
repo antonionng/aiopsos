@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import {
-  sendWelcomeEmail,
+  sendConfirmWelcomeEmail,
   sendAdminAssessmentCompletedEmail,
   sendAdminNewMemberEmail,
 } from "@/lib/email";
 import { calculateOverallScore } from "@/lib/scoring";
 import { claimPendingResponse } from "@/lib/assess-claim";
-import { getTierForScore, DIMENSION_LABELS, DIMENSIONS, RESPONDENT_ROLE_LABELS, type Dimension } from "@/lib/constants";
+import { getTierForScore, RESPONDENT_ROLE_LABELS } from "@/lib/constants";
 
 export async function POST(
   req: NextRequest,
@@ -16,7 +15,6 @@ export async function POST(
 ) {
   try {
     const { token } = await params;
-    const supabase = await createClient();
 
     const { data: link, error: linkError } = await supabaseAdmin
       .from("assessment_links")
@@ -53,48 +51,39 @@ export async function POST(
       );
     }
 
-    const { data: authData, error: signUpError } = await supabase.auth.signUp({
+    // generateLink creates the (unconfirmed) account and returns the
+    // confirmation URL without sending Supabase's own email - the one
+    // branded email below is the only thing the person receives.
+    const { data: linkData, error: signUpError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "signup",
       email,
       password,
       options: {
         data: { name, org_id: link.org_id },
-        // Email confirmation is ON for this project; the link must land
-        // on our callback so the code can be exchanged for a session.
-        emailRedirectTo: `${req.nextUrl.origin}/auth/callback?next=/dashboard/my-results`,
+        redirectTo: `${req.nextUrl.origin}/auth/callback?next=/dashboard/my-results`,
       },
     });
 
-    if (signUpError || !authData.user) {
-      return NextResponse.json(
-        { error: signUpError?.message || "Failed to create account" },
-        { status: 400 }
-      );
+    if (signUpError || !linkData?.user) {
+      const message = signUpError?.message ?? "Failed to create account";
+      if (/already|registered|exists/i.test(message)) {
+        return NextResponse.json(
+          {
+            error: "An account with this email already exists.",
+            code: "email_exists",
+          },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const identities = (authData.user as any).identities;
-    if (Array.isArray(identities) && identities.length === 0) {
-      return NextResponse.json(
-        {
-          error: "An account with this email already exists.",
-          code: "email_exists",
-        },
-        { status: 409 }
-      );
-    }
+    const userId = linkData.user.id;
+    const confirmUrl = linkData.properties?.action_link;
 
-    const userId = authData.user.id;
-
-    // Sign in immediately so session cookies are set on the response. With
-    // email confirmation on this fails until the link is clicked - that is
-    // fine: everything below uses the admin client, so the assessment still
-    // gets claimed, and we tell the client to show the check-your-email
-    // screen instead of bouncing them into a login wall.
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    const needsConfirmation = !!signInError;
+    // Confirmation is always pending with this flow; the claim below still
+    // runs on the admin client, so results attach before the click.
+    const needsConfirmation = true;
 
     // Everything that attaches the assessment to the account lives in the
     // shared claim, which is idempotent: if anything below fails, retrying
@@ -153,45 +142,24 @@ export async function POST(
     const overall = calculateOverallScore(scores);
     const tier = getTierForScore(overall);
 
-    const sorted = DIMENSIONS.slice().sort(
-      (a, b) => scores[b] - scores[a]
-    ) as Dimension[];
-    const strongest = sorted[0];
-    const weakest = sorted[sorted.length - 1];
-    const insights: string[] = [];
-    insights.push(
-      `Your strongest area is ${DIMENSION_LABELS[strongest]} (${scores[strongest].toFixed(1)}/5).`
-    );
-    if (scores[weakest] < 2) {
-      insights.push(
-        `${DIMENSION_LABELS[weakest]} needs attention at ${scores[weakest].toFixed(1)}/5 — this is your biggest growth opportunity.`
-      );
-    } else {
-      insights.push(
-        `${DIMENSION_LABELS[weakest]} scored ${scores[weakest].toFixed(1)}/5 — room to improve here.`
-      );
-    }
-    const avg = Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length;
-    if (avg >= 3.5) {
-      insights.push(
-        "Your organisation is well positioned to adopt advanced AI workflows and agent orchestration."
-      );
-    } else if (avg >= 2) {
-      insights.push(
-        "You have a solid foundation — targeted training and process integration will accelerate your AI journey."
-      );
-    } else {
-      insights.push(
-        "Starting your AI journey is the first step — explore your dashboard for a tailored adoption roadmap."
+    // The one email the new member receives: welcome + confirm. Their
+    // results are already claimed above, so after the click they land
+    // straight on my-results. If it cannot send, the account still exists
+    // and is recoverable via password reset - do not roll back a claimed
+    // assessment over a mail hiccup, just surface the error.
+    try {
+      if (!confirmUrl) throw new Error("generateLink returned no action_link");
+      await sendConfirmWelcomeEmail(email, name, org?.name ?? null, confirmUrl);
+    } catch (emailError) {
+      console.error("Confirm email failed:", emailError);
+      return NextResponse.json(
+        {
+          error: "Your results are saved but the confirmation email failed. Use password reset to activate your account.",
+          code: "email_failed",
+        },
+        { status: 500 }
       );
     }
-
-    await sendWelcomeEmail(email, name, org?.name, {
-      scores,
-      overall,
-      tierLabel: tier.label,
-      insights,
-    }, org?.logo_url ?? undefined);
     await sendAdminAssessmentCompletedEmail(link.org_id, org?.name ?? "Organisation", name, email, overall, tier.label, department, {
       scores,
       respondentRole: pending.respondent_role

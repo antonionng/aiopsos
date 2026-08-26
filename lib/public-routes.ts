@@ -26,6 +26,7 @@ export function isPublicPath(pathname: string): boolean {
     // Anonymous by definition: you have no session while creating one.
     // "/contact" below matches the page, not the endpoint the form posts to.
     pathname === "/api/auth/register" ||
+    pathname === "/api/auth/forgot" ||
     pathname === "/api/contact" ||
     // Mooov's servers post here with an HMAC signature, not a session;
     // the route verifies the signature itself.
