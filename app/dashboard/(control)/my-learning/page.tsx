@@ -26,6 +26,22 @@ interface LearningSession {
   my_attendance: AttendanceStatus | null;
 }
 
+interface RecommendedCourse {
+  slug: string;
+  title: string;
+  summary: string;
+  category: "ai" | "technology" | "robotics";
+  level: string;
+  duration_hours: number;
+  reason: string;
+}
+
+const CATEGORY_BADGE: Record<RecommendedCourse["category"], string> = {
+  ai: "bg-cat-ai-soft text-cat-ai",
+  technology: "bg-cat-technology-soft text-cat-technology",
+  robotics: "bg-cat-robotics-soft text-cat-robotics",
+};
+
 interface LearningEnrolment {
   enrolment_id: string;
   status: EnrolmentStatus;
@@ -50,8 +66,46 @@ interface LearningEnrolment {
   certificate: { public_ref: string; issued_at: string; revoked_at: string | null } | null;
 }
 
+function WhatsNextStrip({ courses }: { courses: RecommendedCourse[] }) {
+  if (courses.length === 0) return null;
+  return (
+    <div className="mt-8">
+      <h2 className="mb-1 text-sm font-semibold">What&apos;s next for you</h2>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Matched from your assessment - facilitated live, booked through your
+        organisation.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {courses.map((c) => (
+          <a
+            key={c.slug}
+            href={`/courses/${c.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex flex-col rounded-2xl border border-border bg-card p-4 transition-colors hover:border-foreground/30"
+          >
+            <span
+              className={`mb-2 w-fit rounded-full px-2 py-0.5 text-[11px] font-medium ${CATEGORY_BADGE[c.category] ?? "bg-brand/10 text-brand"}`}
+            >
+              {c.reason}
+            </span>
+            <span className="mb-1 text-sm font-semibold leading-snug">{c.title}</span>
+            <span className="mb-3 line-clamp-2 flex-1 text-xs leading-relaxed text-muted-foreground">
+              {c.summary}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {c.duration_hours} facilitated hrs · {c.level}
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function MyLearningPage() {
   const [enrolments, setEnrolments] = useState<LearningEnrolment[]>([]);
+  const [recommended, setRecommended] = useState<RecommendedCourse[]>([]);
   const [loading, setLoading] = useState(true);
   // Captured when the data arrives rather than read during render, so
   // splitting sessions into upcoming and past is a pure function of state.
@@ -62,6 +116,7 @@ export default function MyLearningPage() {
       .then((r) => r.json())
       .then((d) => {
         setEnrolments(d.enrolments ?? []);
+        setRecommended(d.recommended ?? []);
         setLoadedAt(Date.now());
       })
       .catch(() => setEnrolments([]))
@@ -78,21 +133,24 @@ export default function MyLearningPage() {
 
   if (enrolments.length === 0) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10">
-            <GraduationCap className="h-7 w-7 text-brand" />
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-3xl">
+        <div className="flex min-h-[36vh] items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10">
+              <GraduationCap className="h-7 w-7 text-brand" />
+            </div>
+            <h2 className="mb-2 text-xl font-semibold">Nothing scheduled yet</h2>
+            <p className="mb-6 max-w-sm text-sm text-muted-foreground">
+              When your organisation books you onto a course, your sessions,
+              joining links and grades will appear here.
+            </p>
+            <Link href="/courses" target="_blank">
+              <Button variant="outline">Browse the catalogue</Button>
+            </Link>
           </div>
-          <h2 className="mb-2 text-xl font-semibold">Nothing scheduled yet</h2>
-          <p className="mb-6 max-w-sm text-sm text-muted-foreground">
-            When your organisation books you onto a course, your sessions,
-            joining links and grades will appear here.
-          </p>
-          <Link href="/courses" target="_blank">
-            <Button variant="outline">Browse the catalogue</Button>
-          </Link>
         </div>
-      </div>
+        <WhatsNextStrip courses={recommended} />
+      </motion.div>
     );
   }
 
@@ -269,6 +327,8 @@ export default function MyLearningPage() {
           );
         })}
       </div>
+
+      <WhatsNextStrip courses={recommended} />
 
       <p className="mt-6 text-[11px] leading-relaxed text-muted-foreground">
         {LITERACY_DISCLAIMER}
