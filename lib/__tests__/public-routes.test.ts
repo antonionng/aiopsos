@@ -20,6 +20,7 @@ test("the endpoints that create a session are reachable without one", () => {
   // Each of these 307'd to /login in production, which is what surfaced as
   // "Registration failed (405)" on the homepage CTA.
   assert.equal(isPublicPath("/api/auth/register"), true);
+  assert.equal(isPublicPath("/api/auth/forgot"), true);
   assert.equal(isPublicPath("/api/contact"), true);
   assert.equal(isPublicPath("/auth/callback"), true);
   assert.equal(isPublicPath("/auth/callback/"), true);
