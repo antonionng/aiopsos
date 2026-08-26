@@ -6,7 +6,9 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  MessageSquare,
+  GraduationCap,
+  Users2,
+  LineChart,
   BookOpen,
   Bot,
   Sparkles,
@@ -41,6 +43,7 @@ import {
   companionsForRole,
   canSelectModel,
   type CompanionId,
+  AI_BRAND,
 } from "@/lib/companion-meta";
 import type { UserRole } from "@/lib/role-helpers";
 import type { PlanType } from "@/lib/constants";
@@ -720,8 +723,17 @@ export default function ChatPage() {
                 className="flex flex-col items-center justify-center pt-24 text-center"
               >
                 <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10">
-                  <MessageSquare className="h-8 w-8 text-brand" />
+                  {companion === "learning" ? (
+                    <GraduationCap className="h-8 w-8 text-brand" />
+                  ) : companion === "ld" ? (
+                    <Users2 className="h-8 w-8 text-brand" />
+                  ) : (
+                    <LineChart className="h-8 w-8 text-brand" />
+                  )}
                 </div>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-brand">
+                  {AI_BRAND}
+                </p>
                 <h2 className="mb-2 text-2xl font-semibold tracking-tight">
                   {activeCompanion.label}
                 </h2>

@@ -30,6 +30,7 @@ export function staticMarketingEntries(
     { path: "", priority: 1, changeFrequency: "weekly" as const },
     { path: "/courses", priority: 0.9, changeFrequency: "weekly" as const },
     { path: "/insights", priority: 0.8, changeFrequency: "weekly" as const },
+    { path: "/experrt-ai", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/about", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/contact", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/docs", priority: 0.5, changeFrequency: "monthly" as const },

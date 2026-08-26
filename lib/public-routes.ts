@@ -42,6 +42,7 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/docs") ||
     pathname.startsWith("/changelog") ||
     pathname.startsWith("/status") ||
+    pathname.startsWith("/experrt-ai") ||
     pathname === "/blog" ||
     pathname.startsWith("/blog/") ||
     pathname === "/insights" ||
