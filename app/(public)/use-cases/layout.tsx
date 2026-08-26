@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { LITERACY_DISCLAIMER } from "@/lib/constants";
 
-export default function CoursesLayout({
+export default function UseCasesLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -21,21 +21,21 @@ export default function CoursesLayout({
           <nav className="flex items-center gap-5">
             <Link
               href="/use-cases"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="text-sm font-medium text-foreground transition-colors hover:text-brand"
             >
               Use cases
+            </Link>
+            <Link
+              href="/courses"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Courses
             </Link>
             <Link
               href="/insights"
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Insights
-            </Link>
-            <Link
-              href="/courses"
-              className="text-sm font-medium text-foreground transition-colors hover:text-brand"
-            >
-              Courses
             </Link>
           </nav>
         </div>
@@ -54,10 +54,10 @@ export default function CoursesLayout({
             </p>
             <nav className="flex gap-6">
               <Link
-                href="/insights"
+                href="/use-cases"
                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                Insights
+                Use cases
               </Link>
               <Link
                 href="/courses"
@@ -66,10 +66,10 @@ export default function CoursesLayout({
                 Courses
               </Link>
               <Link
-                href="/docs"
+                href="/insights"
                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                Documentation
+                Insights
               </Link>
               <Link
                 href="/contact"

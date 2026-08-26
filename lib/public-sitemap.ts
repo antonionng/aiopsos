@@ -1,4 +1,5 @@
 import { getPublishedInsights } from "./insights/catalog.ts";
+import { getUseCases } from "./use-cases.ts";
 
 export type PublicSitemapEntry = {
   url: string;
@@ -29,6 +30,7 @@ export function staticMarketingEntries(
   return [
     { path: "", priority: 1, changeFrequency: "weekly" as const },
     { path: "/courses", priority: 0.9, changeFrequency: "weekly" as const },
+    { path: "/use-cases", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/insights", priority: 0.8, changeFrequency: "weekly" as const },
     { path: "/experrt-ai", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/about", priority: 0.7, changeFrequency: "monthly" as const },
@@ -60,6 +62,18 @@ export function courseSitemapEntries(
     }));
 }
 
+export function useCaseSitemapEntries(
+  baseUrl: string,
+  lastModified: Date
+): PublicSitemapEntry[] {
+  return getUseCases().map((entry) => ({
+    url: `${baseUrl}/use-cases/${entry.slug}`,
+    lastModified,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+}
+
 export function insightSitemapEntries(baseUrl: string): PublicSitemapEntry[] {
   return getPublishedInsights().map((article) => ({
     url: `${baseUrl}/insights/${article.slug}`,
@@ -78,6 +92,7 @@ export function buildPublicSitemap(options: {
   const entries = [
     ...staticMarketingEntries(options.baseUrl, lastModified),
     ...courseSitemapEntries(options.baseUrl, options.courseSlugs, lastModified),
+    ...useCaseSitemapEntries(options.baseUrl, lastModified),
     ...insightSitemapEntries(options.baseUrl),
   ];
 

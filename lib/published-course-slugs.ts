@@ -1,5 +1,5 @@
 /**
- * Published catalogue slugs seeded in migrations 020 and 024.
+ * Published catalogue slugs seeded in migrations 020, 024 and 033.
  *
  * The sitemap uses these when Supabase is unreachable so a missing database
  * cannot 500 the crawl file. Live fetches still win when they return rows.
@@ -28,6 +28,17 @@ export const FALLBACK_PUBLISHED_COURSE_SLUGS = [
   "specifying-a-robotics-deployment",
   "safety-risk-and-compliance-for-robotic-workcells",
   "robotics-investment-and-operating-model",
+  "writing-and-communicating-with-ai",
+  "ai-for-customer-facing-teams",
+  "ai-for-analysis-and-reporting",
+  "building-ai-assistants-for-your-team",
+  "running-an-ai-champions-network",
+  "measuring-ai-adoption-and-value",
+  "everyday-security-for-busy-teams",
+  "from-spreadsheets-to-systems",
+  "digital-change-without-the-theatre",
+  "preparing-your-team-for-automation",
+  "vision-systems-and-automated-inspection",
 ] as const;
 
 export const COURSE_TITLES: Record<string, string> = {
@@ -62,4 +73,17 @@ export const COURSE_TITLES: Record<string, string> = {
     "Safety, Risk and Compliance for Robotic Workcells",
   "robotics-investment-and-operating-model":
     "Robotics Investment and the Operating Model",
+  "writing-and-communicating-with-ai": "Writing and Communicating With AI",
+  "ai-for-customer-facing-teams": "AI for Customer-Facing Teams",
+  "ai-for-analysis-and-reporting": "AI for Analysis and Reporting",
+  "building-ai-assistants-for-your-team":
+    "Building AI Assistants for Your Team",
+  "running-an-ai-champions-network": "Running an AI Champions Network",
+  "measuring-ai-adoption-and-value": "Measuring AI Adoption and Value",
+  "everyday-security-for-busy-teams": "Everyday Security for Busy Teams",
+  "from-spreadsheets-to-systems": "From Spreadsheets to Systems",
+  "digital-change-without-the-theatre": "Digital Change Without the Theatre",
+  "preparing-your-team-for-automation": "Preparing Your Team for Automation",
+  "vision-systems-and-automated-inspection":
+    "Vision Systems and Automated Inspection",
 };

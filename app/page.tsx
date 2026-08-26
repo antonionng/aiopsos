@@ -222,6 +222,9 @@ export default function Home() {
               <Link href="/courses" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Academy
               </Link>
+              <Link href="/use-cases" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                Use cases
+              </Link>
               <Link href="/insights" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Insights
               </Link>
