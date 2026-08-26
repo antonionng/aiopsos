@@ -20,18 +20,21 @@ export interface CompanionMeta {
   defaultModel: string;
 }
 
+/** The umbrella product name for the agent system. */
+export const AI_BRAND = "Experrt AI";
+
 export const COMPANION_META: Record<CompanionId, CompanionMeta> = {
   learning: {
     id: "learning",
-    label: "Learning companion",
+    label: "Learning agent",
     description:
-      "Your courses, your progress, your certificates, and what to learn next.",
+      "Knows your courses, your progress and your certificates - and what to learn next. It acts, not just answers.",
     allowedRoles: ["user", "manager", "admin", "super_admin"],
     defaultModel: "gpt-4o-mini",
   },
   ld: {
     id: "ld",
-    label: "L&D companion",
+    label: "L&D agent",
     description:
       "Cohort progress, team readiness and training coverage across the organisation.",
     allowedRoles: STAFF_ROLES,
@@ -39,7 +42,7 @@ export const COMPANION_META: Record<CompanionId, CompanionMeta> = {
   },
   insights: {
     id: "insights",
-    label: "Insights companion",
+    label: "Insights agent",
     description:
       "Your people's training records and organisation-wide usage, within privacy limits.",
     allowedRoles: STAFF_ROLES,

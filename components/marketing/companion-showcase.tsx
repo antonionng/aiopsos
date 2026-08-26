@@ -35,7 +35,7 @@ interface Script {
 const SCRIPTS: Script[] = [
   {
     id: "learning",
-    label: "Learning companion",
+    label: "Learning agent",
     audience: "For every learner",
     icon: GraduationCap,
     accentText: "text-cat-technology",
@@ -58,7 +58,7 @@ const SCRIPTS: Script[] = [
   },
   {
     id: "ld",
-    label: "L&D companion",
+    label: "L&D agent",
     audience: "For L&D teams",
     icon: Users,
     accentText: "text-cat-ai",
@@ -81,7 +81,7 @@ const SCRIPTS: Script[] = [
   },
   {
     id: "insights",
-    label: "Insights companion",
+    label: "Insights agent",
     audience: "For owners & managers",
     icon: LineChart,
     accentText: "text-cat-robotics",

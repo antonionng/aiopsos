@@ -1,19 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Wordmark } from "@/components/wordmark";
 import { CompanionShowcase } from "@/components/marketing/companion-showcase";
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Check,
   Menu,
   Search,
   Plus,
-  MessageSquare,
-  FolderPlus,
   Paperclip,
   Send,
   Bot,
@@ -55,6 +51,33 @@ const PILLARS = [
     description:
       "Robotics as an operational question rather than an engineering one: what to specify, how to put it into a real process, who owns it, and what happens on the shift when it stops.",
     sharpEdge: "Not how they are built. How they are put to work.",
+  },
+];
+
+const AGENT_VERBS = [
+  {
+    title: "It knows you",
+    live: true,
+    description:
+      "Your enrolments, attendance, released grades, certificates and assessment results - it answers from your actual record, not a guess.",
+  },
+  {
+    title: "It plans",
+    live: true,
+    description:
+      "Ask what to learn next and it maps a sequenced path from your measured gaps to the cohorts actually running.",
+  },
+  {
+    title: "It acts",
+    live: false,
+    description:
+      "Soon it will request your seat on the next cohort and put sessions in your calendar - you confirm, a human approves.",
+  },
+  {
+    title: "It checks in",
+    live: false,
+    description:
+      "Between live sessions it will nudge your practice and prep you for what's next - useful, opt-out, never nagging.",
   },
 ];
 
@@ -150,77 +173,12 @@ const TRUST_GROUPS = [
   },
 ];
 
-const WORKSPACE_QUICK_ACTIONS = [
-  "What should I learn next?",
-  "How is my current course going?",
-  "Show my certificates",
-  "Which cohorts run this month?",
-];
 
-const PROJECT_THREAD = [
-  {
-    speaker: "Maya",
-    role: "human" as const,
-    text: "Experrt, draft a customer support launch brief using our Q2 project docs.",
-  },
-  {
-    speaker: "Experrt",
-    role: "ai" as const,
-    text: "Draft ready. I included rollout phases, owners, and risk controls from your policy set.",
-  },
-  {
-    speaker: "Luca",
-    role: "human" as const,
-    text: "Great. Add an operations timeline and suggest staffing impact by week.",
-  },
-  {
-    speaker: "Experrt",
-    role: "ai" as const,
-    text: "Updated with a 6-week timeline and staffing estimates. Finance guardrails are applied.",
-  },
-  {
-    speaker: "Nia",
-    role: "human" as const,
-    text: "Looks good. I need a compliance summary before sign-off.",
-  },
-  {
-    speaker: "Experrt",
-    role: "ai" as const,
-    text: "Compliance summary generated and attached. Ready for final approval and engineering handoff.",
-  },
-] as const;
 
-const COLLAB_STATUSES = ["Draft", "In review", "Approved"] as const;
-
-const COLLAB_PEOPLE = [
-  {
-    name: "Maya",
-    team: "Product",
-    avatarPath: "/avatars/maya.svg",
-    aiTask: "Reviewing AI-generated brief",
-  },
-  {
-    name: "Luca",
-    team: "Operations",
-    avatarPath: "/avatars/luca.svg",
-    aiTask: "Testing workflow suggestions",
-  },
-  {
-    name: "Nia",
-    team: "Finance",
-    avatarPath: "/avatars/nia.svg",
-    aiTask: "Checking policy compliance output",
-  },
-  {
-    name: "Jon",
-    team: "Engineering",
-    avatarPath: "/avatars/jon.svg",
-    aiTask: "Refining implementation with AI",
-  },
-];
 
 const FOOTER_LINKS = {
   Product: [
+    { label: "Experrt AI", href: "/experrt-ai" },
     { label: "Assessment", href: "/dashboard/assessment" },
     { label: "Academy", href: "/courses" },
     { label: "Recommendations", href: "/dashboard/recommend" },
@@ -247,17 +205,6 @@ const FOOTER_LINKS = {
 
 export default function Home() {
   const reduceMotion = useReducedMotion();
-  const [statusIdx, setStatusIdx] = useState(0);
-
-  useEffect(() => {
-    if (reduceMotion) return;
-    const timer = window.setInterval(() => {
-      setStatusIdx((prev) => (prev + 1) % COLLAB_STATUSES.length);
-    }, 2200);
-    return () => window.clearInterval(timer);
-  }, [reduceMotion]);
-
-  const activeStatus = COLLAB_STATUSES[statusIdx];
 
   return (
     <div className="min-h-screen bg-background">
@@ -270,7 +217,7 @@ export default function Home() {
             </Link>
             <div className="hidden items-center gap-6 md:flex">
               <a href="#capabilities" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                Product
+                Experrt AI
               </a>
               <Link href="/courses" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Academy
@@ -473,22 +420,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Capabilities */}
+      {/* Experrt AI */}
       <section id="capabilities" className="py-28">
         <div className="mx-auto max-w-6xl px-6">
           <div>
-            <h2 className="mb-6 text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
-              The platform behind the training
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-brand">
+              Experrt AI
+            </p>
+            <h2 className="mb-6 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
+              Meet Experrt AI &mdash; your very own learning agent.
             </h2>
 
             <p className="mb-10 max-w-2xl text-muted-foreground">
-              Training is what we do. This is what makes it provable: a shared
-              AI workspace your teams keep using after the course ends, which is
-              also where the observed-practice figures in your records come
-              from. An enabler, not the product.
+              Every member gets an agent that knows their training record and
+              acts on it: what they have studied, how it went, and what to do
+              next. It works between the live sessions a facilitator runs
+              &mdash; never instead of them.
             </p>
 
-            <div className="mb-12 overflow-hidden rounded-2xl border border-border bg-black/70">
+            <div className="mb-10 overflow-hidden rounded-2xl border border-border bg-black/70">
               <div className="flex h-11 items-center justify-between border-b border-white/10 px-4 sm:px-5">
                 <div className="flex items-center gap-3">
                   <Menu className="h-4 w-4 text-white/60" />
@@ -505,25 +455,24 @@ export default function Home() {
                   </div>
                   <div className="space-y-2 text-sm">
                     <button className="flex w-full items-center gap-2 rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-left text-white/80">
-                      <FolderPlus className="h-3.5 w-3.5" />
-                      Create a project
-                    </button>
-                    <button className="flex w-full items-center gap-2 rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-left text-white/80">
                       <Plus className="h-3.5 w-3.5" />
                       New conversation
                     </button>
-                    <div className="rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-white/60">
-                      Weekly launch prep
+                    <div className="rounded-md border border-brand/30 bg-brand/10 px-3 py-2 text-white/85">
+                      What should I learn next?
                     </div>
                     <div className="rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-white/60">
-                      Q2 AI policy draft
+                      Course check-in
+                    </div>
+                    <div className="rounded-md border border-white/10 bg-white/[0.02] px-3 py-2 text-white/60">
+                      My certificates
                     </div>
                   </div>
                 </div>
 
                 <div className="flex flex-col p-4 sm:p-6">
                   <div className="mb-5 flex flex-wrap items-center gap-2">
-                    {["Learning companion", "GPT-4o Mini", "Search", "Prompts"].map((chip) => (
+                    {["Experrt AI \u00b7 Learning agent", "GPT-4o Mini"].map((chip) => (
                       <span
                         key={chip}
                         className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/75"
@@ -531,136 +480,84 @@ export default function Home() {
                         {chip}
                       </span>
                     ))}
-                    <div className="ml-auto flex items-center gap-2">
-                      {COLLAB_PEOPLE.slice(0, 3).map((person, i) => (
-                        <motion.div
-                          key={person.name}
-                          className="relative h-7 w-7 overflow-hidden rounded-full border border-white/30"
-                          animate={
-                            reduceMotion
-                              ? undefined
-                              : { y: [0, -1, 0], opacity: [0.9, 1, 0.9] }
-                          }
-                          transition={{ duration: 1.6, repeat: Infinity, delay: i * 0.2 }}
-                        >
-                          <Image
-                            src={person.avatarPath}
-                            alt={`${person.name} avatar`}
-                            width={28}
-                            height={28}
-                            className="h-full w-full object-cover"
-                          />
-                          <motion.span
-                            className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border border-black/80 bg-emerald-400"
-                            animate={reduceMotion ? undefined : { opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
-                          />
-                        </motion.div>
-                      ))}
-                    </div>
                   </div>
 
-                  <div className="flex flex-1 flex-col items-center justify-center px-2 pb-6 pt-3 text-center">
-                    <MessageSquare className="mb-4 h-9 w-9 rounded-xl border border-white/10 bg-white/[0.04] p-2 text-white/70" />
-                    <h3 className="mb-2 text-2xl font-semibold tracking-tight text-white/90">
-                      How can I help you today?
-                    </h3>
-                    <p className="mb-6 text-sm text-white/55">
-                      A companion for every role: learners, L&D, and owners each
-                      get their own.
-                    </p>
-                    <div className="grid w-full max-w-xl gap-2 sm:grid-cols-2">
-                      {WORKSPACE_QUICK_ACTIONS.map((prompt, i) => (
-                        <motion.div
-                          key={prompt}
-                          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-left text-xs text-white/60"
-                          animate={reduceMotion ? undefined : { opacity: [0.72, 1, 0.72] }}
-                          transition={{ duration: 2.2, repeat: Infinity, delay: i * 0.25 }}
-                        >
-                          {prompt}
-                        </motion.div>
-                      ))}
-                    </div>
+                  <div className="flex flex-1 flex-col justify-center px-1 pb-6 pt-2">
+                    <div className="mx-auto w-full max-w-2xl space-y-3">
+                      <div className="flex justify-end">
+                        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-white/90 px-3.5 py-2 text-sm text-black">
+                          What should I work on next?
+                        </div>
+                      </div>
 
-                    <div className="mt-5 w-full max-w-2xl rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left">
-                      <p className="mb-2 text-[11px] uppercase tracking-wide text-white/45">
-                        Active thread: Customer Support Automation
-                      </p>
-                      <div className="space-y-2">
-                        {PROJECT_THREAD.map((msg, i) => {
-                          const person = COLLAB_PEOPLE.find((p) => p.name === msg.speaker);
-                          const isAI = msg.role === "ai";
-                          return (
-                            <motion.div
-                              key={`${msg.speaker}-${i}`}
-                              className={`flex items-start gap-2 ${isAI ? "" : "justify-start"}`}
-                              animate={
-                                reduceMotion
-                                  ? undefined
-                                  : { opacity: [0.65, 1, 0.65] }
-                              }
-                              transition={{ duration: 3, repeat: Infinity, delay: i * 0.28 }}
-                            >
-                              {isAI ? (
-                                <span className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-white/15 bg-white/[0.05]">
-                                  <Bot className="h-3.5 w-3.5 text-white/75" />
+                      <div className="flex">
+                        <motion.span
+                          className="inline-flex items-center gap-1.5 rounded-full border border-brand/40 px-2.5 py-1 text-[11px] text-brand"
+                          animate={reduceMotion ? undefined : { opacity: [0.6, 1, 0.6] }}
+                          transition={{ duration: 1.6, repeat: Infinity }}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+                          Reading your assessment and course history&hellip;
+                        </motion.span>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-brand/40 bg-brand/15">
+                          <Bot className="h-3.5 w-3.5 text-brand" />
+                        </span>
+                        <div className="min-w-0 rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-white/85">
+                          Responsible use is your widest gap. <span className="font-medium text-white">Responsible AI Use at Work</span> runs
+                          next month &mdash; six hours, facilitated live. Want me
+                          to map the full path?
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end">
+                        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-white/90 px-3.5 py-2 text-sm text-black">
+                          Yes &mdash; plan it.
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-brand/40 bg-brand/15">
+                          <Bot className="h-3.5 w-3.5 text-brand" />
+                        </span>
+                        <div className="min-w-0 flex-1 rounded-2xl rounded-bl-md border border-brand/25 bg-brand/[0.07] p-3.5">
+                          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-wide text-brand">
+                            Your path
+                          </p>
+                          <div className="space-y-2">
+                            {[
+                              { step: "1", text: "Responsible AI Use at Work", meta: "next cohort \u00b7 6 hrs live" },
+                              { step: "2", text: "Prompting and Output Verification", meta: "the checking habit \u00b7 7 hrs" },
+                              { step: "3", text: "Re-assess", meta: "measure what changed" },
+                            ].map((row, i) => (
+                              <motion.div
+                                key={row.step}
+                                className="flex items-center gap-2.5"
+                                initial={reduceMotion ? false : { opacity: 0, x: 8 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.3 + i * 0.18, duration: 0.3 }}
+                              >
+                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-brand-foreground">
+                                  {row.step}
                                 </span>
-                              ) : (
-                                <span className="relative h-6 w-6 overflow-hidden rounded-full border border-white/25">
-                                  <Image
-                                    src={person?.avatarPath ?? "/avatars/maya.svg"}
-                                    alt={`${msg.speaker} avatar`}
-                                    width={24}
-                                    height={24}
-                                    className="h-full w-full object-cover"
-                                  />
-                                </span>
-                              )}
-                              <div className="min-w-0 rounded-lg border border-white/10 bg-black/20 px-2.5 py-1.5">
-                                <p className="mb-0.5 text-[10px] font-medium uppercase tracking-wide text-white/45">
-                                  {msg.speaker}
-                                </p>
-                                <p className="text-[11px] text-white/75">{msg.text}</p>
-                              </div>
-                            </motion.div>
-                          );
-                        })}
+                                <span className="text-sm text-white/85">{row.text}</span>
+                                <span className="ml-auto text-[11px] text-white/40">{row.meta}</span>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <div className="mb-2 flex items-center justify-between text-[11px] text-white/45">
-                      <span>Project: Customer Support Automation</span>
-                      <motion.span
-                        key={activeStatus}
-                        initial={reduceMotion ? false : { opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.22 }}
-                        className="rounded-full border border-white/15 px-2 py-0.5 text-white/70"
-                      >
-                        {activeStatus}
-                      </motion.span>
-                    </div>
                     <div className="flex items-center gap-2">
                       <Paperclip className="h-3.5 w-3.5 text-white/60" />
-                      <span className="text-xs text-white/45">Message Experrt...</span>
+                      <span className="text-xs text-white/45">Message Experrt AI...</span>
                       <div className="ml-auto flex items-center gap-1.5">
-                        <motion.span
-                          className="h-1.5 w-1.5 rounded-full bg-white/50"
-                          animate={reduceMotion ? undefined : { opacity: [0.25, 1, 0.25] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                        />
-                        <motion.span
-                          className="h-1.5 w-1.5 rounded-full bg-white/50"
-                          animate={reduceMotion ? undefined : { opacity: [0.25, 1, 0.25] }}
-                          transition={{ duration: 1, repeat: Infinity, delay: 0.15 }}
-                        />
-                        <motion.span
-                          className="h-1.5 w-1.5 rounded-full bg-white/50"
-                          animate={reduceMotion ? undefined : { opacity: [0.25, 1, 0.25] }}
-                          transition={{ duration: 1, repeat: Infinity, delay: 0.3 }}
-                        />
                         <button className="ml-2 rounded-full border border-white/15 bg-white/[0.06] p-1.5 text-white/70">
                           <Send className="h-3.5 w-3.5" />
                         </button>
@@ -670,6 +567,37 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            {/* What makes it an agent */}
+            <div className="mb-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+              {AGENT_VERBS.map((verb) => (
+                <div key={verb.title} className="flex flex-col bg-card p-6">
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <h3 className="text-base font-semibold">{verb.title}</h3>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                        verb.live
+                          ? "bg-success/10 text-success"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {verb.live ? "Live now" : "Rolling out"}
+                    </span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {verb.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mb-12 max-w-2xl text-sm text-muted-foreground">
+              And the part your compliance team will ask about: spend is capped
+              per person, usage is reported by department and never by
+              individual, and Experrt AI never grades work or marks attendance
+              &mdash; a live facilitator does that. An agent you can actually
+              approve.
+            </p>
 
             <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
               {PLATFORM_BENEFITS.map((c) => (
@@ -697,11 +625,11 @@ export default function Home() {
             variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
           >
             <motion.h2 variants={fadeUp} custom={0} className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
-              Conversations in action
+              One agent, three roles
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="mb-12 max-w-2xl text-muted-foreground">
-              Every member gets an AI companion matched to their role. Learners
-              get help between live sessions, L&amp;D sees cohorts and gaps, and
+              Experrt AI meets each person as their role needs it. Learners get
+              help between live sessions, L&amp;D sees cohorts and gaps, and
               owners get answers about their people &mdash; with individual
               privacy built in as a hard rule, not a promise.
             </motion.p>
