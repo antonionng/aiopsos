@@ -36,7 +36,17 @@ import {
 import type { CourseRecommendation, DimensionScores } from "@/lib/types";
 import { RecommendedCourses } from "@/components/recommended-courses";
 
+interface NeedsSubjectResult {
+  category: "ai" | "technology" | "robotics";
+  label: string;
+  score: number;
+  band: { id: string; label: string; description: string };
+  courses: { slug: string; title: string; summary: string; level: string; duration_hours: number }[];
+}
+
 interface ResultsData {
+  kind?: "training-needs";
+  subjects?: NeedsSubjectResult[];
   scores: DimensionScores;
   overall: number;
   tier: { tier: number; label: string; color: string };
@@ -259,6 +269,81 @@ export default function MyResultsPage() {
           </Link>
         </div>
       </div>
+    );
+  }
+
+  // Training-needs results are a different instrument with their own view.
+  if (results.kind === "training-needs") {
+    const accents: Record<NeedsSubjectResult["category"], { text: string; bar: string; soft: string }> = {
+      ai: { text: "text-cat-ai", bar: "bg-cat-ai", soft: "bg-cat-ai-soft" },
+      technology: { text: "text-cat-technology", bar: "bg-cat-technology", soft: "bg-cat-technology-soft" },
+      robotics: { text: "text-cat-robotics", bar: "bg-cat-robotics", soft: "bg-cat-robotics-soft" },
+    };
+    return (
+      <motion.div variants={container} initial="hidden" animate="show" className="mx-auto max-w-3xl">
+        <motion.div variants={item} className="mb-8">
+          <h1 className="mb-1">Your Training Priorities</h1>
+          <p className="text-sm text-muted-foreground">
+            From your training needs analysis
+            {results.submitted_at
+              ? ` completed ${new Date(results.submitted_at).toLocaleDateString()}`
+              : ""}{" "}
+            &mdash; ranked by measured need, highest first.
+          </p>
+        </motion.div>
+
+        <div className="space-y-4">
+          {(results.subjects ?? []).map((subject) => {
+            const accent = accents[subject.category];
+            return (
+              <motion.div
+                key={subject.category}
+                variants={item}
+                className="overflow-hidden rounded-2xl border border-border bg-card"
+              >
+                <div className={`px-6 pt-5 pb-4 ${accent.soft}`}>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className={`text-base font-semibold ${accent.text}`}>{subject.label}</p>
+                    <span className={`rounded-full border border-border/60 bg-card px-3 py-1 text-xs font-semibold ${accent.text}`}>
+                      {subject.band.label}
+                    </span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-foreground/10">
+                    <div
+                      className={`h-full rounded-full ${accent.bar}`}
+                      style={{ width: `${(subject.score / 5) * 100}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="px-6 py-5">
+                  <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                    {subject.band.description}
+                  </p>
+                  {subject.courses.length > 0 && subject.band.id !== "low" && (
+                    <div className="space-y-2">
+                      {subject.courses.map((course) => (
+                        <a
+                          key={course.slug}
+                          href={`/courses/${course.slug}`}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3 transition-colors hover:border-foreground/30"
+                        >
+                          <span className="min-w-0">
+                            <span className="block text-sm font-medium">{course.title}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {course.duration_hours} facilitated hrs
+                            </span>
+                          </span>
+                          <span className="text-xs font-medium text-brand">View course</span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
     );
   }
 

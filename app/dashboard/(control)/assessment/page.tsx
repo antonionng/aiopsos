@@ -27,6 +27,7 @@ import {
   Route,
   Send,
   Share2,
+  GraduationCap,
   Shield,
   Sparkles,
   Target,
@@ -61,6 +62,7 @@ const TEMPLATE_ICONS: Record<string, React.ReactNode> = {
   marketing: <Megaphone className="h-6 w-6" />,
   leadership: <Crown className="h-6 w-6" />,
   governance: <Shield className="h-6 w-6" />,
+  "training-needs": <GraduationCap className="h-6 w-6" />,
 };
 
 interface Assessment {

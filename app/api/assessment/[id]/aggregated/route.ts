@@ -38,13 +38,56 @@ export async function GET(
 
   const { data: responses, error } = await supabaseAdmin
     .from("assessment_responses")
-    .select("id, confidence_score, practice_score, tools_score, responsible_score, culture_score, department_id, respondent_role, user_id, submitted_at, raw_answers, departments(name)")
+    .select("id, confidence_score, practice_score, tools_score, responsible_score, culture_score, dimension_scores, department_id, respondent_role, user_id, submitted_at, raw_answers, departments(name)")
     .eq("assessment_id", id);
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
 
   const noCache = { "Cache-Control": "no-store" };
+
+  // Training-needs assessments aggregate their jsonb scores by department;
+  // the five maturity columns are 0 on these rows and would only mislead.
+  if (assessment.template_id === "training-needs") {
+    const rows = (responses ?? []).filter((r) => r.dimension_scores);
+    const categories = ["ai", "technology", "robotics"] as const;
+
+    const catAvg = (subset: typeof rows) => {
+      const out: Record<string, number> = {};
+      for (const cat of categories) {
+        const vals = subset
+          .map((r) => Number((r.dimension_scores as Record<string, number>)[cat]))
+          .filter((v) => Number.isFinite(v));
+        out[cat] = vals.length
+          ? Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2))
+          : 0;
+      }
+      return out;
+    };
+
+    const byDept = new Map<string, { name: string; rows: typeof rows }>();
+    for (const r of rows) {
+      const key = r.department_id ?? "none";
+      const name = (r.departments as unknown as { name: string } | null)?.name ?? "No department";
+      const entry = byDept.get(key) ?? { name, rows: [] as typeof rows };
+      entry.rows.push(r);
+      byDept.set(key, entry);
+    }
+
+    return NextResponse.json(
+      {
+        kind: "training-needs",
+        response_count: rows.length,
+        org_needs: catAvg(rows),
+        department_needs: Array.from(byDept.values()).map((d) => ({
+          department: d.name,
+          respondents: d.rows.length,
+          needs: catAvg(d.rows),
+        })),
+      },
+      { headers: noCache }
+    );
+  }
 
   if (!responses || responses.length === 0) {
     return NextResponse.json({

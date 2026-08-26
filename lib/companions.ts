@@ -150,6 +150,7 @@ function learningTools(ctx: CompanionContext): ToolSet {
             "confidence_score, practice_score, tools_score, responsible_score, culture_score, respondent_role, submitted_at"
           )
           .eq("user_id", ctx.userId)
+          .or("template_id.is.null,template_id.neq.training-needs")
           .order("submitted_at", { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -273,7 +274,8 @@ function staffAggregateTools(ctx: CompanionContext): ToolSet {
           .select(
             "department_id, confidence_score, practice_score, tools_score, responsible_score, culture_score, departments(name), assessments!inner(org_id)"
           )
-          .eq("assessments.org_id", ctx.orgId);
+          .eq("assessments.org_id", ctx.orgId)
+          .or("template_id.is.null,template_id.neq.training-needs");
 
         const byDept = new Map<string, { name: string; rows: Record<Dimension, number>[] }>();
         for (const r of responses ?? []) {

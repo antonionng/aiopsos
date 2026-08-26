@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { calculateDimensionScores, calculateOverallScore } from "@/lib/scoring";
+import { calculateDimensionScores, calculateScoresByDimension, calculateOverallScore } from "@/lib/scoring";
 import { getTierForScore, RESPONDENT_ROLE_LABELS } from "@/lib/constants";
-import { getTemplate } from "@/lib/assessment-templates";
+import { getTemplateOrDefault } from "@/lib/assessment-templates";
 import {
   sendAssessmentResultsEmail,
   sendAdminAssessmentCompletedEmail,
@@ -40,7 +40,9 @@ export async function POST(req: NextRequest) {
     .eq("id", assessment_id)
     .single();
 
-  const template = getTemplate(assessment?.template_id ?? "org-wide");
+  const template = getTemplateOrDefault(assessment?.template_id ?? "org-wide");
+  const isMaturity = template.kind === "maturity";
+  const genericScores = calculateScoresByDimension(answers, template.questions);
   const scores = calculateDimensionScores(answers, template.questions);
 
   const { data, error } = await supabase
@@ -49,11 +51,13 @@ export async function POST(req: NextRequest) {
       assessment_id,
       user_id: user.id,
       department_id: profile.department_id,
-      confidence_score: scores.confidence,
-      practice_score: scores.practice,
-      tools_score: scores.tools,
-      responsible_score: scores.responsible,
-      culture_score: scores.culture,
+      template_id: template.id,
+      dimension_scores: genericScores,
+      confidence_score: isMaturity ? scores.confidence : 0,
+      practice_score: isMaturity ? scores.practice : 0,
+      tools_score: isMaturity ? scores.tools : 0,
+      responsible_score: isMaturity ? scores.responsible : 0,
+      culture_score: isMaturity ? scores.culture : 0,
       respondent_role: respondent_role ?? null,
       tools_used: tools_used ?? null,
       raw_answers: answers,
@@ -65,6 +69,12 @@ export async function POST(req: NextRequest) {
 
   const overall = calculateOverallScore(scores);
   const tier = getTierForScore(overall);
+
+  // The results and admin emails speak maturity language (tiers); the
+  // training-needs instrument shows its results on screen instead.
+  if (!isMaturity) {
+    return NextResponse.json({ response: data, scores: genericScores, template_id: template.id, kind: template.kind });
+  }
 
   const { data: userProfile } = await supabase
     .from("user_profiles")

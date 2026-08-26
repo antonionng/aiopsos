@@ -34,12 +34,33 @@ import { OrgAvatar } from "@/components/org-avatar";
 import { RecommendedCourses } from "@/components/recommended-courses";
 
 interface ResultsData {
-  scores: DimensionScores;
+  scores: DimensionScores | Record<string, number>;
   overall: number;
-  tier: { tier: number; label: string; color: string };
+  tier: { tier: number; label: string; color: string } | null;
+  template_id?: string;
   session_token: string;
   respondent_role?: string | null;
 }
+
+interface NeedsSubject {
+  category: "ai" | "technology" | "robotics";
+  label: string;
+  score: number;
+  band: { id: string; label: string; description: string };
+  courses: {
+    slug: string;
+    title: string;
+    summary: string;
+    level: string;
+    duration_hours: number;
+  }[];
+}
+
+const SUBJECT_ACCENT: Record<NeedsSubject["category"], { text: string; bar: string; soft: string }> = {
+  ai: { text: "text-cat-ai", bar: "bg-cat-ai", soft: "bg-cat-ai-soft" },
+  technology: { text: "text-cat-technology", bar: "bg-cat-technology", soft: "bg-cat-technology-soft" },
+  robotics: { text: "text-cat-robotics", bar: "bg-cat-robotics", soft: "bg-cat-robotics-soft" },
+};
 
 export default function AssessResultsPage() {
   const { token } = useParams<{ token: string }>();
@@ -55,6 +76,7 @@ export default function AssessResultsPage() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [completedCount, setCompletedCount] = useState<number>(0);
   const [courses, setCourses] = useState<CourseRecommendation[]>([]);
+  const [needsSubjects, setNeedsSubjects] = useState<NeedsSubject[]>([]);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
 
@@ -77,6 +99,7 @@ export default function AssessResultsPage() {
             scores: d.scores,
             overall: d.overall,
             tier: d.tier,
+            template_id: d.template_id,
             session_token: d.session_token,
             respondent_role: d.respondent_role,
           };
@@ -135,17 +158,24 @@ export default function AssessResultsPage() {
     if (!results) return;
     let cancelled = false;
 
-    fetch("/api/public/courses/recommend", {
+    const isNeeds = results.template_id === "training-needs";
+    const endpoint = isNeeds
+      ? "/api/public/courses/recommend-needs"
+      : "/api/public/courses/recommend";
+    const payload = isNeeds
+      ? { needs: results.scores, respondent_role: results.respondent_role ?? null }
+      : { scores: results.scores, respondent_role: results.respondent_role ?? null };
+
+    fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        scores: results.scores,
-        respondent_role: results.respondent_role ?? null,
-      }),
+      body: JSON.stringify(payload),
     })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (!cancelled && d?.recommendations) setCourses(d.recommendations);
+        if (cancelled) return;
+        if (isNeeds && d?.subjects) setNeedsSubjects(d.subjects);
+        if (!isNeeds && d?.recommendations) setCourses(d.recommendations);
       })
       .catch(() => {
         // A failed recommendation lookup must never block the signup path.
@@ -237,6 +267,8 @@ export default function AssessResultsPage() {
     );
   }
 
+  const isNeeds = results.template_id === "training-needs";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -266,32 +298,108 @@ export default function AssessResultsPage() {
         <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand/10">
           <CheckCircle2 className="h-8 w-8 text-brand" />
         </div>
-        <h1 className="mb-2 text-2xl font-bold">Assessment Complete</h1>
-        <p className="mb-2 text-muted-foreground">
-          Here&apos;s a preview of your AI maturity score.
-        </p>
-        <p className="mb-6 text-3xl font-bold">
-          {results.overall.toFixed(1)}
-          <span className="text-lg font-normal text-muted-foreground"> / 5</span>
-        </p>
-
-        <div
-          className="mb-8 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
-          style={{
-            backgroundColor: `${results.tier.color}15`,
-            color: results.tier.color,
-          }}
-        >
-          Tier {results.tier.tier}: {results.tier.label}
-        </div>
+        <h1 className="mb-2 text-2xl font-bold">
+          {isNeeds ? "Your training priorities" : "Assessment Complete"}
+        </h1>
+        {isNeeds ? (
+          <p className="mb-8 text-muted-foreground">
+            Ranked by measured need &mdash; highest first. Each subject shows
+            the courses that close its gap.
+          </p>
+        ) : (
+          <>
+            <p className="mb-2 text-muted-foreground">
+              Here&apos;s a preview of your AI maturity score.
+            </p>
+            <p className="mb-6 text-3xl font-bold">
+              {results.overall.toFixed(1)}
+              <span className="text-lg font-normal text-muted-foreground"> / 5</span>
+            </p>
+            {results.tier && (
+              <div
+                className="mb-8 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
+                style={{
+                  backgroundColor: `${results.tier.color}15`,
+                  color: results.tier.color,
+                }}
+              >
+                Tier {results.tier.tier}: {results.tier.label}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
+      {/* Training priorities: the selling surface for the needs instrument */}
+      {isNeeds && (
+        <div className="mb-8 space-y-4">
+          {needsSubjects.map((subject, i) => {
+            const accent = SUBJECT_ACCENT[subject.category];
+            return (
+              <motion.div
+                key={subject.category}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 + i * 0.12 }}
+                className="overflow-hidden rounded-2xl border border-border bg-card"
+              >
+                <div className={`px-5 pt-4 pb-3 ${accent.soft}`}>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className={`text-sm font-semibold ${accent.text}`}>
+                      {subject.label}
+                    </p>
+                    <span className={`rounded-full border border-border/60 bg-card px-2.5 py-0.5 text-xs font-semibold ${accent.text}`}>
+                      {subject.band.label}
+                    </span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-foreground/10">
+                    <motion.div
+                      className={`h-full rounded-full ${accent.bar}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(subject.score / 5) * 100}%` }}
+                      transition={{ delay: 0.3 + i * 0.12, duration: 0.5 }}
+                    />
+                  </div>
+                </div>
+                <div className="px-5 py-4">
+                  <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+                    {subject.band.description}
+                  </p>
+                  {subject.courses.length > 0 && subject.band.id !== "low" && (
+                    <div className="space-y-2">
+                      {subject.courses.map((course) => (
+                        <a
+                          key={course.slug}
+                          href={`/courses/${course.slug}`}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5 text-left transition-colors hover:border-foreground/30"
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-medium">
+                              {course.title}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {course.duration_hours} facilitated hrs
+                            </span>
+                          </span>
+                          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Locked dimension preview */}
-      {orgName && (
+      {!isNeeds && orgName && (
         <p className="mb-3 text-center text-xs text-muted-foreground">
           {orgName} is building an AI-ready team. See how you compare.
         </p>
       )}
+      {!isNeeds && (
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {DIMENSIONS.map((dim: Dimension) => (
           <div
@@ -302,7 +410,7 @@ export default function AssessResultsPage() {
               {DIMENSION_LABELS[dim]}
             </p>
             <p className="mt-1 text-lg font-bold blur-[3px] select-none">
-              {results.scores[dim].toFixed(1)}
+              {(results.scores[dim] ?? 0).toFixed(1)}
             </p>
             <div className="absolute inset-0 flex items-center justify-center bg-card/60">
               <Lock className="h-4 w-4 text-muted-foreground/60" />
@@ -310,19 +418,24 @@ export default function AssessResultsPage() {
           </div>
         ))}
       </div>
+      )}
 
       <p className="mb-8 text-center text-xs text-muted-foreground">
-        Create an account to unlock your full breakdown
+        {isNeeds
+          ? "Create an account to keep these results and track progress over time"
+          : "Create an account to unlock your full breakdown"}
       </p>
 
       {/* Course recommendations stay unlocked: the gap the assessment finds
           is only useful to the respondent if they can see what closes it. */}
+      {!isNeeds && (
       <RecommendedCourses
         recommendations={courses}
         heading="Courses matched to your results"
         description="Based on your weakest dimensions and your role. Delivered live by a facilitator, in person or online."
         className="mb-8"
       />
+      )}
 
       {awaitingConfirmation && (
         <div className="mb-8 rounded-2xl border-2 border-brand/20 bg-card p-6 text-center">

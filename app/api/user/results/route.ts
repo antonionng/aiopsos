@@ -48,11 +48,55 @@ export async function GET() {
     .from("assessment_responses")
     .select("*")
     .eq("user_id", user.id)
+    .or("template_id.is.null,template_id.neq.training-needs")
     .order("submitted_at", { ascending: false })
     .limit(1)
     .single();
 
   if (!response) {
+    // No maturity result - fall back to the latest training-needs result so
+    // a TNA-only member still lands on something rather than a 404.
+    const { data: tnaRow } = await supabase
+      .from("assessment_responses")
+      .select("dimension_scores, respondent_role, submitted_at")
+      .eq("user_id", user.id)
+      .eq("template_id", "training-needs")
+      .order("submitted_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (tnaRow?.dimension_scores) {
+      const { fetchPublishedCourses } = await import("@/lib/courses");
+      const { rankCoursesByNeed } = await import("@/lib/training-needs");
+      const { RESPONDENT_ROLES, COURSE_CATEGORY_LABELS } = await import("@/lib/constants");
+      const role = (RESPONDENT_ROLES as readonly string[]).includes(tnaRow.respondent_role as string)
+        ? (tnaRow.respondent_role as (typeof RESPONDENT_ROLES)[number])
+        : null;
+      const catalogue = await fetchPublishedCourses();
+      const subjects = rankCoursesByNeed(
+        tnaRow.dimension_scores as Record<string, number>,
+        role,
+        catalogue
+      );
+      return NextResponse.json({
+        kind: "training-needs",
+        submitted_at: tnaRow.submitted_at,
+        subjects: subjects.map((sub) => ({
+          category: sub.category,
+          label: COURSE_CATEGORY_LABELS[sub.category],
+          score: sub.score,
+          band: { id: sub.band.id, label: sub.band.label, description: sub.band.description },
+          courses: sub.courses.map((c) => ({
+            slug: c.slug,
+            title: c.title,
+            summary: c.summary,
+            level: c.level,
+            duration_hours: c.duration_hours,
+          })),
+        })),
+      });
+    }
+
     return NextResponse.json({ error: "No assessment results found" }, { status: 404 });
   }
 
@@ -111,7 +155,8 @@ export async function GET() {
     const { data: orgResponses } = await supabaseAdmin
       .from("assessment_responses")
       .select("confidence_score, practice_score, tools_score, responsible_score, culture_score")
-      .eq("assessment_id", response.assessment_id);
+      .eq("assessment_id", response.assessment_id)
+      .or("template_id.is.null,template_id.neq.training-needs");
 
     if (orgResponses && orgResponses.length >= 3) {
       const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;

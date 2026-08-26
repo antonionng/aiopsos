@@ -10,7 +10,7 @@ export async function GET(
 
   const { data: link, error } = await supabase
     .from("assessment_links")
-    .select("id, token, title, description, active, expires_at, org_id, organisations(name, logo_url)")
+    .select("id, token, title, description, active, expires_at, org_id, template_id, organisations(name, logo_url)")
     .eq("token", token)
     .eq("active", true)
     .single();
@@ -48,6 +48,7 @@ export async function GET(
       token: link.token,
       title: link.title,
       description: link.description,
+      template_id: link.template_id ?? "org-wide",
       org: link.organisations,
       completed_count: count ?? 0,
     },

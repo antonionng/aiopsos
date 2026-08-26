@@ -45,6 +45,7 @@ export default function LinksPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("AI Readiness Assessment");
+  const [templateId, setTemplateId] = useState("org-wide");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [creating, setCreating] = useState(false);
@@ -72,6 +73,7 @@ export default function LinksPage() {
         title,
         token: slug || undefined,
         description,
+        template_id: templateId,
       }),
     });
     const data = await res.json();
@@ -82,6 +84,7 @@ export default function LinksPage() {
     }
     setOpen(false);
     setTitle("AI Readiness Assessment");
+    setTemplateId("org-wide");
     setSlug("");
     setDescription("");
     setCreating(false);
@@ -132,6 +135,42 @@ export default function LinksPage() {
               <DialogTitle>Create Assessment Link</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <Label>Assessment type</Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {[
+                    {
+                      id: "org-wide",
+                      name: "AI Readiness",
+                      hint: "Maturity across five dimensions",
+                      defaultTitle: "AI Readiness Assessment",
+                    },
+                    {
+                      id: "training-needs",
+                      name: "Training Needs",
+                      hint: "What each person needs training on",
+                      defaultTitle: "Training Needs Analysis",
+                    },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        setTemplateId(opt.id);
+                        setTitle(opt.defaultTitle);
+                      }}
+                      className={`rounded-xl border p-3 text-left transition-colors ${
+                        templateId === opt.id
+                          ? "border-brand/50 bg-brand/5"
+                          : "border-border hover:border-foreground/20"
+                      }`}
+                    >
+                      <p className="text-sm font-semibold">{opt.name}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{opt.hint}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>Title</Label>
                 <Input

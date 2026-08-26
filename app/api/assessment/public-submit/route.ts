@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { calculateDimensionScores, calculateOverallScore } from "@/lib/scoring";
+import { calculateDimensionScores, calculateScoresByDimension, calculateOverallScore } from "@/lib/scoring";
 import { getTierForScore, RESPONDENT_ROLE_LABELS } from "@/lib/constants";
-import { getTemplate } from "@/lib/assessment-templates";
+import { getTemplateOrDefault } from "@/lib/assessment-templates";
 import {
   sendConfirmWelcomeEmail,
   sendAdminAssessmentCompletedEmail,
@@ -54,7 +54,9 @@ export async function POST(req: NextRequest) {
       .single();
     if (tmplRow?.template_id) templateId = tmplRow.template_id;
 
-    const template = getTemplate(templateId);
+    const template = getTemplateOrDefault(templateId);
+    const isMaturity = template.kind === "maturity";
+    const genericScores = calculateScoresByDimension(answers, template.questions);
     const scores = calculateDimensionScores(answers, template.questions);
     const overall = calculateOverallScore(scores);
     const tier = getTierForScore(overall);
@@ -150,11 +152,13 @@ export async function POST(req: NextRequest) {
     const responseInsert: Record<string, unknown> = {
       assessment_id: assessment.id,
       user_id: userId,
-      confidence_score: scores.confidence,
-      practice_score: scores.practice,
-      tools_score: scores.tools,
-      responsible_score: scores.responsible,
-      culture_score: scores.culture,
+      template_id: template.id,
+      dimension_scores: genericScores,
+      confidence_score: isMaturity ? scores.confidence : 0,
+      practice_score: isMaturity ? scores.practice : 0,
+      tools_score: isMaturity ? scores.tools : 0,
+      responsible_score: isMaturity ? scores.responsible : 0,
+      culture_score: isMaturity ? scores.culture : 0,
       respondent_role: respondent_role ?? null,
       tools_used: tools_used ?? null,
       raw_answers: answers,
@@ -203,7 +207,7 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
-    await sendAdminAssessmentCompletedEmail(orgId, org?.name ?? "Organisation", name, email, overall, tier.label, department, {
+    if (isMaturity) await sendAdminAssessmentCompletedEmail(orgId, org?.name ?? "Organisation", name, email, overall, tier.label, department, {
       scores,
       respondentRole: respondent_role
         ? (RESPONDENT_ROLE_LABELS[respondent_role as keyof typeof RESPONDENT_ROLE_LABELS] ?? respondent_role)

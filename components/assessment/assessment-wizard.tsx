@@ -12,7 +12,6 @@ import {
   RESPONDENT_ROLE_LABELS,
   AI_TOOL_OPTIONS,
   type RespondentRole,
-  type Dimension,
 } from "@/lib/constants";
 
 interface AssessmentWizardProps {
@@ -21,6 +20,12 @@ interface AssessmentWizardProps {
   submitting?: boolean;
   questions?: AssessmentQuestion[];
   dimensionLabels?: Record<string, string>;
+  /**
+   * Whether to end with the AI-tools multi-select. Maturity templates ask
+   * it; the training-needs template does not - its subject scores are the
+   * whole instrument.
+   */
+  askTools?: boolean;
   /**
    * Namespace for the saved draft. Answers are kept in localStorage under
    * this key so a refresh or an accidental back-navigation part-way through
@@ -37,10 +42,11 @@ export function AssessmentWizard({
   submitting,
   questions: questionsProp,
   dimensionLabels: dimensionLabelsProp,
+  askTools = true,
   draftKey,
 }: AssessmentWizardProps) {
   const questions = questionsProp ?? ASSESSMENT_QUESTIONS;
-  const dimLabels = (dimensionLabelsProp ?? DIMENSION_LABELS) as Record<Dimension, string>;
+  const dimLabels: Record<string, string> = dimensionLabelsProp ?? DIMENSION_LABELS;
 
   const [step, setStep] = useState<Step>("role");
   const [role, setRole] = useState<RespondentRole | null>(null);
@@ -89,7 +95,7 @@ export function AssessmentWizard({
 
   const question = questions[currentIndex];
   const totalQuestions = questions.length;
-  const totalSteps = totalQuestions + 2;
+  const totalSteps = totalQuestions + (askTools ? 2 : 1);
   const currentStep =
     step === "role" ? 1 : step === "questions" ? currentIndex + 2 : totalSteps;
   const progress = (currentStep / totalSteps) * 100;
@@ -106,9 +112,23 @@ export function AssessmentWizard({
     }
   }, []);
 
+  function finish(finalAnswers: Record<string, number>, tools: string[]) {
+    // The draft has served its purpose; keeping it would restore a
+    // completed assessment on the next visit.
+    if (storageKey) {
+      try {
+        window.localStorage.removeItem(storageKey);
+      } catch {
+        // Nothing actionable.
+      }
+    }
+    onComplete(finalAnswers, { role: role!, toolsUsed: tools });
+  }
+
   function selectAnswer(value: number) {
     haptic();
-    setAnswers({ ...answers, [question.id]: value });
+    const nextAnswers = { ...answers, [question.id]: value };
+    setAnswers(nextAnswers);
 
     // Auto-advance after 300ms
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
@@ -116,9 +136,11 @@ export function AssessmentWizard({
       setSwipeDir(1);
       if (currentIndex < totalQuestions - 1) {
         setCurrentIndex(currentIndex + 1);
-      } else {
+      } else if (askTools) {
         setStep("tools");
       }
+      // Without a tools step, the last answer waits for an explicit Submit
+      // rather than firing the completion mid-tap.
     }, 300);
   }
 
@@ -144,20 +166,13 @@ export function AssessmentWizard({
     } else if (step === "questions") {
       if (currentIndex < totalQuestions - 1) {
         setCurrentIndex(currentIndex + 1);
-      } else {
+      } else if (askTools) {
         setStep("tools");
+      } else {
+        finish(answers, []);
       }
     } else {
-      // The draft has served its purpose; keeping it would restore a
-      // completed assessment on the next visit.
-      if (storageKey) {
-        try {
-          window.localStorage.removeItem(storageKey);
-        } catch {
-          // Nothing actionable.
-        }
-      }
-      onComplete(answers, { role: role!, toolsUsed: selectedTools });
+      finish(answers, selectedTools);
     }
   }
 
@@ -395,10 +410,11 @@ export function AssessmentWizard({
           >
             {submitting
               ? "Submitting..."
-              : step === "tools"
+              : step === "tools" ||
+                  (!askTools && step === "questions" && currentIndex === totalQuestions - 1)
                 ? "Submit"
                 : "Next"}
-            {step !== "tools" && !submitting && (
+            {!(step === "tools" || (!askTools && step === "questions" && currentIndex === totalQuestions - 1)) && !submitting && (
               <ArrowRight className="ml-2 h-4 w-4" />
             )}
           </Button>

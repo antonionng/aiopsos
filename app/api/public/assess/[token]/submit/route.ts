@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { ASSESSMENT_QUESTIONS, calculateDimensionScores, calculateOverallScore } from "@/lib/scoring";
+import { calculateScoresByDimension, calculateOverallScore } from "@/lib/scoring";
+import { getTemplateOrDefault } from "@/lib/assessment-templates";
 import { getTierForScore } from "@/lib/constants";
 import { findMissingAnswers } from "@/lib/assessment-completeness";
 import { randomUUID } from "crypto";
@@ -27,7 +28,7 @@ export async function POST(
 
   const { data: link } = await supabase
     .from("assessment_links")
-    .select("id, active, expires_at")
+    .select("id, active, expires_at, template_id")
     .eq("token", token)
     .eq("active", true)
     .single();
@@ -53,10 +54,15 @@ export async function POST(
   }
   const { answers, respondent_role, tools_used } = validation.data;
 
+  // The link decides the instrument. Before 032 this route always scored
+  // against the default maturity questions, which silently rejected any
+  // other template's submissions as incomplete.
+  const template = getTemplateOrDefault(link.template_id);
+
   // Every question must be answered. Missing keys used to score zero and
   // persist as a real result, which is worse than refusing the submission.
   const missing = findMissingAnswers(
-    ASSESSMENT_QUESTIONS.map((q) => q.id),
+    template.questions.map((q) => q.id),
     answers
   );
   if (missing.length > 0) {
@@ -66,19 +72,23 @@ export async function POST(
     );
   }
 
-  const scores = calculateDimensionScores(answers);
+  const scores = calculateScoresByDimension(answers, template.questions);
   const overall = calculateOverallScore(scores);
-  const tier = getTierForScore(overall);
+  const isMaturity = template.kind === "maturity";
   const sessionToken = randomUUID();
 
   const { error } = await supabase.from("pending_responses").insert({
     link_id: link.id,
     raw_answers: answers,
-    confidence_score: scores.confidence,
-    practice_score: scores.practice,
-    tools_score: scores.tools,
-    responsible_score: scores.responsible,
-    culture_score: scores.culture,
+    template_id: template.id,
+    dimension_scores: scores,
+    // Legacy maturity columns: real values for maturity rows, 0 otherwise.
+    // Aggregates exclude non-maturity rows via template_id.
+    confidence_score: isMaturity ? (scores.confidence ?? 0) : 0,
+    practice_score: isMaturity ? (scores.practice ?? 0) : 0,
+    tools_score: isMaturity ? (scores.tools ?? 0) : 0,
+    responsible_score: isMaturity ? (scores.responsible ?? 0) : 0,
+    culture_score: isMaturity ? (scores.culture ?? 0) : 0,
     respondent_role: respondent_role ?? null,
     tools_used: tools_used ?? null,
     session_token: sessionToken,
@@ -88,11 +98,14 @@ export async function POST(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  const tier = getTierForScore(overall);
   const response = NextResponse.json({
     session_token: sessionToken,
     scores,
     overall,
-    tier: { tier: tier.tier, label: tier.label, color: tier.color },
+    template_id: template.id,
+    // Maturity language only applies to the maturity instrument.
+    tier: isMaturity ? { tier: tier.tier, label: tier.label, color: tier.color } : null,
   });
 
   response.cookies.set("assess_session", sessionToken, {
