@@ -7,6 +7,7 @@ import {
 } from "../public-sitemap.ts";
 import { FALLBACK_PUBLISHED_COURSE_SLUGS } from "../published-course-slugs.ts";
 import { getPublishedInsights } from "../insights/catalog.ts";
+import { getUseCases } from "../use-cases.ts";
 import { getPublicSiteUrl } from "../site.ts";
 
 test("public sitemap lists marketing, courses, and published insights only", () => {
@@ -36,6 +37,10 @@ test("public sitemap lists marketing, courses, and published insights only", () 
   }
   for (const article of getPublishedInsights()) {
     assert.ok(urls.includes(`${baseUrl}/insights/${article.slug}`), article.slug);
+  }
+  assert.ok(urls.includes(`${baseUrl}/use-cases`));
+  for (const entry of getUseCases()) {
+    assert.ok(urls.includes(`${baseUrl}/use-cases/${entry.slug}`), entry.slug);
   }
 
   for (const url of urls) {

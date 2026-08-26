@@ -16,6 +16,12 @@ test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/blog/anything"), true);
 });
 
+test("use cases are public marketing pages", () => {
+  assert.equal(isPublicPath("/use-cases"), true);
+  assert.equal(isPublicPath("/use-cases/enterprise"), true);
+  assert.equal(isPublicPath("/use-cases/finance"), true);
+});
+
 test("the endpoints that create a session are reachable without one", () => {
   // Each of these 307'd to /login in production, which is what surfaced as
   // "Registration failed (405)" on the homepage CTA.

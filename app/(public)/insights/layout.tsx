@@ -25,6 +25,12 @@ export default function InsightsLayout({
               Insights
             </Link>
             <Link
+              href="/use-cases"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Use cases
+            </Link>
+            <Link
               href="/courses"
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
