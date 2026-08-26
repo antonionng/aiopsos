@@ -51,6 +51,9 @@ export async function POST(req: NextRequest) {
       token: slug,
       title: body.title || "AI Readiness Assessment",
       description: body.description || "",
+      template_id: ["org-wide","engineering","sales","marketing","leadership","governance","training-needs"].includes(body.template_id)
+        ? body.template_id
+        : "org-wide",
       active: true,
       expires_at: body.expires_at || null,
     })

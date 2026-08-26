@@ -40,7 +40,10 @@ export async function GET() {
   const { data: responses } = await supabaseAdmin
     .from("assessment_responses")
     .select("confidence_score, practice_score, tools_score, responsible_score, culture_score, department_id, departments(name, type)")
-    .in("assessment_id", assessmentIds);
+    .in("assessment_id", assessmentIds)
+    // Training-needs rows keep 0s in the maturity columns; including them
+    // would drag every average down.
+    .or("template_id.is.null,template_id.neq.training-needs");
 
   if (!responses || responses.length === 0)
     return NextResponse.json({ data: null });

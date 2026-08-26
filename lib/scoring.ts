@@ -1,9 +1,17 @@
 import { DIMENSIONS, getTierForScore, INDUSTRY_BENCHMARKS, DIMENSION_LABELS, type Dimension } from "./constants";
+import { calculateScoresByDimension, calculateOverallScore } from "./score-math";
 import type { AssessmentResponse, DimensionScores } from "./types";
 
 export interface AssessmentQuestion {
   id: string;
-  dimension: Dimension;
+  /**
+   * Which axis the question scores. For maturity templates these are the
+   * five Dimension keys; the training-needs template uses the course
+   * category keys. Widened to string so a second instrument does not need
+   * a parallel question type - maturity call sites keep their typed shape
+   * via calculateDimensionScores below.
+   */
+  dimension: string;
   text: string;
   description: string;
   options: { value: number; label: string }[];
@@ -231,26 +239,20 @@ export const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
   },
 ];
 
+/** Maturity-typed wrapper: always returns all five dimension keys. */
 export function calculateDimensionScores(
   answers: Record<string, number>,
   questions: AssessmentQuestion[] = ASSESSMENT_QUESTIONS,
 ): DimensionScores {
+  const generic = calculateScoresByDimension(answers, questions);
   const scores: DimensionScores = { confidence: 0, practice: 0, tools: 0, responsible: 0, culture: 0 };
-
   for (const dim of DIMENSIONS) {
-    const dimQuestions = questions.filter((q) => q.dimension === dim);
-    const dimAnswers = dimQuestions.map((q) => answers[q.id] ?? 0);
-    const sum = dimAnswers.reduce((a, b) => a + b, 0);
-    scores[dim] = dimQuestions.length > 0 ? Number((sum / dimQuestions.length).toFixed(2)) : 0;
+    scores[dim] = generic[dim] ?? 0;
   }
-
   return scores;
 }
 
-export function calculateOverallScore(scores: DimensionScores): number {
-  const values = Object.values(scores);
-  return Number((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2));
-}
+export { calculateScoresByDimension, calculateOverallScore };
 
 export function aggregateDepartmentScores(responses: AssessmentResponse[]): DimensionScores {
   if (responses.length === 0) {

@@ -113,13 +113,18 @@ export async function claimPendingResponse(input: ClaimInput): Promise<ClaimResu
       .eq("id", userId);
   }
 
-  // 4. The org's active assessment, created if none exists.
+  // 4. The org's active assessment FOR THIS INSTRUMENT, created if none
+  //    exists. Matching on template keeps training-needs responses out of
+  //    maturity assessments and vice versa.
+  const templateId: string = pending.template_id ?? "org-wide";
+  const isTrainingNeeds = templateId === "training-needs";
   let assessmentId: string;
   const { data: existingAssessment } = await supabaseAdmin
     .from("assessments")
     .select("id")
     .eq("org_id", linkOrgId)
     .eq("status", "active")
+    .eq("template_id", templateId)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -132,7 +137,8 @@ export async function claimPendingResponse(input: ClaimInput): Promise<ClaimResu
       .insert({
         org_id: linkOrgId,
         created_by: userId,
-        title: "AI Readiness Assessment",
+        title: isTrainingNeeds ? "Training Needs Analysis" : "AI Readiness Assessment",
+        template_id: templateId,
         status: "active",
       })
       .select("id")
@@ -164,6 +170,8 @@ export async function claimPendingResponse(input: ClaimInput): Promise<ClaimResu
       tools_score: pending.tools_score,
       responsible_score: pending.responsible_score,
       culture_score: pending.culture_score,
+      template_id: templateId,
+      dimension_scores: pending.dimension_scores ?? null,
       respondent_role: pending.respondent_role,
       tools_used: pending.tools_used,
       raw_answers: pending.raw_answers,

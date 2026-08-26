@@ -122,6 +122,7 @@ export async function fetchPracticeDelta(
           "department_id, confidence_score, practice_score, tools_score, responsible_score, culture_score, assessments!inner(org_id)"
         )
         .eq("assessments.org_id", orgId)
+        .or("template_id.is.null,template_id.neq.training-needs")
         .lt("submitted_at", startIso),
       supabaseAdmin
         .from("usage_logs")
@@ -195,7 +196,8 @@ export async function buildEvidencePack(
     .select(
       "department_id, respondent_role, tools_used, confidence_score, practice_score, tools_score, responsible_score, culture_score, departments(name), assessments!inner(org_id)"
     )
-    .eq("assessments.org_id", orgId);
+    .eq("assessments.org_id", orgId)
+    .or("template_id.is.null,template_id.neq.training-needs");
 
   const allResponses = responses ?? [];
 

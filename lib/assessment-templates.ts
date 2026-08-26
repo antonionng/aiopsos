@@ -1,13 +1,36 @@
 import type { AssessmentQuestion } from "./scoring";
+import {
+  DIMENSIONS,
+  DIMENSION_LABELS,
+  COURSE_CATEGORIES,
+  COURSE_CATEGORY_LABELS,
+} from "./constants";
+
+export type AssessmentKind = "maturity" | "training-needs";
 
 export interface AssessmentTemplate {
   id: string;
+  kind: AssessmentKind;
   title: string;
   subtitle: string;
   icon: string;
   description: string;
   questions: AssessmentQuestion[];
+  /** The axes this instrument scores, in display order. */
+  dimensions: readonly string[];
+  dimensionLabels: Record<string, string>;
+  /** Whether the wizard ends with the AI-tools multi-select. */
+  askTools: boolean;
 }
+
+// The six maturity templates share one measurement chassis; only their
+// question wording differs.
+const MATURITY_META = {
+  kind: "maturity" as const,
+  dimensions: DIMENSIONS,
+  dimensionLabels: DIMENSION_LABELS as Record<string, string>,
+  askTools: true,
+};
 
 const SCALE = [
   { value: 0, label: "Not at all" },
@@ -594,8 +617,90 @@ const GOVERNANCE_QUESTIONS: AssessmentQuestion[] = [
 
 // ─── Template Registry ────────────────────────────────────────────────
 
+// ─── Training Needs (by subject area) ─────────────────────────────────
+//
+// A different instrument, not a reworded maturity test: it measures how
+// much each catalogue subject is NEEDED. Options are phrased so a higher
+// value always means more need - the scoring math never inverts anything.
+
+const TRAINING_NEEDS_QUESTIONS: AssessmentQuestion[] = [
+  {
+    id: "tna_ai_1", dimension: "ai",
+    text: "How often does your work involve tasks AI could help with?",
+    description: "Drafting, analysis, research, summarising, first versions of anything.",
+    options: opts(["Never - my work has none of this", "Rarely", "Occasionally", "Weekly", "Most days", "Constantly - it is most of my job"]),
+  },
+  {
+    id: "tna_ai_2", dimension: "ai",
+    text: "How much of a gap is there between how you use AI and how you'd like to?",
+    description: "Be honest - this decides what training would actually help.",
+    options: opts(["No gap - I use it as well as I need to", "A small gap", "Some clear gaps", "A significant gap", "A wide gap", "I barely use it and know I should"]),
+  },
+  {
+    id: "tna_ai_3", dimension: "ai",
+    text: "When AI gives you an answer, how sure are you about checking it properly?",
+    description: "Spotting errors, hallucinations and bias before work leaves your hands.",
+    options: opts(["Completely sure - I have a checking routine", "Fairly sure", "Somewhat sure", "Not very sure", "Unsure - I mostly take it on trust", "I did not know checking was needed"]),
+  },
+  {
+    id: "tna_ai_4", dimension: "ai",
+    text: "If AI training were offered, how useful would it be to your day-to-day work?",
+    description: "Not in general - to your actual week.",
+    options: opts(["Not useful at all", "Marginally useful", "Somewhat useful", "Useful", "Very useful", "It would change how I work"]),
+  },
+  {
+    id: "tna_tech_1", dimension: "technology",
+    text: "How much of the software your organisation pays for do you feel you actually use well?",
+    description: "The CRM, the docs suite, the project tools - the licences already in place.",
+    options: opts(["All of it - nothing is going to waste", "Most of it", "A fair amount", "Less than half", "A small fraction", "Almost none - I stick to what I know"]),
+  },
+  {
+    id: "tna_tech_2", dimension: "technology",
+    text: "How often do you work around a tool instead of with it?",
+    description: "Copy-pasting between systems, spreadsheets replacing features, manual steps a tool should do.",
+    options: opts(["Never - my tools fit my work", "Rarely", "Occasionally", "Weekly", "Daily", "My whole workflow is workarounds"]),
+  },
+  {
+    id: "tna_tech_3", dimension: "technology",
+    text: "When a new tool or feature is rolled out, how do you usually pick it up?",
+    description: "Think about the last rollout you lived through.",
+    options: opts(["Quickly and fully - I often help others", "Comfortably on my own", "Eventually, with some effort", "Slowly, and only the basics", "Only with a lot of help", "Honestly, I mostly avoid it"]),
+  },
+  {
+    id: "tna_tech_4", dimension: "technology",
+    text: "If training on your existing tools were offered, how useful would it be?",
+    description: "Getting more out of what is already paid for.",
+    options: opts(["Not useful at all", "Marginally useful", "Somewhat useful", "Useful", "Very useful", "Long overdue"]),
+  },
+  {
+    id: "tna_rob_1", dimension: "robotics",
+    text: "How relevant is physical automation to the work your team does?",
+    description: "Robots, cobots, automated handling or inspection - anything that moves or senses.",
+    options: opts(["Not relevant at all", "Barely relevant", "Somewhat relevant", "Relevant to parts of our work", "Very relevant", "Central to our operation"]),
+  },
+  {
+    id: "tna_rob_2", dimension: "robotics",
+    text: "If your organisation brought in robotics tomorrow, how prepared would you be to work with it?",
+    description: "Specifying, operating around it, owning what happens when it stops.",
+    options: opts(["Fully prepared - I have done this before", "Well prepared", "Somewhat prepared", "Underprepared", "Unprepared", "I would not know where to start"]),
+  },
+  {
+    id: "tna_rob_3", dimension: "robotics",
+    text: "How clear are you on what automation could and could not do for your processes?",
+    description: "Judging feasibility, not building machines.",
+    options: opts(["Very clear - I can evaluate proposals", "Clear", "Roughly clear", "Hazy", "Very hazy", "No idea - and vendors know it"]),
+  },
+  {
+    id: "tna_rob_4", dimension: "robotics",
+    text: "If applied-robotics training were offered, how useful would it be to your role?",
+    description: "Putting automation to work, not building it.",
+    options: opts(["Not useful at all", "Marginally useful", "Somewhat useful", "Useful", "Very useful", "Exactly what my role is missing"]),
+  },
+];
+
 export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
   "org-wide": {
+    ...MATURITY_META,
     id: "org-wide",
     title: "Organisation-Wide AI Readiness",
     subtitle: "Holistic assessment for all roles",
@@ -604,6 +709,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     questions: ORG_WIDE_QUESTIONS,
   },
   engineering: {
+    ...MATURITY_META,
     id: "engineering",
     title: "Engineering AI Readiness",
     subtitle: "For software and DevOps teams",
@@ -612,6 +718,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     questions: ENGINEERING_QUESTIONS,
   },
   sales: {
+    ...MATURITY_META,
     id: "sales",
     title: "Sales AI Readiness",
     subtitle: "For revenue and GTM teams",
@@ -620,6 +727,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     questions: SALES_QUESTIONS,
   },
   marketing: {
+    ...MATURITY_META,
     id: "marketing",
     title: "Marketing AI Readiness",
     subtitle: "For content and growth teams",
@@ -628,6 +736,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     questions: MARKETING_QUESTIONS,
   },
   leadership: {
+    ...MATURITY_META,
     id: "leadership",
     title: "Leadership AI Readiness",
     subtitle: "For executives and directors",
@@ -636,6 +745,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     questions: LEADERSHIP_QUESTIONS,
   },
   governance: {
+    ...MATURITY_META,
     id: "governance",
     title: "AI Governance & Compliance",
     subtitle: "For risk, legal, and compliance",
@@ -643,10 +753,34 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     description: "Focused on governance, risk, and compliance — covers regulatory awareness, ethics frameworks, incident response, and policy management.",
     questions: GOVERNANCE_QUESTIONS,
   },
+  "training-needs": {
+    id: "training-needs",
+    kind: "training-needs",
+    title: "Training Needs Analysis",
+    subtitle: "What your teams should be trained on",
+    icon: "GraduationCap",
+    description: "Measures how much each subject is needed - applied AI, technology adoption and applied robotics - so training answers a measured gap. Higher scores mean higher need.",
+    questions: TRAINING_NEEDS_QUESTIONS,
+    dimensions: COURSE_CATEGORIES,
+    dimensionLabels: COURSE_CATEGORY_LABELS as Record<string, string>,
+    askTools: false,
+  },
 };
 
 export const TEMPLATE_IDS = Object.keys(ASSESSMENT_TEMPLATES);
 
+/**
+ * Strict lookup. The old silent fallback to org-wide meant a mis-plumbed
+ * template id scored answers against the wrong instrument and persisted a
+ * real-looking result; better to fail loudly in new code paths.
+ */
 export function getTemplate(id: string): AssessmentTemplate {
-  return ASSESSMENT_TEMPLATES[id] ?? ASSESSMENT_TEMPLATES["org-wide"];
+  const template = ASSESSMENT_TEMPLATES[id];
+  if (!template) throw new Error(`Unknown assessment template: ${id}`);
+  return template;
+}
+
+/** Legacy lookup for paths where the org-wide default is the intent. */
+export function getTemplateOrDefault(id: string | null | undefined): AssessmentTemplate {
+  return (id && ASSESSMENT_TEMPLATES[id]) || ASSESSMENT_TEMPLATES["org-wide"];
 }

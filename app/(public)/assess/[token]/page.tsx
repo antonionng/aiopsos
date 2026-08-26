@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AssessmentWizard } from "@/components/assessment/assessment-wizard";
+import { getTemplateOrDefault } from "@/lib/assessment-templates";
 import { BrainCircuit } from "lucide-react";
 
 interface LinkData {
@@ -10,6 +11,7 @@ interface LinkData {
   token: string;
   title: string;
   description: string;
+  template_id?: string;
   org: { name: string; logo_url: string | null } | null;
 }
 
@@ -38,6 +40,8 @@ export default function PublicAssessPage() {
       });
   }, [token]);
 
+  const template = getTemplateOrDefault(linkData?.template_id);
+
   async function handleComplete(answers: Record<string, number>, meta: { role: string; toolsUsed: string[] }) {
     setSubmitting(true);
     try {
@@ -59,6 +63,7 @@ export default function PublicAssessPage() {
           scores: data.scores,
           overall: data.overall,
           tier: data.tier,
+          template_id: data.template_id,
           session_token: data.session_token,
           respondent_role: meta.role,
         })
@@ -108,7 +113,10 @@ export default function PublicAssessPage() {
       </div>
 
       <AssessmentWizard
-          draftKey={token}
+        draftKey={token}
+        questions={template.questions}
+        dimensionLabels={template.dimensionLabels}
+        askTools={template.askTools}
         onComplete={handleComplete}
         branding={
           linkData.org

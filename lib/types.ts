@@ -73,13 +73,11 @@ export interface AssessmentResponse {
   submitted_at: string;
 }
 
-export interface DimensionScores {
-  confidence: number;
-  practice: number;
-  tools: number;
-  responsible: number;
-  culture: number;
-}
+// A mapped type rather than an interface so it stays assignable to
+// Record<string, number> - the generic scoring math takes any axis set.
+export type DimensionScores = {
+  [K in "confidence" | "practice" | "tools" | "responsible" | "culture"]: number;
+};
 
 export interface Recommendation {
   id: string;

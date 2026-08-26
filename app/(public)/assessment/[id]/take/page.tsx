@@ -48,7 +48,7 @@ import {
 } from "@/lib/constants";
 import type { DimensionScores } from "@/lib/types";
 import { OrgAvatar } from "@/components/org-avatar";
-import { getTemplate } from "@/lib/assessment-templates";
+import { getTemplateOrDefault } from "@/lib/assessment-templates";
 
 type Phase = "assess" | "signup" | "results";
 
@@ -72,6 +72,7 @@ export default function PublicTakeAssessmentPage() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [completedCount, setCompletedCount] = useState(0);
   const [templateQuestions, setTemplateQuestions] = useState<AssessmentQuestion[] | undefined>(undefined);
+  const [templateId, setTemplateId] = useState<string>("org-wide");
 
   useEffect(() => {
     if (!id) return;
@@ -82,8 +83,9 @@ export default function PublicTakeAssessmentPage() {
         setLogoUrl(d.logo_url ?? null);
         setCompletedCount(d.completed_count ?? 0);
         if (d.template_id) {
-          const tmpl = getTemplate(d.template_id);
+          const tmpl = getTemplateOrDefault(d.template_id);
           setTemplateQuestions(tmpl.questions);
+          setTemplateId(tmpl.id);
         }
       })
       .catch(() => {

@@ -54,7 +54,7 @@ import {
 } from "@/lib/scoring";
 import { DIMENSION_LABELS, DIMENSIONS, getTierForScore, type Dimension } from "@/lib/constants";
 import type { DimensionScores } from "@/lib/types";
-import { getTemplate } from "@/lib/assessment-templates";
+import { getTemplateOrDefault } from "@/lib/assessment-templates";
 import { toast } from "sonner";
 import {
   BarChart,
@@ -134,7 +134,11 @@ const DISTRIBUTION_COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#10b98
 
 export default function AssessmentResultsPage() {
   const { id } = useParams<{ id: string }>();
-  const [data, setData] = useState<AggregatedData | null>(null);
+  const [data, setData] = useState<(AggregatedData & {
+    kind?: "training-needs";
+    org_needs?: Record<string, number>;
+    department_needs?: { department: string; respondents: number; needs: Record<string, number> }[];
+  }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
@@ -242,8 +246,82 @@ export default function AssessmentResultsPage() {
     );
   }
 
+  // Training-needs assessments have their own aggregate view.
+  if (data.kind === "training-needs") {
+    const cats = [
+      { id: "ai", label: "Applied AI", text: "text-cat-ai", bar: "bg-cat-ai", soft: "bg-cat-ai-soft" },
+      { id: "technology", label: "Technology adoption", text: "text-cat-technology", bar: "bg-cat-technology", soft: "bg-cat-technology-soft" },
+      { id: "robotics", label: "Applied robotics", text: "text-cat-robotics", bar: "bg-cat-robotics", soft: "bg-cat-robotics-soft" },
+    ] as const;
+    const orgNeeds = data.org_needs ?? {};
+    const deptNeeds = data.department_needs ?? [];
+    const ranked = [...cats].sort((a, b) => (orgNeeds[b.id] ?? 0) - (orgNeeds[a.id] ?? 0));
+    return (
+      <motion.div variants={container} initial="hidden" animate="show">
+        <motion.div variants={item} className="mb-8">
+          <h1 className="mb-1">Training Needs — Organisation View</h1>
+          <p className="text-sm text-muted-foreground">
+            {data.response_count} response{data.response_count === 1 ? "" : "s"} · need measured 0–5, higher means more need.
+          </p>
+        </motion.div>
+
+        <motion.div variants={item} className="mb-8 grid gap-4 sm:grid-cols-3">
+          {ranked.map((cat) => {
+            const score = orgNeeds[cat.id] ?? 0;
+            return (
+              <div key={cat.id} className="overflow-hidden rounded-2xl border border-border bg-card">
+                <div className={`px-5 py-4 ${cat.soft}`}>
+                  <p className={`text-sm font-semibold ${cat.text}`}>{cat.label}</p>
+                  <p className="mt-1 text-3xl font-bold tracking-tight">{score.toFixed(1)}</p>
+                </div>
+                <div className="px-5 py-3">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-foreground/10">
+                    <div className={`h-full rounded-full ${cat.bar}`} style={{ width: `${(score / 5) * 100}%` }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </motion.div>
+
+        {deptNeeds.length > 0 && (
+          <motion.div variants={item} className="overflow-x-auto rounded-2xl border border-border bg-card p-6">
+            <h2 className="mb-4 text-base font-semibold">Need by department</h2>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
+                  <th className="pb-3 pr-4">Department</th>
+                  <th className="pb-3 pr-4">Respondents</th>
+                  {cats.map((c) => (
+                    <th key={c.id} className="pb-3 pr-4">{c.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {deptNeeds.map((d) => (
+                  <tr key={d.department} className="border-t border-border/50">
+                    <td className="py-2.5 pr-4 font-medium">{d.department}</td>
+                    <td className="py-2.5 pr-4 text-muted-foreground">{d.respondents}</td>
+                    {cats.map((c) => (
+                      <td key={c.id} className={`py-2.5 pr-4 font-semibold ${((d.needs[c.id] ?? 0) >= 3.5) ? c.text : ""}`}>
+                        {(d.needs[c.id] ?? 0).toFixed(1)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Highlighted figures are high-priority gaps — the departments to book first.
+            </p>
+          </motion.div>
+        )}
+      </motion.div>
+    );
+  }
+
   const { org_scores, department_scores, response_count, department_count, my_scores, template_id, respondents, historical_assessments } = data;
-  const template = getTemplate(template_id);
+  const template = getTemplateOrDefault(template_id);
   const meetsThreshold = response_count >= DATA_THRESHOLDS.ASSESSMENT_MIN_RESPONSES;
 
   if (!computedData) return null;
@@ -264,7 +342,6 @@ export default function AssessmentResultsPage() {
   const myTier = myOverall !== null ? getTierForScore(myOverall) : null;
 
   const roleLabels = RESPONDENT_ROLE_LABELS as Record<string, string>;
-  const topPriorityRecs = recommendations.filter((r) => r.priority === "critical" || r.priority === "high");
 
   return (
     <motion.div variants={container} initial="hidden" animate="show">

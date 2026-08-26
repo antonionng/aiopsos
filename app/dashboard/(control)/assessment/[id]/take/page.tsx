@@ -12,7 +12,7 @@ import {
   type AssessmentQuestion,
 } from "@/lib/scoring";
 import { DIMENSION_LABELS, DIMENSIONS, getTierForScore } from "@/lib/constants";
-import { getTemplate } from "@/lib/assessment-templates";
+import { getTemplateOrDefault } from "@/lib/assessment-templates";
 import { RecommendedCourses } from "@/components/recommended-courses";
 import type { CourseRecommendation } from "@/lib/types";
 
@@ -24,6 +24,7 @@ export default function TakeAssessmentPage() {
   const [recommendedCourses, setRecommendedCourses] = useState<CourseRecommendation[]>([]);
   const [scores, setScores] = useState<ReturnType<typeof calculateDimensionScores> | null>(null);
   const [templateQuestions, setTemplateQuestions] = useState<AssessmentQuestion[] | undefined>(undefined);
+  const [templateId, setTemplateId] = useState<string>("org-wide");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -33,8 +34,9 @@ export default function TakeAssessmentPage() {
       .then((r) => r.json())
       .then((d) => {
         if (d.template_id) {
-          const tmpl = getTemplate(d.template_id);
+          const tmpl = getTemplateOrDefault(d.template_id);
           setTemplateQuestions(tmpl.questions);
+          setTemplateId(tmpl.id);
         }
       })
       .catch(() => {})
@@ -159,5 +161,14 @@ export default function TakeAssessmentPage() {
     );
   }
 
-  return <AssessmentWizard onComplete={handleComplete} questions={templateQuestions} submitting={submitting} />;
+  const template = getTemplateOrDefault(templateId);
+  return (
+    <AssessmentWizard
+      onComplete={handleComplete}
+      questions={templateQuestions}
+      dimensionLabels={template.dimensionLabels}
+      askTools={template.askTools}
+      submitting={submitting}
+    />
+  );
 }

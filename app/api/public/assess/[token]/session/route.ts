@@ -34,7 +34,7 @@ export async function GET(
   const { data: pending } = await supabaseAdmin
     .from("pending_responses")
     .select(
-      "session_token, confidence_score, practice_score, tools_score, responsible_score, culture_score, respondent_role, claimed_by"
+      "session_token, confidence_score, practice_score, tools_score, responsible_score, culture_score, respondent_role, claimed_by, template_id, dimension_scores"
     )
     .eq("session_token", sessionToken)
     .eq("link_id", link.id)
@@ -42,13 +42,17 @@ export async function GET(
 
   if (!pending) return NextResponse.json({ error: "No session" }, { status: 404 });
 
-  const scores = {
-    confidence: Number(pending.confidence_score),
-    practice: Number(pending.practice_score),
-    tools: Number(pending.tools_score),
-    responsible: Number(pending.responsible_score),
-    culture: Number(pending.culture_score),
-  };
+  // Non-maturity instruments carry their scores in dimension_scores; the
+  // five legacy columns are only meaningful for maturity rows.
+  const templateId = pending.template_id ?? "org-wide";
+  const scores =
+    (pending.dimension_scores as Record<string, number> | null) ?? {
+      confidence: Number(pending.confidence_score),
+      practice: Number(pending.practice_score),
+      tools: Number(pending.tools_score),
+      responsible: Number(pending.responsible_score),
+      culture: Number(pending.culture_score),
+    };
   const overall = calculateOverallScore(scores);
   const tier = getTierForScore(overall);
 
@@ -56,6 +60,7 @@ export async function GET(
     {
       scores,
       overall,
+      template_id: templateId,
       tier: { tier: tier.tier, label: tier.label, color: tier.color },
       session_token: pending.session_token,
       respondent_role: pending.respondent_role,
