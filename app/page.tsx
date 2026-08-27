@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Wordmark } from "@/components/wordmark";
@@ -10,6 +11,7 @@ import {
   ArrowRight,
   Check,
   Menu,
+  X,
   Search,
   Plus,
   Paperclip,
@@ -232,55 +234,142 @@ const FOOTER_LINKS = {
   ],
 };
 
+/**
+ * The links in the top bar, in one place so the desktop row and the phone
+ * panel can never drift apart.
+ */
+const NAV_LINKS = [
+  { href: "#capabilities", label: "Experrt AI" },
+  { href: "/courses", label: "Academy" },
+  { href: "/use-cases", label: "Use cases" },
+  { href: "/insights", label: "Insights" },
+  { href: "#enterprise", label: "Enterprise" },
+  { href: "#pricing", label: "Pricing" },
+] as const;
+
+/**
+ * A link that is either a route or an in-page anchor, decided by the href.
+ * The anchors have to stay plain `<a>` so the browser does the scrolling.
+ */
+function NavLink({
+  href,
+  className,
+  onClick,
+  children,
+}: {
+  href: string;
+  className?: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  if (href.startsWith("#")) {
+    return (
+      <a href={href} className={className} onClick={onClick}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={className} onClick={onClick}>
+      {children}
+    </Link>
+  );
+}
+
+/**
+ * The top bar.
+ *
+ * Below `md` the six links used to be simply hidden, which left a phone with
+ * a wordmark, a Sign in and a Get Started and no way to reach the courses,
+ * the use cases or the pricing at all. They now collapse behind a button
+ * that opens a full-width panel under the bar. Sign in moves into the panel
+ * too, so the bar keeps only the wordmark and the one action worth the space.
+ */
+function SiteNav() {
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
+
+  return (
+    <nav className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center" onClick={close}>
+            <Wordmark size="md" />
+          </Link>
+          <div className="hidden items-center gap-6 md:flex">
+            {NAV_LINKS.map((link) => (
+              <NavLink
+                key={link.href}
+                href={link.href}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/login"
+            className="hidden h-9 items-center justify-center px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/register"
+            className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+          >
+            Get Started
+          </Link>
+          <button
+            type="button"
+            onClick={() => setOpen((value) => !value)}
+            aria-expanded={open}
+            aria-controls="site-nav-mobile"
+            aria-label={open ? "Close menu" : "Open menu"}
+            className="-mr-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground md:hidden"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
+      {open ? (
+        <div
+          id="site-nav-mobile"
+          className="border-t border-border/40 bg-background md:hidden"
+        >
+          <div className="mx-auto flex max-w-6xl flex-col px-6 pb-4 pt-1">
+            {NAV_LINKS.map((link) => (
+              <NavLink
+                key={link.href}
+                href={link.href}
+                onClick={close}
+                className="border-b border-border/40 py-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </NavLink>
+            ))}
+            <Link
+              href="/login"
+              onClick={close}
+              className="py-3 text-sm font-medium text-foreground"
+            >
+              Sign in
+            </Link>
+          </div>
+        </div>
+      ) : null}
+    </nav>
+  );
+}
+
 export default function Home() {
   const reduceMotion = useReducedMotion();
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <nav className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center">
-              <Wordmark size="md" />
-            </Link>
-            <div className="hidden items-center gap-6 md:flex">
-              <a href="#capabilities" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                Experrt AI
-              </a>
-              <Link href="/courses" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                Academy
-              </Link>
-              <Link href="/use-cases" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                Use cases
-              </Link>
-              <Link href="/insights" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                Insights
-              </Link>
-              <a href="#enterprise" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                Enterprise
-              </a>
-              <a href="#pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                Pricing
-              </a>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="inline-flex h-9 items-center justify-center px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/register"
-              className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* Hero */}
       <section className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-6 pt-14">
