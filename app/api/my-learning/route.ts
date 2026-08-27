@@ -135,7 +135,10 @@ export async function GET() {
     supabase
       .from("cohorts")
       .select(
-        "id, title, delivery_mode, location, timezone, starts_on, ends_on, status, pass_attendance_pct, pass_grade_pct, courses:course_id(slug, title, level), facilitators:facilitator_id(display_name)"
+        // course_id is needed as well as the joined course: the workspace
+        // shows this cohort's own handouts alongside the reusable pack
+        // attached to the course being delivered.
+        "id, course_id, title, delivery_mode, location, timezone, starts_on, ends_on, status, pass_attendance_pct, pass_grade_pct, courses:course_id(slug, title, level), facilitators:facilitator_id(display_name)"
       )
       .in("id", cohortIds),
     supabase
@@ -157,7 +160,9 @@ export async function GET() {
       .in("enrolment_id", enrolmentIds),
     supabase
       .from("submissions")
-      .select("id, enrolment_id, session_id, artefact_url, notes, submitted_at")
+      .select(
+        "id, enrolment_id, session_id, artefact_url, storage_path, notes, submitted_at"
+      )
       .in("enrolment_id", enrolmentIds),
   ]);
 

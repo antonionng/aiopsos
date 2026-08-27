@@ -48,23 +48,38 @@ export async function GET(
   const enrolmentIds = (enrolments ?? []).map((e) => e.id);
   const totalSessions = (sessions ?? []).length;
 
-  const [{ data: attendance }, { data: grades }, { data: certificates }] =
-    enrolmentIds.length
-      ? await Promise.all([
-          supabase
-            .from("attendance")
-            .select("enrolment_id, status")
-            .in("enrolment_id", enrolmentIds),
-          supabase
-            .from("grades")
-            .select("id, enrolment_id, module_id, score, max_score, feedback, graded_at")
-            .in("enrolment_id", enrolmentIds),
-          supabase
-            .from("certificates")
-            .select("id, enrolment_id, public_ref, issued_at, revoked_at")
-            .in("enrolment_id", enrolmentIds),
-        ])
-      : [{ data: [] }, { data: [] }, { data: [] }];
+  const [
+    { data: attendance },
+    { data: grades },
+    { data: certificates },
+    { data: submissions },
+  ] = enrolmentIds.length
+    ? await Promise.all([
+        supabase
+          .from("attendance")
+          .select("enrolment_id, status")
+          .in("enrolment_id", enrolmentIds),
+        supabase
+          .from("grades")
+          .select(
+            "id, enrolment_id, module_id, submission_id, score, max_score, feedback, graded_at"
+          )
+          .in("enrolment_id", enrolmentIds),
+        supabase
+          .from("certificates")
+          .select("id, enrolment_id, public_ref, issued_at, revoked_at")
+          .in("enrolment_id", enrolmentIds),
+        // What was handed in, so a mark can be entered next to the work it is
+        // being given for rather than from memory.
+        supabase
+          .from("submissions")
+          .select(
+            "id, enrolment_id, session_id, artefact_url, storage_path, notes, submitted_at"
+          )
+          .in("enrolment_id", enrolmentIds)
+          .order("submitted_at", { ascending: false }),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }];
 
   const participants = (enrolments ?? [])
     .map((enrolment) => {
@@ -82,11 +97,16 @@ export async function GET(
         .map((g) => ({
           id: g.id,
           module_id: g.module_id,
+          submission_id: g.submission_id,
           score: Number(g.score),
           max_score: Number(g.max_score),
           feedback: g.feedback,
           graded_at: g.graded_at,
         }));
+
+      const mySubmissions = (submissions ?? []).filter(
+        (s) => s.enrolment_id === enrolment.id
+      );
 
       return {
         enrolment_id: enrolment.id,
@@ -94,6 +114,7 @@ export async function GET(
         email: profile?.email ?? "",
         status: enrolment.status,
         grades: myGrades,
+        submissions: mySubmissions,
         eligibility: evaluateCertificateEligibility({
           totalSessions,
           attendance: myAttendance,

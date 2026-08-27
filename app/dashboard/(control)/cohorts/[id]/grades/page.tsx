@@ -26,6 +26,14 @@ interface ParticipantProgress {
   email: string;
   status: string;
   grades: GradeRow[];
+  submissions: {
+    id: string;
+    session_id: string;
+    notes: string;
+    submitted_at: string;
+    storage_path: string | null;
+    artefact_url: string | null;
+  }[];
   eligibility: {
     eligible: boolean;
     attendance_pct: number;
@@ -61,8 +69,20 @@ export default function GradesPage() {
   const [score, setScore] = useState("");
   const [maxScore, setMaxScore] = useState("100");
   const [moduleId, setModuleId] = useState("");
+  const [submissionId, setSubmissionId] = useState("");
   const [feedback, setFeedback] = useState("");
   const [saving, setSaving] = useState(false);
+
+  /** Submitted work is private to the room; the API mints a short-lived URL. */
+  async function openSubmission(id: string) {
+    const res = await fetch(`/api/submissions/${id}/download`, { cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.url) {
+      toast.error(data.error ?? "Could not open that submission.");
+      return;
+    }
+    window.open(data.url, "_blank", "noopener,noreferrer");
+  }
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/cohorts/${id}/progress`, { cache: "no-store" });
@@ -80,6 +100,7 @@ export default function GradesPage() {
     setScore("");
     setMaxScore("100");
     setModuleId("");
+    setSubmissionId("");
     setFeedback("");
   }
 
@@ -104,6 +125,7 @@ export default function GradesPage() {
         body: JSON.stringify({
           enrolment_id: enrolmentId,
           module_id: moduleId || null,
+          submission_id: submissionId || null,
           score: numericScore,
           max_score: numericMax,
           feedback,
@@ -241,6 +263,40 @@ export default function GradesPage() {
 
                 {isOpen ? (
                   <div className="space-y-2 rounded-lg border border-border/60 p-3">
+                    {/* The work being marked, so a grade is entered against
+                        something the trainer can open rather than from
+                        memory. Choosing one records grades.submission_id,
+                        which nothing has ever populated. */}
+                    {(participant.submissions ?? []).length > 0 && (
+                      <select
+                        value={submissionId}
+                        onChange={(e) => setSubmissionId(e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-surface px-2 text-sm"
+                      >
+                        <option value="">Not marking a specific submission</option>
+                        {(participant.submissions ?? []).map((s) => (
+                          <option key={s.id} value={s.id}>
+                            Handed in{" "}
+                            {new Date(s.submitted_at).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                            })}
+                            {s.notes ? ` - ${s.notes.slice(0, 40)}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+
+                    {submissionId && (
+                      <button
+                        type="button"
+                        onClick={() => openSubmission(submissionId)}
+                        className="text-xs text-brand underline underline-offset-2"
+                      >
+                        Open the submitted work
+                      </button>
+                    )}
+
                     <select
                       value={moduleId}
                       onChange={(e) => setModuleId(e.target.value)}

@@ -20,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { MaterialsPanel } from "@/components/cohort/materials-panel";
 import {
   COHORT_STATUS_LABELS,
   DELIVERY_MODE_LABELS,
@@ -304,6 +305,19 @@ export default function CohortDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
+          {/* Participant pack. Uploading is gated by the "Graders add
+              materials" policy, so can_grade is the right hint here: the
+              trainer running the day, not only the delivering org's admins. */}
+          <MaterialsPanel
+            cohortId={cohort.id}
+            canUpload={can_grade}
+            emptyMessage={
+              can_grade
+                ? "Nothing shared yet. Anything you add here appears in every delegate's My Learning, whichever company they work for."
+                : "No materials shared yet."
+            }
+          />
+
           {/* Sessions */}
           <section>
             <h2 className="mb-3 text-sm font-semibold">Sessions</h2>

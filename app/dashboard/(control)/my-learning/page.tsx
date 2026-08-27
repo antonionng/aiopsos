@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Award, CalendarDays, GraduationCap, Video } from "lucide-react";
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { MaterialsPanel } from "@/components/cohort/materials-panel";
+import { SubmitWork } from "@/components/cohort/submit-work";
 import {
   ATTENDANCE_STATUS_LABELS,
   ENROLMENT_STATUS_LABELS,
@@ -47,6 +49,7 @@ interface LearningEnrolment {
   status: EnrolmentStatus;
   cohort: {
     id: string;
+    course_id: string | null;
     title: string;
     timezone: string;
     location: string | null;
@@ -56,6 +59,12 @@ interface LearningEnrolment {
     facilitators: { display_name: string } | null;
   } | null;
   sessions: LearningSession[];
+  submissions: {
+    id: string;
+    session_id: string;
+    submitted_at: string;
+    notes: string;
+  }[];
   grades: { id: string; score: number; max_score: number; feedback: string }[];
   progress: {
     eligible: boolean;
@@ -111,8 +120,10 @@ export default function MyLearningPage() {
   // splitting sessions into upcoming and past is a pure function of state.
   const [loadedAt, setLoadedAt] = useState(0);
 
-  useEffect(() => {
-    fetch("/api/my-learning", { cache: "no-store" })
+  // Extracted so handing work in can refresh the page it was handed in from,
+  // rather than leaving the delegate looking at a stale "Submit work" button.
+  const loadData = useCallback(() => {
+    return fetch("/api/my-learning", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
         setEnrolments(d.enrolments ?? []);
@@ -122,6 +133,10 @@ export default function MyLearningPage() {
       .catch(() => setEnrolments([]))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (loading) {
     return (
@@ -275,34 +290,64 @@ export default function MyLearningPage() {
                   </div>
                 )}
 
+                {cohort && (
+                  <div className="mb-4">
+                    <MaterialsPanel
+                      cohortId={cohort.id}
+                      courseId={cohort.course_id}
+                      emptyMessage="Your trainer has not shared anything yet. Materials appear here on the day."
+                    />
+                  </div>
+                )}
+
                 {past.length > 0 && (
                   <div>
                     <p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                       Completed sessions
                     </p>
-                    <div className="space-y-1">
-                      {past.map((session) => (
-                        <div
-                          key={session.id}
-                          className="flex items-center justify-between gap-2 text-xs"
-                        >
-                          <span className="text-muted-foreground">
-                            {session.position}. {session.title}
-                          </span>
-                          <span
-                            className={
-                              session.my_attendance === "present" ||
-                              session.my_attendance === "late"
-                                ? "text-emerald-500"
-                                : "text-muted-foreground"
-                            }
-                          >
-                            {session.my_attendance
-                              ? ATTENDANCE_STATUS_LABELS[session.my_attendance]
-                              : "Not recorded"}
-                          </span>
-                        </div>
-                      ))}
+                    <div className="space-y-3">
+                      {past.map((session) => {
+                        const mine = (enrolment.submissions ?? []).filter(
+                          (s) => s.session_id === session.id
+                        );
+                        return (
+                          <div key={session.id} className="space-y-1.5">
+                            <div className="flex items-center justify-between gap-2 text-xs">
+                              <span className="text-muted-foreground">
+                                {session.position}. {session.title}
+                              </span>
+                              <span
+                                className={
+                                  session.my_attendance === "present" ||
+                                  session.my_attendance === "late"
+                                    ? "text-emerald-500"
+                                    : "text-muted-foreground"
+                                }
+                              >
+                                {session.my_attendance
+                                  ? ATTENDANCE_STATUS_LABELS[session.my_attendance]
+                                  : "Not recorded"}
+                              </span>
+                            </div>
+
+                            {mine.length > 0 ? (
+                              <p className="text-xs text-emerald-600 dark:text-emerald-500">
+                                Handed in{" "}
+                                {new Date(mine[0].submitted_at).toLocaleDateString("en-GB", {
+                                  day: "numeric",
+                                  month: "short",
+                                })}
+                              </p>
+                            ) : (
+                              <SubmitWork
+                                sessionId={session.id}
+                                enrolmentId={enrolment.enrolment_id}
+                                onSubmitted={loadData}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
