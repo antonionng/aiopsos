@@ -115,6 +115,19 @@ export async function POST(
     (profiles ?? []).map((p) => [String(p.email).toLowerCase(), p])
   );
 
+  // Mirrors academy_can_manage_cohort, which is what actually authorises
+  // the insert below. A cross-organisation cohort - the October tour runs
+  // one per training day with several companies in the room - is filled by
+  // the DELIVERING org's staff, so they must be able to enrol delegates
+  // whose employer is not their own. Each enrolment still lands under the
+  // delegate's own org_id further down, and RLS refuses the insert outright
+  // for anyone who cannot manage this cohort.
+  const canManageCohort =
+    actor.role === "super_admin" ||
+    (!!cohort.org_id &&
+      cohort.org_id === actor.orgId &&
+      ["admin", "manager"].includes(actor.role));
+
   const outcomes: EnrolOutcome[] = [];
   const toInsert: {
     cohort_id: string;
@@ -135,8 +148,10 @@ export async function POST(
       continue;
     }
 
-    // An admin may only enrol people from their own organisation.
-    if (actor.role !== "super_admin" && profile.org_id !== actor.orgId) {
+    // Whoever runs the cohort may enrol anyone into it. Everyone else is
+    // limited to their own organisation, which is also all RLS would let
+    // them insert.
+    if (!canManageCohort && profile.org_id !== actor.orgId) {
       outcomes.push({
         email,
         status: "error",

@@ -115,6 +115,47 @@ export const enrolSchema = z.object({
   emails: z.array(z.string().email()).min(1).max(500),
 });
 
+/**
+ * One training day on the tour: a single cohort owned by the delivering
+ * organisation, plus one organisation and one QR link per attending company.
+ * Seats are for the whole room, so seat_limit is optional here and derived
+ * from the delegate counts when it is left out.
+ */
+export const tourProvisionSchema = z.object({
+  delivering_org_id: z.string().uuid(),
+  course_id: z.string().uuid(),
+  title: z.string().min(1).max(300),
+  venue: z.string().min(1).max(300),
+  event_date: z.string().date(),
+  ends_on: z.string().date().optional().nullable(),
+  timezone: z.string().min(1).max(100),
+  delivery_mode: z.enum(DELIVERY_MODES).default("in_person"),
+  facilitator_id: z.string().uuid().optional().nullable(),
+  seat_limit: z.number().int().min(1).max(500).optional(),
+  pass_attendance_pct: z.number().min(0).max(100).default(80),
+  pass_grade_pct: z.number().min(0).max(100).default(70),
+  template_id: z
+    .enum([
+      "org-wide", "engineering", "sales", "marketing",
+      "leadership", "governance", "training-needs",
+    ])
+    .default("training-needs"),
+  // Orgs with no credit_wallets row fail OPEN on AI usage, so a fresh tenant
+  // is unmetered until it has one.
+  starter_credits: z.number().int().min(0).max(1_000_000).default(1000),
+  companies: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(300),
+        industry: z.string().max(200).optional(),
+        contact_email: z.string().email().optional(),
+        seats: z.number().int().min(1).max(500).optional(),
+      })
+    )
+    .min(1)
+    .max(100),
+});
+
 export const attendanceBulkSchema = z.object({
   records: z
     .array(

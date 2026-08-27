@@ -317,14 +317,36 @@ export async function buildEvidencePack(
   }));
 
   // ── 3: measures taken ──
-  const { data: cohortRows } = await supabaseAdmin
-    .from("cohorts")
-    .select(
-      "id, title, delivery_mode, starts_on, ends_on, course_id, courses:course_id(title, level, duration_hours), facilitators:facilitator_id(display_name, credentials)"
-    )
-    .eq("org_id", orgId)
-    .lte("starts_on", periodEnd.toISOString().slice(0, 10))
-    .neq("status", "cancelled");
+  //
+  // A cohort reaches this pack two ways: the organisation ran it, or its
+  // people sat one somebody else delivered. Selecting on cohorts.org_id
+  // alone only ever found the first, which was invisible until cohorts
+  // started carrying several companies at once - the October tour runs one
+  // per training day - and then reported "no training" for every attending
+  // company. Their own cohorts are still included even with nobody enrolled
+  // yet, so a scheduled-but-unfilled cohort keeps appearing as it always did.
+  const [{ data: attendedRows }, { data: ownRows }] = await Promise.all([
+    supabaseAdmin.from("enrolments").select("cohort_id").eq("org_id", orgId),
+    supabaseAdmin.from("cohorts").select("id").eq("org_id", orgId),
+  ]);
+
+  const cohortCandidates = [
+    ...new Set([
+      ...(attendedRows ?? []).map((r) => String(r.cohort_id)),
+      ...(ownRows ?? []).map((r) => String(r.id)),
+    ]),
+  ];
+
+  const { data: cohortRows } = cohortCandidates.length
+    ? await supabaseAdmin
+        .from("cohorts")
+        .select(
+          "id, title, delivery_mode, starts_on, ends_on, course_id, courses:course_id(title, level, duration_hours), facilitators:facilitator_id(display_name, credentials)"
+        )
+        .in("id", cohortCandidates)
+        .lte("starts_on", periodEnd.toISOString().slice(0, 10))
+        .neq("status", "cancelled")
+    : { data: [] };
 
   const cohorts = cohortRows ?? [];
   const cohortIds = cohorts.map((c) => c.id);
@@ -333,10 +355,14 @@ export async function buildEvidencePack(
     cohortIds.length
       ? await Promise.all([
           supabaseAdmin.from("sessions").select("id, cohort_id").in("cohort_id", cohortIds),
+          // Scoped to this organisation's own people. A shared cohort holds
+          // several companies' delegates, and one company's evidence pack
+          // must never count or name another's.
           supabaseAdmin
             .from("enrolments")
             .select("id, cohort_id, status, user_profiles(name)")
-            .in("cohort_id", cohortIds),
+            .in("cohort_id", cohortIds)
+            .eq("org_id", orgId),
           supabaseAdmin
             .from("course_modules")
             .select("course_id, position, title, outcomes")
