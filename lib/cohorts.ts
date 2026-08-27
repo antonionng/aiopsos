@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { CERTIFICATE_REF_LENGTH } from "@/lib/constants";
 import {
   evaluateCertificateEligibility,
@@ -123,7 +124,7 @@ export async function buildCertificateSnapshot(
 
   const { data: enrolment } = await supabase
     .from("enrolments")
-    .select("id, cohort_id, user_id, user_profiles(name), organisations:org_id(name)")
+    .select("id, cohort_id, user_id, org_id, user_profiles(name)")
     .eq("id", enrolmentId)
     .maybeSingle();
 
@@ -132,12 +133,37 @@ export async function buildCertificateSnapshot(
   const { data: cohort } = await supabase
     .from("cohorts")
     .select(
-      "id, title, delivery_mode, starts_on, ends_on, pass_attendance_pct, pass_grade_pct, course_id, facilitators:facilitator_id(display_name, credentials), courses:course_id(slug, title, level, learning_outcomes)"
+      "id, org_id, title, delivery_mode, starts_on, ends_on, pass_attendance_pct, pass_grade_pct, course_id, facilitators:facilitator_id(display_name, credentials), courses:course_id(slug, title, level, learning_outcomes)"
     )
     .eq("id", enrolment.cohort_id)
     .maybeSingle();
 
   if (!cohort) return null;
+
+  // Two different organisations, and a certificate has to name both: the one
+  // that DELIVERED the training, and the participant's own employer. In a
+  // cross-organisation cohort these are never the same, which is what made
+  // the original single `issued_by_org` field wrong - it was read off the
+  // enrolment, so a partner-delivered certificate claimed to have been
+  // issued by the delegate's own company.
+  //
+  // Read with the service role: the caller is authorised upstream by
+  // academy_can_manage_cohort in the issue route, and the organisations
+  // policies would not let a delivering org's admin read an attending
+  // company's row - which would silently leave the participant's employer
+  // blank on their certificate.
+  const orgIds = [cohort.org_id, enrolment.org_id].filter(
+    (id): id is string => typeof id === "string"
+  );
+  const { data: orgRows } = orgIds.length
+    ? await supabaseAdmin.from("organisations").select("id, name").in("id", orgIds)
+    : { data: [] as { id: string; name: string }[] };
+  const orgNameById = new Map<string, string>(
+    (orgRows ?? []).map((o: { id: string; name: string }) => [
+      String(o.id),
+      String(o.name),
+    ])
+  );
 
   const { data: modules } = await supabase
     .from("course_modules")
@@ -158,7 +184,12 @@ export async function buildCertificateSnapshot(
   } | null;
 
   const profile = enrolment.user_profiles as unknown as { name: string } | null;
-  const org = enrolment.organisations as unknown as { name: string } | null;
+  const deliveredByOrg = cohort.org_id
+    ? (orgNameById.get(String(cohort.org_id)) ?? null)
+    : null;
+  const participantOrg = enrolment.org_id
+    ? (orgNameById.get(String(enrolment.org_id)) ?? null)
+    : null;
 
   return {
     participant_name: profile?.name ?? "",
@@ -183,7 +214,13 @@ export async function buildCertificateSnapshot(
     grade_pct: assessment.eligibility.grade_pct,
     pass_attendance_pct: Number(cohort.pass_attendance_pct),
     pass_grade_pct: Number(cohort.pass_grade_pct),
-    issued_by_org: org?.name ?? null,
+    delivered_by_org: deliveredByOrg,
+    participant_org: participantOrg,
+    // Legacy. Kept populated so nothing that already reads it breaks, but it
+    // now carries the delivering organisation, which is what "issued by"
+    // always meant. Certificates issued before this change hold the
+    // participant's employer here; readers should prefer delivered_by_org.
+    issued_by_org: deliveredByOrg,
   };
 }
 

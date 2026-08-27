@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Award, CalendarDays, GraduationCap, Video } from "lucide-react";
+import { Award, CalendarDays, Download, GraduationCap, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -235,14 +235,23 @@ export default function MyLearningPage() {
                 </div>
 
                 {enrolment.certificate && !enrolment.certificate.revoked_at && (
-                  <Link
-                    href={`/verify/${enrolment.certificate.public_ref}`}
-                    target="_blank"
-                    className="mb-4 inline-flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-xs font-medium text-emerald-500"
-                  >
-                    <Award className="h-3.5 w-3.5" />
-                    Certificate issued — view and share the verification link
-                  </Link>
+                  <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <Link
+                      href={`/verify/${enrolment.certificate.public_ref}`}
+                      target="_blank"
+                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-xs font-medium text-emerald-500"
+                    >
+                      <Award className="h-3.5 w-3.5" />
+                      Certificate issued — view and share the verification link
+                    </Link>
+                    <a
+                      href={`/api/certificates/${enrolment.certificate.public_ref}/pdf`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-muted/50"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download PDF
+                    </a>
+                  </div>
                 )}
 
                 {upcoming.length > 0 && (

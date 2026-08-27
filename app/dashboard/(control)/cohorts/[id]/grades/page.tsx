@@ -356,14 +356,25 @@ export default function GradesPage() {
                     </Button>
 
                     {participant.certificate && !participant.certificate.revoked_at ? (
-                      <Link
-                        href={`/verify/${participant.certificate.public_ref}`}
-                        target="_blank"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500"
-                      >
-                        <Award className="h-3.5 w-3.5" />
-                        Certificate issued
-                      </Link>
+                      <>
+                        <Link
+                          href={`/verify/${participant.certificate.public_ref}`}
+                          target="_blank"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500"
+                        >
+                          <Award className="h-3.5 w-3.5" />
+                          Certificate issued
+                        </Link>
+                        {/* Handing one over on the day: the trainer downloads
+                            it for the delegate rather than waiting for them
+                            to sign in. */}
+                        <a
+                          href={`/api/certificates/${participant.certificate.public_ref}/pdf`}
+                          className="text-xs font-medium underline underline-offset-2"
+                        >
+                          Download PDF
+                        </a>
+                      </>
                     ) : (
                       data.can_issue && (
                         <Button

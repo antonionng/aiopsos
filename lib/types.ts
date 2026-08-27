@@ -450,6 +450,15 @@ export interface CertificateSnapshot {
   grade_pct: number | null;
   pass_attendance_pct: number;
   pass_grade_pct: number;
+  /** The organisation that delivered the training. */
+  delivered_by_org?: string | null;
+  /** The participant's own employer, which in a shared cohort is not the same. */
+  participant_org?: string | null;
+  /**
+   * Legacy, and ambiguous across the archive: certificates issued before
+   * cross-organisation cohorts carry the participant's employer here, later
+   * ones carry the delivering organisation. Prefer `delivered_by_org`.
+   */
   issued_by_org: string | null;
 }
 
