@@ -9,17 +9,13 @@ import {
   LITERACY_DISCLAIMER,
 } from "@/lib/constants";
 import type { CertificateSnapshot } from "@/lib/types";
+import { verifyCertificateMetadata } from "@/lib/public-share-metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Verify a certificate",
-  description:
-    "Check a certificate of completion issued through Experrt: course, dates, facilitator, attendance and grade.",
-  // Individual certificates must not be indexed. They name a person, and a
-  // search engine is not the audience for them - the holder shares the link.
-  robots: { index: false, follow: false },
-};
+// Individual certificates must not be indexed. They name a person, and a
+// search engine is not the audience for them - the holder shares the link.
+export const metadata: Metadata = verifyCertificateMetadata();
 
 const REF_PATTERN = /^[0-9A-HJKMNP-TV-Z]{12}$/;
 

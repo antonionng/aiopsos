@@ -12,19 +12,9 @@ import {
   BookOpenCheck,
 } from "lucide-react";
 import { CompanionShowcase } from "@/components/marketing/companion-showcase";
+import { experrtAiMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  title: "Experrt AI — your very own learning agent",
-  description:
-    "An AI learning agent that knows each person's training record and acts on it: recommends the next course from measured gaps, maps a learning path, and works between the live sessions a facilitator runs. Structural privacy, capped spend, no grading — an agent your compliance team can approve.",
-  alternates: { canonical: "/experrt-ai" },
-  openGraph: {
-    title: "Experrt AI — your very own learning agent",
-    description:
-      "It knows your training record, plans your path, and acts on it — between live facilitated sessions, never instead of them.",
-    url: "/experrt-ai",
-  },
-};
+export const metadata: Metadata = experrtAiMetadata();
 
 const VERBS = [
   {

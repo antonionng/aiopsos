@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { CookieConsent } from "@/components/cookie-consent";
 import { getPublicSiteUrl } from "@/lib/site";
+import { siteOgImageUrl, siteShareImage, SITE_TWITTER_CARD } from "@/lib/social-image";
 import "./globals.css";
 
 const inter = Inter({
@@ -61,12 +62,14 @@ export const metadata: Metadata = {
     title: "Experrt — applied AI, technology and robotics training",
     description:
       "Facilitated live by a trainer, in person or online. We train your people to actually use AI, technology and robotics at work.",
+    images: [siteShareImage()],
   },
   twitter: {
-    card: "summary_large_image",
+    card: SITE_TWITTER_CARD,
     title: "Experrt — applied AI, technology and robotics training",
     description:
       "We train your people to actually use AI, technology and robotics at work. Facilitated live.",
+    images: [siteOgImageUrl()],
   },
   robots: { index: true, follow: true },
 };
