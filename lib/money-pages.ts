@@ -15,8 +15,8 @@ export type FaqItem = {
 
 export type CopyBlock = {
   heading: string;
-  paragraphs: string[];
-  bullets?: string[];
+  paragraphs: readonly string[];
+  bullets?: readonly string[];
 };
 
 export const LITERACY_PROGRAMME_PATH = "/ai-literacy-training";

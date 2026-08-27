@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { FaqItem } from "@/lib/money-pages";
+import type { CopyBlock, FaqItem } from "@/lib/money-pages";
 
 /**
  * Renders FAQ copy and turns public paths plus ag@experrt.com into links.
@@ -68,7 +68,7 @@ export function LinkedCopy({ text }: { text: string }) {
   );
 }
 
-export function CopyBlocks({ blocks }: { blocks: readonly { heading: string; paragraphs: string[]; bullets?: string[] }[] }) {
+export function CopyBlocks({ blocks }: { blocks: readonly CopyBlock[] }) {
   return (
     <div className="space-y-8">
       {blocks.map((block) => (
