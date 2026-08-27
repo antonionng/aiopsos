@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isAuthPath, isPublicPath } from "@/lib/public-routes";
+import {
+  isAuthPath,
+  isPublicPath,
+  isSessionGatedPath,
+} from "@/lib/public-routes";
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -11,6 +15,14 @@ export async function updateSession(request: NextRequest) {
   // client here is what turns a missing NEXT_PUBLIC_SUPABASE_URL into a
   // failed request (or, previously, a login wall for unknown paths).
   if (isPublicRoute) {
+    return NextResponse.next({ request });
+  }
+
+  // Unknown paths (stale marketing URLs, typos) used to 307 to /login
+  // because the default was "private". Let Next 404 them, or apply a
+  // configured 301, instead of teaching crawlers that every miss is a
+  // login wall.
+  if (!isAuthPage && !isSessionGatedPath(pathname)) {
     return NextResponse.next({ request });
   }
 

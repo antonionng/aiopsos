@@ -179,12 +179,10 @@ const TRUST_GROUPS = [
 const FOOTER_LINKS = {
   Product: [
     { label: "Experrt AI", href: "/experrt-ai" },
-    { label: "Assessment", href: "/dashboard/assessment" },
+    { label: "Assessment", href: "/ai-readiness-assessment" },
+    { label: "AI literacy", href: "/ai-literacy-training" },
     { label: "Academy", href: "/courses" },
-    { label: "Recommendations", href: "/dashboard/recommend" },
-    { label: "Roadmap", href: "/dashboard/roadmap" },
-    { label: "AI Interface", href: "/dashboard/chat" },
-    { label: "Analytics", href: "/dashboard/analytics" },
+    { label: "Use cases", href: "/use-cases" },
   ],
   Resources: [
     { label: "Insights", href: "/insights" },
@@ -219,6 +217,9 @@ export default function Home() {
               <a href="#capabilities" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Experrt AI
               </a>
+              <Link href="/ai-literacy-training" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                AI literacy
+              </Link>
               <Link href="/courses" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                 Academy
               </Link>

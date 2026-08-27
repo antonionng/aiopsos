@@ -63,6 +63,18 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/",
+        has: [{ type: "host", value: "experrt.com" }],
+        destination: "https://www.experrt.com/",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "experrt.com" }],
+        destination: "https://www.experrt.com/:path*",
+        permanent: true,
+      },
+      {
         source: "/blog",
         destination: "/insights",
         permanent: true,
@@ -70,6 +82,31 @@ const nextConfig: NextConfig = {
       {
         source: "/blog/:path*",
         destination: "/insights/:path*",
+        permanent: true,
+      },
+      {
+        source: "/programmes/ai-literacy",
+        destination: "/ai-literacy-training",
+        permanent: true,
+      },
+      {
+        source: "/free-trial",
+        destination: "/register",
+        permanent: true,
+      },
+      {
+        source: "/academy",
+        destination: "/courses",
+        permanent: true,
+      },
+      {
+        source: "/pricing",
+        destination: "/contact",
+        permanent: true,
+      },
+      {
+        source: "/enterprise",
+        destination: "/use-cases/enterprise",
         permanent: true,
       },
     ];
