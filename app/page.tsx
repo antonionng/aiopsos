@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Wordmark } from "@/components/wordmark";
 import { CompanionShowcase } from "@/components/marketing/companion-showcase";
+import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
@@ -14,6 +16,33 @@ import {
   Send,
   Bot,
 } from "lucide-react";
+
+/**
+ * A large monoline diagram sitting behind a section as depth rather than as
+ * content, which is why it carries no alt text and never announces itself.
+ *
+ * Desktop only: below lg the copy already uses the full width, and there is
+ * nowhere for one of these to go that is not underneath a paragraph.
+ */
+function SectionAnchor({ src, className }: { src: string; className?: string }) {
+  return (
+    <Image
+      src={src}
+      alt=""
+      aria-hidden
+      width={1536}
+      height={1024}
+      sizes="(min-width: 1024px) 40vw, 1px"
+      className={cn(
+        // Behind the copy, always. Each of these is sized to drop into a gap
+        // the layout already leaves, but headings rewrap at narrower widths
+        // and a diagram must never end up on top of a word or a link.
+        "pointer-events-none absolute -z-10 hidden select-none opacity-35 lg:block",
+        className,
+      )}
+    />
+  );
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -112,7 +141,7 @@ const WHY_NOW = [
     tag: "Risk",
     title: "Untrained use is the expensive kind",
     description:
-      "Staff using AI without a verification habit produce confident, plausible, wrong work — and it reaches customers. The failure is not the tool, it is the absence of a standard for checking it.",
+      "Staff using AI without a verification habit produce confident, plausible, wrong work - and it reaches customers. The failure is not the tool, it is the absence of a standard for checking it.",
     href: "/insights/ai-output-verification-at-work",
     linkLabel: "An answer nobody checks is a liability",
   },
@@ -254,8 +283,28 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-14">
-        <div className="pointer-events-none absolute inset-0 bg-grid-faint" />
+      <section className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-6 pt-14">
+        {/*
+          The horizon field, replacing the flat lattice that used to sit here.
+          White line art on transparency, so it takes the page's background
+          rather than carrying a black one of its own and cutting a visible
+          rectangle out of the section.
+
+          Anchored to the bottom and cropped from the top: the drawing's light
+          source sits on its horizon, and everything above that is empty, so
+          bottom alignment puts the glow under the copy at any viewport height
+          instead of letting it drift behind the headline on tall screens.
+        */}
+        <Image
+          src="/illustrations/horizon.png"
+          alt=""
+          aria-hidden
+          width={1774}
+          height={887}
+          priority
+          sizes="100vw"
+          className="pointer-events-none absolute inset-x-0 -bottom-16 h-[60%] w-full select-none object-cover object-bottom"
+        />
 
         <motion.div
           className="relative z-10 mx-auto max-w-4xl text-center"
@@ -280,7 +329,7 @@ export default function Home() {
           >
             Experrt is a training academy for applied AI, technology and
             robotics. Every course is facilitated live by a trainer, in your
-            room or online, and built around your team&apos;s real work — not a
+            room or online, and built around your team&apos;s real work - not a
             video library they will never open.
           </motion.p>
 
@@ -362,8 +411,10 @@ export default function Home() {
       </section>
 
       {/* Why now */}
-      <section id="why-now" className="border-t border-border/40 py-24">
-        <div className="mx-auto max-w-6xl px-6">
+      <section id="why-now" className="relative overflow-hidden border-t border-border/40 py-24">
+        <div className="relative mx-auto max-w-6xl px-6">
+          {/* The gap between what was rolled out and what was trained. */}
+          <SectionAnchor src="/illustrations/gap.png" className="right-0 top-0 w-[19%]" />
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -424,21 +475,23 @@ export default function Home() {
       </section>
 
       {/* Experrt AI */}
-      <section id="capabilities" className="py-28">
-        <div className="mx-auto max-w-6xl px-6">
+      <section id="capabilities" className="relative overflow-hidden py-28">
+        <div className="relative mx-auto max-w-6xl px-6">
+          {/* The agent travelling a fixed path around the record it answers from. */}
+          <SectionAnchor src="/illustrations/orbit.png" className="right-0 top-0 w-[24%]" />
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-brand">
               Experrt AI
             </p>
             <h2 className="mb-6 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
-              Meet Experrt AI &mdash; your very own learning agent.
+              Meet Experrt AI - your very own learning agent.
             </h2>
 
             <p className="mb-10 max-w-2xl text-muted-foreground">
               Every member gets an agent that knows their training record and
               acts on it: what they have studied, how it went, and what to do
               next. It works between the live sessions a facilitator runs
-              &mdash; never instead of them.
+              - never instead of them.
             </p>
 
             <div className="mb-10 overflow-hidden rounded-2xl border border-border bg-black/70">
@@ -510,14 +563,14 @@ export default function Home() {
                         </span>
                         <div className="min-w-0 rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-white/85">
                           Responsible use is your widest gap. <span className="font-medium text-white">Responsible AI Use at Work</span> runs
-                          next month &mdash; six hours, facilitated live. Want me
+                          next month - six hours, facilitated live. Want me
                           to map the full path?
                         </div>
                       </div>
 
                       <div className="flex justify-end">
                         <div className="max-w-[80%] rounded-2xl rounded-br-md bg-white/90 px-3.5 py-2 text-sm text-black">
-                          Yes &mdash; plan it.
+                          Yes - plan it.
                         </div>
                       </div>
 
@@ -598,7 +651,7 @@ export default function Home() {
               And the part your compliance team will ask about: spend is capped
               per person, usage is reported by department and never by
               individual, and Experrt AI never grades work or marks attendance
-              &mdash; a live facilitator does that. An agent you can actually
+              - a live facilitator does that. An agent you can actually
               approve.
             </p>
 
@@ -633,7 +686,7 @@ export default function Home() {
             <motion.p variants={fadeUp} custom={1} className="mb-12 max-w-2xl text-muted-foreground">
               Experrt AI meets each person as their role needs it. Learners get
               help between live sessions, L&amp;D sees cohorts and gaps, and
-              owners get answers about their people &mdash; with individual
+              owners get answers about their people - with individual
               privacy built in as a hard rule, not a promise.
             </motion.p>
 
@@ -664,7 +717,22 @@ export default function Home() {
             <div className="grid gap-12 md:grid-cols-3 md:gap-8">
               {STEPS.map((step, i) => (
                 <motion.div key={step.number} variants={fadeUp} custom={i}>
-                  <span className="mb-6 block text-5xl font-bold tracking-tight text-border">
+                  {/*
+                    One apparatus in three states of assembly, so the sequence
+                    is carried by the drawing rather than by the numeral. The
+                    canvases are identical in size and baseline; it is the art
+                    inside them that grows.
+                  */}
+                  <Image
+                    src={`/illustrations/step-${i + 1}.png`}
+                    alt=""
+                    aria-hidden
+                    width={438}
+                    height={472}
+                    sizes="120px"
+                    className="pointer-events-none mb-5 h-32 w-auto select-none"
+                  />
+                  <span className="mb-2 block text-xs font-medium tracking-[0.16em] text-muted-foreground">
                     {step.number}
                   </span>
                   <h3 className="mb-3 text-base font-semibold">{step.title}</h3>
@@ -679,8 +747,13 @@ export default function Home() {
       </section>
 
       {/* Enterprise trust */}
-      <section id="enterprise" className="border-y border-border/40 py-28">
-        <div className="mx-auto max-w-6xl px-6">
+      <section id="enterprise" className="relative overflow-hidden border-y border-border/40 py-28">
+        <div className="relative mx-auto max-w-6xl px-6">
+          {/* Two bays, one partition: the privacy-by-structure claim, drawn. */}
+          <SectionAnchor
+            src="/illustrations/isolation.png"
+            className="bottom-0 left-0 w-[20%]"
+          />
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -698,7 +771,7 @@ export default function Home() {
               </motion.h2>
               <motion.p variants={fadeUp} custom={1} className="mb-6 text-muted-foreground">
                 When a funding body, an auditor or your board asks what you did
-                about AI capability, you hand them a dated pack &mdash; who was
+                about AI capability, you hand them a dated pack - who was
                 assessed, who was trained, by whom, and what changed afterwards.
                 Not a slide of good intentions.
               </motion.p>
@@ -773,6 +846,83 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Founder */}
+      <section id="founder" className="py-28">
+        <div className="mx-auto max-w-6xl px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+            className="flex flex-col items-center gap-10 md:flex-row md:items-start md:gap-16"
+          >
+            <motion.div variants={fadeUp} custom={0} className="shrink-0">
+              <div className="rounded-full bg-gradient-to-b from-border to-transparent p-[3px]">
+                <Image
+                  src="/antonio.jpg"
+                  alt="Antonio Giugno, founder of Experrt"
+                  width={224}
+                  height={224}
+                  className="h-44 w-44 rounded-full border-4 border-background object-cover shadow-lg sm:h-56 sm:w-56"
+                />
+              </div>
+            </motion.div>
+            <div className="max-w-2xl text-center md:text-left">
+              <motion.p
+                variants={fadeUp}
+                custom={1}
+                className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground"
+              >
+                Meet the founder
+              </motion.p>
+              <motion.h2
+                variants={fadeUp}
+                custom={2}
+                className="mb-2 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl"
+              >
+                Antonio Giugno
+              </motion.h2>
+              <motion.p
+                variants={fadeUp}
+                custom={3}
+                className="mb-6 text-sm text-muted-foreground"
+              >
+                Founder &amp; AI Architect
+              </motion.p>
+              <motion.p
+                variants={fadeUp}
+                custom={4}
+                className="mb-4 leading-relaxed text-muted-foreground"
+              >
+                Antonio is an AI architect and trainer who has built and scaled
+                enterprise AI applications for long-term clients. He founded
+                Experrt on a core conviction: every organisation, regardless of
+                scale or resources, should have the structure to benefit from
+                what AI can deliver.
+              </motion.p>
+              <motion.p
+                variants={fadeUp}
+                custom={5}
+                className="mb-8 leading-relaxed text-muted-foreground"
+              >
+                He advocates for responsible adoption - right-sized
+                models, governance, and measurable outcomes - and still
+                teaches in the room.
+              </motion.p>
+              <motion.div variants={fadeUp} custom={6}>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-foreground transition-opacity hover:opacity-70"
+                >
+                  More about Experrt
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="pricing" className="py-28">
         <div className="mx-auto max-w-6xl px-6">
@@ -795,7 +945,7 @@ export default function Home() {
               className="mb-16 max-w-xl text-muted-foreground"
             >
               The platform is free for your whole organisation. You pay for the
-              training you book, and for the AI your people actually use &mdash;
+              training you book, and for the AI your people actually use  - 
               metered, capped, and itemised. No seat licences.
             </motion.p>
 
@@ -870,7 +1020,7 @@ export default function Home() {
                   ))}
                 </ul>
                 <div className="mt-6 rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-xs text-muted-foreground">
-                  Capped by default &mdash; nobody can run up a bill you did not
+                  Capped by default - nobody can run up a bill you did not
                   agree to.
                 </div>
               </motion.div>
@@ -895,7 +1045,7 @@ export default function Home() {
                 </div>
                 <ul className="flex-1 space-y-2.5">
                   {[
-                    "Facilitated live \u2014 in your room or online",
+                    "Facilitated live - in your room or online",
                     "Built around your team's real work",
                     "Attendance taken, work graded by the facilitator",
                     "Certificates any third party can verify",
@@ -931,7 +1081,7 @@ export default function Home() {
               className="mt-8 max-w-2xl text-xs text-muted-foreground"
             >
               Cohort pricing depends on course, group size and delivery mode
-              &mdash; ask and you will get a number, not a call-back sequence.
+              - ask and you will get a number, not a call-back sequence.
             </motion.p>
           </motion.div>
         </div>
@@ -961,7 +1111,7 @@ export default function Home() {
               custom={1}
               className="mx-auto mb-10 max-w-md text-muted-foreground"
             >
-              Start with the assessment — five minutes per person, and it tells
+              Start with the assessment - five minutes per person, and it tells
               you which teams need what. Then we come and teach them.
             </motion.p>
             <motion.div variants={fadeUp} custom={2}>
