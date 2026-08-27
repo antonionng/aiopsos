@@ -66,13 +66,13 @@ const nextConfig: NextConfig = {
         source: "/",
         has: [{ type: "host", value: "experrt.com" }],
         destination: "https://www.experrt.com/",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/:path*",
         has: [{ type: "host", value: "experrt.com" }],
         destination: "https://www.experrt.com/:path*",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/blog",
@@ -87,27 +87,27 @@ const nextConfig: NextConfig = {
       {
         source: "/programmes/ai-literacy",
         destination: "/ai-literacy-training",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/free-trial",
         destination: "/register",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/academy",
         destination: "/courses",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/pricing",
         destination: "/contact",
-        permanent: true,
+        statusCode: 301,
       },
       {
         source: "/enterprise",
         destination: "/use-cases/enterprise",
-        permanent: true,
+        statusCode: 301,
       },
     ];
   },

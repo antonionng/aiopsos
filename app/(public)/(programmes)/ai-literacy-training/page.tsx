@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock } from "lucide-react";
-import { fetchPublishedCourses } from "@/lib/courses";
 import {
   LITERACY_MAPPED_COURSES,
   LITERACY_PAGE,
@@ -41,21 +40,17 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = "force-dynamic";
-
-export default async function AiLiteracyTrainingPage() {
-  const catalogue = await fetchPublishedCourses();
-  const bySlug = new Map(catalogue.map((course) => [course.slug, course]));
-
-  const mapped = LITERACY_MAPPED_COURSES.map((entry) => {
-    const live = bySlug.get(entry.slug);
-    return {
-      slug: entry.slug,
-      title: live?.title ?? literacyCourseTitle(entry.slug),
-      hours: live?.duration_hours ?? entry.hours,
-      audience: entry.audience,
-    };
-  });
+export default function AiLiteracyTrainingPage() {
+  // Catalogue hours and titles are the published lock, not a live fetch.
+  // fetchPublishedCourses() goes through the SSR client and 500s this
+  // page when cookies()/Supabase are unavailable — the same class of
+  // failure sitemap.xml already avoids.
+  const mapped = LITERACY_MAPPED_COURSES.map((entry) => ({
+    slug: entry.slug,
+    title: literacyCourseTitle(entry.slug),
+    hours: entry.hours,
+    audience: entry.audience,
+  }));
 
   return (
     <article>
