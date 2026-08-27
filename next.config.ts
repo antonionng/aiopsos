@@ -63,6 +63,18 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/",
+        has: [{ type: "host", value: "experrt.com" }],
+        destination: "https://www.experrt.com/",
+        statusCode: 301,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "experrt.com" }],
+        destination: "https://www.experrt.com/:path*",
+        statusCode: 301,
+      },
+      {
         source: "/blog",
         destination: "/insights",
         permanent: true,
@@ -71,6 +83,31 @@ const nextConfig: NextConfig = {
         source: "/blog/:path*",
         destination: "/insights/:path*",
         permanent: true,
+      },
+      {
+        source: "/programmes/ai-literacy",
+        destination: "/ai-literacy-training",
+        statusCode: 301,
+      },
+      {
+        source: "/free-trial",
+        destination: "/register",
+        statusCode: 301,
+      },
+      {
+        source: "/academy",
+        destination: "/courses",
+        statusCode: 301,
+      },
+      {
+        source: "/pricing",
+        destination: "/contact",
+        statusCode: 301,
+      },
+      {
+        source: "/enterprise",
+        destination: "/use-cases/enterprise",
+        statusCode: 301,
       },
     ];
   },

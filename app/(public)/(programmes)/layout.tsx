@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { LITERACY_DISCLAIMER } from "@/lib/constants";
 
-export default function CoursesLayout({
+export default function ProgrammesLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -39,7 +39,7 @@ export default function CoursesLayout({
             </Link>
             <Link
               href="/courses"
-              className="text-sm font-medium text-foreground transition-colors hover:text-brand"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Courses
             </Link>
@@ -60,22 +60,16 @@ export default function CoursesLayout({
             </p>
             <nav className="flex gap-6">
               <Link
-                href="/insights"
+                href="/ai-readiness-assessment"
                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
-                Insights
+                Assessment
               </Link>
               <Link
                 href="/courses"
                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
               >
                 Courses
-              </Link>
-              <Link
-                href="/docs"
-                className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Documentation
               </Link>
               <Link
                 href="/contact"

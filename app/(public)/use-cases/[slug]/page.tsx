@@ -9,6 +9,10 @@ import {
   getUseCases,
   useCaseCourseSlugs,
 } from "@/lib/use-cases";
+import { getUseCaseSeo } from "@/lib/use-case-seo";
+import { getPublicSiteUrl } from "@/lib/site";
+import { StructuredData, faqPageLd } from "@/components/structured-data";
+import { CopyBlocks, FaqList } from "@/components/marketing/faq-list";
 import type { Course } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -22,13 +26,20 @@ export async function generateMetadata({
   const entry = getUseCase(slug);
   if (!entry) return { title: "Use case not found" };
 
+  const seo = getUseCaseSeo(entry.slug);
+  const title = seo?.title ?? `${entry.name} - Use cases`;
+  const description = seo?.description ?? entry.headline;
+  const canonical = `${getPublicSiteUrl()}/use-cases/${entry.slug}`;
+
   return {
-    title: `${entry.name} - Use cases`,
-    description: entry.headline,
-    alternates: { canonical: `/use-cases/${entry.slug}` },
+    title,
+    description,
+    alternates: { canonical },
+    robots: { index: true, follow: true },
     openGraph: {
-      title: `${entry.name} - Experrt use cases`,
-      description: entry.headline,
+      title: `${title} | Experrt`,
+      description,
+      url: canonical,
       type: "article",
     },
   };
@@ -68,9 +79,11 @@ export default async function UseCasePage({
   const citedSlugs = useCaseCourseSlugs(entry);
 
   const others = getUseCases().filter((e) => e.slug !== entry.slug);
+  const seo = getUseCaseSeo(entry.slug);
 
   return (
     <article>
+      {seo && <StructuredData data={faqPageLd(seo.faqs)} />}
       <Link
         href="/use-cases"
         className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -93,6 +106,12 @@ export default async function UseCasePage({
           {entry.intro}
         </p>
       </header>
+
+      {seo && (
+        <div className="mb-14">
+          <CopyBlocks blocks={seo.sections} />
+        </div>
+      )}
 
       <section className="mb-14 space-y-6">
         {entry.examples.map((example, index) => (
@@ -139,6 +158,12 @@ export default async function UseCasePage({
           </div>
         ))}
       </section>
+
+      {seo && (
+        <div className="mb-14">
+          <FaqList faqs={seo.faqs} />
+        </div>
+      )}
 
       <section className="mb-14 rounded-2xl border-2 border-brand/20 bg-card p-8">
         <div className="flex flex-wrap items-center justify-between gap-6">

@@ -19,6 +19,12 @@ export default function InsightsLayout({
           </Link>
           <nav className="flex items-center gap-5">
             <Link
+              href="/ai-literacy-training"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              AI literacy
+            </Link>
+            <Link
               href="/insights"
               className="text-sm font-medium text-foreground transition-colors hover:text-brand"
             >

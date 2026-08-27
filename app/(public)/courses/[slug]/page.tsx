@@ -4,9 +4,16 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, ExternalLink } from "lucide-react";
 import { fetchCourseBySlug, fetchPublishedCourses } from "@/lib/courses";
 import { insightForCourse } from "@/lib/insights/catalog";
-import { StructuredData, courseLd } from "@/components/structured-data";
+import { getCourseSeo } from "@/lib/money-pages";
+import { getPublicSiteUrl } from "@/lib/site";
+import {
+  StructuredData,
+  courseLd,
+  faqPageLd,
+} from "@/components/structured-data";
 import { CourseEnquiryForm } from "@/components/course-enquiry-form";
 import { CourseArtwork } from "@/components/course-artwork";
+import { CopyBlocks, FaqList } from "@/components/marketing/faq-list";
 import {
   COURSE_CATEGORY_LABELS,
   COURSE_LEVEL_LABELS,
@@ -40,13 +47,20 @@ export async function generateMetadata({
   if (!result) return { title: "Course not found" };
 
   const { course } = result;
+  const seo = getCourseSeo(course.slug);
+  const title = seo?.title ?? course.title;
+  const description = seo?.description ?? course.summary;
+  const canonical = `${getPublicSiteUrl()}/courses/${course.slug}`;
+
   return {
-    title: course.title,
-    description: course.summary,
-    alternates: { canonical: `/courses/${course.slug}` },
+    title,
+    description,
+    alternates: { canonical },
+    robots: { index: true, follow: true },
     openGraph: {
-      title: course.title,
-      description: course.summary,
+      title: `${title} | Experrt`,
+      description,
+      url: canonical,
       type: "article",
     },
   };
@@ -64,6 +78,7 @@ export default async function CoursePage({
   const { course, modules } = result;
   const moduleHours = modules.reduce((sum, m) => sum + m.duration_hours, 0);
   const relatedInsight = insightForCourse(course.slug);
+  const seo = getCourseSeo(course.slug);
 
   const related = (await fetchPublishedCourses())
     .filter((c) => c.category === course.category && c.slug !== course.slug)
@@ -72,6 +87,7 @@ export default async function CoursePage({
   return (
     <article>
       <StructuredData data={courseLd(course)} />
+      {seo && <StructuredData data={faqPageLd(seo.faqs)} />}
       <Link
         href="/courses"
         className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -120,6 +136,8 @@ export default async function CoursePage({
 
       <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
         <div className="space-y-10">
+          {seo && <CopyBlocks blocks={seo.inserts} />}
+
           {course.learning_outcomes.length > 0 && (
             <section>
               <h2 className="mb-4 text-xl font-semibold tracking-[-0.01em]">
@@ -212,21 +230,41 @@ export default async function CoursePage({
             </p>
           </section>
 
-          {relatedInsight && (
+          {seo && <FaqList faqs={seo.faqs} />}
+
+          {(seo?.furtherReading || relatedInsight) && (
             <section>
               <h2 className="mb-3 text-xl font-semibold tracking-[-0.01em]">
                 Further reading
               </h2>
-              <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                <Link
-                  href={`/insights/${relatedInsight.slug}`}
-                  className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-                >
-                  {relatedInsight.title}
-                </Link>
-                {" "}
-                is the public briefing that sits next to this course.
-              </p>
+              <ul className="max-w-2xl space-y-2">
+                {seo?.furtherReading && (
+                  <li>
+                    <Link
+                      href={seo.furtherReading.href}
+                      className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+                    >
+                      {seo.furtherReading.label}
+                    </Link>
+                  </li>
+                )}
+                {relatedInsight &&
+                  `/insights/${relatedInsight.slug}` !==
+                    seo?.furtherReading?.href && (
+                    <li>
+                      <Link
+                        href={`/insights/${relatedInsight.slug}`}
+                        className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+                      >
+                        {relatedInsight.title}
+                      </Link>
+                      <span className="text-sm text-muted-foreground">
+                        {" "}
+                        is the public briefing that sits next to this course.
+                      </span>
+                    </li>
+                  )}
+              </ul>
             </section>
           )}
 

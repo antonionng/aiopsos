@@ -1,7 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { isAuthPath, isPublicPath } from "../public-routes.ts";
+import {
+  isAuthPath,
+  isPublicPath,
+  isSessionGatedPath,
+} from "../public-routes.ts";
 
 test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights"), true);
@@ -20,6 +24,11 @@ test("use cases are public marketing pages", () => {
   assert.equal(isPublicPath("/use-cases"), true);
   assert.equal(isPublicPath("/use-cases/enterprise"), true);
   assert.equal(isPublicPath("/use-cases/finance"), true);
+});
+
+test("money pages are public so they do not 307 to /login", () => {
+  assert.equal(isPublicPath("/ai-literacy-training"), true);
+  assert.equal(isPublicPath("/ai-readiness-assessment"), true);
 });
 
 test("the endpoints that create a session are reachable without one", () => {
@@ -50,4 +59,12 @@ test("private app routes stay gated", () => {
   assert.equal(isPublicPath("/api/ai-policies/abc"), false);
   assert.equal(isAuthPath("/login"), true);
   assert.equal(isAuthPath("/insights"), false);
+  assert.equal(isSessionGatedPath("/dashboard"), true);
+  assert.equal(isSessionGatedPath("/api/chat"), true);
+  assert.equal(isSessionGatedPath("/ai-literacy-training"), false);
+  assert.equal(isSessionGatedPath("/free-trial"), false);
+  assert.equal(isSessionGatedPath("/academy"), false);
+  assert.equal(isSessionGatedPath("/pricing"), false);
+  assert.equal(isSessionGatedPath("/enterprise"), false);
+  assert.equal(isSessionGatedPath("/programmes/ai-literacy"), false);
 });
