@@ -385,11 +385,11 @@ export default function Home() {
           instead of letting it drift behind the headline on tall screens.
         */}
         <Image
-          src="/illustrations/hero-horizon.png"
+          src="/illustrations/hero-horizon-2x.png"
           alt=""
           aria-hidden
-          width={2172}
-          height={724}
+          width={3548}
+          height={1774}
           priority
           sizes="100vw"
           className="pointer-events-none absolute inset-x-0 -bottom-16 h-[60%] w-full select-none object-cover object-bottom"
