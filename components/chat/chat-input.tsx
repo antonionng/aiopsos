@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback, type KeyboardEvent, type DragEvent, type ClipboardEvent } from "react";
-import { ArrowUp, Slash, X, Square, FileIcon } from "lucide-react";
+import { useState, useRef, useEffect, useCallback, type KeyboardEvent, type DragEvent, type ClipboardEvent } from "react";
+import { ArrowUp, X, Square, FileIcon, Image as ImageIcon, FlaskConical } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceButton } from "@/components/chat/voice-button";
 import { ActionsMenu } from "@/components/chat/actions-menu";
@@ -14,31 +14,60 @@ export interface ChatAttachment {
   file: File;
 }
 
+export type ComposerMode = "chat" | "image" | "research";
+
 interface Props {
-  onSend: (message: string, attachments?: ChatAttachment[]) => void;
+  onSend: (message: string, attachments?: ChatAttachment[], mode?: ComposerMode) => void;
   isLoading: boolean;
   isStreaming?: boolean;
-  onTemplateOpen?: () => void;
   onStop?: () => void;
   plan?: string;
-  onWebSearch?: (query: string) => void;
-  onImageGen?: (prompt: string) => void;
-  onDeepResearch?: (query: string) => void;
+  /** Reports a rejected file back to the surface so it can be shown. */
+  onReject?: (message: string) => void;
 }
 
-export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onStop, plan, onWebSearch, onImageGen, onDeepResearch }: Props) {
+/**
+ * Types the model can actually be given. PDF and Word are deliberately absent:
+ * extracting their text needs a parser we do not ship, and accepting them
+ * silently (as this did before) meant the file uploaded, looked attached, and
+ * was then dropped without ever reaching the model.
+ */
+const ACCEPTED = "image/*,.txt,.md,.csv,.json";
+
+const MODE_PLACEHOLDER: Record<ComposerMode, string> = {
+  chat: "Message Experrt...",
+  image: "Describe the image you want to create...",
+  research: "What would you like researched in depth?",
+};
+
+function isAcceptedFile(file: File): boolean {
+  if (file.type.startsWith("image/")) return true;
+  if (/^text\//.test(file.type)) return true;
+  if (file.type === "application/json") return true;
+  return /\.(txt|md|csv|json)$/i.test(file.name);
+}
+
+export function ChatInput({ onSend, isLoading, isStreaming, onStop, plan, onReject }: Props) {
   const [value, setValue] = useState("");
   const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [mode, setMode] = useState<ComposerMode>("chat");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Kept in a ref so addFiles does not need it as a dependency.
+  const onRejectRef = useRef(onReject);
+  useEffect(() => {
+    onRejectRef.current = onReject;
+  }, [onReject]);
 
   function handleSend() {
     const trimmed = value.trim();
     if ((!trimmed && attachments.length === 0) || isLoading) return;
-    onSend(trimmed, attachments.length > 0 ? attachments : undefined);
+    onSend(trimmed, attachments.length > 0 ? attachments : undefined, mode);
     setValue("");
     setAttachments([]);
+    setMode("chat");
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -49,9 +78,9 @@ export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onSt
       e.preventDefault();
       handleSend();
     }
-    if (e.key === "/" && value === "" && onTemplateOpen) {
-      e.preventDefault();
-      onTemplateOpen();
+    if (e.key === "Escape") {
+      if (isStreaming && onStop) onStop();
+      else if (mode !== "chat") setMode("chat");
     }
   }
 
@@ -64,7 +93,13 @@ export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onSt
 
   const addFiles = useCallback((files: FileList | File[]) => {
     const newAttachments: ChatAttachment[] = [];
+    const rejected: string[] = [];
+
     for (const file of Array.from(files)) {
+      if (!isAcceptedFile(file)) {
+        rejected.push(file.name);
+        continue;
+      }
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
       const url = URL.createObjectURL(file);
       newAttachments.push({
@@ -74,6 +109,11 @@ export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onSt
         file_type: file.type,
         file,
       });
+    }
+    if (rejected.length > 0) {
+      onRejectRef.current?.(
+        `Cannot attach ${rejected.join(", ")}. Images and text files (.txt, .md, .csv, .json) are supported.`
+      );
     }
     setAttachments((prev) => [...prev, ...newAttachments]);
   }, []);
@@ -171,6 +211,26 @@ export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onSt
             </div>
           )}
 
+          {mode !== "chat" && (
+            <div className="flex items-center gap-2 px-3 pt-3">
+              <span className="flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-2.5 py-1 text-xs font-medium text-brand">
+                {mode === "image" ? (
+                  <ImageIcon className="h-3 w-3" />
+                ) : (
+                  <FlaskConical className="h-3 w-3" />
+                )}
+                {mode === "image" ? "Create image" : "Deep research"}
+                <button
+                  onClick={() => setMode("chat")}
+                  className="ml-0.5 text-brand/70 hover:text-brand"
+                  aria-label="Cancel mode"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            </div>
+          )}
+
           <Textarea
             ref={textareaRef}
             value={value}
@@ -178,7 +238,7 @@ export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onSt
             onKeyDown={handleKeyDown}
             onInput={handleInput}
             onPaste={handlePaste}
-            placeholder="Message Experrt..."
+            placeholder={MODE_PLACEHOLDER[mode]}
             className="min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent px-4 pt-3.5 pb-12 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
             rows={1}
           />
@@ -187,7 +247,7 @@ export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onSt
             ref={fileInputRef}
             type="file"
             multiple
-            accept="image/*,.pdf,.doc,.docx,.txt,.csv,.xls,.xlsx"
+            accept={ACCEPTED}
             className="hidden"
             onChange={(e) => {
               if (e.target.files) addFiles(e.target.files);
@@ -200,20 +260,8 @@ export function ChatInput({ onSend, isLoading, isStreaming, onTemplateOpen, onSt
               <ActionsMenu
                 plan={plan}
                 onAttach={() => fileInputRef.current?.click()}
-                onWebSearch={onWebSearch}
-                onImageGen={onImageGen}
-                onDeepResearch={onDeepResearch}
+                onSelectMode={setMode}
               />
-              {onTemplateOpen && (
-                <button
-                  onClick={onTemplateOpen}
-                  className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                  title="Prompt templates (/)"
-                >
-                  <Slash className="h-3 w-3" />
-                  <span className="hidden sm:inline">Templates</span>
-                </button>
-              )}
             </div>
 
             <div className="flex items-center gap-1">

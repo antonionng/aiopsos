@@ -1,20 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { shouldShowCookieBanner } from "@/lib/cookie-consent-visibility";
 
 const STORAGE_KEY = "cookie-consent";
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
+  const pathname = usePathname();
+
+  const isSignedInApp = pathname?.startsWith("/dashboard") ?? false;
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) setVisible(true);
-  }, []);
+    setVisible(
+      shouldShowCookieBanner(pathname, localStorage.getItem(STORAGE_KEY))
+    );
+  }, [pathname]);
 
   function accept(level: "all" | "essential") {
     localStorage.setItem(STORAGE_KEY, level);
@@ -23,7 +29,7 @@ export function CookieConsent() {
 
   return (
     <AnimatePresence>
-      {visible && (
+      {visible && !isSignedInApp && (
         <motion.div
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

@@ -70,10 +70,9 @@ export function getModelsForPlan(plan: PlanType): ModelConfig[] {
   return ids.map((id) => MODEL_REGISTRY[id]).filter(Boolean);
 }
 
-export function canUseModel(plan: PlanType, modelId: string): boolean {
-  return (PLAN_MODELS[plan] as readonly string[]).includes(modelId);
-}
+export { canUseModel, resolveModelForRequest, type ModelResolution } from "./model-plan";
 
 export function calculateCustomerCharge(rawCost: number): number {
   return rawCost * USAGE_MARKUP;
 }
+
