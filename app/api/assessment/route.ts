@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error?.code === "PGRST204") {
-      console.warn("template_id column missing — retrying without it. Run migration 010_templates_and_rls.sql to fix.");
+      console.warn("template_id column missing - retrying without it. Run migration 010_templates_and_rls.sql to fix.");
       const { template_id: _, ...rowWithout } = row;
       ({ data, error } = await supabaseAdmin
         .from("assessments")

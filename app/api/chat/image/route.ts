@@ -3,6 +3,7 @@ import { resolveUserContext } from "@/lib/resolve-user-context";
 import { checkFeatureQuota, logFeatureUsage } from "@/lib/feature-quotas";
 import { getPlanFeatures } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/server";
+import { persistSideChannelTurn } from "@/lib/persist-side-channel";
 
 export const maxDuration = 60;
 
@@ -19,7 +20,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const { prompt, size = "1024x1024", quality = "standard" } = await req.json();
+  const {
+    prompt,
+    size = "1024x1024",
+    quality = "standard",
+    conversation_id: conversationId,
+    companion,
+  } = await req.json();
   if (!prompt || typeof prompt !== "string") {
     return NextResponse.json({ error: "prompt is required" }, { status: 400 });
   }
@@ -96,6 +103,16 @@ export async function POST(req: Request) {
     size,
     quality,
     revised_prompt: revisedPrompt,
+  });
+
+  await persistSideChannelTurn({
+    conversationId,
+    userId: ctx.userId,
+    orgId: ctx.orgId,
+    prompt: `Create an image: ${prompt}`,
+    answer: `![Generated image](${storedUrl})\n\n*${revisedPrompt || prompt}*`,
+    model: "dall-e-3",
+    companion,
   });
 
   return NextResponse.json({

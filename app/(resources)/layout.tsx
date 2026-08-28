@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { SiteNav } from "@/components/site-nav";
 
 export default function ResourcesLayout({
   children,
@@ -8,19 +8,9 @@ export default function ResourcesLayout({
 }) {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-4xl items-center px-6">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Experrt
-          </Link>
-        </div>
-      </header>
+      <SiteNav />
 
-      <main className="mx-auto max-w-4xl px-6 py-16">{children}</main>
+      <main className="mx-auto max-w-4xl px-6 pb-16 pt-30">{children}</main>
 
       <footer className="border-t border-border/40 py-8">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4 px-6">

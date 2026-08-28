@@ -3,6 +3,7 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { fetchPublishedCourses, fetchCourseBySlug } from "@/lib/courses";
 import { rankCourses } from "@/lib/recommendation-engine";
+import { searchWeb as tavilySearch } from "@/lib/tavily";
 import { MIN_ACTIVE_USERS_FOR_REPORTING } from "@/lib/practice-delta";
 import {
   DIMENSIONS,
@@ -455,6 +456,52 @@ function insightsTools(ctx: CompanionContext): ToolSet {
           departments,
           suppressed_departments: suppressed,
         };
+      },
+    }),
+  };
+}
+
+// ── optional web search ─────────────────────────────────────────────────
+
+/**
+ * Web search as a real tool rather than a pre-flight fetch.
+ *
+ * It used to run on the client before the message was sent: the user's raw
+ * text went to Tavily, the results were pasted into the system prompt, and
+ * the model never got a say. That meant it could not search mid-answer, could
+ * not refine a query, and the search was invisible in the transcript.
+ *
+ * /api/chat only includes this tool when the caller's plan allows it, so the
+ * gate is server-side and a crafted request cannot turn it on.
+ */
+export function webSearchTool(): ToolSet {
+  return {
+    searchWeb: tool({
+      description:
+        "Search the public web for current information. Use for anything recent, external, or outside this organisation's own records - never for the user's own training data, which has its own tools. Cite what you use.",
+      inputSchema: z.object({
+        query: z.string().min(2).max(400).describe("The search query"),
+      }),
+      execute: async ({ query }) => {
+        try {
+          const { results } = await tavilySearch(query, { maxResults: 5 });
+          return {
+            query,
+            results: results.map((r) => ({
+              title: r.title,
+              url: r.url,
+              excerpt: r.content.slice(0, 1200),
+            })),
+          };
+        } catch (err) {
+          // Surfaced to the model as a result rather than thrown, so the turn
+          // continues and the user is told search is unavailable.
+          return {
+            query,
+            results: [],
+            error: err instanceof Error ? err.message : "Web search failed",
+          };
+        }
       },
     }),
   };

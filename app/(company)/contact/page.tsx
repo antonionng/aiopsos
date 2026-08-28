@@ -7,6 +7,7 @@ import { Mail, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useBotGuard, HoneypotField } from "@/components/form-bot-guard";
 import { Label } from "@/components/ui/label";
 
 const fadeUp = {
@@ -24,6 +25,7 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const botGuard = useBotGuard();
 
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
   const canSubmit = name.trim() && isValidEmail(email) && message.trim();
@@ -37,7 +39,12 @@ export default function ContactPage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+          ...botGuard.fields(),
+        }),
       });
 
       if (!res.ok) {
@@ -77,7 +84,9 @@ export default function ContactPage() {
       <div className="grid gap-12 lg:grid-cols-5">
         {/* Form */}
         <motion.div variants={fadeUp} custom={1} className="lg:col-span-3">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="relative space-y-6">
+            <HoneypotField value={botGuard.honeypot} onChange={botGuard.setHoneypot} />
+
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input

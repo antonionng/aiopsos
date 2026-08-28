@@ -56,6 +56,7 @@ export default function DistributePage() {
   } | null>(null);
   const [orgName, setOrgName] = useState("");
   const [assessUrl, setAssessUrl] = useState("");
+  const [linkError, setLinkError] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Email invites state
@@ -86,9 +87,10 @@ export default function DistributePage() {
   useEffect(() => {
     async function load() {
       try {
-        const [assessRes, orgRes] = await Promise.all([
+        const [assessRes, orgRes, linkRes] = await Promise.all([
           fetch("/api/assessment", { cache: "no-store" }),
           fetch("/api/organisation"),
+          fetch(`/api/assessment/${assessmentId}/link`, { cache: "no-store" }),
         ]);
         const assessData = await assessRes.json();
         const orgData = await orgRes.json();
@@ -99,9 +101,19 @@ export default function DistributePage() {
         if (found) setAssessment(found);
         if (orgData.organisation) setOrgName(orgData.organisation.name);
 
-        // Get or derive the assess URL
-        const baseUrl = window.location.origin;
-        setAssessUrl(`${baseUrl}/assessment/${assessmentId}/take`);
+        // The QR code, embed snippet and social copy all point at the token
+        // funnel, which saves a response before signup and can attach one to
+        // an existing account. The `/assessment/<id>/take` URL this used to
+        // build does neither, and a training-room QR - scanned by returning
+        // delegates and abandoned halfway by plenty of others - is exactly
+        // where that bites.
+        if (linkRes.ok) {
+          const linkData = await linkRes.json();
+          if (linkData.url) setAssessUrl(linkData.url);
+          else setLinkError(true);
+        } else {
+          setLinkError(true);
+        }
       } finally {
         setLoading(false);
       }

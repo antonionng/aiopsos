@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "Smile sheets do not show that AI training changed the work. What L&D should collect: behaviour, samples, and a record. No invented case studies, no vanity scores.",
   dek: "If you cannot describe a changed Tuesday, you measured the catering, not the training.",
   publishedAt: "2026-07-29",
+  topic: "Measurement",
   relatedCourseSlugs: [
     "ai-governance-and-oversight-for-managers",
     "embedding-ai-in-daily-workflows",

@@ -50,7 +50,7 @@ export function WelcomeEmail({
           margin: "0 auto",
         }}
       >
-        {/* Header branding — org logo or name */}
+        {/* Header branding - org logo or name */}
         <div style={{ marginBottom: "40px" }}>
           {logoUrl ? (
             <img src={logoUrl} alt={brandName} style={{ height: "32px", maxWidth: "180px", objectFit: "contain" }} />
@@ -69,7 +69,7 @@ export function WelcomeEmail({
           )}
         </div>
 
-        {/* Headline — assessment-first or signup */}
+        {/* Headline - assessment-first or signup */}
         <h1
           style={{
             fontSize: "30px",
@@ -97,14 +97,14 @@ export function WelcomeEmail({
         >
           {hasScores
             ? orgName
-              ? `Your AI readiness results for ${orgName} are ready. You've taken the first step — here's how you scored.`
-              : "Your AI readiness results are ready. You've taken the first step — here's how you scored."
+              ? `Your AI readiness results for ${orgName} are ready. You've taken the first step - here's how you scored.`
+              : "Your AI readiness results are ready. You've taken the first step - here's how you scored."
             : orgName
               ? `You're now part of ${orgName} on Experrt. Here's everything you need to get started.`
               : "You're now on Experrt. Here's everything you need to get started."}
         </p>
 
-        {/* Score section — only if assessment data is available */}
+        {/* Score section - only if assessment data is available */}
         {hasScores && (
           <>
             <p
@@ -428,7 +428,7 @@ export function WelcomeEmail({
             textAlign: "center" as const,
           }}
         >
-          Experrt — The enterprise AI control layer.
+          Experrt - The enterprise AI control layer.
         </p>
       </div>
     </div>

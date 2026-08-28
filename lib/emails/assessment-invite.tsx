@@ -112,7 +112,7 @@ export function AssessmentInviteEmail({
         />
 
         <p style={{ fontSize: "12px", color: "#555555", margin: 0 }}>
-          Sent by {orgName} via Experrt — the enterprise AI control layer.
+          Sent by {orgName} via Experrt - the enterprise AI control layer.
         </p>
       </div>
     </div>

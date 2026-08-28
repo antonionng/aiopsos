@@ -83,6 +83,10 @@ export const RATE_LIMITS = {
   // one room, behind one NAT address. At 5/min the sixth person was told to
   // try again later.
   publicSubmit: { limit: 30, windowMs: 60_000 },
+  // The contact form had no limit at all. Low, because unlike the assessment
+  // there is no legitimate reason for one address to send many messages in a
+  // minute.
+  contact: { limit: 5, windowMs: 60_000 },
 } as const;
 
 export function getRateLimitHeaders(result: RateLimitResult): Record<string, string> {

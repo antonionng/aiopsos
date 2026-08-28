@@ -4,6 +4,7 @@ import { resolveUserContext } from "@/lib/resolve-user-context";
 import { checkFeatureQuota, logFeatureUsage } from "@/lib/feature-quotas";
 import { getPlanFeatures } from "@/lib/constants";
 import { searchWeb } from "@/lib/tavily";
+import { persistSideChannelTurn } from "@/lib/persist-side-channel";
 
 export const maxDuration = 120;
 
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const { query } = await req.json();
+  const { query, conversation_id: conversationId, companion } = await req.json();
   if (!query || typeof query !== "string") {
     return new Response(JSON.stringify({ error: "query is required" }), {
       status: 400,
@@ -131,6 +132,16 @@ Format the report in Markdown.`,
           query,
           sub_questions: subQuestions.length,
           search_count: allResults.reduce((s, r) => s + r.results.length, 0),
+        });
+
+        await persistSideChannelTurn({
+          conversationId,
+          userId: ctx.userId,
+          orgId: ctx.orgId,
+          prompt: `Deep research: ${query}`,
+          answer: synthesis.text,
+          model: "gpt-4o",
+          companion,
         });
 
         send({ type: "result", report: synthesis.text });

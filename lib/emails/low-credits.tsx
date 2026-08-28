@@ -20,7 +20,7 @@ export function LowCreditsEmail({
         the balance reaches zero, AI features pause for everyone until it&apos;s topped up.
       </p>
       <p style={emailStyles.lastParagraph}>
-        Topping up takes a minute — pick a credit pack on the billing page.
+        Topping up takes a minute - pick a credit pack on the billing page.
       </p>
       <a href={billingUrl} style={emailStyles.button}>
         Top up credits

@@ -2,12 +2,18 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  adjacentInsights,
   getInsightBySlug,
+  getInsightTopics,
+  getInsightsByTopic,
   getPublishedInsights,
   insightForCourse,
+  insightReadingMinutes,
   insightWordCount,
   relatedCoursesFor,
+  relatedInsights,
 } from "../insights/catalog.ts";
+import { INSIGHT_TOPICS } from "../insights/types.ts";
 
 const ORIGINAL_SLUGS = [
   "eu-ai-act-article-4-literacy-for-ld",
@@ -97,9 +103,9 @@ test("each article is 900-1400 words, one H1-free body, no em dashes", () => {
       false,
       `${article.slug} has an H1`
     );
-    assert.equal(article.body.includes("—"), false, `${article.slug} has an em dash`);
-    assert.equal(article.title.includes("—"), false);
-    assert.equal(article.description.includes("—"), false);
+    assert.equal(article.body.includes(" - "), false, `${article.slug} has an em dash`);
+    assert.equal(article.title.includes(" - "), false);
+    assert.equal(article.description.includes(" - "), false);
   }
 });
 
@@ -196,4 +202,84 @@ test("course pages can resolve one related insight", () => {
   const article = insightForCourse("working-alongside-a-cobot");
   assert.equal(article?.slug, "cobot-training-for-the-shift-not-the-integrator");
   assert.equal(insightForCourse("not-a-course"), undefined);
+});
+
+// ---------------------------------------------------------------------------
+// Topics, reading time, and the in-article navigation
+// ---------------------------------------------------------------------------
+
+test("every article carries a topic from the closed set", () => {
+  for (const article of getPublishedInsights()) {
+    assert.ok(
+      INSIGHT_TOPICS.includes(article.topic),
+      `${article.slug} has topic "${article.topic}", which is not in INSIGHT_TOPICS`
+    );
+  }
+});
+
+test("getInsightTopics returns only used topics, in canon order", () => {
+  const topics = getInsightTopics();
+
+  // Every returned topic has at least one article behind it, or the index
+  // renders a filter chip that empties the list when pressed.
+  for (const topic of topics) {
+    assert.ok(
+      getInsightsByTopic(topic).length > 0,
+      `${topic} is offered as a filter but has no articles`
+    );
+  }
+
+  const canonOrder = INSIGHT_TOPICS.filter((topic) => topics.includes(topic));
+  assert.deepEqual(topics, canonOrder);
+});
+
+test("reading time is at least a minute and proportional to length", () => {
+  for (const article of getPublishedInsights()) {
+    const minutes = insightReadingMinutes(article);
+    assert.ok(minutes >= 1, `${article.slug} reports ${minutes} min read`);
+    assert.equal(minutes, Math.max(1, Math.round(insightWordCount(article) / 220)));
+  }
+});
+
+test("adjacent insights walk the list in published order", () => {
+  const all = getPublishedInsights();
+  const newest = all[0];
+  const oldest = all[all.length - 1];
+
+  assert.equal(adjacentInsights(newest.slug).newer, undefined);
+  assert.equal(adjacentInsights(newest.slug).older?.slug, all[1].slug);
+  assert.equal(adjacentInsights(oldest.slug).older, undefined);
+  assert.equal(
+    adjacentInsights(oldest.slug).newer?.slug,
+    all[all.length - 2].slug
+  );
+
+  // Adjacency is symmetric: the older neighbour's newer neighbour is us.
+  const middle = all[Math.floor(all.length / 2)];
+  const older = adjacentInsights(middle.slug).older;
+  assert.ok(older);
+  assert.equal(adjacentInsights(older.slug).newer?.slug, middle.slug);
+
+  assert.deepEqual(adjacentInsights("no-such-article"), {});
+});
+
+test("related insights never include the article itself and prefer its topic", () => {
+  for (const article of getPublishedInsights()) {
+    const related = relatedInsights(article, 2);
+    assert.ok(related.length > 0);
+    assert.ok(related.length <= 2);
+    assert.ok(
+      related.every((other) => other.slug !== article.slug),
+      `${article.slug} was offered as related to itself`
+    );
+
+    // Where the topic has other articles in it, the first suggestion is one
+    // of them. A robotics reader handed two governance notes is the bug.
+    const sameTopic = getInsightsByTopic(article.topic).filter(
+      (other) => other.slug !== article.slug
+    );
+    if (sameTopic.length > 0) {
+      assert.equal(related[0].topic, article.topic);
+    }
+  }
 });

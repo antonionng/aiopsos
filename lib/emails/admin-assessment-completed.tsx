@@ -42,7 +42,7 @@ export function AdminAssessmentCompletedEmail({
       }}
     >
       <div style={{ maxWidth: "480px", margin: "0 auto" }}>
-        {/* Header branding — org logo or name */}
+        {/* Header branding - org logo or name */}
         <div style={{ marginBottom: "40px" }}>
           {logoUrl ? (
             <img src={logoUrl} alt={orgName} style={{ height: "32px", maxWidth: "180px", objectFit: "contain" }} />

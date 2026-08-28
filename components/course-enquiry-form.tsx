@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useBotGuard, HoneypotField } from "@/components/form-bot-guard";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ export function CourseEnquiryForm({
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const botGuard = useBotGuard();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -58,6 +60,7 @@ export function CourseEnquiryForm({
           message: form.message,
           seats: form.seats ? Number(form.seats) : null,
           source,
+          ...botGuard.fields(),
         }),
       });
       const data = await res.json().catch(() => null);
@@ -78,7 +81,7 @@ export function CourseEnquiryForm({
       <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
         <div className="mb-1 flex items-center gap-2">
           <Check className="h-4 w-4 text-emerald-500" />
-          <p className="text-sm font-semibold">Thank you — that has reached us.</p>
+          <p className="text-sm font-semibold">Thank you - that has reached us.</p>
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground">
           A real person reads these. We will come back within one working day
@@ -90,7 +93,8 @@ export function CourseEnquiryForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3">
+    <form onSubmit={submit} className="relative space-y-3">
+      <HoneypotField value={botGuard.honeypot} onChange={botGuard.setHoneypot} />
       {!compact && (
         <p className="text-xs leading-relaxed text-muted-foreground">
           {courseTitle

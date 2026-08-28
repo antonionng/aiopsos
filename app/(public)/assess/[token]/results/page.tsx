@@ -303,7 +303,7 @@ export default function AssessResultsPage() {
         </h1>
         {isNeeds ? (
           <p className="mb-8 text-muted-foreground">
-            Ranked by measured need &mdash; highest first. Each subject shows
+            Ranked by measured need - highest first. Each subject shows
             the courses that close its gap.
           </p>
         ) : (
@@ -443,7 +443,7 @@ export default function AssessResultsPage() {
           <p className="text-sm leading-relaxed text-muted-foreground">
             Your account and your results are saved. We&apos;ve sent a
             confirmation link to{" "}
-            <span className="font-medium text-foreground">{email}</span> —
+            <span className="font-medium text-foreground">{email}</span>  - 
             click it and you&apos;ll land on your full results, including your
             recommended courses.
           </p>
@@ -569,7 +569,7 @@ export default function AssessResultsPage() {
               href={`/login?next=${encodeURIComponent(`/assess/${token}/results`)}`}
               className="block rounded-lg border border-brand/30 bg-brand/5 px-4 py-3 text-center text-sm font-medium text-foreground transition-colors hover:bg-brand/10"
             >
-              Sign in — your results will be attached automatically
+              Sign in - your results will be attached automatically
             </a>
           )}
 

@@ -8,6 +8,8 @@ import {
 import { FALLBACK_PUBLISHED_COURSE_SLUGS } from "../published-course-slugs.ts";
 import { getPublishedInsights } from "../insights/catalog.ts";
 import { getUseCases } from "../use-cases.ts";
+import { COURSE_SECTOR_SLUGS } from "../constants.ts";
+import { getSectors } from "../sectors.ts";
 import { getPublicSiteUrl } from "../site.ts";
 
 test("public sitemap lists marketing, courses, and published insights only", () => {
@@ -39,6 +41,12 @@ test("public sitemap lists marketing, courses, and published insights only", () 
   }
   for (const article of getPublishedInsights()) {
     assert.ok(urls.includes(`${baseUrl}/insights/${article.slug}`), article.slug);
+  }
+  for (const entry of getSectors()) {
+    assert.ok(
+      urls.includes(`${baseUrl}/courses/sector/${COURSE_SECTOR_SLUGS[entry.sector]}`),
+      entry.sector
+    );
   }
   assert.ok(urls.includes(`${baseUrl}/use-cases`));
   for (const entry of getUseCases()) {

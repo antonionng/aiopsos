@@ -62,7 +62,7 @@ function round2(value: number): number {
  * Attendance as a percentage of the sessions this participant was expected at.
  *
  * The denominator is every session in the cohort minus the ones they were
- * excused from — not merely the sessions someone remembered to take a
+ * excused from - not merely the sessions someone remembered to take a
  * register for. A session with no attendance record counts as an absence,
  * because in an audit silence is not evidence of attendance.
  *

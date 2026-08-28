@@ -1,4 +1,6 @@
+import { COURSE_SECTOR_SLUGS } from "./constants.ts";
 import { getPublishedInsights } from "./insights/catalog.ts";
+import { getSectors } from "./sectors.ts";
 import { getUseCases } from "./use-cases.ts";
 
 export type PublicSitemapEntry = {
@@ -84,6 +86,18 @@ export function useCaseSitemapEntries(
   }));
 }
 
+export function sectorSitemapEntries(
+  baseUrl: string,
+  lastModified: Date
+): PublicSitemapEntry[] {
+  return getSectors().map((entry) => ({
+    url: `${baseUrl}/courses/sector/${COURSE_SECTOR_SLUGS[entry.sector]}`,
+    lastModified,
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+}
+
 export function insightSitemapEntries(baseUrl: string): PublicSitemapEntry[] {
   return getPublishedInsights().map((article) => ({
     url: `${baseUrl}/insights/${article.slug}`,
@@ -102,6 +116,7 @@ export function buildPublicSitemap(options: {
   const entries = [
     ...staticMarketingEntries(options.baseUrl, lastModified),
     ...courseSitemapEntries(options.baseUrl, options.courseSlugs, lastModified),
+    ...sectorSitemapEntries(options.baseUrl, lastModified),
     ...useCaseSitemapEntries(options.baseUrl, lastModified),
     ...insightSitemapEntries(options.baseUrl),
   ];

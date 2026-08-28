@@ -9,17 +9,13 @@ import {
   LITERACY_DISCLAIMER,
 } from "@/lib/constants";
 import type { CertificateSnapshot } from "@/lib/types";
+import { verifyCertificateMetadata } from "@/lib/public-share-metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Verify a certificate",
-  description:
-    "Check a certificate of completion issued through Experrt: course, dates, facilitator, attendance and grade.",
-  // Individual certificates must not be indexed. They name a person, and a
-  // search engine is not the audience for them - the holder shares the link.
-  robots: { index: false, follow: false },
-};
+// Individual certificates must not be indexed. They name a person, and a
+// search engine is not the audience for them - the holder shares the link.
+export const metadata: Metadata = verifyCertificateMetadata();
 
 const REF_PATTERN = /^[0-9A-HJKMNP-TV-Z]{12}$/;
 
@@ -93,18 +89,18 @@ export default async function VerifyPage({
         <dl className="mb-10 grid gap-x-8 gap-y-5 sm:grid-cols-2">
           <div>
             <dt className="mb-1 text-xs text-muted-foreground">Participant</dt>
-            <dd className="text-sm font-medium">{snapshot.participant_name || "—"}</dd>
+            <dd className="text-sm font-medium">{snapshot.participant_name || " - "}</dd>
           </div>
           <div>
             <dt className="mb-1 text-xs text-muted-foreground">Course</dt>
-            <dd className="text-sm font-medium">{snapshot.course_title || "—"}</dd>
+            <dd className="text-sm font-medium">{snapshot.course_title || " - "}</dd>
           </div>
           <div>
             <dt className="mb-1 text-xs text-muted-foreground">Level</dt>
             <dd className="text-sm">
               {snapshot.course_level
                 ? COURSE_LEVEL_LABELS[snapshot.course_level]
-                : "—"}
+                : " - "}
             </dd>
           </div>
           <div>
@@ -112,7 +108,7 @@ export default async function VerifyPage({
             <dd className="text-sm">
               {snapshot.delivery_mode
                 ? DELIVERY_MODE_LABELS[snapshot.delivery_mode]
-                : "—"}
+                : " - "}
             </dd>
           </div>
           <div>
@@ -124,7 +120,7 @@ export default async function VerifyPage({
                     month: "long",
                     year: "numeric",
                   })
-                : "—"}
+                : " - "}
               {snapshot.ends_on && snapshot.ends_on !== snapshot.starts_on && (
                 <>
                   {" – "}
@@ -139,12 +135,12 @@ export default async function VerifyPage({
           </div>
           <div>
             <dt className="mb-1 text-xs text-muted-foreground">Facilitator</dt>
-            <dd className="text-sm">{snapshot.facilitator_name || "—"}</dd>
+            <dd className="text-sm">{snapshot.facilitator_name || " - "}</dd>
           </div>
           <div>
             <dt className="mb-1 text-xs text-muted-foreground">Attendance</dt>
             <dd className="text-sm">
-              {snapshot.attendance_pct ?? "—"}%
+              {snapshot.attendance_pct ?? " - "}%
               {snapshot.pass_attendance_pct !== undefined && (
                 <span className="text-muted-foreground">
                   {" "}
@@ -157,7 +153,7 @@ export default async function VerifyPage({
             <dt className="mb-1 text-xs text-muted-foreground">Grade</dt>
             <dd className="text-sm">
               {snapshot.grade_pct === null || snapshot.grade_pct === undefined
-                ? "—"
+                ? " - "
                 : `${snapshot.grade_pct}%`}
               {snapshot.pass_grade_pct !== undefined && (
                 <span className="text-muted-foreground">
@@ -180,7 +176,7 @@ export default async function VerifyPage({
               {snapshot.facilitator_credentials.map((credential, i) => (
                 <li key={i} className="text-sm text-muted-foreground">
                   {credential.title}
-                  {credential.issuer ? ` — ${credential.issuer}` : ""}
+                  {credential.issuer ? ` - ${credential.issuer}` : ""}
                   {credential.year ? ` (${credential.year})` : ""}
                   {credential.reference ? ` · ref ${credential.reference}` : ""}
                 </li>

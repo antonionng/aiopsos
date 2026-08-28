@@ -19,11 +19,12 @@ import {
   FaqList,
   ProgrammeCtas,
 } from "@/components/marketing/faq-list";
+import { withSiteShareImages } from "@/lib/social-image";
 
 const SITE_URL = getPublicSiteUrl();
 const CANONICAL = `${SITE_URL}/ai-readiness-assessment`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSiteShareImages({
   title: ASSESSMENT_PAGE.title,
   description: ASSESSMENT_PAGE.description,
   alternates: { canonical: CANONICAL },
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     title: `${ASSESSMENT_PAGE.title} | Experrt`,
     description: ASSESSMENT_PAGE.description,
   },
-};
+});
 
 export default function AiReadinessAssessmentPage() {
   return (

@@ -19,11 +19,12 @@ import {
   LinkedCopy,
   ProgrammeCtas,
 } from "@/components/marketing/faq-list";
+import { withSiteShareImages } from "@/lib/social-image";
 
 const SITE_URL = getPublicSiteUrl();
 const CANONICAL = `${SITE_URL}/ai-literacy-training`;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSiteShareImages({
   title: LITERACY_PAGE.title,
   description: LITERACY_PAGE.description,
   alternates: { canonical: CANONICAL },
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     title: `${LITERACY_PAGE.title} | Experrt`,
     description: LITERACY_PAGE.description,
   },
-};
+});
 
 export default function AiLiteracyTrainingPage() {
   // Catalogue hours and titles are the published lock, not a live fetch.

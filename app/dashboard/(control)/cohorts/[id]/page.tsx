@@ -157,10 +157,10 @@ export default function CohortDetailPage() {
     if (already > 0) toast.message(`${already} were already on this cohort`);
     if (noAccount > 0) {
       toast.warning(
-        `${noAccount} skipped — no account in your organisation for those addresses`
+        `${noAccount} skipped - no account in your organisation for those addresses`
       );
     }
-    if (full > 0) toast.warning(`${full} skipped — the cohort is full`);
+    if (full > 0) toast.warning(`${full} skipped - the cohort is full`);
   }
 
   async function handlePay() {

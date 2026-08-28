@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { courseEnquirySchema, validateBody } from "@/lib/validations";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/rate-limit";
 import { sendEnquiryEmails } from "@/lib/email";
+import { assessSubmission, HONEYPOT_FIELD, FORM_TIMESTAMP_FIELD } from "@/lib/spam-defence";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,29 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const validation = validateBody(courseEnquirySchema, await req.json().catch(() => null));
+  const raw = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+
+  // Read the bot fields off the raw body: the zod schema strips unknown keys,
+  // so they are gone by the time validation returns.
+  const verdict = assessSubmission({
+    name: typeof raw?.name === "string" ? raw.name : undefined,
+    email: typeof raw?.email === "string" ? raw.email : undefined,
+    message: typeof raw?.message === "string" ? raw.message : undefined,
+    honeypot: raw?.[HONEYPOT_FIELD],
+    startedAt: raw?.[FORM_TIMESTAMP_FIELD],
+  });
+
+  if (verdict.spam) {
+    // Indistinguishable from success, so a bot learns nothing about which
+    // check caught it. Logged so a false positive can be recovered.
+    console.warn(
+      `[enquiry] dropped as spam (${verdict.reasons.join(", ")}) from ${ip}: ` +
+        `${JSON.stringify(raw).slice(0, 300)}`
+    );
+    return NextResponse.json({ success: true });
+  }
+
+  const validation = validateBody(courseEnquirySchema, raw);
   if (!validation.success) {
     return NextResponse.json({ error: validation.error }, { status: 400 });
   }

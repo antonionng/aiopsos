@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Wordmark } from "@/components/wordmark";
 import { Menu, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,12 @@ import type { Project } from "@/lib/types";
 // role-gated server-side (lib/companions.ts), so there is nothing here for
 // a role check to protect. The old super_admin gate predates companions.
 function ChatLayoutInner({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Starts closed and opens on desktop after mount. Defaulting to open at
+  // every width meant mobile loaded with the sidebar covering the chat.
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 768px)").matches) setSidebarOpen(true);
+  }, []);
   const { createNewChat, refreshProjects } = useChatContext();
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);

@@ -83,7 +83,7 @@ export default function BillingPage() {
     // Back from Mooov hosted checkout. The wallet is credited by the
     // webhook, which may land a beat after the redirect - hence "shortly".
     if (new URLSearchParams(window.location.search).get("topup") === "success") {
-      toast.success("Payment received — your credits will appear shortly.");
+      toast.success("Payment received - your credits will appear shortly.");
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
@@ -166,7 +166,7 @@ export default function BillingPage() {
                 </Badge>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                The platform is free — you pay for AI credits and facilitated courses.
+                The platform is free - you pay for AI credits and facilitated courses.
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {currentPlan.name} tier · {billing.seatCount} seats
@@ -182,7 +182,7 @@ export default function BillingPage() {
           <h2 className="mb-1 text-lg font-semibold">Top up credits</h2>
           <p className="mb-4 text-sm text-muted-foreground">
             {billing.billingMethod === "invoice"
-              ? "Your organisation pays by invoice — requesting a pack emails an invoice to your billing contact, and credits are added when it's paid."
+              ? "Your organisation pays by invoice - requesting a pack emails an invoice to your billing contact, and credits are added when it's paid."
               : "Card payments are processed securely at checkout. Credits are added the moment payment completes."}
           </p>
           <CreditPackPicker

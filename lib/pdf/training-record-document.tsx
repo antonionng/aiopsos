@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
 });
 
 function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return " - ";
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
@@ -134,7 +134,7 @@ export function TrainingRecordDocument({ payload }: { payload: TrainingRecordPay
           </View>
           <View>
             <Text style={styles.statValue}>
-              {payload.stats.attendance_pct === null ? "—" : `${payload.stats.attendance_pct}%`}
+              {payload.stats.attendance_pct === null ? " - " : `${payload.stats.attendance_pct}%`}
             </Text>
             <Text style={styles.statLabel}>ATTENDANCE</Text>
           </View>
@@ -198,7 +198,7 @@ export function TrainingRecordDocument({ payload }: { payload: TrainingRecordPay
               <View key={gi}>
                 <Text style={styles.line}>
                   Grade {g.score}/{g.max_score}
-                  {g.graded_by ? ` — ${g.graded_by}` : ""} ({fmtDate(g.graded_at)})
+                  {g.graded_by ? ` - ${g.graded_by}` : ""} ({fmtDate(g.graded_at)})
                 </Text>
                 {g.feedback ? <Text style={styles.feedback}>“{g.feedback}”</Text> : null}
               </View>
@@ -206,7 +206,7 @@ export function TrainingRecordDocument({ payload }: { payload: TrainingRecordPay
             {t.certificate && (
               <Text style={styles.cert}>
                 Certificate {t.certificate.public_ref}
-                {t.certificate.revoked ? " (revoked)" : ""} — issued {fmtDate(t.certificate.issued_at)} — verify at
+                {t.certificate.revoked ? " (revoked)" : ""} - issued {fmtDate(t.certificate.issued_at)} - verify at
                 experrt.com/verify/{t.certificate.public_ref}
               </Text>
             )}
@@ -216,7 +216,7 @@ export function TrainingRecordDocument({ payload }: { payload: TrainingRecordPay
         <Text style={styles.footer} fixed>
           Training records held by {payload.organisation} on Experrt. Grades and
           attendance are entered by the facilitator; this document reports
-          measures taken and records held — it is not a claim of regulatory
+          measures taken and records held - it is not a claim of regulatory
           compliance. Certificates verify at experrt.com/verify.
         </Text>
       </Page>

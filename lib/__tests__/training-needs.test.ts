@@ -55,6 +55,7 @@ function course(overrides: Partial<Course>): Course {
     summary: "",
     level: "practitioner",
     category: "ai",
+    sectors: [],
     duration_hours: 6,
     delivery_modes: ["in_person"],
     learning_outcomes: [],

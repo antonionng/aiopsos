@@ -192,7 +192,7 @@ export function InvoiceDocument({ payload }: { payload: InvoicePayload }) {
 
         <View style={styles.footer} fixed>
           <Text>
-            Experrt — {payload.invoice_number} — issued {formatDate(payload.issue_date)}
+            Experrt - {payload.invoice_number} - issued {formatDate(payload.issue_date)}
           </Text>
           <Text render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
