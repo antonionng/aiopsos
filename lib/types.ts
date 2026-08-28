@@ -3,6 +3,7 @@ import type {
   CohortStatus,
   CourseCategory,
   CourseLevel,
+  CourseSector,
   CourseStatus,
   DeliveryMode,
   DepartmentType,
@@ -288,6 +289,8 @@ export interface Course {
   summary: string;
   level: CourseLevel;
   category: CourseCategory;
+  /** Sectors this course is distinctively built for; empty means any. */
+  sectors: CourseSector[];
   duration_hours: number;
   delivery_modes: DeliveryMode[];
   learning_outcomes: string[];

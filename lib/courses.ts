@@ -13,7 +13,7 @@ import type { Dimension, RespondentRole } from "@/lib/constants";
  */
 
 const COURSE_COLUMNS =
-  "id, slug, title, summary, level, category, duration_hours, delivery_modes, learning_outcomes, target_roles, target_dimensions, status, created_by, created_at, updated_at";
+  "id, slug, title, summary, level, category, sectors, duration_hours, delivery_modes, learning_outcomes, target_roles, target_dimensions, status, created_by, created_at, updated_at";
 
 const MODULE_COLUMNS =
   "id, course_id, position, title, summary, duration_hours, outcomes, lab_url, created_at";
@@ -27,6 +27,7 @@ function toCourse(row: Record<string, unknown>): Course {
     summary: String(row.summary ?? ""),
     level: row.level as Course["level"],
     category: (row.category ?? "ai") as Course["category"],
+    sectors: (row.sectors ?? []) as Course["sectors"],
     duration_hours: Number(row.duration_hours ?? 0),
     delivery_modes: (row.delivery_modes ?? []) as Course["delivery_modes"],
     learning_outcomes: Array.isArray(row.learning_outcomes)

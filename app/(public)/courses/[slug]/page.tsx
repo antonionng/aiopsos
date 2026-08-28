@@ -10,6 +10,8 @@ import { CourseArtwork } from "@/components/course-artwork";
 import {
   COURSE_CATEGORY_LABELS,
   COURSE_LEVEL_LABELS,
+  COURSE_SECTOR_LABELS,
+  COURSE_SECTOR_SLUGS,
   DELIVERY_MODE_LABELS,
   DIMENSION_LABELS,
   RESPONDENT_ROLE_LABELS,
@@ -116,6 +118,27 @@ export default async function CoursePage({
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
           {course.summary}
         </p>
+
+        {/*
+          Sectors sit under the summary rather than in the badge row above.
+          They are not another attribute of the course; they are a way out of
+          this page to the sector view, and a reader who arrived from a search
+          for their own industry should be able to get back to it.
+        */}
+        {course.sectors.length > 0 && (
+          <p className="mt-5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span>Runs most often in</span>
+            {course.sectors.map((sector) => (
+              <Link
+                key={sector}
+                href={`/courses/sector/${COURSE_SECTOR_SLUGS[sector]}`}
+                className="rounded-full border border-border px-2.5 py-0.5 font-medium text-foreground/80 transition-colors hover:border-foreground/30 hover:text-foreground"
+              >
+                {COURSE_SECTOR_LABELS[sector]}
+              </Link>
+            ))}
+          </p>
+        )}
       </header>
 
       <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
