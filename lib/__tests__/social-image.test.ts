@@ -30,6 +30,7 @@ import {
 } from "../public-share-metadata.ts";
 import { getPublishedInsights } from "../insights/catalog.ts";
 import { getUseCases } from "../use-cases.ts";
+import { getUseCaseSeo } from "../use-case-seo.ts";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -118,7 +119,8 @@ test("every public marketing metadata builder emits og:image and a large Twitter
       true,
       `/use-cases/${entry.slug}`
     );
-    assert.equal(metadata.title, `${entry.name} - Use cases`);
+    const seo = getUseCaseSeo(entry.slug);
+    assert.equal(metadata.title, seo?.title ?? `${entry.name} - Use cases`);
   }
 });
 

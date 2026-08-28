@@ -12,6 +12,15 @@ export function isAuthPath(pathname: string): boolean {
   );
 }
 
+/**
+ * App surfaces that need a session. Unknown marketing paths must not fall
+ * through to this list — that is what 307s /free-trial and typos to /login.
+ */
+export function isSessionGatedPath(pathname: string): boolean {
+  if (isPublicPath(pathname) || isAuthPath(pathname)) return false;
+  return pathname.startsWith("/dashboard") || pathname.startsWith("/api/");
+}
+
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/" ||
@@ -20,6 +29,10 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/courses/") ||
     pathname.startsWith("/assess/") ||
     pathname.startsWith("/assessment/") ||
+    pathname === "/ai-literacy-training" ||
+    pathname.startsWith("/ai-literacy-training/") ||
+    pathname === "/ai-readiness-assessment" ||
+    pathname.startsWith("/ai-readiness-assessment/") ||
     pathname.startsWith("/api/public/") ||
     pathname === "/api/assessment/public-submit" ||
     /^\/api\/assessment\/[^/]+\/public-info$/.test(pathname) ||

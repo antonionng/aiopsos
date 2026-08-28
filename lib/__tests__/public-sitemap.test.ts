@@ -27,6 +27,8 @@ test("public sitemap lists marketing, courses, and published insights only", () 
     `${baseUrl}/contact`,
     `${baseUrl}/about`,
     `${baseUrl}/insights`,
+    `${baseUrl}/ai-literacy-training`,
+    `${baseUrl}/ai-readiness-assessment`,
   ]) {
     assert.ok(urls.includes(required.replace(/\/$/, "") || `${baseUrl}/`) || urls.includes(required), required);
   }

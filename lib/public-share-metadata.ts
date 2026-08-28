@@ -2,6 +2,8 @@ import { getPublicSiteUrl } from "./site.ts";
 import { withSiteShareImages } from "./social-image.ts";
 import type { InsightArticle } from "./insights/types.ts";
 import type { UseCaseEntry } from "./use-cases.ts";
+import { getCourseSeo } from "./money-pages.ts";
+import { getUseCaseSeo } from "./use-case-seo.ts";
 
 /**
  * Page-level metadata for public marketing routes. Kept as plain objects so
@@ -73,19 +75,23 @@ export function coursesIndexMetadata() {
 export function coursePageMetadata(course: { title: string; summary: string; slug: string }) {
   // Course pages have a local opengraph-image.tsx. Do not set images here —
   // Next would replace that generated card with the site default.
+  const seo = getCourseSeo(course.slug);
+  const title = seo?.title ?? course.title;
+  const description = seo?.description ?? course.summary;
+
   return {
-    title: course.title,
-    description: course.summary,
+    title,
+    description,
     alternates: { canonical: `/courses/${course.slug}` },
     openGraph: {
-      title: course.title,
-      description: course.summary,
+      title,
+      description,
       type: "article",
     },
     twitter: {
       card: "summary_large_image" as const,
-      title: course.title,
-      description: course.summary,
+      title,
+      description,
     },
   };
 }
@@ -129,13 +135,17 @@ export function useCasesIndexMetadata() {
 }
 
 export function useCasePageMetadata(entry: UseCaseEntry) {
+  const seo = getUseCaseSeo(entry.slug);
+  const title = seo?.title ?? `${entry.name} - Use cases`;
+  const description = seo?.description ?? entry.headline;
+
   return withSiteShareImages({
-    title: `${entry.name} - Use cases`,
-    description: entry.headline,
+    title,
+    description,
     alternates: { canonical: `/use-cases/${entry.slug}` },
     openGraph: {
-      title: `${entry.name} - Experrt use cases`,
-      description: entry.headline,
+      title: seo?.title ?? `${entry.name} - Experrt use cases`,
+      description,
       type: "article",
     },
   });

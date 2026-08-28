@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "#capabilities", label: "Experrt AI" },
+  { href: "/ai-literacy-training", label: "AI literacy" },
   { href: "/courses", label: "Academy" },
   { href: "/use-cases", label: "Use cases" },
   { href: "/insights", label: "Insights" },
