@@ -279,7 +279,7 @@ export default function TourProvisioningPage() {
               </Select>
               {facilitators.length === 0 && (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  No trainers yet — add one below. The day can still be created
+                  No trainers yet - add one below. The day can still be created
                   without one; the delivering organisation&apos;s admins can
                   grade either way.
                 </p>
@@ -385,7 +385,7 @@ export default function TourProvisioningPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Label htmlFor="companies">
-              Paste a delegate list — company name per line, or a CSV with a
+              Paste a delegate list - company name per line, or a CSV with a
               company column
             </Label>
             <Textarea
@@ -485,7 +485,7 @@ export default function TourProvisioningPage() {
                 id="trainer-name"
                 value={newTrainerName}
                 onChange={(e) => setNewTrainerName(e.target.value)}
-                placeholder="Optional — defaults to their profile name"
+                placeholder="Optional - defaults to their profile name"
               />
             </div>
             <Button onClick={addTrainer} disabled={addingTrainer || !newTrainerId}>
