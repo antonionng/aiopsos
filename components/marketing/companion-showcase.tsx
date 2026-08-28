@@ -46,7 +46,7 @@ const SCRIPTS: Script[] = [
       { kind: "tool", text: "Reading your assessment and course history…" },
       {
         kind: "ai",
-        text: "Responsible use is your widest gap. Responsible AI Use at Work runs next month — six facilitated hours, and it targets the two habits your assessment flagged.",
+        text: "Responsible use is your widest gap. Responsible AI Use at Work runs next month - six facilitated hours, and it targets the two habits your assessment flagged.",
       },
       { kind: "user", text: "How am I doing on my current course?" },
       { kind: "tool", text: "Checking your attendance and released grades…" },
@@ -69,7 +69,7 @@ const SCRIPTS: Script[] = [
       { kind: "tool", text: "Pulling cohort attendance and completions…" },
       {
         kind: "ai",
-        text: "Eleven of twelve are on track and attendance sits at 92%. Two people missed session three — the facilitator has already flagged a catch-up.",
+        text: "Eleven of twelve are on track and attendance sits at 92%. Two people missed session three - the facilitator has already flagged a catch-up.",
       },
       { kind: "user", text: "Who should we train next quarter?" },
       { kind: "tool", text: "Aggregating assessment scores by department…" },
@@ -92,12 +92,12 @@ const SCRIPTS: Script[] = [
       { kind: "tool", text: "Fetching her training record…" },
       {
         kind: "ai",
-        text: "Priya completed Prompting and Output Verification in June — full attendance, and her certificate is verifiable by any third party.",
+        text: "Priya completed Prompting and Output Verification in June - full attendance, and her certificate is verifiable by any third party.",
       },
       { kind: "user", text: "And how is she using AI day to day?" },
       {
         kind: "ai",
-        text: "That I won't report. Individual usage doesn't exist here — only department aggregates, so people can work without being individually watched. Marketing as a team: 14 active users this month.",
+        text: "That I won't report. Individual usage doesn't exist here - only department aggregates, so people can work without being individually watched. Marketing as a team: 14 active users this month.",
       },
     ],
   },

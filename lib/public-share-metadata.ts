@@ -15,7 +15,10 @@ export function insightsIndexMetadata() {
     title: "Insights on workforce AI and robotics training",
     description:
       "Briefings for L&D, HR, operations and transformation leads commissioning in-house AI, technology and robotics training. No login required.",
-    alternates: { canonical: `${site}/insights` },
+    alternates: {
+      canonical: `${site}/insights`,
+      types: { "application/rss+xml": `${site}/insights/rss.xml` },
+    },
     openGraph: {
       title: "Insights on workforce AI and robotics training",
       description:
@@ -33,7 +36,10 @@ export function insightArticleMetadata(article: InsightArticle) {
   return withSiteShareImages({
     title: article.title,
     description: article.description,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      types: { "application/rss+xml": `${site}/insights/rss.xml` },
+    },
     openGraph: {
       title: article.title,
       description: article.description,
@@ -148,6 +154,22 @@ export function verifyCertificateMetadata() {
     title: "Verify a certificate",
     description:
       "Check a certificate of completion issued through Experrt: course, dates, facilitator, attendance and grade.",
+    robots: { index: false, follow: false },
+  });
+}
+
+export function subscriptionConfirmedMetadata() {
+  return withSiteShareImages({
+    title: "Subscription confirmed",
+    // A page reachable only with a one-time token has nothing to offer an
+    // index, and the token would end up in the search result if it did.
+    robots: { index: false, follow: false },
+  });
+}
+
+export function unsubscribedMetadata() {
+  return withSiteShareImages({
+    title: "Unsubscribed",
     robots: { index: false, follow: false },
   });
 }

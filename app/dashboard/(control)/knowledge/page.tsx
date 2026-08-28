@@ -151,7 +151,7 @@ function KnowledgeBaseContent() {
               </div>
               <h3 className="mb-1 text-base font-semibold">No documents yet</h3>
               <p className="mb-5 max-w-md text-sm text-muted-foreground">
-                Upload company documents so AI responses are grounded in your organisation&apos;s knowledge — policies, processes, product docs, and more.
+                Upload company documents so AI responses are grounded in your organisation&apos;s knowledge - policies, processes, product docs, and more.
               </p>
               <label>
                 <Button className="bg-brand text-brand-foreground hover:bg-brand/90" asChild>
@@ -176,7 +176,7 @@ function KnowledgeBaseContent() {
                 {[
                   { icon: FileUp, title: "Upload documents", desc: "Add PDFs, Word docs, or text files. We support policies, playbooks, SOPs, product specs, and more." },
                   { icon: BrainCircuit, title: "AI learns your context", desc: "Documents are indexed so the AI chat can reference your company knowledge in every response." },
-                  { icon: Search, title: "Grounded answers", desc: "Your team gets answers based on real company data — not generic responses. Fewer hallucinations, more accuracy." },
+                  { icon: Search, title: "Grounded answers", desc: "Your team gets answers based on real company data - not generic responses. Fewer hallucinations, more accuracy." },
                 ].map((c) => (
                   <Card key={c.title} className="border-border bg-card">
                     <CardContent className="pt-5">

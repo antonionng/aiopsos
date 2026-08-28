@@ -7,8 +7,8 @@ import { getPublicSiteUrl } from "@/lib/site";
  * search crawlers need it present in the server-rendered HTML rather than
  * injected later.
  *
- * The payload is our own, built from database values — never user-supplied
- * markup — so serialising it is safe. `<` is escaped anyway so a stray
+ * The payload is our own, built from database values - never user-supplied
+ * markup - so serialising it is safe. `<` is escaped anyway so a stray
  * sequence in a course title cannot close the script element early.
  */
 export function StructuredData({ data }: { data: Record<string, unknown> }) {

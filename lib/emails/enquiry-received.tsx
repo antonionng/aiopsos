@@ -14,7 +14,7 @@ export function EnquiryReceivedEmail({
   const greeting = recipientName || "Hi there";
 
   return (
-    <EmailShell heading={`${greeting}, thanks — we have your enquiry.`}>
+    <EmailShell heading={`${greeting}, thanks - we have your enquiry.`}>
       <p style={emailStyles.paragraph}>
         {courseTitle
           ? `You asked about ${courseTitle}.`

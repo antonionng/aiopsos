@@ -113,7 +113,7 @@ export default function EvidencePage() {
                 </div>
                 <p className="mx-auto max-w-sm text-sm text-muted-foreground">
                   No packs yet. Generate one for a reporting period and it will be
-                  frozen at that moment — regenerating it later produces the same
+                  frozen at that moment - regenerating it later produces the same
                   document.
                 </p>
               </CardContent>

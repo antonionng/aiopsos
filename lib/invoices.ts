@@ -119,7 +119,7 @@ export async function createInvoiceForPack(
     orgId,
     createdBy,
     {
-      description: `AI credits — ${pack.name} pack (${pack.credits.toLocaleString("en-GB")} credits)`,
+      description: `AI credits - ${pack.name} pack (${pack.credits.toLocaleString("en-GB")} credits)`,
       quantity: 1,
       unit_amount: pack.price_amount,
       pack_id: pack.id,

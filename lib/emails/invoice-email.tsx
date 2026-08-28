@@ -42,7 +42,7 @@ export function InvoiceEmail({
       <p style={emailStyles.paragraph}>
         {isReminder ? (
           <>
-            A payment reminder for <strong style={emailStyles.strong}>{orgName}</strong> — the
+            A payment reminder for <strong style={emailStyles.strong}>{orgName}</strong> - the
             invoice below has passed its due date.
           </>
         ) : (
@@ -55,16 +55,16 @@ export function InvoiceEmail({
       <div style={{ margin: "24px 0" }}>
         {lines.map((line, i) => (
           <p key={i} style={emailStyles.detailRow}>
-            <span style={emailStyles.detailLabel}>{line.description} — </span>
+            <span style={emailStyles.detailLabel}>{line.description} - </span>
             {formatMoney(line.total_amount, currency)}
           </p>
         ))}
         <p style={emailStyles.detailRow}>
-          <span style={emailStyles.detailLabel}>Total due — </span>
+          <span style={emailStyles.detailLabel}>Total due - </span>
           <strong style={emailStyles.strong}>{formatMoney(totalAmount, currency)}</strong>
         </p>
         <p style={emailStyles.detailRow}>
-          <span style={emailStyles.detailLabel}>Due — </span>
+          <span style={emailStyles.detailLabel}>Due - </span>
           {formatDateInZone(dueDate, "Europe/London")} (NET {termsDays})
         </p>
       </div>

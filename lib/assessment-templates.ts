@@ -45,7 +45,7 @@ function opts(labels: string[]) {
   return labels.map((label, i) => ({ value: i, label }));
 }
 
-// ─── Org-Wide (default — migrated from scoring.ts) ────────────────────
+// ─── Org-Wide (default - migrated from scoring.ts) ────────────────────
 
 const ORG_WIDE_QUESTIONS: AssessmentQuestion[] = [
   {
@@ -58,7 +58,7 @@ const ORG_WIDE_QUESTIONS: AssessmentQuestion[] = [
     id: "conf_2", dimension: "confidence",
     text: "How confident are you at getting useful results from AI?",
     description: "Consider how often AI gives you something you can actually use.",
-    options: opts(["I wouldn't know where to start", "I get mixed results — mostly unusable", "Sometimes useful, but I have to try several times", "I usually get good results on the first or second try", "I consistently get high-quality results", "I've developed reliable techniques that work every time"]),
+    options: opts(["I wouldn't know where to start", "I get mixed results - mostly unusable", "Sometimes useful, but I have to try several times", "I usually get good results on the first or second try", "I consistently get high-quality results", "I've developed reliable techniques that work every time"]),
   },
   {
     id: "conf_3", dimension: "confidence",
@@ -69,8 +69,8 @@ const ORG_WIDE_QUESTIONS: AssessmentQuestion[] = [
   {
     id: "prac_1", dimension: "practice",
     text: "How often do you use AI tools as part of your work?",
-    description: "Any AI tool — chatbots, writing assistants, image generators, copilots, etc.",
-    options: opts(["Never", "I've tried once or twice", "A few times a month", "A few times a week", "Daily", "Multiple times a day — it's part of my routine"]),
+    description: "Any AI tool - chatbots, writing assistants, image generators, copilots, etc.",
+    options: opts(["Never", "I've tried once or twice", "A few times a month", "A few times a week", "Daily", "Multiple times a day - it's part of my routine"]),
   },
   {
     id: "prac_2", dimension: "practice",
@@ -88,19 +88,19 @@ const ORG_WIDE_QUESTIONS: AssessmentQuestion[] = [
     id: "tool_1", dimension: "tools",
     text: "Which AI tools do you have access to through work?",
     description: "Consider what your organisation provides or allows you to use.",
-    options: opts(["None — I don't have access to any AI tools", "I use free public tools on my own", "My company provides one AI tool", "I have access to a few different AI tools", "I have access to a good range of tools for different tasks", "I have access to a comprehensive AI toolkit tailored to my role"]),
+    options: opts(["None - I don't have access to any AI tools", "I use free public tools on my own", "My company provides one AI tool", "I have access to a few different AI tools", "I have access to a good range of tools for different tasks", "I have access to a comprehensive AI toolkit tailored to my role"]),
   },
   {
     id: "tool_2", dimension: "tools",
     text: "Are the AI tools you use connected to your other work tools?",
     description: "Think about whether AI integrates with your email, docs, CRM, code editor, etc.",
-    options: opts(["Not at all — I copy-paste between them", "I manually move information back and forth", "There are basic plug-ins or browser extensions", "Some tools are connected (e.g. Copilot in my editor, AI in my email)", "Most of my key tools have AI built in or connected", "AI is deeply embedded across my toolchain with seamless data flow"]),
+    options: opts(["Not at all - I copy-paste between them", "I manually move information back and forth", "There are basic plug-ins or browser extensions", "Some tools are connected (e.g. Copilot in my editor, AI in my email)", "Most of my key tools have AI built in or connected", "AI is deeply embedded across my toolchain with seamless data flow"]),
   },
   {
     id: "tool_3", dimension: "tools",
     text: "If you wanted to try a new AI tool, how easy would that be?",
     description: "Consider approval processes, budgets, and IT restrictions.",
-    options: opts(["I wouldn't know where to start or who to ask", "It would be very difficult — strict restrictions", "I'd need to go through a long approval process", "I could request it and probably get approval", "I have a budget or process that makes it straightforward", "I'm encouraged to experiment and can try new tools easily"]),
+    options: opts(["I wouldn't know where to start or who to ask", "It would be very difficult - strict restrictions", "I'd need to go through a long approval process", "I could request it and probably get approval", "I have a budget or process that makes it straightforward", "I'm encouraged to experiment and can try new tools easily"]),
   },
   {
     id: "resp_1", dimension: "responsible",
@@ -130,13 +130,13 @@ const ORG_WIDE_QUESTIONS: AssessmentQuestion[] = [
     id: "cult_2", dimension: "culture",
     text: "Do you feel encouraged to experiment with AI in your role?",
     description: "Consider whether your team and leadership support trying new things.",
-    options: opts(["No — AI use is discouraged or not discussed", "It's tolerated but not encouraged", "It's accepted but I'm mostly on my own", "I'm encouraged to try things out", "There's active support with time and resources to experiment", "Experimentation is celebrated and built into our culture"]),
+    options: opts(["No - AI use is discouraged or not discussed", "It's tolerated but not encouraged", "It's accepted but I'm mostly on my own", "I'm encouraged to try things out", "There's active support with time and resources to experiment", "Experimentation is celebrated and built into our culture"]),
   },
   {
     id: "cult_3", dimension: "culture",
     text: "Is there someone you can go to for help with AI?",
     description: "A champion, mentor, team lead, or support resource.",
-    options: opts(["No — I'm completely on my own", "I can ask around but there's no clear person", "I know someone informally who's helpful", "There are identified AI champions or go-to people", "There's structured support — training, office hours, or a team", "There's a dedicated AI support function with resources and guidance"]),
+    options: opts(["No - I'm completely on my own", "I can ask around but there's no clear person", "I know someone informally who's helpful", "There are identified AI champions or go-to people", "There's structured support - training, office hours, or a team", "There's a dedicated AI support function with resources and guidance"]),
   },
 ];
 
@@ -165,13 +165,13 @@ const ENGINEERING_QUESTIONS: AssessmentQuestion[] = [
     id: "eng_prac_1", dimension: "practice",
     text: "How often do you use AI tools during development?",
     description: "Code completion, test generation, documentation, PR reviews, etc.",
-    options: opts(["Never", "I've experimented a couple of times", "A few times a month for specific tasks", "Several times a week as part of my workflow", "Daily — AI is part of my development loop", "Continuously — AI is embedded in every stage of my workflow"]),
+    options: opts(["Never", "I've experimented a couple of times", "A few times a month for specific tasks", "Several times a week as part of my workflow", "Daily - AI is part of my development loop", "Continuously - AI is embedded in every stage of my workflow"]),
   },
   {
     id: "eng_prac_2", dimension: "practice",
     text: "Do you use AI to generate tests, documentation, or commit messages?",
     description: "Think beyond code completion to broader development tasks.",
-    options: opts(["No, I do everything manually", "I've tried once or twice", "I occasionally use it for docs or tests", "I regularly generate tests and docs with AI", "AI handles most boilerplate — tests, docs, PRs, changelogs", "I've automated AI into our CI/CD pipeline for these tasks"]),
+    options: opts(["No, I do everything manually", "I've tried once or twice", "I occasionally use it for docs or tests", "I regularly generate tests and docs with AI", "AI handles most boilerplate - tests, docs, PRs, changelogs", "I've automated AI into our CI/CD pipeline for these tasks"]),
   },
   {
     id: "eng_prac_3", dimension: "practice",
@@ -183,19 +183,19 @@ const ENGINEERING_QUESTIONS: AssessmentQuestion[] = [
     id: "eng_tool_1", dimension: "tools",
     text: "What AI development tools does your team have access to?",
     description: "Copilot, Cursor, Claude, code review bots, AI testing tools, etc.",
-    options: opts(["None — no AI tools available", "Free-tier tools used individually", "One licensed AI tool for the team", "A few AI tools for different development tasks", "A comprehensive AI-assisted development stack", "A fully integrated AI toolkit customised for our codebase and workflows"]),
+    options: opts(["None - no AI tools available", "Free-tier tools used individually", "One licensed AI tool for the team", "A few AI tools for different development tasks", "A comprehensive AI-assisted development stack", "A fully integrated AI toolkit customised for our codebase and workflows"]),
   },
   {
     id: "eng_tool_2", dimension: "tools",
     text: "Is AI integrated into your CI/CD pipeline or development infrastructure?",
     description: "Automated code review, test generation, security scanning, deployment.",
-    options: opts(["Not at all", "We've discussed it but haven't started", "Basic AI linting or formatting in place", "AI-powered code review or test generation in CI", "Multiple AI integrations across our pipeline", "AI is deeply embedded — from PR review to deployment monitoring"]),
+    options: opts(["Not at all", "We've discussed it but haven't started", "Basic AI linting or formatting in place", "AI-powered code review or test generation in CI", "Multiple AI integrations across our pipeline", "AI is deeply embedded - from PR review to deployment monitoring"]),
   },
   {
     id: "eng_tool_3", dimension: "tools",
     text: "How easy is it for engineers to try new AI tools or models?",
     description: "Consider procurement, security review, and experimentation culture.",
-    options: opts(["Extremely difficult — strict lockdown", "Very difficult — long approval cycles", "Possible but requires significant effort", "Reasonably straightforward with some process", "Easy — we have sandbox environments and budget", "Encouraged — we have dedicated time and infrastructure for experimentation"]),
+    options: opts(["Extremely difficult - strict lockdown", "Very difficult - long approval cycles", "Possible but requires significant effort", "Reasonably straightforward with some process", "Easy - we have sandbox environments and budget", "Encouraged - we have dedicated time and infrastructure for experimentation"]),
   },
   {
     id: "eng_resp_1", dimension: "responsible",
@@ -231,7 +231,7 @@ const ENGINEERING_QUESTIONS: AssessmentQuestion[] = [
     id: "eng_cult_3", dimension: "culture",
     text: "Are there AI champions or specialists in your engineering org?",
     description: "People who help others adopt AI tools and best practices.",
-    options: opts(["No — everyone is on their own", "A few enthusiasts but no formal role", "One or two go-to people informally", "Identified AI champions across teams", "Dedicated role or working group for AI adoption", "An AI platform team supporting the entire engineering organisation"]),
+    options: opts(["No - everyone is on their own", "A few enthusiasts but no formal role", "One or two go-to people informally", "Identified AI champions across teams", "Dedicated role or working group for AI adoption", "An AI platform team supporting the entire engineering organisation"]),
   },
 ];
 
@@ -260,7 +260,7 @@ const SALES_QUESTIONS: AssessmentQuestion[] = [
     id: "sales_prac_1", dimension: "practice",
     text: "How often do you use AI in your sales workflow?",
     description: "Prospecting, email drafting, call prep, deal analysis, forecasting, etc.",
-    options: opts(["Never", "I've tried once or twice", "A few times a month", "Several times a week", "Daily — it's part of my routine", "Continuously — AI supports every stage of my sales process"]),
+    options: opts(["Never", "I've tried once or twice", "A few times a month", "Several times a week", "Daily - it's part of my routine", "Continuously - AI supports every stage of my sales process"]),
   },
   {
     id: "sales_prac_2", dimension: "practice",
@@ -278,7 +278,7 @@ const SALES_QUESTIONS: AssessmentQuestion[] = [
     id: "sales_tool_1", dimension: "tools",
     text: "What AI sales tools does your team have access to?",
     description: "AI in CRM, prospecting tools, conversation intelligence, content assistants.",
-    options: opts(["None — no AI tools", "Free tools used individually", "One AI tool (e.g., basic CRM AI)", "A few AI tools for different sales activities", "A comprehensive AI-enabled sales stack", "A fully integrated AI toolkit across CRM, outreach, and analytics"]),
+    options: opts(["None - no AI tools", "Free tools used individually", "One AI tool (e.g., basic CRM AI)", "A few AI tools for different sales activities", "A comprehensive AI-enabled sales stack", "A fully integrated AI toolkit across CRM, outreach, and analytics"]),
   },
   {
     id: "sales_tool_2", dimension: "tools",
@@ -290,7 +290,7 @@ const SALES_QUESTIONS: AssessmentQuestion[] = [
     id: "sales_tool_3", dimension: "tools",
     text: "How easy is it for sales reps to try new AI tools?",
     description: "Procurement, approval, training, and adoption support.",
-    options: opts(["Impossible — strict controls", "Very difficult", "Possible but cumbersome", "Manageable with some approval", "Easy — we have budget and sandbox access", "Encouraged — there's dedicated support for experimenting"]),
+    options: opts(["Impossible - strict controls", "Very difficult", "Possible but cumbersome", "Manageable with some approval", "Easy - we have budget and sandbox access", "Encouraged - there's dedicated support for experimenting"]),
   },
   {
     id: "sales_resp_1", dimension: "responsible",
@@ -326,7 +326,7 @@ const SALES_QUESTIONS: AssessmentQuestion[] = [
     id: "sales_cult_3", dimension: "culture",
     text: "Is there someone in sales you can go to for AI help?",
     description: "Sales enablement, AI champion, tech-savvy colleague.",
-    options: opts(["No — completely on my own", "I can ask around informally", "One or two helpful people", "Identified AI champions in sales", "Sales enablement covers AI tools and techniques", "Dedicated AI support for the sales organisation"]),
+    options: opts(["No - completely on my own", "I can ask around informally", "One or two helpful people", "Identified AI champions in sales", "Sales enablement covers AI tools and techniques", "Dedicated AI support for the sales organisation"]),
   },
 ];
 
@@ -354,8 +354,8 @@ const MARKETING_QUESTIONS: AssessmentQuestion[] = [
   {
     id: "mkt_prac_1", dimension: "practice",
     text: "How often do you use AI in your marketing work?",
-    description: "Content, design, analytics, SEO, social media, email — any marketing task.",
-    options: opts(["Never", "I've tried once or twice", "A few times a month", "Several times a week", "Daily", "Continuously — AI supports every marketing function"]),
+    description: "Content, design, analytics, SEO, social media, email - any marketing task.",
+    options: opts(["Never", "I've tried once or twice", "A few times a month", "Several times a week", "Daily", "Continuously - AI supports every marketing function"]),
   },
   {
     id: "mkt_prac_2", dimension: "practice",
@@ -456,7 +456,7 @@ const LEADERSHIP_QUESTIONS: AssessmentQuestion[] = [
     id: "lead_prac_2", dimension: "practice",
     text: "Do you use AI for strategic decision-making and analysis?",
     description: "Market research, competitive analysis, scenario planning, data synthesis.",
-    options: opts(["No — all analysis is traditional", "I've experimented", "Occasionally for research", "Regularly for strategic analysis", "Central to my decision-making process", "I've embedded AI into our strategic planning framework"]),
+    options: opts(["No - all analysis is traditional", "I've experimented", "Occasionally for research", "Regularly for strategic analysis", "Central to my decision-making process", "I've embedded AI into our strategic planning framework"]),
   },
   {
     id: "lead_prac_3", dimension: "practice",
@@ -468,7 +468,7 @@ const LEADERSHIP_QUESTIONS: AssessmentQuestion[] = [
     id: "lead_tool_1", dimension: "tools",
     text: "What AI tools are available across your organisation?",
     description: "Enterprise licenses, approved tools, departmental access.",
-    options: opts(["None — no AI tools", "Individuals use free tools", "One enterprise AI tool", "Multiple tools across departments", "Comprehensive enterprise AI stack", "A fully governed, organisation-wide AI platform"]),
+    options: opts(["None - no AI tools", "Individuals use free tools", "One enterprise AI tool", "Multiple tools across departments", "Comprehensive enterprise AI stack", "A fully governed, organisation-wide AI platform"]),
   },
   {
     id: "lead_tool_2", dimension: "tools",
@@ -510,7 +510,7 @@ const LEADERSHIP_QUESTIONS: AssessmentQuestion[] = [
     id: "lead_cult_2", dimension: "culture",
     text: "Do you actively champion AI adoption with your leadership peers?",
     description: "Advocacy, resource allocation, cross-functional coordination.",
-    options: opts(["No — not a priority", "I'm interested but haven't acted", "I've raised it in discussions", "I actively advocate for AI investment", "I lead cross-functional AI initiatives", "I'm the primary AI champion in the executive team"]),
+    options: opts(["No - not a priority", "I'm interested but haven't acted", "I've raised it in discussions", "I actively advocate for AI investment", "I lead cross-functional AI initiatives", "I'm the primary AI champion in the executive team"]),
   },
   {
     id: "lead_cult_3", dimension: "culture",
@@ -714,7 +714,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     title: "Engineering AI Readiness",
     subtitle: "For software and DevOps teams",
     icon: "Code2",
-    description: "Tailored for engineering teams — covers AI-assisted development, CI/CD integration, code quality, and technical governance.",
+    description: "Tailored for engineering teams - covers AI-assisted development, CI/CD integration, code quality, and technical governance.",
     questions: ENGINEERING_QUESTIONS,
   },
   sales: {
@@ -723,7 +723,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     title: "Sales AI Readiness",
     subtitle: "For revenue and GTM teams",
     icon: "TrendingUp",
-    description: "Designed for sales teams — covers AI-powered prospecting, CRM integration, deal analysis, and customer data handling.",
+    description: "Designed for sales teams - covers AI-powered prospecting, CRM integration, deal analysis, and customer data handling.",
     questions: SALES_QUESTIONS,
   },
   marketing: {
@@ -732,7 +732,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     title: "Marketing AI Readiness",
     subtitle: "For content and growth teams",
     icon: "Megaphone",
-    description: "Built for marketing teams — covers AI content creation, campaign analytics, brand voice, and creative workflows.",
+    description: "Built for marketing teams - covers AI content creation, campaign analytics, brand voice, and creative workflows.",
     questions: MARKETING_QUESTIONS,
   },
   leadership: {
@@ -741,7 +741,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     title: "Leadership AI Readiness",
     subtitle: "For executives and directors",
     icon: "Crown",
-    description: "For senior leaders — covers AI strategy, investment evaluation, organisational change, and executive communication.",
+    description: "For senior leaders - covers AI strategy, investment evaluation, organisational change, and executive communication.",
     questions: LEADERSHIP_QUESTIONS,
   },
   governance: {
@@ -750,7 +750,7 @@ export const ASSESSMENT_TEMPLATES: Record<string, AssessmentTemplate> = {
     title: "AI Governance & Compliance",
     subtitle: "For risk, legal, and compliance",
     icon: "Shield",
-    description: "Focused on governance, risk, and compliance — covers regulatory awareness, ethics frameworks, incident response, and policy management.",
+    description: "Focused on governance, risk, and compliance - covers regulatory awareness, ethics frameworks, incident response, and policy management.",
     questions: GOVERNANCE_QUESTIONS,
   },
   "training-needs": {

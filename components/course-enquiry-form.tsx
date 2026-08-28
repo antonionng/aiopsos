@@ -78,7 +78,7 @@ export function CourseEnquiryForm({
       <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
         <div className="mb-1 flex items-center gap-2">
           <Check className="h-4 w-4 text-emerald-500" />
-          <p className="text-sm font-semibold">Thank you — that has reached us.</p>
+          <p className="text-sm font-semibold">Thank you - that has reached us.</p>
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground">
           A real person reads these. We will come back within one working day

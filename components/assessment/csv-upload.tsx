@@ -169,8 +169,8 @@ export function CsvUpload({ onParsed, disabled }: CsvUploadProps) {
                   }`}
                 >
                   <td className="px-3 py-1.5 font-mono">{row.email}</td>
-                  <td className="px-3 py-1.5">{row.name || "—"}</td>
-                  <td className="px-3 py-1.5">{row.department || "—"}</td>
+                  <td className="px-3 py-1.5">{row.name || " - "}</td>
+                  <td className="px-3 py-1.5">{row.department || " - "}</td>
                   <td className="px-3 py-1.5 text-center">
                     {row.valid ? (
                       <Badge

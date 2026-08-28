@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   // app. Without it Next emits warnings and social cards resolve nowhere.
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Experrt — applied AI, technology and robotics training",
+    default: "Experrt - applied AI, technology and robotics training",
     // Course and section pages set their own title; this keeps the brand on
     // the end of it without every page repeating it by hand.
     template: "%s | Experrt",
@@ -59,14 +59,14 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Experrt",
     url: BASE_URL,
-    title: "Experrt — applied AI, technology and robotics training",
+    title: "Experrt - applied AI, technology and robotics training",
     description:
       "Facilitated live by a trainer, in person or online. We train your people to actually use AI, technology and robotics at work.",
     images: [siteShareImage()],
   },
   twitter: {
     card: SITE_TWITTER_CARD,
-    title: "Experrt — applied AI, technology and robotics training",
+    title: "Experrt - applied AI, technology and robotics training",
     description:
       "We train your people to actually use AI, technology and robotics at work. Facilitated live.",
     images: [siteOgImageUrl()],

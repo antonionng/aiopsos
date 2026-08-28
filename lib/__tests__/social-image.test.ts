@@ -61,7 +61,9 @@ test("withSiteShareImages fills a title-only export so it cannot drop the card",
 
   assert.equal(metadataHasShareImage(bare), false);
 
-  const filled = withSiteShareImages(bare);
+  const filled = withSiteShareImages(bare) as typeof bare & {
+    twitter: { card?: string };
+  };
   assert.equal(metadataHasShareImage(filled), true);
   assert.equal(filled.twitter.card, SITE_TWITTER_CARD);
   assert.notEqual(filled.twitter.card, "summary");
@@ -95,7 +97,9 @@ test("every public marketing metadata builder emits og:image and a large Twitter
   }
 
   for (const article of getPublishedInsights()) {
-    const metadata = insightArticleMetadata(article);
+    const metadata = insightArticleMetadata(article) as ReturnType<
+      typeof insightArticleMetadata
+    > & { twitter: { card?: string }; openGraph: { type?: string } };
     assert.equal(
       metadataHasShareImage(metadata),
       true,

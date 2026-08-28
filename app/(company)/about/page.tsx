@@ -108,7 +108,7 @@ export default function AboutPage() {
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
           Experrt is a training academy for applied AI, technology and
           robotics. We teach the people who have to use this technology on
-          Monday morning — live, in the room or online, on their own work.
+          Monday morning - live, in the room or online, on their own work.
         </p>
       </motion.div>
 
@@ -120,7 +120,7 @@ export default function AboutPage() {
         <div className="rounded-2xl border border-border bg-card p-8">
           <p className="text-lg leading-relaxed text-foreground">
             To make a workforce genuinely capable with AI, technology and
-            robotics — not licensed for it, capable with it. That means
+            robotics - not licensed for it, capable with it. That means
             training delivered by a person who has done the work, aimed at a
             measured gap, and recorded well enough that you can show what was
             done, for whom, and by whom.

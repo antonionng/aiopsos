@@ -115,6 +115,47 @@ export const enrolSchema = z.object({
   emails: z.array(z.string().email()).min(1).max(500),
 });
 
+/**
+ * One training day on the tour: a single cohort owned by the delivering
+ * organisation, plus one organisation and one QR link per attending company.
+ * Seats are for the whole room, so seat_limit is optional here and derived
+ * from the delegate counts when it is left out.
+ */
+export const tourProvisionSchema = z.object({
+  delivering_org_id: z.string().uuid(),
+  course_id: z.string().uuid(),
+  title: z.string().min(1).max(300),
+  venue: z.string().min(1).max(300),
+  event_date: z.string().date(),
+  ends_on: z.string().date().optional().nullable(),
+  timezone: z.string().min(1).max(100),
+  delivery_mode: z.enum(DELIVERY_MODES).default("in_person"),
+  facilitator_id: z.string().uuid().optional().nullable(),
+  seat_limit: z.number().int().min(1).max(500).optional(),
+  pass_attendance_pct: z.number().min(0).max(100).default(80),
+  pass_grade_pct: z.number().min(0).max(100).default(70),
+  template_id: z
+    .enum([
+      "org-wide", "engineering", "sales", "marketing",
+      "leadership", "governance", "training-needs",
+    ])
+    .default("training-needs"),
+  // Orgs with no credit_wallets row fail OPEN on AI usage, so a fresh tenant
+  // is unmetered until it has one.
+  starter_credits: z.number().int().min(0).max(1_000_000).default(1000),
+  companies: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(300),
+        industry: z.string().max(200).optional(),
+        contact_email: z.string().email().optional(),
+        seats: z.number().int().min(1).max(500).optional(),
+      })
+    )
+    .min(1)
+    .max(100),
+});
+
 export const attendanceBulkSchema = z.object({
   records: z
     .array(
@@ -161,6 +202,22 @@ export const evidencePackSchema = z.object({
   // purpose: it is a declaration by the organisation, not something the
   // platform can infer for them.
   declaration: z.string().max(5000).default(""),
+});
+
+/**
+ * Joining the insights list.
+ *
+ * One field, because the form has one field. `source` records which surface
+ * the sign-up came from so we can tell whether the article footers actually
+ * convert better than the index, which is the whole reason for putting the
+ * form in both places.
+ */
+export const insightSubscribeSchema = z.object({
+  email: z.string().email("Please enter a valid email address").max(320),
+  source: z
+    .enum(["insights_index", "insights_article", "courses", "use_cases"])
+    .default("insights_index"),
+  source_slug: z.string().max(200).optional().nullable(),
 });
 
 export const courseEnquirySchema = z.object({

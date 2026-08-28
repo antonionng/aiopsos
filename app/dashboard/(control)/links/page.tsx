@@ -248,7 +248,7 @@ export default function LinksPage() {
               </div>
               <h3 className="mb-1 text-base font-semibold">Create your first assessment link</h3>
               <p className="mb-5 max-w-md text-sm text-muted-foreground">
-                Generate a shareable link that anyone can use to take your AI readiness assessment — no login required. Perfect for team-wide rollouts.
+                Generate a shareable link that anyone can use to take your AI readiness assessment - no login required. Perfect for team-wide rollouts.
               </p>
               <Button
                 className="bg-brand text-brand-foreground hover:bg-brand/90"

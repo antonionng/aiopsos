@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "Article 4 requires providers and deployers to take measures supporting AI literacy among staff. What L&D should record, what a certificate does not prove, and how to commission training that can be evidenced.",
   dek: "Article 4 is a literacy duty, not a certificate. Here is what L&D should be able to show.",
   publishedAt: "2026-08-05",
+  topic: "AI literacy",
   relatedCourseSlugs: [
     "sponsoring-an-ai-literacy-programme",
     "responsible-ai-use-at-work",

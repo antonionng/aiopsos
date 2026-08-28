@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { sendAssessmentInviteEmail } from "@/lib/email";
+import {
+  resolveAssessmentLink,
+  assessUrlForToken,
+} from "@/lib/assessment-link";
 
 export async function POST(
   req: NextRequest,
@@ -59,32 +63,18 @@ export async function POST(
       .single();
     const orgName = org?.name ?? "Your organisation";
 
-    // Find or create an assessment link for this assessment
-    let { data: link } = await supabaseAdmin
-      .from("assessment_links")
-      .select("token")
-      .eq("org_id", profile.org_id)
-      .eq("active", true)
-      .limit(1)
-      .single();
-
+    // The link serving THIS assessment's instrument. Selecting the org's
+    // first active link instead, as this route used to, sends people
+    // taking a training-needs assessment to the maturity questions.
+    const link = await resolveAssessmentLink(assessmentId, user.id);
     if (!link) {
-      const token = crypto.randomUUID().slice(0, 8);
-      const { data: newLink } = await supabaseAdmin
-        .from("assessment_links")
-        .insert({
-          org_id: profile.org_id,
-          created_by: user.id,
-          token,
-          title: assessment.title,
-        })
-        .select("token")
-        .single();
-      link = newLink;
+      return NextResponse.json(
+        { error: "Could not resolve a share link for this assessment" },
+        { status: 500 }
+      );
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const assessUrl = `${baseUrl}/assess/${link?.token ?? assessmentId}`;
+    const assessUrl = assessUrlForToken(link.token);
 
     let sent = 0;
     let duplicates = 0;
