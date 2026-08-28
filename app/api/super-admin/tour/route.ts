@@ -56,26 +56,43 @@ export async function GET() {
   const admin = await requireSuperAdmin(supabase);
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const [{ data: organisations }, { data: courses }, { data: facilitators }] =
-    await Promise.all([
-      supabaseAdmin.from("organisations").select("id, name").order("name"),
-      supabaseAdmin
-        .from("courses")
-        .select("id, title, level, category, duration_hours")
-        .eq("status", "published")
-        .order("title"),
-      supabaseAdmin
-        .from("facilitators")
-        .select("id, display_name, active")
-        .eq("active", true)
-        .order("display_name"),
-    ]);
+  const [
+    { data: organisations },
+    { data: courses },
+    { data: facilitators },
+    { data: people },
+  ] = await Promise.all([
+    supabaseAdmin.from("organisations").select("id, name").order("name"),
+    supabaseAdmin
+      .from("courses")
+      .select("id, title, level, category, duration_hours")
+      .eq("status", "published")
+      .order("title"),
+    supabaseAdmin
+      .from("facilitators")
+      .select("id, user_id, display_name, active")
+      .eq("active", true)
+      .order("display_name"),
+    // Candidates for a facilitator record. A trainer must already have an
+    // account - facilitation grants read and grade access across every
+    // organisation they run a cohort for, so it is never conjured from a
+    // typed-in address.
+    supabaseAdmin
+      .from("user_profiles")
+      .select("id, name, email, org_id")
+      .order("name"),
+  ]);
+
+  const alreadyFacilitating = new Set(
+    (facilitators ?? []).map((f) => String(f.user_id))
+  );
 
   return NextResponse.json(
     {
       organisations: organisations ?? [],
       courses: courses ?? [],
       facilitators: facilitators ?? [],
+      people: (people ?? []).filter((p) => !alreadyFacilitating.has(String(p.id))),
     },
     { headers: { "Cache-Control": "no-store" } }
   );

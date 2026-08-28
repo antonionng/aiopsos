@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Loader2, MapPin, QrCode, Users } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  CalendarDays,
+  GraduationCap,
+  Loader2,
+  MapPin,
+  QrCode,
+  Users,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +48,12 @@ interface Option {
   duration_hours?: number;
 }
 
+interface Person {
+  id: string;
+  name: string;
+  email: string;
+}
+
 interface CompanyOutcome {
   name: string;
   org_id: string | null;
@@ -70,7 +83,12 @@ export default function TourProvisioningPage() {
   const [organisations, setOrganisations] = useState<Option[]>([]);
   const [courses, setCourses] = useState<Option[]>([]);
   const [facilitators, setFacilitators] = useState<Option[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const [result, setResult] = useState<ProvisionResult | null>(null);
+
+  const [newTrainerId, setNewTrainerId] = useState("");
+  const [newTrainerName, setNewTrainerName] = useState("");
+  const [addingTrainer, setAddingTrainer] = useState(false);
 
   const [deliveringOrgId, setDeliveringOrgId] = useState("");
   const [courseId, setCourseId] = useState("");
@@ -84,24 +102,55 @@ export default function TourProvisioningPage() {
   const [seatLimit, setSeatLimit] = useState("");
   const [companyCsv, setCompanyCsv] = useState("");
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/super-admin/tour", { cache: "no-store" });
-        if (!res.ok) {
-          toast.error("Only a super admin can provision a training day.");
-          return;
-        }
-        const data = await res.json();
-        setOrganisations(data.organisations ?? []);
-        setCourses(data.courses ?? []);
-        setFacilitators(data.facilitators ?? []);
-      } finally {
-        setLoading(false);
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch("/api/super-admin/tour", { cache: "no-store" });
+      if (!res.ok) {
+        toast.error("Only a super admin can provision a training day.");
+        return;
       }
+      const data = await res.json();
+      setOrganisations(data.organisations ?? []);
+      setCourses(data.courses ?? []);
+      setFacilitators(data.facilitators ?? []);
+      setPeople(data.people ?? []);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function addTrainer() {
+    if (!newTrainerId) {
+      toast.error("Pick the person who will run the training.");
+      return;
+    }
+    setAddingTrainer(true);
+    try {
+      const res = await fetch("/api/super-admin/facilitators", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: newTrainerId,
+          display_name: newTrainerName,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Could not add that trainer.");
+        return;
+      }
+      toast.success("Trainer added. They can now take the register.");
+      setNewTrainerId("");
+      setNewTrainerName("");
+      await load();
+    } finally {
+      setAddingTrainer(false);
+    }
+  }
 
   // Parsed in the browser so the room is visible before anything is written.
   const companies = useMemo(() => parseCompanyCsv(companyCsv), [companyCsv]);
@@ -230,8 +279,9 @@ export default function TourProvisioningPage() {
               </Select>
               {facilitators.length === 0 && (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  No facilitators yet. A trainer needs an account first, then a
-                  facilitator record before they can take the register.
+                  No trainers yet — add one below. The day can still be created
+                  without one; the delivering organisation&apos;s admins can
+                  grade either way.
                 </p>
               )}
             </div>
@@ -384,6 +434,77 @@ export default function TourProvisioningPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <GraduationCap className="h-4 w-4" /> Trainers
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            A trainer record is what lets someone take the register and grade
+            across every company in a room, without being a member of any of
+            them. It does not create an account: the person signs up first,
+            then you name them here.
+          </p>
+
+          {facilitators.length > 0 && (
+            <ul className="space-y-1 text-sm">
+              {facilitators.map((f) => (
+                <li
+                  key={f.id}
+                  className="flex items-center gap-2 rounded-lg border border-border px-3 py-2"
+                >
+                  <Badge variant="secondary">trainer</Badge>
+                  {f.display_name}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <div>
+              <Label>Person</Label>
+              <Select value={newTrainerId} onValueChange={setNewTrainerId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Someone with an account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {people.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name || p.email} · {p.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="trainer-name">Name on the certificate</Label>
+              <Input
+                id="trainer-name"
+                value={newTrainerName}
+                onChange={(e) => setNewTrainerName(e.target.value)}
+                placeholder="Optional — defaults to their profile name"
+              />
+            </div>
+            <Button onClick={addTrainer} disabled={addingTrainer || !newTrainerId}>
+              {addingTrainer ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Adding</>
+              ) : (
+                "Add trainer"
+              )}
+            </Button>
+          </div>
+
+          {people.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              Everybody with an account is already a trainer. New trainers need
+              to sign up first.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {result && (
         <Card>

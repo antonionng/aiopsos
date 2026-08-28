@@ -64,12 +64,13 @@ export async function POST(req: NextRequest) {
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => null);
+  const userId = String(body?.user_id ?? "").trim();
   const email = String(body?.email ?? "").trim().toLowerCase();
   const displayName = String(body?.display_name ?? "").trim();
 
-  if (!email || !email.includes("@")) {
+  if (!userId && (!email || !email.includes("@"))) {
     return NextResponse.json(
-      { error: "A work email for an existing account is required" },
+      { error: "Pick a person, or give the work email of an existing account" },
       { status: 400 }
     );
   }
@@ -78,17 +79,16 @@ export async function POST(req: NextRequest) {
   // grade access across every organisation they run a cohort for, so the
   // person must already exist and be someone you can name - not an address
   // typed into a box.
-  const { data: profile } = await supabaseAdmin
-    .from("user_profiles")
-    .select("id, name, email")
-    .eq("email", email)
-    .maybeSingle();
+  const query = supabaseAdmin.from("user_profiles").select("id, name, email");
+  const { data: profile } = userId
+    ? await query.eq("id", userId).maybeSingle()
+    : await query.eq("email", email).maybeSingle();
 
   if (!profile) {
     return NextResponse.json(
       {
         error:
-          "No account with that address. The trainer must sign up first - this does not create accounts.",
+          "No account for that person. The trainer must sign up first - this does not create accounts.",
       },
       { status: 404 }
     );
