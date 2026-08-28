@@ -206,10 +206,10 @@ export function CampaignTracker({
                       {invite.email}
                     </td>
                     <td className="px-4 py-2.5 hidden sm:table-cell">
-                      {invite.name || "—"}
+                      {invite.name || " - "}
                     </td>
                     <td className="px-4 py-2.5 hidden md:table-cell">
-                      {invite.department || "—"}
+                      {invite.department || " - "}
                     </td>
                     <td className="px-4 py-2.5">
                       <Badge
@@ -222,7 +222,7 @@ export function CampaignTracker({
                     <td className="px-4 py-2.5 text-xs text-muted-foreground hidden sm:table-cell">
                       {invite.sent_at
                         ? new Date(invite.sent_at).toLocaleDateString()
-                        : "—"}
+                        : " - "}
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">

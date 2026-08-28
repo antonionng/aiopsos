@@ -48,6 +48,7 @@ export function ProjectDialog({
   const [color, setColor] = useState(COLORS[0]);
   const [files, setFiles] = useState<ProjectFile[]>([]);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -83,24 +84,25 @@ export function ProjectDialog({
     if (!name.trim()) return;
     setSaving(true);
 
+    setError(null);
     try {
-      if (isEditing && project) {
-        await fetch(`/api/projects/${project.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, description, instructions, color }),
-        });
-      } else {
-        await fetch("/api/projects", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, description, instructions, color }),
-        });
-      }
+      const res =
+        isEditing && project
+          ? await fetch(`/api/projects/${project.id}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name, description, instructions, color }),
+            })
+          : await fetch("/api/projects", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name, description, instructions, color }),
+            });
+      if (!res.ok) throw new Error("save failed");
       onSaved();
       onClose();
     } catch {
-      // silently fail
+      setError("Could not save this project. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -110,18 +112,28 @@ export function ProjectDialog({
     if (!fileList || !project) return;
     setUploading(true);
 
+    setError(null);
+    const failed: string[] = [];
+
     for (const file of Array.from(fileList)) {
       const formData = new FormData();
       formData.append("file", file);
 
       try {
-        await fetch(`/api/projects/${project.id}/files`, {
+        const res = await fetch(`/api/projects/${project.id}/files`, {
           method: "POST",
           body: formData,
         });
+        if (!res.ok) failed.push(file.name);
       } catch {
-        // skip failed uploads
+        failed.push(file.name);
       }
+    }
+
+    // These used to fail into an empty catch: the dialog showed "Uploading…",
+    // then an empty file list, with no hint that anything had gone wrong.
+    if (failed.length > 0) {
+      setError(`Could not upload ${failed.join(", ")}.`);
     }
 
     await loadFiles(project.id);
@@ -131,15 +143,17 @@ export function ProjectDialog({
   async function handleDeleteFile(fileId: string) {
     if (!project) return;
 
+    setError(null);
     try {
-      await fetch(`/api/projects/${project.id}/files`, {
+      const res = await fetch(`/api/projects/${project.id}/files`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file_id: fileId }),
       });
+      if (!res.ok) throw new Error("delete failed");
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
     } catch {
-      // silently fail
+      setError("Could not remove that file.");
     }
   }
 
@@ -147,12 +161,14 @@ export function ProjectDialog({
     if (!project) return;
     setSaving(true);
 
+    setError(null);
     try {
-      await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
       onSaved();
       onClose();
     } catch {
-      // silently fail
+      setError("Could not delete this project.");
     } finally {
       setSaving(false);
     }
@@ -287,6 +303,12 @@ export function ProjectDialog({
             </div>
           )}
         </div>
+
+        {error && (
+          <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+            {error}
+          </p>
+        )}
 
         <DialogFooter className="flex items-center justify-between">
           <div>

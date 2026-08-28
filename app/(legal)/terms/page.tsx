@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Terms of Service | Experrt",
-  description: "Terms of Service for the Experrt enterprise AI adoption platform.",
-};
+import { termsMetadata } from "@/lib/public-share-metadata";
+
+export const metadata: Metadata = termsMetadata();
 
 export default function TermsPage() {
   return (

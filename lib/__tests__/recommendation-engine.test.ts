@@ -18,6 +18,7 @@ function course(overrides: Partial<Course> & { slug: string }): Course {
     summary: "",
     level: "practitioner",
     category: "ai",
+    sectors: [],
     duration_hours: 4,
     delivery_modes: ["virtual"],
     learning_outcomes: [],

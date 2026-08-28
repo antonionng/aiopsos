@@ -24,6 +24,7 @@ import {
   LayoutDashboard,
   LinkIcon,
   LogOut,
+  Mail,
   MessageSquare,
   Route,
   ScrollText,
@@ -133,6 +134,12 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/dashboard/admin/tour",
         icon: CalendarDays,
         label: "Training Days",
+        minRole: ["super_admin"],
+      },
+      {
+        href: "/dashboard/admin/insights",
+        icon: Mail,
+        label: "Insights List",
         minRole: ["super_admin"],
       },
     ],
@@ -483,7 +490,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
                         <TooltipTrigger asChild>{content}</TooltipTrigger>
                         <TooltipContent side="right" sideOffset={8}>
                           {item.label}
-                          {gated && ` — ${item.requiredPlan === "enterprise" ? "Enterprise" : "Pro"}`}
+                          {gated && ` - ${item.requiredPlan === "enterprise" ? "Enterprise" : "Pro"}`}
                         </TooltipContent>
                       </Tooltip>
                     );

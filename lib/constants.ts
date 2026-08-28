@@ -314,12 +314,12 @@ export const DIMENSION_LEADER_INSIGHTS: Record<
 > = {
   confidence: {
     leaders: "Google, Microsoft, Stripe",
-    insight: "invest in structured AI literacy programmes — every employee gets hands-on training, not just engineers.",
+    insight: "invest in structured AI literacy programmes - every employee gets hands-on training, not just engineers.",
     benefit: "Teams with high AI confidence ship 37% faster and produce higher-quality outputs.",
   },
   practice: {
     leaders: "Shopify, Klarna, Duolingo",
-    insight: "have made AI a daily habit — from auto-generated PR reviews to AI-drafted customer responses in every workflow.",
+    insight: "have made AI a daily habit - from auto-generated PR reviews to AI-drafted customer responses in every workflow.",
     benefit: "Daily AI users save an average of 6.2 hours per week on routine tasks.",
   },
   tools: {
@@ -329,12 +329,12 @@ export const DIMENSION_LEADER_INSIGHTS: Record<
   },
   responsible: {
     leaders: "Anthropic, OpenAI, DeepMind",
-    insight: "embed governance into the workflow itself — guardrails, data policies, and review processes are automated, not optional.",
+    insight: "embed governance into the workflow itself - guardrails, data policies, and review processes are automated, not optional.",
     benefit: "Organisations with strong AI governance see 60% fewer compliance incidents.",
   },
   culture: {
     leaders: "GitLab, Notion, Linear",
-    insight: "celebrate AI experimentation openly — they have dedicated channels, demo days, and no-blame policies for AI experiments.",
+    insight: "celebrate AI experimentation openly - they have dedicated channels, demo days, and no-blame policies for AI experiments.",
     benefit: "Teams with strong AI culture see 3x faster adoption rates across departments.",
   },
 };
@@ -392,7 +392,7 @@ export const COURSE_CATEGORY_COLORS: Record<
 
 export const COURSE_CATEGORY_DESCRIPTIONS: Record<CourseCategory, string> = {
   ai: "Using AI on the work your team already does, with the judgement to know when the output is wrong.",
-  technology: "The tools your organisation already pays for, actually used — and the ones worth buying next.",
+  technology: "The tools your organisation already pays for, actually used - and the ones worth buying next.",
   robotics: "Robotics as an operational question rather than an engineering one. Not how they are built, how they are put to work.",
 };
 
@@ -421,6 +421,84 @@ export const DELIVERY_MODE_LABELS: Record<DeliveryMode, string> = {
   virtual: "Live online",
   blended: "Blended",
 };
+
+/**
+ * The sectors a course is *distinctively* built for.
+ *
+ * A third browse axis, separate again from subject and level. It answers a
+ * question the catalogue could not previously answer at all: "we are a bank,
+ * what do you run for us?"
+ *
+ * A course carries a sector only where the sector genuinely changes what the
+ * day looks like - the material worked through, the constraints in the room,
+ * the people who need to be there. Most of the catalogue is deliberately
+ * untagged, because a course that claims to be specially relevant to all
+ * eight sectors is telling the reader nothing. Untagged courses run for any
+ * sector and are shown that way.
+ */
+export const COURSE_SECTORS = [
+  "financial_services",
+  "healthcare",
+  "manufacturing",
+  "public_sector",
+  "professional_services",
+  "retail",
+  "logistics",
+  "education",
+] as const;
+
+export type CourseSector = (typeof COURSE_SECTORS)[number];
+
+/** Full name, for page titles and prose. */
+export const COURSE_SECTOR_LABELS: Record<CourseSector, string> = {
+  financial_services: "Financial services and banking",
+  healthcare: "Healthcare and life sciences",
+  manufacturing: "Manufacturing and industrials",
+  public_sector: "Public sector",
+  professional_services: "Professional services",
+  retail: "Retail and consumer",
+  logistics: "Logistics and supply chain",
+  education: "Education",
+};
+
+/** Short name, for filter pills and badges where the full one wraps. */
+export const COURSE_SECTOR_SHORT_LABELS: Record<CourseSector, string> = {
+  financial_services: "Financial services",
+  healthcare: "Healthcare",
+  manufacturing: "Manufacturing",
+  public_sector: "Public sector",
+  professional_services: "Professional services",
+  retail: "Retail",
+  logistics: "Logistics",
+  education: "Education",
+};
+
+/**
+ * URL segment for /courses/sector/[sector]. Kept apart from the stored key
+ * because `financial_services` is a database value and `financial-services`
+ * is what belongs in a URL and in a search result.
+ */
+export const COURSE_SECTOR_SLUGS: Record<CourseSector, string> = {
+  financial_services: "financial-services",
+  healthcare: "healthcare",
+  manufacturing: "manufacturing",
+  public_sector: "public-sector",
+  professional_services: "professional-services",
+  retail: "retail",
+  logistics: "logistics",
+  education: "education",
+};
+
+export function courseSectorFromSlug(slug: string): CourseSector | null {
+  const match = COURSE_SECTORS.find(
+    (sector) => COURSE_SECTOR_SLUGS[sector] === slug
+  );
+  return match ?? null;
+}
+
+export function isCourseSector(value: string | undefined): value is CourseSector {
+  return !!value && (COURSE_SECTORS as readonly string[]).includes(value);
+}
 
 export const COURSE_STATUSES = ["draft", "published", "retired"] as const;
 

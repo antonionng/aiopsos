@@ -247,7 +247,7 @@ export default function RegisterPage() {
           >
             {sessions.map((session) => (
               <option key={session.id} value={session.id}>
-                {session.position}. {session.title} —{" "}
+                {session.position}. {session.title}  - {" "}
                 {new Date(session.starts_at).toLocaleString("en-GB", {
                   day: "numeric",
                   month: "short",
@@ -330,13 +330,13 @@ export default function RegisterPage() {
           {sync === "pending" && (
             <>
               <RefreshCw className="h-3.5 w-3.5 text-amber-500" />
-              {pending.current.size} to sync — retrying
+              {pending.current.size} to sync - retrying
             </>
           )}
           {sync === "offline" && (
             <>
               <CloudOff className="h-3.5 w-3.5 text-amber-500" />
-              Offline — marks held on this device
+              Offline - marks held on this device
             </>
           )}
         </div>

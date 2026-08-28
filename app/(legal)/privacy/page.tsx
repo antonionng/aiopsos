@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | Experrt",
-  description: "Privacy Policy for the Experrt enterprise AI adoption platform.",
-};
+import { privacyMetadata } from "@/lib/public-share-metadata";
+
+export const metadata: Metadata = privacyMetadata();
 
 export default function PrivacyPage() {
   return (

@@ -327,7 +327,7 @@ export default function AdminBillingPage() {
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing?.name} — billing</DialogTitle>
+            <DialogTitle>{editing?.name} - billing</DialogTitle>
             <DialogDescription>
               Invoice billing is for contract customers: purchases raise an emailed PDF invoice
               instead of card checkout.
@@ -401,7 +401,7 @@ export default function AdminBillingPage() {
       <Dialog open={adjusting !== null} onOpenChange={(open) => !open && setAdjusting(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{adjusting?.name} — adjust credits</DialogTitle>
+            <DialogTitle>{adjusting?.name} - adjust credits</DialogTitle>
             <DialogDescription>
               Positive adds credits, negative removes them. Every adjustment lands in the ledger
               with your name and the reason.

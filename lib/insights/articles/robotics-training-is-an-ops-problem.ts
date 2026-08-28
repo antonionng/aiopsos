@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "Shop-floor and operations buyers do not need a course on how robots are built. They need people who can specify, run, and work alongside a deployment when it stops mid-shift.",
   dek: "The robot is an asset. The failure is usually the shift that does not know what to do when it stops.",
   publishedAt: "2026-06-10",
+  topic: "Robotics",
   relatedCourseSlugs: [
     "robotics-what-it-can-and-cannot-do",
     "specifying-a-robotics-deployment",

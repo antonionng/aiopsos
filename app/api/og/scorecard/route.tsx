@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
             color: "#888888",
           }}
         >
-          {org} — AI Readiness Assessment
+          {org} - AI Readiness Assessment
         </div>
 
         <div

@@ -30,6 +30,24 @@ export async function POST(
   if (!file)
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
 
+  // Text-like files are readable now rather than at query time, so a project
+  // conversation can be grounded in them without a vector store. Binary types
+  // are still stored, they just contribute no context.
+  const isTextLike =
+    /^text\//.test(file.type) ||
+    file.type === "application/json" ||
+    /\.(txt|md|csv|json)$/i.test(file.name);
+
+  let extractedText: string | null = null;
+  if (isTextLike) {
+    try {
+      // Bounded so one large CSV cannot dominate every prompt in the project.
+      extractedText = (await file.text()).slice(0, 20_000);
+    } catch {
+      extractedText = null;
+    }
+  }
+
   const storagePath = `${projectId}/${Date.now()}-${file.name}`;
   const { error: uploadError } = await supabase.storage
     .from("project-files")
@@ -46,6 +64,7 @@ export async function POST(
       storage_path: storagePath,
       file_size: file.size,
       uploaded_by: user.id,
+      extracted_text: extractedText,
     })
     .select()
     .single();

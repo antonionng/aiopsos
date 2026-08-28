@@ -32,21 +32,21 @@ const CHANNELS: ChannelConfig[] = [
     label: "Slack",
     icon: <MessageSquare className="h-4 w-4" />,
     getDefaultMessage: (url, title, org) =>
-      `Hey team — ${org} is running the ${title}. It takes about 5 minutes and helps shape our AI strategy. Take it here: ${url}`,
+      `Hey team - ${org} is running the ${title}. It takes about 5 minutes and helps shape our AI strategy. Take it here: ${url}`,
   },
   {
     id: "teams",
     label: "Microsoft Teams",
     icon: <MessageSquare className="h-4 w-4" />,
     getDefaultMessage: (url, title, org) =>
-      `Hi everyone — ${org} is measuring our AI readiness with the ${title}. Please take 5 minutes to complete it: ${url}`,
+      `Hi everyone - ${org} is measuring our AI readiness with the ${title}. Please take 5 minutes to complete it: ${url}`,
   },
   {
     id: "whatsapp",
     label: "WhatsApp",
     icon: <Smartphone className="h-4 w-4" />,
     getDefaultMessage: (url, title, org) =>
-      `${org} — ${title}: Quick 5-min assessment to measure our AI readiness. ${url}`,
+      `${org} - ${title}: Quick 5-min assessment to measure our AI readiness. ${url}`,
     getShareUrl: (msg) =>
       `https://wa.me/?text=${encodeURIComponent(msg)}`,
   },

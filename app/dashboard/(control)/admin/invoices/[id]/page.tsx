@@ -87,7 +87,7 @@ export default function AdminInvoiceDetailPage({
         action === "send"
           ? `Invoice ${data.invoice_number} sent`
           : action === "mark_paid"
-            ? "Marked paid — credits and courses released"
+            ? "Marked paid - credits and courses released"
             : "Invoice voided"
       );
       load();

@@ -15,15 +15,30 @@ import { CohortEnrolmentEmail } from "./emails/cohort-enrolment";
 import { SessionReminderEmail } from "./emails/session-reminder";
 import { CertificateIssuedEmail } from "./emails/certificate-issued";
 import { EnquiryReceivedEmail, EnquiryAlertEmail } from "./emails/enquiry-received";
+import {
+  InsightConfirmEmail,
+  InsightNewArticleEmail,
+} from "./emails/insight-list";
 import { InvoiceEmail } from "./emails/invoice-email";
 import type { InvoicePayload } from "./invoices";
 import { ContactAlertEmail } from "./emails/contact-alert";
 import { ConfirmWelcomeEmail, ResetPasswordEmail } from "./emails/confirm-welcome";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
+import { getPublicSiteUrl } from "./site";
 import type { DimensionScores } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+/**
+ * Links in the insights emails point at the public marketing origin, not at
+ * BASE_URL. BASE_URL is the app origin and may be an apex or a preview host;
+ * `getPublicSiteUrl` normalises to the canonical www host, which is the one
+ * the articles are indexed under.
+ */
+function publicUrl(path: string): string {
+  return `${getPublicSiteUrl()}${path}`;
+}
 
 function getEmailConfig() {
   return {
@@ -76,7 +91,7 @@ export async function sendWelcomeEmail(
     }
     const subject = scoreData
       ? (orgName
-          ? `Thanks for completing your assessment — Your AI Readiness Score: ${scoreData.overall.toFixed(1)}/5`
+          ? `Thanks for completing your assessment - Your AI Readiness Score: ${scoreData.overall.toFixed(1)}/5`
           : `Your AI Readiness Score: ${scoreData.overall.toFixed(1)}/5`)
       : orgName
         ? `Thanks for joining ${orgName}`
@@ -207,7 +222,7 @@ export async function sendAssessmentInviteEmail(
     await getResend().emails.send({
       from,
       to,
-      subject: `${orgName} needs your input — ${assessmentTitle} (5 min)`,
+      subject: `${orgName} needs your input - ${assessmentTitle} (5 min)`,
       react: AssessmentInviteEmail({ recipientName, orgName, assessmentTitle, assessUrl }),
     });
   } catch (error) {
@@ -350,7 +365,7 @@ export async function sendAdminAssessmentCompletedEmail(
         resend.emails.send({
           from,
           to: admin.email,
-          subject: `New assessment completed — ${orgName}`,
+          subject: `New assessment completed - ${orgName}`,
           react: AdminAssessmentCompletedEmail({
             adminName: admin.name,
             respondentName,
@@ -555,7 +570,7 @@ export async function sendLowCreditsEmail(orgId: string, balance: number) {
     await getResend().emails.send({
       from,
       to: admins.map((a) => a.email),
-      subject: `AI credits running low — ${balance.toLocaleString()} left`,
+      subject: `AI credits running low - ${balance.toLocaleString()} left`,
       react: LowCreditsEmail({
         balance,
         billingUrl: `${BASE_URL}/dashboard/billing`,
@@ -711,8 +726,8 @@ export async function sendEnquiryEmails(details: {
       to: notify,
       replyTo: details.email,
       subject: details.courseTitle
-        ? `Enquiry: ${details.courseTitle} — ${details.organisationName || details.name}`
-        : `Training enquiry — ${details.organisationName || details.name}`,
+        ? `Enquiry: ${details.courseTitle} - ${details.organisationName || details.name}`
+        : `Training enquiry - ${details.organisationName || details.name}`,
       react: EnquiryAlertEmail({
         name: details.name,
         email: details.email,
@@ -724,4 +739,74 @@ export async function sendEnquiryEmails(details: {
       }),
     }),
   ]);
+}
+
+// ---------------------------------------------------------------------------
+// Insights list
+// ---------------------------------------------------------------------------
+
+/**
+ * Step two of the double opt-in. Nothing else is ever sent to an address
+ * that has not come back through this link.
+ */
+export async function sendInsightConfirmationEmail(
+  to: string,
+  confirmToken: string
+) {
+  const { from } = getEmailConfig();
+
+  await getResend().emails.send({
+    from,
+    to,
+    subject: "Confirm your Experrt insights subscription",
+    react: InsightConfirmEmail({
+      confirmUrl: publicUrl(`/insights/confirm?token=${confirmToken}`),
+    }),
+  });
+}
+
+/**
+ * One new-article email to one confirmed subscriber.
+ *
+ * Sent per recipient rather than as one message with everyone in `bcc`, so
+ * each carries its own unsubscribe link. A shared bcc send cannot do that,
+ * and an unsubscribe link that unsubscribes the wrong person is worse than
+ * none. The caller is responsible for pacing the loop.
+ */
+export async function sendInsightArticleEmail(
+  to: string,
+  article: {
+    slug: string;
+    title: string;
+    dek: string;
+    topic: string;
+    readingMinutes: number;
+  },
+  unsubscribeToken: string
+) {
+  const { from } = getEmailConfig();
+  const unsubscribeUrl = publicUrl(
+    `/insights/unsubscribe?token=${unsubscribeToken}`
+  );
+
+  await getResend().emails.send({
+    from,
+    to,
+    subject: article.title,
+    // List-Unsubscribe lets Gmail and Outlook show their own unsubscribe
+    // control next to the sender name. Readers who use it never mark the
+    // message as spam instead, which is what protects the sending domain.
+    headers: {
+      "List-Unsubscribe": `<${unsubscribeUrl}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+    react: InsightNewArticleEmail({
+      title: article.title,
+      dek: article.dek,
+      topic: article.topic,
+      readingMinutes: article.readingMinutes,
+      articleUrl: publicUrl(`/insights/${article.slug}`),
+      unsubscribeUrl,
+    }),
+  });
 }

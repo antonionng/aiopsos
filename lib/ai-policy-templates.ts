@@ -373,7 +373,7 @@ AI tools can significantly boost your productivity and help you do better work. 
 - **Don't** rely solely on AI for critical decisions
 - **Don't** use AI to produce misleading or deceptive content
 - **Don't** sign up for new AI tools without checking with your manager or IT
-- **Don't** assume AI outputs are always correct — they can be confidently wrong
+- **Don't** assume AI outputs are always correct - they can be confidently wrong
 - **Don't** use AI in ways that could harm colleagues, customers, or the company
 
 ## How to Get the Most from AI
@@ -382,7 +382,7 @@ AI tools can significantly boost your productivity and help you do better work. 
 1. Be specific about what you need
 2. Provide relevant context (without sensitive data)
 3. Specify the format you want (bullet points, paragraphs, table)
-4. Iterate — refine your request based on the output
+4. Iterate - refine your request based on the output
 5. Break complex tasks into smaller steps
 
 ### Quality Checks

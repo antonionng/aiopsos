@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo, useState } from "react";
+import React, { memo, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Bot,
@@ -14,41 +14,79 @@ import {
   Volume2,
   Loader2,
   Square,
+  BookmarkPlus,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { ChatAttachment } from "@/components/chat/chat-input";
+import { ToolSteps, toolStepsFromParts } from "@/components/chat/tool-steps";
 
 interface Props {
   role: "user" | "assistant";
-  content: string;
+  /**
+   * The message's own parts. Passing parts rather than a pre-joined string
+   * keeps the memo barrier intact (the parent used to rebuild the string on
+   * every render, so this component re-rendered on every token of every
+   * message) and is what lets tool steps be rendered at all.
+   */
+  parts: unknown[];
   model?: string;
   messageId?: string;
   isStreaming?: boolean;
   isLastAssistant?: boolean;
-  attachments?: ChatAttachment[];
   feedback?: "up" | "down" | null;
   onRegenerate?: () => void;
   onFeedback?: (messageId: string, rating: "up" | "down") => void;
   onEdit?: (messageIndex: number, newContent: string) => void;
+  /** Saves this message's text as a reusable prompt. */
+  onSavePrompt?: (content: string) => void;
   messageIndex?: number;
 }
 
 export const MessageBubble = memo(function MessageBubble({
   role,
-  content,
+  parts,
   model,
   messageId,
   isStreaming,
   isLastAssistant,
-  attachments,
   feedback,
   onRegenerate,
   onFeedback,
   onEdit,
+  onSavePrompt,
   messageIndex,
 }: Props) {
   const isUser = role === "user";
+
+  const content = useMemo(
+    () =>
+      (parts ?? [])
+        .filter(
+          (p): p is { type: "text"; text: string } =>
+            (p as { type?: string })?.type === "text" &&
+            typeof (p as { text?: unknown }).text === "string"
+        )
+        .map((p) => p.text)
+        .join(""),
+    [parts]
+  );
+
+  const toolSteps = useMemo(() => toolStepsFromParts(parts ?? []), [parts]);
+
+  /**
+   * Attachments the user sent. Live messages carry the data URL so the image
+   * can be previewed; reopened threads keep only the name and type, because
+   * storing the payload would put megabytes of base64 in every row.
+   */
+  const files = useMemo(
+    () =>
+      (parts ?? []).filter(
+        (p): p is { type: "file"; mediaType?: string; filename?: string; url?: string } =>
+          (p as { type?: string })?.type === "file"
+      ),
+    [parts]
+  );
+
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(content);
@@ -116,24 +154,25 @@ export const MessageBubble = memo(function MessageBubble({
         className="group flex justify-end"
       >
         <div className="max-w-[75%]">
-          {/* Attachment thumbnails */}
-          {attachments && attachments.length > 0 && (
+          {files.length > 0 && (
             <div className="mb-2 flex flex-wrap justify-end gap-2">
-              {attachments.map((att) =>
-                isImage(att.file_type) ? (
+              {files.map((file, i) =>
+                isImage(file.mediaType ?? "") && file.url ? (
                   <img
-                    key={att.id}
-                    src={att.url}
-                    alt={att.filename}
-                    className="h-20 w-20 rounded-lg object-cover border border-border"
+                    key={`${file.filename}-${i}`}
+                    src={file.url}
+                    alt={file.filename ?? "Attachment"}
+                    className="h-20 w-20 rounded-lg border border-border object-cover"
                   />
                 ) : (
                   <div
-                    key={att.id}
+                    key={`${file.filename}-${i}`}
                     className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-2.5 py-1.5 text-xs text-muted-foreground"
                   >
                     <FileIcon className="h-3.5 w-3.5" />
-                    <span className="max-w-[100px] truncate">{att.filename}</span>
+                    <span className="max-w-[140px] truncate">
+                      {file.filename ?? "Attachment"}
+                    </span>
                   </div>
                 )
               )}
@@ -169,18 +208,29 @@ export const MessageBubble = memo(function MessageBubble({
               <div className="rounded-2xl rounded-br-md bg-brand/10 px-4 py-2.5 text-sm leading-relaxed text-foreground">
                 {content}
               </div>
-              {onEdit && messageIndex !== undefined && (
-                <button
-                  onClick={() => {
-                    setEditValue(content);
-                    setIsEditing(true);
-                  }}
-                  className="absolute -left-8 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100"
-                  title="Edit message"
-                >
-                  <Pencil className="h-3 w-3" />
-                </button>
-              )}
+              <div className="absolute -left-16 top-1/2 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                {onSavePrompt && (
+                  <button
+                    onClick={() => onSavePrompt(content)}
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    title="Save as prompt"
+                  >
+                    <BookmarkPlus className="h-3 w-3" />
+                  </button>
+                )}
+                {onEdit && messageIndex !== undefined && (
+                  <button
+                    onClick={() => {
+                      setEditValue(content);
+                      setIsEditing(true);
+                    }}
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    title="Edit message"
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -213,6 +263,10 @@ export const MessageBubble = memo(function MessageBubble({
               )}
             </div>
           )}
+
+          {/* What the agent actually did, before what it said about it. */}
+          <ToolSteps steps={toolSteps} />
+
           <div className="prose-chat text-sm leading-relaxed text-foreground">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}

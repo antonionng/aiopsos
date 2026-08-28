@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "Robotics training for the people on the cell, not the vendor. What operations should teach operators and supervisors before the integrator packs up.",
   dek: "The integrator leaves. The shift stays. Train the people who will be there on Tuesday night.",
   publishedAt: "2026-08-12",
+  topic: "Robotics",
   relatedCourseSlugs: [
     "working-alongside-a-cobot",
     "running-and-troubleshooting-a-robotic-cell",

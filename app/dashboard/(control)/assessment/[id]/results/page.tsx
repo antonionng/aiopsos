@@ -259,7 +259,7 @@ export default function AssessmentResultsPage() {
     return (
       <motion.div variants={container} initial="hidden" animate="show">
         <motion.div variants={item} className="mb-8">
-          <h1 className="mb-1">Training Needs — Organisation View</h1>
+          <h1 className="mb-1">Training Needs - Organisation View</h1>
           <p className="text-sm text-muted-foreground">
             {data.response_count} response{data.response_count === 1 ? "" : "s"} · need measured 0–5, higher means more need.
           </p>
@@ -312,7 +312,7 @@ export default function AssessmentResultsPage() {
               </tbody>
             </table>
             <p className="mt-4 text-xs text-muted-foreground">
-              Highlighted figures are high-priority gaps — the departments to book first.
+              Highlighted figures are high-priority gaps - the departments to book first.
             </p>
           </motion.div>
         )}
@@ -388,7 +388,7 @@ export default function AssessmentResultsPage() {
                 <p className="mt-0.5 text-lg font-bold">{INDUSTRY_BENCHMARK_OVERALL}</p>
                 <p className={`mt-0.5 text-xs font-medium ${overallGap.color}`}>
                   {overallGap.delta > 0 ? "+" : ""}
-                  {overallGap.delta.toFixed(1)} — {overallGap.label}
+                  {overallGap.delta.toFixed(1)} - {overallGap.label}
                 </p>
               </div>
             </div>
@@ -903,7 +903,7 @@ export default function AssessmentResultsPage() {
                           <div>
                             <p className="text-sm font-medium">{DIMENSION_LABELS[r.dimension]}</p>
                             <p className="text-xs text-muted-foreground">
-                              Score: {r.score.toFixed(1)} vs {INDUSTRY_BENCHMARKS[r.dimension]} benchmark —{" "}
+                              Score: {r.score.toFixed(1)} vs {INDUSTRY_BENCHMARKS[r.dimension]} benchmark  - {" "}
                               {r.severity === "critical" ? "Critical gap" : "Needs attention"}
                             </p>
                           </div>

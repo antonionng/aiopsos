@@ -203,7 +203,7 @@ export function ScoreCardEmail({
         />
 
         <p style={{ fontSize: "12px", color: "#555555", margin: 0 }}>
-          Experrt — The enterprise AI control layer.
+          Experrt - The enterprise AI control layer.
         </p>
       </div>
     </div>

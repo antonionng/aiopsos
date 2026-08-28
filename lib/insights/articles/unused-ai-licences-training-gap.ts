@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "Most organisations paid for AI seats and assumed capability would follow. Usage clustered, pilots stalled, and EBIT impact stayed rare. How L&D and ops close the training gap on tools you already own.",
   dek: "Paid seats are not capability. Unused licences are a training problem with a finance aftertaste.",
   publishedAt: "2026-06-24",
+  topic: "Adoption",
   relatedCourseSlugs: [
     "getting-value-from-tools-you-already-own",
     "embedding-ai-in-daily-workflows",

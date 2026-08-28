@@ -57,7 +57,7 @@ export function OrgOnboarding({ email }: { email: string }) {
           </h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
             Your account isn&apos;t attached to an organisation yet. Everything
-            in Experrt — assessments, cohorts, training records — belongs to
+            in Experrt - assessments, cohorts, training records - belongs to
             one.
           </p>
         </div>
@@ -97,7 +97,7 @@ export function OrgOnboarding({ email }: { email: string }) {
             </h2>
           </div>
           <p className="text-xs leading-relaxed text-muted-foreground">
-            Don&apos;t create one here — that would put you in a separate
+            Don&apos;t create one here - that would put you in a separate
             organisation from your team. Ask whoever runs Experrt where you
             work to invite <span className="text-foreground">{email}</span>, or
             send you their assessment link. Both attach you to the right place

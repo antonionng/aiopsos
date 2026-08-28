@@ -671,7 +671,7 @@ function AdminHub({
                 </p>
                 <p className="mt-1 max-w-lg text-sm text-muted-foreground">
                   Five minutes. You&apos;ll see your own maturity score and the
-                  courses matched to it — and it is the same thing your team
+                  courses matched to it - and it is the same thing your team
                   will be asked to do.
                 </p>
               </div>

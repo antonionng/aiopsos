@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: "Cookie Policy | Experrt",
-  description: "Cookie Policy for the Experrt enterprise AI adoption platform.",
-};
+import { cookiesMetadata } from "@/lib/public-share-metadata";
+
+export const metadata: Metadata = cookiesMetadata();
 
 export default function CookiesPage() {
   return (

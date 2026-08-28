@@ -242,7 +242,7 @@ export default function MyLearningPage() {
                       className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-xs font-medium text-emerald-500"
                     >
                       <Award className="h-3.5 w-3.5" />
-                      Certificate issued — view and share the verification link
+                      Certificate issued - view and share the verification link
                     </Link>
                     <a
                       href={`/api/certificates/${enrolment.certificate.public_ref}/pdf`}
@@ -371,7 +371,7 @@ export default function MyLearningPage() {
                         <span className="text-foreground/80">
                           {grade.score} / {grade.max_score}
                         </span>
-                        {grade.feedback ? ` — ${grade.feedback}` : ""}
+                        {grade.feedback ? ` - ${grade.feedback}` : ""}
                       </p>
                     ))}
                   </div>

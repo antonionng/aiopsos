@@ -288,7 +288,7 @@ export default function MyResultsPage() {
             {results.submitted_at
               ? ` completed ${new Date(results.submitted_at).toLocaleDateString()}`
               : ""}{" "}
-            &mdash; ranked by measured need, highest first.
+            - ranked by measured need, highest first.
           </p>
         </motion.div>
 

@@ -12,51 +12,41 @@ import {
   BookOpenCheck,
 } from "lucide-react";
 import { CompanionShowcase } from "@/components/marketing/companion-showcase";
+import { experrtAiMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  title: "Experrt AI — your very own learning agent",
-  description:
-    "An AI learning agent that knows each person's training record and acts on it: recommends the next course from measured gaps, maps a learning path, and works between the live sessions a facilitator runs. Structural privacy, capped spend, no grading — an agent your compliance team can approve.",
-  alternates: { canonical: "/experrt-ai" },
-  openGraph: {
-    title: "Experrt AI — your very own learning agent",
-    description:
-      "It knows your training record, plans your path, and acts on it — between live facilitated sessions, never instead of them.",
-    url: "/experrt-ai",
-  },
-};
+export const metadata: Metadata = experrtAiMetadata();
 
 const VERBS = [
   {
     icon: BookOpenCheck,
     title: "It knows you",
     live: true,
-    body: "Your enrolments, attendance, the grades your facilitator has released, your certificates and your assessment results. Ask anything about your own record and it answers from the data, not from vibes. What it cannot see: anyone else's individual usage — that exists only as team-level aggregates, for everyone, including your boss.",
+    body: "Your enrolments, attendance, the grades your facilitator has released, your certificates and your assessment results. Ask anything about your own record and it answers from the data, not from vibes. What it cannot see: anyone else's individual usage - that exists only as team-level aggregates, for everyone, including your boss.",
   },
   {
     icon: Route,
     title: "It plans",
     live: true,
-    body: "Ask what to learn next and it reads your measured gaps, checks which cohorts are actually running, and maps a sequenced path — course by course, ending with a re-assessment so the improvement is measured rather than assumed.",
+    body: "Ask what to learn next and it reads your measured gaps, checks which cohorts are actually running, and maps a sequenced path - course by course, ending with a re-assessment so the improvement is measured rather than assumed.",
   },
   {
     icon: Sparkles,
     title: "It acts",
     live: false,
-    body: "Rolling out: the agent requests your seat on the next cohort and drops sessions into your calendar. You confirm every action, and a human approves every seat — the agent requests, your organisation decides. Every action is logged.",
+    body: "Rolling out: the agent requests your seat on the next cohort and drops sessions into your calendar. You confirm every action, and a human approves every seat - the agent requests, your organisation decides. Every action is logged.",
   },
   {
     icon: CalendarClock,
     title: "It checks in",
     live: false,
-    body: "Rolling out: between live sessions it keeps the practice alive — a prep note before Thursday's session, a nudge when a module's exercises are waiting, a weekly digest of where you are on your path. Opt-out any time; useful, never nagging.",
+    body: "Rolling out: between live sessions it keeps the practice alive - a prep note before Thursday's session, a nudge when a module's exercises are waiting, a weekly digest of where you are on your path. Opt-out any time; useful, never nagging.",
   },
 ];
 
 const GUARDRAILS = [
-  "Spend is capped per person, per day and per month — nobody can run up a bill.",
+  "Spend is capped per person, per day and per month - nobody can run up a bill.",
   "No individual surveillance: AI usage is reported by department, never by person. The tool for individual usage does not exist.",
-  "It never grades work, never marks attendance, and never says you passed — a live facilitator does that, and the agent tells you so.",
+  "It never grades work, never marks attendance, and never says you passed - a live facilitator does that, and the agent tells you so.",
   "Every answer comes from tools scoped to what your role may see. The scoping is code, not a polite request in a prompt.",
 ];
 
@@ -72,7 +62,7 @@ export default function ExperrtAiPage() {
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
           Most workplace AI answers questions. Experrt AI holds your training
-          record, your measured gaps and your path forward &mdash; and it acts
+          record, your measured gaps and your path forward - and it acts
           on them. It works between the live sessions a facilitator runs.
           It never replaces them; it makes the time between them count.
         </p>
@@ -135,7 +125,7 @@ export default function ExperrtAiPage() {
         </h2>
         <p className="mb-8 max-w-2xl text-sm text-muted-foreground">
           Experrt AI meets each person as their role needs it. Watch the
-          conversations play out &mdash; including the question it refuses.
+          conversations play out - including the question it refuses.
         </p>
         <div className="mb-6 grid gap-3 sm:grid-cols-3">
           {[
@@ -191,7 +181,7 @@ export default function ExperrtAiPage() {
             <br />
             No. Every course is delivered live by a facilitator, in your room
             or online. The agent supports the learning between those sessions
-            &mdash; recall, practice, planning &mdash; and hands anything about
+            - recall, practice, planning - and hands anything about
             course judgement to the person actually teaching it.
           </p>
           <p>
@@ -208,7 +198,7 @@ export default function ExperrtAiPage() {
             <span className="font-semibold text-foreground">What does it cost?</span>
             <br />
             The platform, agent included, is free for your whole organisation.
-            AI usage is metered at model rates behind per-person caps &mdash;
+            AI usage is metered at model rates behind per-person caps  - 
             nothing when nobody uses it.
           </p>
         </div>

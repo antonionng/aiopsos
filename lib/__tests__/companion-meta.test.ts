@@ -38,6 +38,9 @@ test("learners cannot pick a model; staff can", () => {
   assert.equal(canSelectModel("super_admin"), true);
 });
 
-test("the learning companion defaults to the cheapest capable model", () => {
-  assert.equal(COMPANION_META.learning.defaultModel, "gpt-4o-mini");
+test("the learning companion defaults to a reliably tool-calling model", () => {
+  // Not the cheapest: this agent's whole job is tool use, and gpt-4o-mini
+  // drops calls often enough to look broken. /api/chat clamps this to the
+  // caller's plan, so a Basic org is not silently upgraded by it.
+  assert.equal(COMPANION_META.learning.defaultModel, "gpt-4o");
 });

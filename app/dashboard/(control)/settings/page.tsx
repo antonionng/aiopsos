@@ -847,7 +847,7 @@ export default function SettingsPage() {
                       <Crown className="h-5 w-5 shrink-0 text-brand" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold">
-                          Pro Trial &mdash; {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining
+                          Pro Trial - {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining
                         </p>
                         <p className="text-xs text-muted-foreground">
                           You have full Pro access. Choose a plan before your trial ends to keep all features.

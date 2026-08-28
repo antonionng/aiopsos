@@ -204,6 +204,22 @@ export const evidencePackSchema = z.object({
   declaration: z.string().max(5000).default(""),
 });
 
+/**
+ * Joining the insights list.
+ *
+ * One field, because the form has one field. `source` records which surface
+ * the sign-up came from so we can tell whether the article footers actually
+ * convert better than the index, which is the whole reason for putting the
+ * form in both places.
+ */
+export const insightSubscribeSchema = z.object({
+  email: z.string().email("Please enter a valid email address").max(320),
+  source: z
+    .enum(["insights_index", "insights_article", "courses", "use_cases"])
+    .default("insights_index"),
+  source_slug: z.string().max(200).optional().nullable(),
+});
+
 export const courseEnquirySchema = z.object({
   course_slug: z.string().max(200).optional().nullable(),
   name: z.string().min(1, "Name is required").max(200),

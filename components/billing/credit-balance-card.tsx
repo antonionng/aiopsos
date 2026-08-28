@@ -38,7 +38,7 @@ export function CreditBalanceCard({
       <CardContent>
         {balance === null ? (
           <>
-            <p className="text-3xl font-bold">—</p>
+            <p className="text-3xl font-bold"> - </p>
             <p className="mt-1 text-xs text-muted-foreground">
               No credits purchased yet. Buy a pack below to fund your team&apos;s AI usage.
             </p>

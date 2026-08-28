@@ -254,7 +254,7 @@ export default function GradesPage() {
                           <span className="text-foreground/80">
                             {grade.score} / {grade.max_score}
                           </span>
-                          {grade.feedback ? ` — ${grade.feedback}` : ""}
+                          {grade.feedback ? ` - ${grade.feedback}` : ""}
                         </p>
                       );
                     })}

@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "Champions programmes fail after AI tools are bought. The manager's job is the standard, the one-to-one, and the work that gets praised. What L&D should train next.",
   dek: "A champion cannot set the standard for a team they do not manage. The line manager can.",
   publishedAt: "2026-07-15",
+  topic: "Adoption",
   relatedCourseSlugs: [
     "leading-an-ai-ready-team",
     "ai-governance-and-oversight-for-managers",

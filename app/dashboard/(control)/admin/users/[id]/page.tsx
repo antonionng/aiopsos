@@ -78,7 +78,7 @@ const ATTENDANCE_DOT: Record<string, string> = {
 };
 
 function fmt(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return " - ";
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
@@ -162,7 +162,7 @@ export default function MemberProfilePage() {
             { label: "Completed", value: String(stats.completed), icon: CalendarCheck2 },
             {
               label: "Attendance",
-              value: stats.attendance_pct === null ? "—" : `${stats.attendance_pct}%`,
+              value: stats.attendance_pct === null ? " - " : `${stats.attendance_pct}%`,
               icon: CalendarCheck2,
             },
             { label: "Certificates", value: String(stats.certificates), icon: Award },
@@ -188,7 +188,7 @@ export default function MemberProfilePage() {
             </>
           ) : (
             <p className="mt-2 text-sm text-muted-foreground">
-              No readiness assessment on record yet — share an assessment link
+              No readiness assessment on record yet - share an assessment link
               and their scores will appear here.
             </p>
           )}
@@ -226,7 +226,7 @@ export default function MemberProfilePage() {
             </>
           ) : (
             <p className="mt-2 text-sm text-muted-foreground">
-              No training needs analysis yet — share the needs assessment to
+              No training needs analysis yet - share the needs assessment to
               see which subjects would help them most.
             </p>
           )}
@@ -274,7 +274,7 @@ export default function MemberProfilePage() {
                           }`}
                         />
                         {s.title}
-                        {s.attendance ? ` — ${s.attendance}` : ""}
+                        {s.attendance ? ` - ${s.attendance}` : ""}
                       </span>
                     ))}
                   </div>
@@ -288,7 +288,7 @@ export default function MemberProfilePage() {
                       </span>
                       <span className="text-muted-foreground">
                         {" "}
-                        — graded by {g.graded_by ?? "facilitator"} on {fmt(g.graded_at)}
+                        - graded by {g.graded_by ?? "facilitator"} on {fmt(g.graded_at)}
                       </span>
                     </p>
                     {g.feedback && (
@@ -320,7 +320,7 @@ export default function MemberProfilePage() {
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
         <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         This page shows training records only. Individual AI usage is not
-        available here or anywhere — usage is reported by department, and
+        available here or anywhere - usage is reported by department, and
         access to this record has been logged.
       </p>
     </motion.div>

@@ -238,7 +238,7 @@ function PolicyContent() {
       setGenInstructions("");
       setGenTemplateId("");
       setCreateOpen(true);
-      toast.success("Policy generated — review and save when ready");
+      toast.success("Policy generated - review and save when ready");
     } catch {
       toast.error("Failed to generate policy");
     } finally {
@@ -348,7 +348,7 @@ function PolicyContent() {
                     {[
                       { title: "Reduce risk", desc: "Set clear boundaries on data handling, model usage, and acceptable AI applications before issues arise." },
                       { title: "Build trust", desc: "Show your team and stakeholders that AI is being used responsibly with documented, transparent guidelines." },
-                      { title: "Accelerate adoption", desc: "Employees adopt AI 2x faster when they have clear policies — uncertainty is the biggest blocker." },
+                      { title: "Accelerate adoption", desc: "Employees adopt AI 2x faster when they have clear policies - uncertainty is the biggest blocker." },
                     ].map((c) => (
                       <Card key={c.title} className="border-border bg-card">
                         <CardContent className="pt-5">
@@ -372,7 +372,7 @@ function PolicyContent() {
               </div>
             )}
 
-            {/* General policies — read-only templates when org has none */}
+            {/* General policies - read-only templates when org has none */}
             <div>
               <h2 className="mb-3 text-sm font-semibold">General policies (reference)</h2>
               <p className="mb-4 text-xs text-muted-foreground">
@@ -664,7 +664,7 @@ function PolicyContent() {
               <Label>Base Template (optional)</Label>
               <Select value={genTemplateId} onValueChange={setGenTemplateId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="None — generate from scratch" />
+                  <SelectValue placeholder="None - generate from scratch" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>

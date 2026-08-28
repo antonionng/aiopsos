@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "A recorded LMS module does not change how a team works on Monday. Why L&D should commission live, facilitated AI training when the goal is behaviour, not completion rates.",
   dek: "Completion is not capability. Monday morning is the test, not the LMS dashboard.",
   publishedAt: "2026-07-01",
+  topic: "Commissioning",
   relatedCourseSlugs: [
     "embedding-ai-in-daily-workflows",
     "leading-an-ai-ready-team",

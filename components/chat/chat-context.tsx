@@ -28,6 +28,9 @@ interface ChatContextValue {
   setActiveProjectFilter: (id: string | null) => void;
   selectSession: (id: string) => void;
   createNewChat: (projectId?: string | null) => void;
+  /** Last failed background mutation, for the surface to show. */
+  mutationError: string | null;
+  clearMutationError: () => void;
   deleteSession: (id: string) => void;
   togglePin: (id: string) => void;
   setFolder: (id: string, folder: string) => void;
@@ -53,6 +56,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     string | null
   >(null);
   const [loaded, setLoaded] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
   const loadSessions = useCallback(() => {
     fetch("/api/conversations")
@@ -74,14 +78,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           setLoaded(true);
         }
       })
-      .catch(() => {});
+      .catch(() => setMutationError("Could not load your conversations."));
   }, [loaded]);
 
   const loadProjects = useCallback(() => {
     fetch("/api/projects")
       .then((r) => r.json())
       .then((d) => setProjects(d.projects ?? []))
-      .catch(() => {});
+      .catch(() => setMutationError("Could not load your projects."));
   }, []);
 
   useEffect(() => {
@@ -89,12 +93,13 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     loadProjects();
   }, [loadSessions, loadProjects]);
 
-  const createNewChat = useCallback(
-    (projectId?: string | null) => {
-      setActiveSession(null);
-    },
-    []
-  );
+  const createNewChat = useCallback((projectId?: string | null) => {
+    setActiveSession(null);
+    // The argument used to be accepted and discarded, so "new chat" from
+    // inside a project silently landed outside it whenever the sidebar's
+    // filter was not already set.
+    if (projectId !== undefined) setActiveProjectFilter(projectId);
+  }, []);
 
   const selectSession = useCallback((id: string) => {
     setActiveSession(id);
@@ -102,14 +107,26 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const deleteSession = useCallback(
     (id: string) => {
-      fetch(`/api/conversations/${id}`, { method: "DELETE" }).catch(() => {});
+      // Optimistic, but restored if the server refuses - it used to disappear
+      // from the sidebar and quietly reappear on the next load.
+      let snapshot: ChatSession[] = [];
       setSessions((prev) => {
+        snapshot = prev;
         const remaining = prev.filter((s) => s.id !== id);
-        if (activeSession === id) {
-          setActiveSession(remaining[0]?.id ?? null);
-        }
+        if (activeSession === id) setActiveSession(remaining[0]?.id ?? null);
         return remaining;
       });
+
+      fetch(`/api/conversations/${id}`, { method: "DELETE" })
+        .then((r) => {
+          if (r.ok) return;
+          setSessions(snapshot);
+          setMutationError("Could not delete that conversation.");
+        })
+        .catch(() => {
+          setSessions(snapshot);
+          setMutationError("Could not delete that conversation.");
+        });
     },
     [activeSession]
   );
@@ -123,7 +140,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pinned: newPinned }),
-      }).catch(() => {});
+      })
+        .then((r) => {
+          if (r.ok) return;
+          throw new Error("pin failed");
+        })
+        .catch(() => {
+          setSessions((cur) =>
+            cur.map((s) => (s.id === id ? { ...s, pinned: !newPinned } : s))
+          );
+          setMutationError("Could not update that conversation.");
+        });
       return prev.map((s) =>
         s.id === id ? { ...s, pinned: newPinned } : s
       );
@@ -131,14 +158,30 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setFolder = useCallback((id: string, folder: string) => {
+    let previous: string | undefined;
+    setSessions((prev) =>
+      prev.map((s) => {
+        if (s.id !== id) return s;
+        previous = s.folder;
+        return { ...s, folder };
+      })
+    );
+
     fetch(`/api/conversations/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ folder }),
-    }).catch(() => {});
-    setSessions((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, folder } : s))
-    );
+    })
+      .then((r) => {
+        if (r.ok) return;
+        throw new Error("folder failed");
+      })
+      .catch(() => {
+        setSessions((cur) =>
+          cur.map((s) => (s.id === id ? { ...s, folder: previous } : s))
+        );
+        setMutationError("Could not move that conversation.");
+      });
   }, []);
 
   const updateSessionTitle = useCallback((id: string, title: string) => {
@@ -169,6 +212,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         onConversationCreated,
         refreshSessions: loadSessions,
         refreshProjects: loadProjects,
+        mutationError,
+        clearMutationError: () => setMutationError(null),
       }}
     >
       {children}

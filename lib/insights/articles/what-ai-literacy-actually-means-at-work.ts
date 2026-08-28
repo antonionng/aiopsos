@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "AI literacy for a workforce is not a ChatGPT demo. What L&D should be able to show: role-shaped judgement, a checking standard, and a record, not a seat at a webinar.",
   dek: "Literacy is what people can do with the tools you already deployed, under your policy, on a Tuesday.",
   publishedAt: "2026-06-17",
+  topic: "AI literacy",
   relatedCourseSlugs: [
     "ai-foundations-for-every-role",
     "responsible-ai-use-at-work",

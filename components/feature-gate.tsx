@@ -161,7 +161,7 @@ const FEATURE_CONFIGS: Record<string, FeatureConfig> = {
     buildMessage: (data) => {
       if (!data) return "";
       const toolsScore = data.dimensionScores.tools;
-      return `Your team scored ${toolsScore.toFixed(1)}/5 on Tools & Access. Upload company documents so AI responses draw from your organisation's specific policies, processes, and data — not generic answers.`;
+      return `Your team scored ${toolsScore.toFixed(1)}/5 on Tools & Access. Upload company documents so AI responses draw from your organisation's specific policies, processes, and data - not generic answers.`;
     },
     fallbackMessage:
       "Complete a readiness assessment to understand your Tools & Access score, then upgrade to upload company documents that ground AI in your organisation's knowledge.",
@@ -203,7 +203,7 @@ const FEATURE_CONFIGS: Record<string, FeatureConfig> = {
       const rangeStr = range
         ? `maturity scores ranging from ${range.low.toFixed(1)} to ${range.high.toFixed(1)}`
         : "varying maturity levels";
-      return `With ${data.departmentCount} department${data.departmentCount !== 1 ? "s" : ""} assessed and ${rangeStr}, we can recommend the right AI models and governance guardrails for each team — so you stop overspending on one-size-fits-all.`;
+      return `With ${data.departmentCount} department${data.departmentCount !== 1 ? "s" : ""} assessed and ${rangeStr}, we can recommend the right AI models and governance guardrails for each team - so you stop overspending on one-size-fits-all.`;
     },
     fallbackMessage:
       "Complete a readiness assessment so we can recommend the right AI models and governance guardrails for each of your departments.",

@@ -10,7 +10,7 @@ import { article as measureStuck } from "./articles/how-to-measure-if-ai-trainin
 import { article as cobotShift } from "./articles/cobot-training-for-the-shift-not-the-integrator.ts";
 import { article as directorJudgement } from "./articles/technology-judgement-for-nontechnical-directors.ts";
 import { COURSE_TITLES } from "../published-course-slugs.ts";
-import type { InsightArticle } from "./types.ts";
+import { INSIGHT_TOPICS, type InsightArticle, type InsightTopic } from "./types.ts";
 
 const PUBLISHED: InsightArticle[] = [
   euAiAct,
@@ -38,6 +38,60 @@ export function getInsightBySlug(slug: string): InsightArticle | undefined {
 
 export function insightWordCount(article: InsightArticle): number {
   return article.body.split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * Reading time in whole minutes.
+ *
+ * 220 words per minute rather than the blog-standard 200: these are short,
+ * dense business briefings read by people deciding whether to keep reading,
+ * and rounding up a five minute piece to seven costs us the click. Never
+ * returns 0, because "0 min read" reads as broken.
+ */
+export function insightReadingMinutes(article: InsightArticle): number {
+  return Math.max(1, Math.round(insightWordCount(article) / 220));
+}
+
+/** Topics that actually have a published article behind them, in canon order. */
+export function getInsightTopics(): InsightTopic[] {
+  const used = new Set(getPublishedInsights().map((article) => article.topic));
+  return INSIGHT_TOPICS.filter((topic) => used.has(topic));
+}
+
+export function getInsightsByTopic(topic: InsightTopic): InsightArticle[] {
+  return getPublishedInsights().filter((article) => article.topic === topic);
+}
+
+/**
+ * The pieces either side of this one, for the end-of-article navigation.
+ *
+ * The list runs newest first, so the *next* index is the older article.
+ * Named from the reader's point of view rather than the array's: "older" and
+ * "newer" are unambiguous where "next" and "previous" are not.
+ */
+export function adjacentInsights(slug: string): {
+  older?: InsightArticle;
+  newer?: InsightArticle;
+} {
+  const all = getPublishedInsights();
+  const index = all.findIndex((article) => article.slug === slug);
+  if (index === -1) return {};
+  return { newer: all[index - 1], older: all[index + 1] };
+}
+
+/**
+ * Up to `limit` other articles worth reading after this one. Same topic
+ * first, then most recent, so a robotics reader is not handed three
+ * governance notes.
+ */
+export function relatedInsights(
+  article: InsightArticle,
+  limit = 2
+): InsightArticle[] {
+  const others = getPublishedInsights().filter((a) => a.slug !== article.slug);
+  const sameTopic = others.filter((a) => a.topic === article.topic);
+  const rest = others.filter((a) => a.topic !== article.topic);
+  return [...sameTopic, ...rest].slice(0, limit);
 }
 
 export function relatedCoursesFor(article: InsightArticle): {

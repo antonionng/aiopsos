@@ -10,6 +10,7 @@ import {
   useCaseCourseSlugs,
 } from "@/lib/use-cases";
 import type { Course } from "@/lib/types";
+import { useCasePageMetadata } from "@/lib/public-share-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -21,17 +22,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const entry = getUseCase(slug);
   if (!entry) return { title: "Use case not found" };
-
-  return {
-    title: `${entry.name} - Use cases`,
-    description: entry.headline,
-    alternates: { canonical: `/use-cases/${entry.slug}` },
-    openGraph: {
-      title: `${entry.name} - Experrt use cases`,
-      description: entry.headline,
-      type: "article",
-    },
-  };
+  return useCasePageMetadata(entry);
 }
 
 function CourseChip({ slug, course }: { slug: string; course?: Course }) {

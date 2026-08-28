@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Paperclip, Globe, Image, FlaskConical, Lock } from "lucide-react";
+import { Plus, Paperclip, Image, FlaskConical, Lock } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -12,18 +12,15 @@ import { PLAN_FEATURES, type PlanType } from "@/lib/constants";
 interface Props {
   plan?: string;
   onAttach: () => void;
-  onWebSearch?: (query: string) => void;
-  onImageGen?: (prompt: string) => void;
-  onDeepResearch?: (query: string) => void;
+  /**
+   * Image generation and deep research arm the composer instead of firing
+   * straight away - they used to open a native window.prompt() dialog,
+   * because ActionsMenu always called them with an empty string.
+   */
+  onSelectMode?: (mode: "image" | "research") => void;
 }
 
-export function ActionsMenu({
-  plan = "basic",
-  onAttach,
-  onWebSearch,
-  onImageGen,
-  onDeepResearch,
-}: Props) {
+export function ActionsMenu({ plan = "basic", onAttach, onSelectMode }: Props) {
   const [open, setOpen] = useState(false);
   const features = PLAN_FEATURES[plan as PlanType] ?? PLAN_FEATURES.basic;
 
@@ -39,24 +36,13 @@ export function ActionsMenu({
       },
     },
     {
-      id: "search",
-      label: "Web search",
-      icon: Globe,
-      available: features.webSearch,
-      requiredPlan: "Pro",
-      onClick: () => {
-        if (onWebSearch) onWebSearch("");
-        setOpen(false);
-      },
-    },
-    {
       id: "image",
       label: "Create image",
       icon: Image,
       available: features.imageGeneration,
       requiredPlan: "Enterprise",
       onClick: () => {
-        if (onImageGen) onImageGen("");
+        onSelectMode?.("image");
         setOpen(false);
       },
     },
@@ -67,7 +53,7 @@ export function ActionsMenu({
       available: features.deepResearch,
       requiredPlan: "Enterprise",
       onClick: () => {
-        if (onDeepResearch) onDeepResearch("");
+        onSelectMode?.("research");
         setOpen(false);
       },
     },

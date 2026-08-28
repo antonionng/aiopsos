@@ -7,6 +7,7 @@ export const article: InsightArticle = {
     "Directors are signing tool spend without a way to judge it. What a non-technical board member should ask before they approve another platform, copilot, or robotics cell.",
   dek: "You do not need to become the architect. You do need a way to say no to a polished demo.",
   publishedAt: "2026-08-19",
+  topic: "Commissioning",
   relatedCourseSlugs: [
     "technology-for-non-technical-leaders",
     "choosing-technology-well",

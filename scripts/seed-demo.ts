@@ -307,10 +307,10 @@ async function seed() {
     departments: string[]; seats: number; completed: boolean;
   };
   const cohortSpecs: CohortSpec[] = [
-    { slug: "responsible-ai-use-at-work", title: "Responsible AI Use — Finance & Ops", status: "completed", startDaysAgo: 42, departments: ["Finance", "Operations"], seats: 12, completed: true },
-    { slug: "prompting-and-output-verification", title: "Prompting & Verification — Support", status: "running", startDaysAgo: 10, departments: ["Customer Support", "Marketing"], seats: 10, completed: false },
-    { slug: "getting-value-from-tools-you-already-own", title: "Tools You Already Own — Marketing", status: "completed", startDaysAgo: 55, departments: ["Marketing"], seats: 8, completed: true },
-    { slug: "ai-in-the-executive-workflow", title: "AI in the Executive Workflow — Leads", status: "scheduled", startDaysAgo: -12, departments: ["Engineering", "Finance", "Operations"], seats: 8, completed: false },
+    { slug: "responsible-ai-use-at-work", title: "Responsible AI Use - Finance & Ops", status: "completed", startDaysAgo: 42, departments: ["Finance", "Operations"], seats: 12, completed: true },
+    { slug: "prompting-and-output-verification", title: "Prompting & Verification - Support", status: "running", startDaysAgo: 10, departments: ["Customer Support", "Marketing"], seats: 10, completed: false },
+    { slug: "getting-value-from-tools-you-already-own", title: "Tools You Already Own - Marketing", status: "completed", startDaysAgo: 55, departments: ["Marketing"], seats: 8, completed: true },
+    { slug: "ai-in-the-executive-workflow", title: "AI in the Executive Workflow - Leads", status: "scheduled", startDaysAgo: -12, departments: ["Engineering", "Finance", "Operations"], seats: 8, completed: false },
   ];
 
   for (const spec of cohortSpecs) {

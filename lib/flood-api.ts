@@ -56,7 +56,7 @@ export function formatFloodsForPrompt(floods: FloodData): string {
 
   const warningLines = floods.warnings.map(
     (w, i) =>
-      `  ${i + 1}. [${w.severity.toUpperCase()}] ${w.description} — ${w.county} (${w.riverOrSea})${w.isTidal ? " [Tidal]" : ""}\n     Raised: ${w.timeRaised}\n     Detail: ${w.message.slice(0, 300)}...`
+      `  ${i + 1}. [${w.severity.toUpperCase()}] ${w.description} - ${w.county} (${w.riverOrSea})${w.isTidal ? " [Tidal]" : ""}\n     Raised: ${w.timeRaised}\n     Detail: ${w.message.slice(0, 300)}...`
   );
 
   return [

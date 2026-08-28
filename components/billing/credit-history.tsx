@@ -43,7 +43,7 @@ export function CreditHistory({ rows }: { rows: LedgerRow[] }) {
                 {REASON_LABELS[row.reason] ?? row.reason}
               </Badge>
               <span className="flex-1 truncate text-muted-foreground">
-                {row.description ?? row.model ?? "—"}
+                {row.description ?? row.model ?? " - "}
               </span>
               <span
                 className={`tabular-nums font-medium ${

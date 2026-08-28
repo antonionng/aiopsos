@@ -103,7 +103,7 @@ function Footer({ payload }: { payload: EvidencePackPayload }) {
   return (
     <View style={styles.footer} fixed>
       <Text>
-        {payload.organisation.name} — AI literacy measures, {payload.period.start} to{" "}
+        {payload.organisation.name} - AI literacy measures, {payload.period.start} to{" "}
         {payload.period.end}
       </Text>
       <Text
@@ -123,7 +123,7 @@ function formatDate(iso: string): string {
 export function EvidencePackDocument({ payload }: { payload: EvidencePackPayload }) {
   return (
     <Document
-      title={`AI literacy measures — ${payload.organisation.name} — ${payload.period.start} to ${payload.period.end}`}
+      title={`AI literacy measures - ${payload.organisation.name} - ${payload.period.start} to ${payload.period.end}`}
       author="Experrt"
       subject="Record of AI literacy measures and supporting evidence"
       creationDate={new Date(payload.generated_at)}
@@ -218,7 +218,7 @@ export function EvidencePackDocument({ payload }: { payload: EvidencePackPayload
           {payload.needs_analysis.by_department.map((d) => (
             <View key={`why-${d.department}`} style={{ marginBottom: 8 }}>
               <Text style={styles.bold}>
-                {d.department} — pitched at {d.dominant_role}
+                {d.department} - pitched at {d.dominant_role}
               </Text>
               {d.assigned_courses.length === 0 ? (
                 <Text style={styles.muted}>
@@ -227,7 +227,7 @@ export function EvidencePackDocument({ payload }: { payload: EvidencePackPayload
               ) : (
                 d.assigned_courses.map((c) => (
                   <Bullet key={c.title}>
-                    {c.title} ({c.level}) — {c.because}
+                    {c.title} ({c.level}) - {c.because}
                   </Bullet>
                 ))
               )}
@@ -264,7 +264,7 @@ export function EvidencePackDocument({ payload }: { payload: EvidencePackPayload
                 <Text>
                   Facilitator: {c.facilitator}
                   {c.facilitator_credentials.length > 0
-                    ? ` — ${c.facilitator_credentials
+                    ? ` - ${c.facilitator_credentials
                         .map(
                           (cr) =>
                             `${cr.title}${cr.issuer ? `, ${cr.issuer}` : ""}${
@@ -341,15 +341,15 @@ export function EvidencePackDocument({ payload }: { payload: EvidencePackPayload
                         d.pre_training_scores.culture) /
                       5
                     ).toFixed(1)
-                  : "—"}
+                  : " - "}
               </Text>
               {d.suppressed ? (
-                <Text style={[styles.cell, styles.muted]}>Withheld — group too small</Text>
+                <Text style={[styles.cell, styles.muted]}>Withheld - group too small</Text>
               ) : (
                 <>
                   <Text style={styles.cellNarrow}>{d.active_users}</Text>
                   <Text style={styles.cellNarrow}>
-                    {d.active_user_pct === null ? "—" : `${d.active_user_pct}%`}
+                    {d.active_user_pct === null ? " - " : `${d.active_user_pct}%`}
                   </Text>
                   <Text style={styles.cellNarrow}>{d.sessions_per_active_user}</Text>
                   <Text style={styles.cellNarrow}>{d.distinct_endpoints}</Text>
@@ -370,7 +370,7 @@ export function EvidencePackDocument({ payload }: { payload: EvidencePackPayload
           ) : (
             payload.governance.policies.map((p) => (
               <Bullet key={p.title}>
-                {p.title} — {p.status}
+                {p.title} - {p.status}
                 {p.published_at ? `, published ${formatDate(p.published_at)}` : ""}
               </Bullet>
             ))
@@ -417,7 +417,7 @@ export function EvidencePackDocument({ payload }: { payload: EvidencePackPayload
               <Text style={styles.cell}>{r.cohort}</Text>
               <Text style={styles.cellNarrow}>{r.attendance_pct}%</Text>
               <Text style={styles.cellNarrow}>
-                {r.grade_pct === null ? "—" : `${r.grade_pct}%`}
+                {r.grade_pct === null ? " - " : `${r.grade_pct}%`}
               </Text>
               <Text style={styles.cellNarrow}>{r.status}</Text>
             </View>
