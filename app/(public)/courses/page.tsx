@@ -17,19 +17,9 @@ import {
   type CourseCategory,
   type CourseLevel,
 } from "@/lib/constants";
+import { coursesIndexMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  title: "Courses — applied AI, technology and robotics training",
-  description:
-    "Facilitated training courses in applied AI, technology adoption and applied robotics, by role and by level. Delivered live by a trainer, in person or online, with attendance and grades recorded.",
-  alternates: { canonical: "/courses" },
-  openGraph: {
-    title: "Courses — applied AI, technology and robotics training | Experrt",
-    description:
-      "Facilitated live by a trainer, in person or online. Courses by role and by level.",
-    url: "/courses",
-  },
-};
+export const metadata: Metadata = coursesIndexMetadata();
 
 export const dynamic = "force-dynamic";
 

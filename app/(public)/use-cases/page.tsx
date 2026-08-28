@@ -2,13 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getUseCasesByKind } from "@/lib/use-cases";
+import { useCasesIndexMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  title: "Use cases",
-  description:
-    "What facilitated AI, technology and robotics training looks like applied to your kind of organisation - enterprise or growing team - and to the function doing the work.",
-  alternates: { canonical: "/use-cases" },
-};
+export const metadata: Metadata = useCasesIndexMetadata();
 
 function UseCaseCard({
   slug,
