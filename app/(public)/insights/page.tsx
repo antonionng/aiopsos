@@ -3,25 +3,10 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getPublishedInsights } from "@/lib/insights/catalog";
 import { formatInsightDate } from "@/lib/insights/format";
-import { getPublicSiteUrl } from "@/lib/site";
+import { insightsIndexMetadata } from "@/lib/public-share-metadata";
 import { StructuredData, ORGANISATION_LD } from "@/components/structured-data";
 
-const SITE_URL = getPublicSiteUrl();
-
-export const metadata: Metadata = {
-  title: "Insights on workforce AI and robotics training",
-  description:
-    "Briefings for L&D, HR, operations and transformation leads commissioning in-house AI, technology and robotics training. No login required.",
-  alternates: { canonical: `${SITE_URL}/insights` },
-  openGraph: {
-    title: "Insights on workforce AI and robotics training",
-    description:
-      "Public briefings for people buying in-house AI and robotics training.",
-    url: `${SITE_URL}/insights`,
-    type: "website",
-  },
-  robots: { index: true, follow: true },
-};
+export const metadata: Metadata = insightsIndexMetadata();
 
 export default function InsightsIndexPage() {
   const articles = getPublishedInsights();

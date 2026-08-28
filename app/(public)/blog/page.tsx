@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { blogRedirectMetadata } from "@/lib/public-share-metadata";
 
-export const metadata: Metadata = {
-  title: "Insights",
-  robots: { index: false, follow: true },
-  alternates: { canonical: "/insights" },
-};
+export const metadata: Metadata = blogRedirectMetadata();
 
 /**
  * /blog used to hit the auth wall because middleware treated unknown paths

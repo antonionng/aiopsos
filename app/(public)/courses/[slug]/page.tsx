@@ -17,6 +17,7 @@ import {
   RESPONDENT_ROLE_LABELS,
   type CourseCategory,
 } from "@/lib/constants";
+import { coursePageMetadata } from "@/lib/public-share-metadata";
 
 const CATEGORY_BAND: Record<CourseCategory, string> = {
   ai: "bg-cat-ai-soft",
@@ -42,16 +43,7 @@ export async function generateMetadata({
   if (!result) return { title: "Course not found" };
 
   const { course } = result;
-  return {
-    title: course.title,
-    description: course.summary,
-    alternates: { canonical: `/courses/${course.slug}` },
-    openGraph: {
-      title: course.title,
-      description: course.summary,
-      type: "article",
-    },
-  };
+  return coursePageMetadata(course);
 }
 
 export default async function CoursePage({

@@ -8,15 +8,13 @@ import {
   relatedCoursesFor,
 } from "@/lib/insights/catalog";
 import { formatInsightDate } from "@/lib/insights/format";
-import { getPublicSiteUrl } from "@/lib/site";
+import { insightArticleMetadata } from "@/lib/public-share-metadata";
 import { InsightArticleBody } from "@/components/insight-article-body";
 import {
   StructuredData,
   ORGANISATION_LD,
   articleLd,
 } from "@/components/structured-data";
-
-const SITE_URL = getPublicSiteUrl();
 
 export function generateStaticParams() {
   return getPublishedInsights().map((article) => ({ slug: article.slug }));
@@ -30,25 +28,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const article = getInsightBySlug(slug);
   if (!article) return { title: "Article not found" };
-
-  const canonical = `${SITE_URL}/insights/${article.slug}`;
-  return {
-    title: article.title,
-    description: article.description,
-    alternates: { canonical },
-    openGraph: {
-      title: article.title,
-      description: article.description,
-      url: canonical,
-      type: "article",
-      publishedTime: article.publishedAt,
-    },
-    twitter: {
-      title: article.title,
-      description: article.description,
-    },
-    robots: { index: true, follow: true },
-  };
+  return insightArticleMetadata(article);
 }
 
 export default async function InsightArticlePage({

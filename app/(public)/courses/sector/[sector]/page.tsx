@@ -18,6 +18,7 @@ import {
   type CourseCategory,
   type CourseLevel,
 } from "@/lib/constants";
+import { courseSectorMetadata } from "@/lib/public-share-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -39,17 +40,7 @@ export async function generateMetadata({
   const entry = sector ? getSector(sector) : undefined;
   if (!sector || !entry) return { title: "Sector not found" };
 
-  const canonical = `/courses/sector/${COURSE_SECTOR_SLUGS[sector]}`;
-  return {
-    title: entry.headline,
-    description: entry.intro,
-    alternates: { canonical },
-    openGraph: {
-      title: `${entry.headline} | Experrt`,
-      description: entry.intro,
-      url: canonical,
-    },
-  };
+  return courseSectorMetadata(entry, COURSE_SECTOR_SLUGS[sector]);
 }
 
 export default async function SectorCoursesPage({
