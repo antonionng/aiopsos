@@ -10,14 +10,14 @@ import { cn } from "@/lib/utils";
  * wordmark and the dark theme keeps the original.
  *
  * Sizes are named rather than pixel props so call sites do not have to know
- * the asset's 402x110 aspect ratio.
+ * the asset's 1140x256 aspect ratio.
  */
 
 const SIZES = {
-  sm: { className: "h-5", width: 73, height: 20 },
-  md: { className: "h-7", width: 102, height: 28 },
-  lg: { className: "h-10", width: 146, height: 40 },
-  xl: { className: "h-16 sm:h-20", width: 292, height: 80 },
+  sm: { className: "h-5", width: 89, height: 20 },
+  md: { className: "h-7", width: 125, height: 28 },
+  lg: { className: "h-10", width: 178, height: 40 },
+  xl: { className: "h-16 sm:h-20", width: 356, height: 80 },
 } as const;
 
 export function Wordmark({
