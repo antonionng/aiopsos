@@ -240,6 +240,9 @@ const FOOTER_LINKS = {
  */
 const NAV_LINKS = [
   { href: "#capabilities", label: "Experrt AI" },
+  // The homepage still carries its own copy of the bar rather than mounting
+  // components/site-nav.tsx, so nav entries have to be added in both places.
+  { href: "/ai-literacy-training", label: "AI literacy" },
   { href: "/courses", label: "Academy" },
   { href: "/use-cases", label: "Use cases" },
   { href: "/insights", label: "Insights" },
