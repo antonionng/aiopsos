@@ -37,6 +37,45 @@ test("scores machine-generated strings high", () => {
   assert.ok(gibberishScore("Myrdcjoj Hrwqyyuwd") >= 0.5);
 });
 
+test("blocks the signup bots by their random organisation names", () => {
+  // Org names verbatim from the 1 Sep 2026 Resend log: bots registering
+  // against harvested addresses, then requesting a password reset a minute
+  // later. The register route passes orgName as the message. These four are
+  // unambiguous enough to block even when the name field looks plausible.
+  for (const orgName of [
+    "dSRhFwsAwgRzRMnL",
+    "fZBXAOoqzxAFotti",
+    "cSMauNRcbELIauQQwo",
+    "FhVmPCGctLRCgzaoeY",
+  ]) {
+    const verdict = assessSubmission(human({ name: "Ken Buddi", message: orgName }));
+    assert.equal(verdict.spam, true, orgName);
+  }
+});
+
+test("a borderline org name is caught when the name corroborates", () => {
+  // This one from the same log scores under the block-alone threshold - it
+  // needs the name to agree, which for these bots it does.
+  const verdict = assessSubmission(
+    human({ name: "qXfRvvJkmWpZ", message: "ZIJRaWCIKUnkuRnjEBtY" })
+  );
+  assert.equal(verdict.spam, true);
+});
+
+test("real organisation names survive as the message field", () => {
+  for (const orgName of [
+    "Acme Corp",
+    "PricewaterhouseCoopers",
+    "GlaxoSmithKline",
+    "HSBC Holdings plc",
+    "Krzysztof Wojciechowski Sp. z o.o.",
+    "NHS Foundation Trust",
+  ]) {
+    const verdict = assessSubmission(human({ name: "Sarah Whitfield", message: orgName }));
+    assert.equal(verdict.spam, false, `${orgName}: ${verdict.reasons.join(",")}`);
+  }
+});
+
 // ── the expensive failure: real enquiries ───────────────────────────────
 
 test("lets ordinary enquiries through", () => {

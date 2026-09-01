@@ -87,6 +87,10 @@ export const RATE_LIMITS = {
   // there is no legitimate reason for one address to send many messages in a
   // minute.
   contact: { limit: 5, windowMs: 60_000 },
+  // Keyed by the target mailbox, not the caller: signup bots pace their
+  // requests minutes apart from rotating IPs, and the harm lands on the inbox
+  // being flooded. Three an hour covers any real "it never arrived" retry.
+  forgotEmail: { limit: 3, windowMs: 60 * 60_000 },
 } as const;
 
 export function getRateLimitHeaders(result: RateLimitResult): Record<string, string> {

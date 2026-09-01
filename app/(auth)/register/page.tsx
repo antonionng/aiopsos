@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useBotGuard, HoneypotField } from "@/components/form-bot-guard";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const router = useRouter();
+  const botGuard = useBotGuard();
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +29,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, orgName }),
+        body: JSON.stringify({ name, email, password, orgName, ...botGuard.fields() }),
       });
 
       if (!res.ok) {
@@ -103,6 +105,7 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
+          <HoneypotField value={botGuard.honeypot} onChange={botGuard.setHoneypot} />
           <div className="space-y-2">
             <Label htmlFor="orgName">Organisation name</Label>
             <Input

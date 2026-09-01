@@ -5,12 +5,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useBotGuard, HoneypotField } from "@/components/form-bot-guard";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const botGuard = useBotGuard();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +23,7 @@ export default function ForgotPasswordPage() {
       const res = await fetch("/api/auth/forgot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ...botGuard.fields() }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -67,6 +69,7 @@ export default function ForgotPasswordPage() {
         ) : (
           <>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <HoneypotField value={botGuard.honeypot} onChange={botGuard.setHoneypot} />
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

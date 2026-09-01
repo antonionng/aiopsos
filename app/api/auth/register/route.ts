@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { sendConfirmWelcomeEmail } from "@/lib/email";
+import { assessSubmission, HONEYPOT_FIELD, FORM_TIMESTAMP_FIELD } from "@/lib/spam-defence";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,6 +17,29 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { name, email, password, orgName } = body;
+
+    // Same silent bot check as the contact form. The signup bots register with
+    // a random-string organisation ("dSRhFwsAwgRzRMnL") against a harvested
+    // real address, then request a password reset for it a minute later - so
+    // the org name is scored the way the contact message is, with the person's
+    // name as the corroborating field.
+    const verdict = assessSubmission({
+      name,
+      message: orgName,
+      honeypot: body[HONEYPOT_FIELD],
+      startedAt: body[FORM_TIMESTAMP_FIELD],
+    });
+
+    if (verdict.spam) {
+      // Answer exactly as a real signup does - the bot sees "check your
+      // email" and cannot tell which rule it tripped. No user, org or email
+      // is ever created. Logged so a false positive is recoverable.
+      console.warn(
+        `[register] dropped as spam (${verdict.reasons.join(", ")}) from ${ip}: ` +
+          `${JSON.stringify({ name, email, orgName }).slice(0, 300)}`
+      );
+      return NextResponse.json({ success: true, needs_confirmation: true });
+    }
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
