@@ -13,6 +13,7 @@ import { COURSE_TITLES } from "../published-course-slugs.ts";
 import {
   INSIGHT_TOPICS,
   type InsightArticle,
+  type InsightCta,
   type InsightTopic,
 } from "./types.ts";
 
@@ -108,16 +109,16 @@ export function relatedCoursesFor(article: InsightArticle): {
   }));
 }
 
-const DEFAULT_INSIGHT_CTA = {
+const DEFAULT_INSIGHT_CTA: InsightCta = {
   heading: "Book a conversation",
   blurb:
     "Experrt runs live, in-house cohorts. If this briefing matches a gap you already have, talk to us about scope, dates and the record the programme should produce.",
   primaryHref: "/contact",
   primaryLabel: "Contact Experrt",
-} as const;
+};
 
 /** End-of-article CTA. Article 4 uses the literacy hub; others still use /contact. */
-export function insightCta(article: InsightArticle) {
+export function insightCta(article: InsightArticle): InsightCta {
   return article.cta ?? DEFAULT_INSIGHT_CTA;
 }
 
