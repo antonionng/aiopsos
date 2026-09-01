@@ -14,7 +14,6 @@ const LOGIN_ONLY_PATHS = [
   "/login",
   "/register",
   "/dashboard",
-  "/blog",
   "/forgot-password",
   "/reset-password",
 ];

@@ -63,6 +63,13 @@ test("public sitemap lists marketing, courses, and published insights only", () 
   assert.equal(urls.some((url) => url.includes("/dashboard")), false);
 });
 
+test("/blog is a public redirect, not a login-only path", () => {
+  assert.equal(isLoginOnlyPath("/blog"), false);
+  assert.equal(isLoginOnlyPath("/blog/old-post"), false);
+  assert.equal(isLoginOnlyPath("/login"), true);
+  assert.equal(isLoginOnlyPath("/dashboard"), true);
+});
+
 test("getPublicSiteUrl prefers www.experrt.com", () => {
   assert.equal(getPublicSiteUrl(), "https://www.experrt.com");
 });

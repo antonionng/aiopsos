@@ -11,9 +11,11 @@ export async function updateSession(request: NextRequest) {
   const isAuthPage = isAuthPath(pathname);
   const isPublicRoute = isPublicPath(pathname);
 
-  // Public marketing and Insights must not touch Supabase. Constructing the
-  // client here is what turns a missing NEXT_PUBLIC_SUPABASE_URL into a
-  // failed request (or, previously, a login wall for unknown paths).
+  // Public marketing, /contact, /insights and /blog must not touch Supabase.
+  // Constructing the client here is what turns a missing
+  // NEXT_PUBLIC_SUPABASE_URL into a failed request (or, previously, a login
+  // wall). /blog is public so crawlers get the 308 to /insights, not a 307
+  // to /login.
   if (isPublicRoute) {
     return NextResponse.next({ request });
   }

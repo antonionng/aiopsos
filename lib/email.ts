@@ -676,6 +676,7 @@ export async function sendResetPasswordEmail(to: string, resetUrl: string) {
 export async function sendContactAlert(details: {
   name: string;
   email: string;
+  organisation?: string;
   message: string;
 }) {
   const { from } = getEmailConfig();

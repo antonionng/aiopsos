@@ -16,6 +16,8 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const { name, email, message } = body;
+    const organisation =
+      typeof body.organisation === "string" ? body.organisation.trim() : "";
 
     // Silent bot check: honeypot, time-to-fill, and the character shape of the
     // text. See lib/spam-defence.ts for why each layer is weighted as it is.
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
       // is recoverable rather than invisible.
       console.warn(
         `[contact] dropped as spam (${verdict.reasons.join(", ")}) from ${ip}: ` +
-          `${JSON.stringify({ name, email, message }).slice(0, 300)}`
+          `${JSON.stringify({ name, email, organisation, message }).slice(0, 300)}`
       );
       return NextResponse.json({ success: true });
     }
@@ -61,6 +63,7 @@ export async function POST(req: NextRequest) {
     await sendContactAlert({
       name: name.trim(),
       email: email.trim(),
+      organisation,
       message: message.trim(),
     });
 
