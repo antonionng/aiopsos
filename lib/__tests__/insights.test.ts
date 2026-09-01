@@ -299,9 +299,15 @@ test("Article 4 L&D briefing is a literacy enquiry page, not a contact dump", ()
   assert.ok(article);
   assert.equal(
     article.title,
-    "EU AI Act Article 4 literacy: what L&D has to do"
+    "L&D has to evidence staff AI literacy under Article 4"
   );
-  assert.equal(article.h1, "EU AI Act Article 4: what L&D actually has to do");
+  assert.equal(
+    article.h1,
+    "Article 4 of the EU AI Act asks Learning and Development to help staff understand the AI they already use."
+  );
+  assert.match(article.lede ?? "", /Europe's law for how companies use AI at work/);
+  assert.match(article.lede ?? "", /Learning and Development/);
+  assert.match(article.dek, /literacy duty, not a certificate/);
   assert.match(
     article.description,
     /duty to support AI literacy at work/
@@ -327,6 +333,8 @@ test("Article 4 L&D briefing is a literacy enquiry page, not a contact dump", ()
   assert.notEqual(cta.primaryHref, "/contact");
   assert.doesNotMatch(cta.primaryHref, /^\/contact/);
   assert.doesNotMatch(cta.blurb + cta.heading, /\/contact/);
+  assert.match(cta.blurb, /ag@experrt\.com/);
+  assert.match(article.body, /ag@experrt\.com/);
 
   const articleSchema = articleLd(article);
   assert.equal(articleSchema["@type"], "Article");

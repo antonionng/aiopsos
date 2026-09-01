@@ -31,6 +31,8 @@ export type InsightArticle = {
   dek: string;
   /** Visible H1 when it must differ from the document title. */
   h1?: string;
+  /** Spoken term explanations rendered after the H1 and before the dek. */
+  lede?: string;
   publishedAt: string;
   topic: InsightTopic;
   relatedCourseSlugs: string[];

@@ -2,10 +2,11 @@ import type { InsightArticle } from "../types.ts";
 
 export const article: InsightArticle = {
   slug: "eu-ai-act-article-4-literacy-for-ld",
-  title: "EU AI Act Article 4 literacy: what L&D has to do",
-  h1: "EU AI Act Article 4: what L&D actually has to do",
+  title: "L&D has to evidence staff AI literacy under Article 4",
+  h1: "Article 4 of the EU AI Act asks Learning and Development to help staff understand the AI they already use.",
   description:
     "Article 4 of the EU AI Act is a duty to support AI literacy at work — not a certificate. What L&D should record, how roles differ, and how to commission live training you can evidence.",
+  lede: "The EU AI Act is Europe's law for how companies use AI at work. Article 4 is the part that says staff have to be helped to understand the AI they use. AI literacy, in this briefing, means whether people can use the tools you already bought, on their real work, without creating a mess. L&D is Learning and Development: the people who have to turn that duty into training, a record, and a plan a busy manager can defend.",
   dek: "Article 4 is a literacy duty, not a certificate. Here is what L&D should be able to show.",
   publishedAt: "2026-08-05",
   topic: "AI literacy",
@@ -18,7 +19,7 @@ export const article: InsightArticle = {
   cta: {
     heading: "See the literacy programme",
     blurb:
-      "Experrt runs live, in-house cohorts. The programme page is the brief for scope, dates, and the record the training should produce. The assessment can aim those cohorts; completing it is not an Article 4 measure.",
+      "Experrt runs live, in-house cohorts. The programme page is the brief for scope, dates, and the record the training should produce. The assessment can aim those cohorts; completing it is not an Article 4 measure. You can also write to ag@experrt.com.",
     primaryHref: "/ai-literacy-training",
     primaryLabel: "AI literacy training",
     secondaryHref: "/ai-readiness-assessment",
@@ -62,8 +63,6 @@ export const article: InsightArticle = {
     },
   ],
   body: `
-The EU AI Act is Europe's law for how companies use AI at work. Article 4 is the part that says staff have to be helped to understand the AI they use. AI literacy, in this briefing, means whether people can use the tools you already bought, on their real work, without creating a mess. L&D is Learning and Development: the people who have to turn that duty into training, a record, and a plan a busy manager can defend.
-
 ## Who this is for
 
 This is for the Learning and Development manager who has been asked, often with little notice, to evidence workforce AI literacy. Legal has usually already confirmed that the organisation deploys AI systems. Someone then forwards Article 4 and asks for a plan. The useful answer is not a slide that says the organisation is finished with the problem. It is a record of who was trained, on what, to what standard, and how that maps to the work they actually do.
@@ -126,6 +125,6 @@ Experrt will not tell you that a course makes you compliant. We will run the coh
 
 Start with the roles that already use AI on customer or regulated work. Run the [assessment](/ai-readiness-assessment) if you have not, knowing it is a diagnostic and not the measure. Book a literacy cohort for those roles and a sponsor session for the people who will have to describe the measures later. Put the export in the same folder as the AI policy.
 
-If you want the programme scoped against the roles you already have, start on the [AI literacy training](/ai-literacy-training) page. Bring the list of roles and the tools they already use. That is enough to start.
+If you want the programme scoped against the roles you already have, start on the [AI literacy training](/ai-literacy-training) page. Bring the list of roles and the tools they already use. You can also write to [ag@experrt.com](mailto:ag@experrt.com). That is enough to start.
 `,
 };

@@ -18,7 +18,7 @@ import { InsightArticleBody } from "@/components/insight-article-body";
 import { InsightShare } from "@/components/public/insight-share";
 import { InsightSubscribe } from "@/components/public/insight-subscribe";
 import { ReadingProgress } from "@/components/public/reading-progress";
-import { FaqList } from "@/components/marketing/faq-list";
+import { FaqList, LinkedCopy } from "@/components/marketing/faq-list";
 import {
   StructuredData,
   ORGANISATION_LD,
@@ -90,6 +90,11 @@ export default async function InsightArticlePage({
         <h1 className="mb-5 text-3xl font-bold leading-[1.15] tracking-[-0.03em] sm:text-[2.75rem]">
           {heading}
         </h1>
+        {article.lede ? (
+          <p className="mb-6 text-[17px] leading-[1.75] text-foreground/80">
+            {article.lede}
+          </p>
+        ) : null}
         <p className="mb-6 text-xl leading-relaxed text-muted-foreground">
           {article.dek}
         </p>
@@ -199,7 +204,7 @@ export default async function InsightArticlePage({
       <section className="mt-6 max-w-[68ch] rounded-2xl border border-border bg-card p-6">
         <h2 className="mb-2 text-sm font-semibold">{cta.heading}</h2>
         <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-          {cta.blurb}
+          <LinkedCopy text={cta.blurb} />
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
