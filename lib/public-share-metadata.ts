@@ -151,11 +151,51 @@ export function useCasePageMetadata(entry: UseCaseEntry) {
   });
 }
 
-export function blogRedirectMetadata() {
+export function contactMetadata() {
+  const site = getPublicSiteUrl();
+  const canonical = `${site}/contact`;
+  const title = "Book a conversation";
+  const description =
+    "Enquire about a facilitated training cohort, or book a conversation about applied AI, technology and robotics training for your team. Name, email, organisation and a short brief is enough.";
   return withSiteShareImages({
-    title: "Insights",
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title: `${title} | Experrt`,
+      description,
+      url: canonical,
+      type: "website",
+    },
+    twitter: {
+      title: `${title} | Experrt`,
+      description,
+    },
+    robots: { index: true, follow: true },
+  });
+}
+
+/**
+ * /blog is a permanent redirect to /insights. This metadata must never look
+ * like a login wall: title and description are the public Insights page, the
+ * canonical is /insights, and the URL stays noindex so search consolidates
+ * on /insights.
+ */
+export function blogRedirectMetadata() {
+  const site = getPublicSiteUrl();
+  return withSiteShareImages({
+    title: "Insights on workforce AI and robotics training",
+    description:
+      "Briefings for L&D, HR, operations and transformation leads commissioning in-house AI, technology and robotics training. No login required.",
     robots: { index: false, follow: true },
-    alternates: { canonical: "/insights" },
+    alternates: { canonical: `${site}/insights` },
+    openGraph: {
+      title: "Insights on workforce AI and robotics training",
+      description:
+        "Public briefings for people buying in-house AI and robotics training.",
+      url: `${site}/insights`,
+      type: "website",
+    },
   });
 }
 

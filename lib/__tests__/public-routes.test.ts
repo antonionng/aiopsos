@@ -18,6 +18,14 @@ test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights/technology-judgement-for-nontechnical-directors"), true);
   assert.equal(isPublicPath("/blog"), true);
   assert.equal(isPublicPath("/blog/anything"), true);
+  assert.equal(isSessionGatedPath("/blog"), false);
+  assert.equal(isSessionGatedPath("/blog/anything"), false);
+});
+
+test("contact is a public marketing page so LinkedIn and Google can use the URL", () => {
+  assert.equal(isPublicPath("/contact"), true);
+  assert.equal(isPublicPath("/api/contact"), true);
+  assert.equal(isSessionGatedPath("/contact"), false);
 });
 
 test("use cases are public marketing pages", () => {

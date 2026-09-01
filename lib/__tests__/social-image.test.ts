@@ -16,6 +16,7 @@ import {
 } from "../social-image.ts";
 import {
   blogRedirectMetadata,
+  contactMetadata,
   cookiesMetadata,
   coursePageMetadata,
   coursesIndexMetadata,
@@ -79,6 +80,31 @@ test("withSiteShareImages will not let a page reset twitter:card to summary", ()
   assert.equal(metadataHasShareImage(filled), true);
 });
 
+test("contact metadata is its own indexed document, not the homepage", () => {
+  const metadata = contactMetadata();
+  assert.equal(metadata.title, "Book a conversation");
+  assert.match(metadata.description ?? "", /cohort|conversation/i);
+  assert.equal(metadata.alternates?.canonical, "https://www.experrt.com/contact");
+  assert.equal(metadata.openGraph?.url, "https://www.experrt.com/contact");
+  assert.equal(metadata.robots?.index, true);
+  assert.equal(metadata.robots?.follow, true);
+  assert.notEqual(metadata.alternates?.canonical, "https://www.experrt.com");
+  assert.notEqual(metadata.alternates?.canonical, "/");
+  assert.equal(metadataHasShareImage(metadata), true);
+});
+
+test("blog redirect metadata is Insights, not a login page", () => {
+  const metadata = blogRedirectMetadata();
+  assert.match(String(metadata.title), /Insights/i);
+  assert.match(metadata.description ?? "", /training/i);
+  assert.doesNotMatch(String(metadata.title), /login|sign in|password/i);
+  assert.doesNotMatch(metadata.description ?? "", /sign in|password/i);
+  assert.equal(metadata.alternates?.canonical, "https://www.experrt.com/insights");
+  assert.equal(metadata.robots?.index, false);
+  assert.equal(metadata.robots?.follow, true);
+  assert.equal(metadataHasShareImage(metadata), true);
+});
+
 test("every public marketing metadata builder emits og:image and a large Twitter card", () => {
   const builders: [string, ReturnType<typeof withSiteShareImages>][] = [
     ["/", withSiteShareImages({ title: "Experrt" })],
@@ -86,6 +112,7 @@ test("every public marketing metadata builder emits og:image and a large Twitter
     ["/courses", coursesIndexMetadata()],
     ["/use-cases", useCasesIndexMetadata()],
     ["/experrt-ai", experrtAiMetadata()],
+    ["/contact", contactMetadata()],
     ["/blog", blogRedirectMetadata()],
     ["/verify", verifyCertificateMetadata()],
     ["/terms", termsMetadata()],
@@ -200,10 +227,21 @@ test("a public page that sets metadata must keep a share image", () => {
     "app/(public)/use-cases/page.tsx",
     "app/(public)/use-cases/[slug]/page.tsx",
     "app/(company)/experrt-ai/page.tsx",
+    "app/(company)/contact/page.tsx",
   ]) {
     assert.ok(
       metadataPages.includes(required),
       `${required} must export metadata so the share-image check covers it`
     );
   }
+
+  const contactPage = readFileSync(
+    join(REPO_ROOT, "app/(company)/contact/page.tsx"),
+    "utf8"
+  );
+  assert.equal(
+    contactPage.includes('"use client"'),
+    false,
+    "contact page must be a server component so it can export metadata"
+  );
 });
