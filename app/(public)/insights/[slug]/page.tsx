@@ -6,6 +6,7 @@ import {
   adjacentInsights,
   getInsightBySlug,
   getPublishedInsights,
+  insightCta,
   insightReadingMinutes,
   relatedCoursesFor,
   relatedInsights,
@@ -17,10 +18,12 @@ import { InsightArticleBody } from "@/components/insight-article-body";
 import { InsightShare } from "@/components/public/insight-share";
 import { InsightSubscribe } from "@/components/public/insight-subscribe";
 import { ReadingProgress } from "@/components/public/reading-progress";
+import { FaqList } from "@/components/marketing/faq-list";
 import {
   StructuredData,
   ORGANISATION_LD,
   articleLd,
+  faqPageLd,
 } from "@/components/structured-data";
 
 export function generateStaticParams() {
@@ -53,11 +56,16 @@ export default async function InsightArticlePage({
   const alsoRead = relatedInsights(article);
   const { older, newer } = adjacentInsights(article.slug);
   const url = `${SITE_URL}/insights/${article.slug}`;
+  const cta = insightCta(article);
+  const heading = article.h1 ?? article.title;
 
   return (
     <article>
       <StructuredData data={ORGANISATION_LD} />
       <StructuredData data={articleLd(article)} />
+      {article.faqs && article.faqs.length > 0 ? (
+        <StructuredData data={faqPageLd(article.faqs)} />
+      ) : null}
       <ReadingProgress />
 
       <Link
@@ -80,7 +88,7 @@ export default async function InsightArticlePage({
           </span>
         </p>
         <h1 className="mb-5 text-3xl font-bold leading-[1.15] tracking-[-0.03em] sm:text-[2.75rem]">
-          {article.title}
+          {heading}
         </h1>
         <p className="mb-6 text-xl leading-relaxed text-muted-foreground">
           {article.dek}
@@ -91,6 +99,12 @@ export default async function InsightArticlePage({
       <hr className="mb-10 border-border/60" />
 
       <InsightArticleBody markdown={article.body} />
+
+      {article.faqs && article.faqs.length > 0 ? (
+        <div className="mt-12 max-w-[68ch]">
+          <FaqList faqs={article.faqs} heading="Questions L&D usually asks" />
+        </div>
+      ) : null}
 
       <div className="mt-12 max-w-[68ch] border-t border-border/60 pt-8">
         <InsightShare url={url} title={article.title} />
@@ -183,19 +197,27 @@ export default async function InsightArticlePage({
       )}
 
       <section className="mt-6 max-w-[68ch] rounded-2xl border border-border bg-card p-6">
-        <h2 className="mb-2 text-sm font-semibold">Book a conversation</h2>
+        <h2 className="mb-2 text-sm font-semibold">{cta.heading}</h2>
         <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-          Experrt runs live, in-house cohorts. If this briefing matches a gap
-          you already have, talk to us about scope, dates and the record the
-          programme should produce.
+          {cta.blurb}
         </p>
-        <Link
-          href="/contact"
-          className="group inline-flex h-10 items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-        >
-          Contact Experrt
-          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href={cta.primaryHref}
+            className="group inline-flex h-10 items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+          >
+            {cta.primaryLabel}
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+          {cta.secondaryHref && cta.secondaryLabel ? (
+            <Link
+              href={cta.secondaryHref}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border px-5 text-sm font-semibold transition-colors hover:bg-accent"
+            >
+              {cta.secondaryLabel}
+            </Link>
+          ) : null}
+        </div>
       </section>
     </article>
   );

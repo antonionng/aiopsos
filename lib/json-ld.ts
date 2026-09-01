@@ -55,12 +55,13 @@ export function articleLd(article: {
   title: string;
   description: string;
   publishedAt: string;
+  h1?: string;
 }) {
   const url = `${BASE_URL}/insights/${article.slug}`;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: article.title,
+    headline: article.h1 ?? article.title,
     description: article.description,
     datePublished: article.publishedAt,
     dateModified: article.publishedAt,
