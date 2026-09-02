@@ -12,6 +12,13 @@ export const article: InsightArticle = {
     "getting-value-from-tools-you-already-own",
     "embedding-ai-in-daily-workflows",
   ],
+  cta: {
+    heading: "See the literacy programme",
+    blurb:
+      "Experrt runs live, in-house cohorts. If you want the programme scoped against the roles you already have, start on the AI literacy training page. You can also write to ag@experrt.com.",
+    primaryHref: "/ai-literacy-training",
+    primaryLabel: "AI literacy training",
+  },
   body: `
 ## Who this is for
 
@@ -67,6 +74,6 @@ Name the licences and the three jobs in the brief. Insist on live facilitation a
 
 Experrt runs those cohorts in person or online. We do not sell the underlying tools, and we will not pretend a two-hour orientation turns a licence estate into EBIT. We will put your people in a room with the tools you already pay for and make them use them on the work you already do.
 
-If that is the conversation you need, [contact Experrt](/contact). Bring the licence list and the three jobs. Leave the new-vendor deck at the door.
+If you want the programme scoped against the roles you already have, start on the [AI literacy training](/ai-literacy-training) page. Bring the list of roles and the tools they already use. You can also write to [ag@experrt.com](mailto:ag@experrt.com).
 `,
 };
