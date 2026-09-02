@@ -7,6 +7,7 @@ import {
   getInsightTopics,
   getInsightsByTopic,
   getPublishedInsights,
+  insightCta,
   insightForCourse,
   insightReadingMinutes,
   insightWordCount,
@@ -14,6 +15,7 @@ import {
   relatedInsights,
 } from "../insights/catalog.ts";
 import { INSIGHT_TOPICS } from "../insights/types.ts";
+import { articleLd, faqPageLd } from "../json-ld.ts";
 
 const ORIGINAL_SLUGS = [
   "eu-ai-act-article-4-literacy-for-ld",
@@ -109,11 +111,13 @@ test("each article is 900-1400 words, one H1-free body, no em dashes", () => {
   }
 });
 
-test("each article links to named courses and contact", () => {
+test("each article links to named courses", () => {
   const expectedCourses: Record<string, string[]> = {
     "eu-ai-act-article-4-literacy-for-ld": [
       "sponsoring-an-ai-literacy-programme",
       "responsible-ai-use-at-work",
+      "ai-foundations-for-every-role",
+      "ai-governance-and-oversight-for-managers",
     ],
     "unused-ai-licences-training-gap": [
       "getting-value-from-tools-you-already-own",
@@ -164,7 +168,13 @@ test("each article links to named courses and contact", () => {
   for (const [slug, courses] of Object.entries(expectedCourses)) {
     const article = getInsightBySlug(slug);
     assert.ok(article, slug);
-    assert.match(article.body, /\]\(\/contact\)/);
+    if (slug === "eu-ai-act-article-4-literacy-for-ld") {
+      assert.doesNotMatch(article.body, /\]\(\/contact(?:\?[^)]*)?\)/);
+      assert.ok(article.body.includes("/ai-literacy-training"));
+      assert.ok(article.body.includes("/ai-readiness-assessment"));
+    } else {
+      assert.match(article.body, /\]\(\/contact\)/);
+    }
     for (const course of courses) {
       assert.ok(
         article.body.includes(`/courses/${course}`),
@@ -282,4 +292,57 @@ test("related insights never include the article itself and prefer its topic", (
       assert.equal(related[0].topic, article.topic);
     }
   }
+});
+
+test("Article 4 L&D briefing is a literacy enquiry page, not a contact dump", () => {
+  const article = getInsightBySlug("eu-ai-act-article-4-literacy-for-ld");
+  assert.ok(article);
+  assert.equal(
+    article.title,
+    "L&D has to evidence staff AI literacy under Article 4"
+  );
+  assert.equal(
+    article.h1,
+    "Article 4 of the EU AI Act asks Learning and Development to help staff understand the AI they already use."
+  );
+  assert.match(article.lede ?? "", /Europe's law for how companies use AI at work/);
+  assert.match(article.lede ?? "", /Learning and Development/);
+  assert.match(article.dek, /literacy duty, not a certificate/);
+  assert.match(
+    article.description,
+    /duty to support AI literacy at work/
+  );
+  assert.doesNotMatch(article.body, /this month/);
+  assert.match(article.body, /2 August 2026/);
+  assert.match(article.body, /September/);
+  assert.match(article.body, /Commission AI literacy Q&A/);
+  assert.doesNotMatch(article.body, /EU AI Act compliant training/i);
+  assert.doesNotMatch(article.body, /\bKumo\b/);
+  assert.doesNotMatch(article.body, /£100,?000/);
+
+  const faqs = article.faqs ?? [];
+  assert.ok(faqs.length >= 5 && faqs.length <= 7);
+  const faqText = faqs.map((faq) => `${faq.question} ${faq.answer}`).join("\n");
+  assert.match(faqText, /certificate/i);
+  assert.match(faqText, /not an Article 4 measure/i);
+  assert.doesNotMatch(faqText, /\/contact/);
+
+  const cta = insightCta(article);
+  assert.equal(cta.primaryHref, "/ai-literacy-training");
+  assert.equal(cta.secondaryHref, "/ai-readiness-assessment");
+  assert.notEqual(cta.primaryHref, "/contact");
+  assert.doesNotMatch(cta.primaryHref, /^\/contact/);
+  assert.doesNotMatch(cta.blurb + cta.heading, /\/contact/);
+  assert.match(cta.blurb, /ag@experrt\.com/);
+  assert.match(article.body, /ag@experrt\.com/);
+
+  const articleSchema = articleLd(article);
+  assert.equal(articleSchema["@type"], "Article");
+  assert.equal(articleSchema.headline, article.h1);
+  assert.notEqual(articleSchema["@type"], "Course");
+
+  const faqsSchema = faqPageLd(faqs);
+  assert.equal(faqsSchema["@type"], "FAQPage");
+  assert.equal(faqsSchema.mainEntity.length, faqs.length);
+  assert.doesNotMatch(JSON.stringify(articleSchema), /"@type":"Course"/);
 });

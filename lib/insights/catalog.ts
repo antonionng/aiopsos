@@ -10,7 +10,12 @@ import { article as measureStuck } from "./articles/how-to-measure-if-ai-trainin
 import { article as cobotShift } from "./articles/cobot-training-for-the-shift-not-the-integrator.ts";
 import { article as directorJudgement } from "./articles/technology-judgement-for-nontechnical-directors.ts";
 import { COURSE_TITLES } from "../published-course-slugs.ts";
-import { INSIGHT_TOPICS, type InsightArticle, type InsightTopic } from "./types.ts";
+import {
+  INSIGHT_TOPICS,
+  type InsightArticle,
+  type InsightCta,
+  type InsightTopic,
+} from "./types.ts";
 
 const PUBLISHED: InsightArticle[] = [
   euAiAct,
@@ -102,6 +107,19 @@ export function relatedCoursesFor(article: InsightArticle): {
     slug,
     title: COURSE_TITLES[slug] ?? slug,
   }));
+}
+
+const DEFAULT_INSIGHT_CTA: InsightCta = {
+  heading: "Book a conversation",
+  blurb:
+    "Experrt runs live, in-house cohorts. If this briefing matches a gap you already have, talk to us about scope, dates and the record the programme should produce.",
+  primaryHref: "/contact",
+  primaryLabel: "Contact Experrt",
+};
+
+/** End-of-article CTA. Article 4 uses the literacy hub; others still use /contact. */
+export function insightCta(article: InsightArticle): InsightCta {
+  return article.cta ?? DEFAULT_INSIGHT_CTA;
 }
 
 /** One related article for a course page. First published match wins. */
