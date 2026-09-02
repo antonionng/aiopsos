@@ -12,6 +12,13 @@ export const article: InsightArticle = {
     "sponsoring-an-ai-literacy-programme",
     "ai-governance-and-oversight-for-managers",
   ],
+  cta: {
+    heading: "See the literacy programme",
+    blurb:
+      "Experrt runs live, in-house cohorts. If you want the programme scoped against the roles you already have, start on the AI literacy training page. You can also write to ag@experrt.com.",
+    primaryHref: "/ai-literacy-training",
+    primaryLabel: "AI literacy training",
+  },
   body: `
 ## Who this is for
 
@@ -77,6 +84,8 @@ That is a higher bar than a self-paced module. It is also the bar that matches t
 
 ## How to start
 
-List the roles, the tools they already use, and the person who will own the export. Book the sponsor session and the first practitioner cohort as a pair, not as a catalogue browse. If you want Experrt to run them, [contact us](/contact) with that list. We will tell you what we would and would not put in the room, including when a course of ours is the wrong next step.
+List the roles, the tools they already use, and the person who will own the export. Book the sponsor session and the first practitioner cohort as a pair, not as a catalogue browse.
+
+If you want the programme scoped against the roles you already have, start on the [AI literacy training](/ai-literacy-training) page. Bring the list of roles and the tools they already use. You can also write to [ag@experrt.com](mailto:ag@experrt.com).
 `,
 };
