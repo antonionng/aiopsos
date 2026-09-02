@@ -117,7 +117,7 @@ const DEFAULT_INSIGHT_CTA: InsightCta = {
   primaryLabel: "Contact Experrt",
 };
 
-/** End-of-article CTA. Article 4 uses the literacy hub; others still use /contact. */
+/** End-of-article CTA. Literacy closers override this; others still use /contact. */
 export function insightCta(article: InsightArticle): InsightCta {
   return article.cta ?? DEFAULT_INSIGHT_CTA;
 }

@@ -13,6 +13,13 @@ export const article: InsightArticle = {
     "responsible-ai-use-at-work",
     "sponsoring-an-ai-literacy-programme",
   ],
+  cta: {
+    heading: "See the literacy programme",
+    blurb:
+      "Experrt runs live, in-house cohorts. If you want the programme scoped against the roles you already have, start on the AI literacy training page. You can also write to ag@experrt.com.",
+    primaryHref: "/ai-literacy-training",
+    primaryLabel: "AI literacy training",
+  },
   body: `
 ## Who this is for
 
@@ -66,6 +73,8 @@ Experrt will not tell you that watching a model write a poem made anyone literat
 
 ## What to do this quarter
 
-Write the role map on one page. Name the tools those roles already use. Decide what a competent person in each role must be able to check. Book a foundations cohort for the mixed group and a sponsor session for the person who will answer for the programme. If you need help turning that page into dates and a record, [contact Experrt](/contact). Bring the role list. That is enough to start.
+Write the role map on one page. Name the tools those roles already use. Decide what a competent person in each role must be able to check. Book a foundations cohort for the mixed group and a sponsor session for the person who will answer for the programme.
+
+If you want the programme scoped against the roles you already have, start on the [AI literacy training](/ai-literacy-training) page. Bring the list of roles and the tools they already use. You can also write to [ag@experrt.com](mailto:ag@experrt.com).
 `,
 };

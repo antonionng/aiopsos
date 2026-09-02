@@ -168,10 +168,17 @@ test("each article links to named courses", () => {
   for (const [slug, courses] of Object.entries(expectedCourses)) {
     const article = getInsightBySlug(slug);
     assert.ok(article, slug);
-    if (slug === "eu-ai-act-article-4-literacy-for-ld") {
+    if (
+      slug === "eu-ai-act-article-4-literacy-for-ld" ||
+      slug === "what-ai-literacy-actually-means-at-work"
+    ) {
       assert.doesNotMatch(article.body, /\]\(\/contact(?:\?[^)]*)?\)/);
       assert.ok(article.body.includes("/ai-literacy-training"));
-      assert.ok(article.body.includes("/ai-readiness-assessment"));
+      if (slug === "eu-ai-act-article-4-literacy-for-ld") {
+        assert.ok(article.body.includes("/ai-readiness-assessment"));
+      } else {
+        assert.ok(article.body.includes("ag@experrt.com"));
+      }
     } else {
       assert.match(article.body, /\]\(\/contact\)/);
     }
@@ -345,4 +352,30 @@ test("Article 4 L&D briefing is a literacy enquiry page, not a contact dump", ()
   assert.equal(faqsSchema["@type"], "FAQPage");
   assert.equal(faqsSchema.mainEntity.length, faqs.length);
   assert.doesNotMatch(JSON.stringify(articleSchema), /"@type":"Course"/);
+});
+
+test("the literacy definition insight closer is the programme, not /contact", () => {
+  const article = getInsightBySlug("what-ai-literacy-actually-means-at-work");
+  assert.ok(article);
+  assert.doesNotMatch(article.body, /\]\(\/contact(?:\?[^)]*)?\)/);
+  assert.match(
+    article.body,
+    /If you want the programme scoped against the roles you already have/
+  );
+  assert.match(article.body, /\[AI literacy training\]\(\/ai-literacy-training\)/);
+  assert.match(article.body, /\[ag@experrt\.com\]\(mailto:ag@experrt\.com\)/);
+  assert.doesNotMatch(article.body, /contact Experrt/);
+
+  const cta = insightCta(article);
+  assert.equal(cta.primaryHref, "/ai-literacy-training");
+  assert.notEqual(cta.primaryHref, "/contact");
+  assert.doesNotMatch(cta.primaryHref, /^\/contact/);
+  assert.doesNotMatch(`${cta.blurb}${cta.heading}${cta.primaryLabel}`, /\/contact/);
+  assert.match(cta.blurb, /ag@experrt\.com/);
+  assert.equal(cta.secondaryHref, undefined);
+
+  const defaultCta = insightCta(
+    getInsightBySlug("unused-ai-licences-training-gap")!
+  );
+  assert.equal(defaultCta.primaryHref, "/contact");
 });
