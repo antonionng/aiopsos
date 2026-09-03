@@ -172,7 +172,8 @@ test("each article links to named courses", () => {
       slug === "eu-ai-act-article-4-literacy-for-ld" ||
       slug === "what-ai-literacy-actually-means-at-work" ||
       slug === "how-to-commission-workforce-ai-training" ||
-      slug === "unused-ai-licences-training-gap"
+      slug === "unused-ai-licences-training-gap" ||
+      slug === "in-person-ai-training-vs-lms"
     ) {
       assert.doesNotMatch(article.body, /\]\(\/contact(?:\?[^)]*)?\)/);
       assert.ok(article.body.includes("/ai-literacy-training"));
@@ -361,6 +362,7 @@ test("literacy-programme closers are the programme, not /contact", () => {
     "what-ai-literacy-actually-means-at-work",
     "how-to-commission-workforce-ai-training",
     "unused-ai-licences-training-gap",
+    "in-person-ai-training-vs-lms",
   ]) {
     const article = getInsightBySlug(slug);
     assert.ok(article, slug);

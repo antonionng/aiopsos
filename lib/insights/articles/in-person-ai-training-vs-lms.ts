@@ -12,6 +12,13 @@ export const article: InsightArticle = {
     "embedding-ai-in-daily-workflows",
     "leading-an-ai-ready-team",
   ],
+  cta: {
+    heading: "See the literacy programme",
+    blurb:
+      "Experrt runs live, in-house cohorts. If you want the programme scoped against the roles you already have, start on the AI literacy training page. You can also write to ag@experrt.com.",
+    primaryHref: "/ai-literacy-training",
+    primaryLabel: "AI literacy training",
+  },
   body: `
 ## Who this is for
 
@@ -71,6 +78,6 @@ Experrt runs live, in-house cohorts. We will not pretend a recording changed a s
 
 Pick one team that already has licences and a visible quality problem: rework, unused seats, or outputs nobody will sign. Book a live cohort for that team and a manager session for the person they report to. Put any LMS module after those dates, as the reminder. If the only slot you can get is a recording, say so in the business case and do not call it a behaviour change.
 
-[Contact Experrt](/contact) with the team, the tool, and what "different on Monday" would look like in one sentence. That is the brief.
+If you want the programme scoped against the roles you already have, start on the [AI literacy training](/ai-literacy-training) page. Bring the list of roles and the tools they already use. You can also write to [ag@experrt.com](mailto:ag@experrt.com).
 `,
 };
