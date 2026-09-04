@@ -10,6 +10,7 @@ import {
 test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights"), true);
   assert.equal(isPublicPath("/insights/eu-ai-act-article-4-literacy-for-ld"), true);
+  assert.equal(isPublicPath("/insights/article-4-evidence-pack-for-ld"), true);
   assert.equal(isPublicPath("/insights/how-to-commission-workforce-ai-training"), true);
   assert.equal(isPublicPath("/insights/unused-ai-licences-training-gap"), true);
   assert.equal(isPublicPath("/insights/ai-output-verification-at-work"), true);
