@@ -12,6 +12,13 @@ export const article: InsightArticle = {
     "prompting-and-output-verification",
     "ai-foundations-for-every-role",
   ],
+  cta: {
+    heading: "See the literacy programme",
+    blurb:
+      "Experrt runs live, in-house cohorts. If you want the programme scoped against the roles you already have, start on the AI literacy training page. You can also write to ag@experrt.com.",
+    primaryHref: "/ai-literacy-training",
+    primaryLabel: "AI literacy training",
+  },
   body: `
 ## Who this is for
 
@@ -67,6 +74,6 @@ If staff have never used the tools on their own work, start with foundations, th
 
 Experrt runs those cohorts live, in person or online, on the organisation's own material. We will not teach a secret prompt that removes the need to check. There is not one.
 
-If you want the room booked, [contact Experrt](/contact). Bring three examples of AI-assisted work that already left a desk. Those examples are the syllabus.
+If you want the programme scoped against the roles you already have, start on the [AI literacy training](/ai-literacy-training) page. Bring the list of roles and the tools they already use. You can also write to [ag@experrt.com](mailto:ag@experrt.com).
 `,
 };

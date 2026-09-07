@@ -173,7 +173,10 @@ test("each article links to named courses", () => {
       slug === "what-ai-literacy-actually-means-at-work" ||
       slug === "how-to-commission-workforce-ai-training" ||
       slug === "unused-ai-licences-training-gap" ||
-      slug === "in-person-ai-training-vs-lms"
+      slug === "in-person-ai-training-vs-lms" ||
+      slug === "ai-output-verification-at-work" ||
+      slug === "managers-not-champions-ai-adoption" ||
+      slug === "how-to-measure-if-ai-training-stuck"
     ) {
       assert.doesNotMatch(article.body, /\]\(\/contact(?:\?[^)]*)?\)/);
       assert.ok(article.body.includes("/ai-literacy-training"));
@@ -363,6 +366,9 @@ test("literacy-programme closers are the programme, not /contact", () => {
     "how-to-commission-workforce-ai-training",
     "unused-ai-licences-training-gap",
     "in-person-ai-training-vs-lms",
+    "ai-output-verification-at-work",
+    "managers-not-champions-ai-adoption",
+    "how-to-measure-if-ai-training-stuck",
   ]) {
     const article = getInsightBySlug(slug);
     assert.ok(article, slug);
@@ -385,7 +391,7 @@ test("literacy-programme closers are the programme, not /contact", () => {
   }
 
   const defaultCta = insightCta(
-    getInsightBySlug("managers-not-champions-ai-adoption")!
+    getInsightBySlug("robotics-training-is-an-ops-problem")!
   );
   assert.equal(defaultCta.primaryHref, "/contact");
 });
