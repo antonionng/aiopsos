@@ -1,5 +1,5 @@
 import { article as euAiAct } from "./articles/eu-ai-act-article-4-literacy-for-ld.ts";
-import { article as article4Pack } from "./articles/article-4-evidence-pack-for-ld.ts";
+import { article as article4Pack } from "./articles/article-4-evidence-pack.ts";
 import { article as unusedLicences } from "./articles/unused-ai-licences-training-gap.ts";
 import { article as commissionTraining } from "./articles/how-to-commission-workforce-ai-training.ts";
 import { article as roboticsOps } from "./articles/robotics-training-is-an-ops-problem.ts";

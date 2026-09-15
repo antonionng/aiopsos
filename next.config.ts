@@ -109,6 +109,11 @@ const nextConfig: NextConfig = {
         destination: "/use-cases/enterprise",
         statusCode: 301,
       },
+      {
+        source: "/insights/article-4-evidence-pack-for-ld",
+        destination: "/insights/article-4-evidence-pack",
+        statusCode: 301,
+      },
     ];
   },
 };

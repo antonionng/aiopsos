@@ -32,7 +32,7 @@ const NEW_SLUGS = [
   "how-to-measure-if-ai-training-stuck",
   "cobot-training-for-the-shift-not-the-integrator",
   "technology-judgement-for-nontechnical-directors",
-  "article-4-evidence-pack-for-ld",
+  "article-4-evidence-pack",
 ] as const;
 
 const REQUIRED_SLUGS = [...ORIGINAL_SLUGS, ...NEW_SLUGS] as const;
@@ -49,7 +49,7 @@ const EXPECTED_DATES: Record<string, string> = {
   "eu-ai-act-article-4-literacy-for-ld": "2026-08-05",
   "cobot-training-for-the-shift-not-the-integrator": "2026-08-12",
   "technology-judgement-for-nontechnical-directors": "2026-08-19",
-  "article-4-evidence-pack-for-ld": "2026-09-04",
+  "article-4-evidence-pack": "2026-09-04",
 };
 
 test("twelve published insights with unique titles, descriptions, and dates", () => {
@@ -124,7 +124,7 @@ test("each article links to named courses", () => {
       "ai-foundations-for-every-role",
       "ai-governance-and-oversight-for-managers",
     ],
-    "article-4-evidence-pack-for-ld": [
+    "article-4-evidence-pack": [
       "sponsoring-an-ai-literacy-programme",
       "responsible-ai-use-at-work",
       "ai-foundations-for-every-role",
@@ -181,7 +181,7 @@ test("each article links to named courses", () => {
     assert.ok(article, slug);
     if (
       slug === "eu-ai-act-article-4-literacy-for-ld" ||
-      slug === "article-4-evidence-pack-for-ld" ||
+      slug === "article-4-evidence-pack" ||
       slug === "what-ai-literacy-actually-means-at-work" ||
       slug === "how-to-commission-workforce-ai-training" ||
       slug === "unused-ai-licences-training-gap" ||
@@ -194,7 +194,7 @@ test("each article links to named courses", () => {
       assert.ok(article.body.includes("/ai-literacy-training"));
       if (
         slug === "eu-ai-act-article-4-literacy-for-ld" ||
-        slug === "article-4-evidence-pack-for-ld"
+        slug === "article-4-evidence-pack"
       ) {
         assert.ok(article.body.includes("/ai-readiness-assessment"));
         assert.ok(article.body.includes("ag@experrt.com"));
@@ -216,7 +216,7 @@ test("each article links to named courses", () => {
 
 test("new articles link to related insights", () => {
   const expectedInsightLinks: Record<string, string> = {
-    "article-4-evidence-pack-for-ld":
+    "article-4-evidence-pack":
       "/insights/eu-ai-act-article-4-literacy-for-ld",
     "what-ai-literacy-actually-means-at-work":
       "/insights/eu-ai-act-article-4-literacy-for-ld",
@@ -379,7 +379,7 @@ test("Article 4 L&D briefing is a literacy enquiry page, not a contact dump", ()
 });
 
 test("Article 4 evidence pack is a filing checklist, not a contact dump", () => {
-  const article = getInsightBySlug("article-4-evidence-pack-for-ld");
+  const article = getInsightBySlug("article-4-evidence-pack");
   assert.ok(article);
   assert.equal(
     article.title,

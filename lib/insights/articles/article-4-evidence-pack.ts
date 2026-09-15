@@ -1,7 +1,7 @@
 import type { InsightArticle } from "../types.ts";
 
 export const article: InsightArticle = {
-  slug: "article-4-evidence-pack-for-ld",
+  slug: "article-4-evidence-pack",
   title: "What L&D should file for Article 4 AI literacy",
   h1: "Article 4 does not ask for a certificate. It asks for a file you can describe.",
   description:
