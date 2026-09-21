@@ -148,9 +148,9 @@ Not SCORM. Not a video library with a worksheet taped on. A quiet Experrt page w
 
 | Beat | Required? | What it is |
 | --- | --- | --- |
-| **Theory** | Always | Short written lesson. One decision they will make this week. One worked example from a real job. Reading width and type like an Experrt insight, not a slide dump. |
+| **Theory** | Always | One decision, then the mechanism in plain words, then one worked example. Technical enough to be true. Short enough to follow in one sitting. |
 | **Watch** | Only if filmed | Antonio's walkthrough of the same lesson. Rendered only when `playback_id` is set. No empty player. No "video coming soon" placeholder. |
-| **Do the work** | Always | A judgement check, an applied task on their own material, or both. This is what marks the lesson done. |
+| **Do the work** | Always | They mark, build, or check a real object. The lesson is not done until that check passes. |
 
 **Layout:** one reading column, not a dashboard. The lesson moves through frames (read, watch only if filmed, do the work). The lesson index is a panel they open, not a permanent sidebar. Detail is in 2.4a. Phone and desktop use the same column; the phone just has less air.
 
@@ -158,22 +158,33 @@ Not SCORM. Not a video library with a worksheet taped on. A quiet Experrt page w
 
 **Progress:** percent of lessons whose practice is done. Watching is not progress. Skipping a film is not a fail. Reuse `components/ui/progress.tsx` on the player, the catalog card (if entitled), and My Learning.
 
-**What "do the work" means (this is the value, not a garnish):**
+**Depth that is easy to follow.** Each lesson opens with the decision in one sentence. The next part is the mechanism: how a model invents a clause, how a prompt is structured, how a cell stops, how a people-data paste leaks. One worked example shows that mechanism on a real object. A term is named once, in a single plain line, then used precisely. No chapter, no pep talk, no tour. If they can follow the example, they can do the task.
 
-- **Judgement check.** 2–4 items. Not trivia ("what does LLM stand for?"). A realistic artefact and a decision: which draft would you send, which number would you sign, which prompt just leaked a client name. Each option carries a one-line reason, shown when they answer, including on the wrong ones. They can retry. No lives, no timer, no points taken off.
-- **Applied task.** They use their own work, redacted: paste an answer from this week, mark the four checks, save the note, write the one-page brief, list the three jobs already inside a licence they pay for. Stored on the lesson. Non-empty submission counts. No human essay marking in v1.
-- A lesson can be check only, task only, or check then task. The course as a whole must leave them holding an **artefact** (verification note, literacy plan, operating brief, red-list). That artefact is the reason the price is real before any film exists.
-- Soft lock: they can reread any earlier lesson. They cannot skip the practice to open the next one.
-- No chatbot tutor in v1. Experrt AI stays the org workspace. It does not teach or grade this product (same rule as `lib/money-pages.ts`).
+**Interactivity (on the object, not beside it):**
+
+- **Mark.** They tap a sentence in the example. It highlights. They mark it pass or fail. The reason appears under that sentence.
+- **Choose.** Two drafts sit side by side. They pick one. The difference is revealed on the page.
+- **Order.** They put the steps of a check or a recovery in sequence. A wrong order explains why that step cannot come first.
+- **Build.** The artefact grows line by line as each part passes. They watch the prompt card, the brief, or the shift card form in front of them.
+- **Check their own.** They bring their work. Named fields must be filled. Where a rule exists (all four checks marked, role and output format both present, a refusal test written), `Continue` stays off until the rule passes. An empty box does not count.
+
+Wrong answers stay on the page with the reason. They retry. No timer, no lives, no score out of ten. No chatbot tutor in v1. Experrt AI does not teach or grade this product.
+
+**Validation before a certificate.** The last frame of the course shows their artefact back to them as the finished object. They confirm each required part and sign it: their name, and that they would use it on Monday. The certificate is issued only after that confirmation and only after every required check has passed. Clicking through does not earn it.
+
+The course leaves them holding that artefact. That is why the price is real before any film exists.
+
+Soft lock: they can reread any earlier lesson. They cannot open the next lesson until the check on this one passes.
 
 **Value bar (a lesson fails this if any line is false):**
 
 1. It teaches one decision, not a tour of features.
-2. Theory is tight (aim under 800 words) and includes a worked example, not a pep talk.
+2. The mechanism is technically true, shown on one example, and readable in one sitting. Aim under 800 words.
 3. The practice uses their material or a realistic artefact from the job in the course promise.
 4. A wrong answer teaches the miss. It does not say "try again" with no reason.
 5. Video, when it arrives, walks the same decision and the same artefact. It does not add a second curriculum.
 6. A free post cannot hand them the same result. The lesson is the work, not a summary of the work.
+7. `Continue` is impossible until the check passes. The certificate is impossible until every check has passed and they have signed the artefact.
 
 **Adding film later (no rebuild):**
 
@@ -204,7 +215,7 @@ For *AI Output Verification*, the sheet is four lines they fill and keep: source
 
 **Continue.** One pill at the end of the last frame, the same shape as the homepage CTA. The label is `Continue`. It enables when the practice is done, then opens the next lesson. The move is the homepage fade: opacity and a short rise, about half a second, via the `framer-motion` already on `app/page.tsx`. `useReducedMotion` makes that instant.
 
-**The last page.** The final Continue opens a still page. Their artefact. One sentence. The completion record and the verify link. Course artwork, or the horizon illustration, sits behind the type at low opacity the way `SectionAnchor` sits behind homepage copy. Then nothing else. No modal. No sound.
+**The last page.** The final confirmation opens a still page. Their signed artefact. Then the certificate, set like a document, not a popup. Course artwork or the horizon illustration sits behind the type at low opacity, the way `SectionAnchor` sits behind homepage copy. No modal. No sound.
 
 **Theme.** Use the tokens already in `app/globals.css`. Light is warm white and `#191919`. Dark is the existing deep black (`#0d0d0d` background, `#ececec` type). The player follows the site theme. It does not invent a third "learning" palette.
 
@@ -217,12 +228,20 @@ For *AI Output Verification*, the sheet is four lines they fill and keep: source
 - A video on top and a worksheet underneath, which is the failure mode of this design.
 - Toasts, stickers, or a streak mark on every frame. Practice and standing live on My Learning, and as one quiet line when they leave the lesson. Not in the reading measure.
 
-**Completion record:**
+**Certificate.** This is a designed object, earned, and publicly checkable. It uses the pipeline that already exists: `lib/certification.ts` for the rules shape, a frozen snapshot, `/verify/[ref]`, and `CertificateIssuedEmail`. Self-serve does not reuse the attendance-and-grade rule. It issues only when every required check has passed and the learner has signed the artefact.
 
-- When all lessons + required checks are done, issue a **record of completion** using the existing certificate pipeline (`lib/certification.ts`, `/verify/[ref]`, `CertificateIssuedEmail`).
-- Eligibility for self-serve: 100% lessons complete and required checks passed. Not attendance. Not a facilitator grade.
-- Snapshot must say it is a self-serve completion record, not a live-cohort certificate, and must carry `LITERACY_DISCLAIMER`.
-- Cheap badge on My Learning: category artwork + "Completed" + verify link. No gold stars, no cartoon trophies.
+What they receive:
+
+- A page at `/verify/[ref]` in the same type and air as the lesson. Wordmark. Course title in Space Grotesk. Their name. The date. The name of the artefact they signed. The public reference. A line that anyone can use to confirm the record is genuine.
+- A PDF of that same page, via the existing React PDF path (`lib/pdf/`), so they can keep it and send it.
+- The mail they already know from cohort certificates, pointed at this record.
+- A copyable line and the verify link for LinkedIn or a CV. v1 does not call a LinkedIn API.
+
+What the certificate says: they completed this course and signed this artefact. It does not say they are compliant, qualified to the EU AI Act, or certified as a practitioner of a regulated profession. The snapshot carries `LITERACY_DISCLAIMER` wherever the course touches literacy or the Act.
+
+My Learning shows the certificate as that document in miniature, with the verify link. No gold star, no cartoon trophy, no share-confetti.
+
+Eligibility is checks passed plus the signed artefact. Not attendance. Not a facilitator grade. Not time on the page.
 
 ### 2.5 Gamification (premium, not childish)
 
@@ -234,7 +253,7 @@ Match the brand: black, air, one type (Space Grotesk display, Inter body, amber 
 | Streak | `consecutive_days` | Small line under the player: "3 days in practice." Miss a day, it resets. No guilt email. |
 | Standing | `standing` | Foundation → Practised → Fluent. Uses the same seniority language as `COURSE_LEVELS`, not bronze / silver / gold. |
 | Unlocks | lesson / module lock | Next lesson after the check. Optional: Fluent standing unlocks a 15% code for the linked facilitated programme (Antonio can turn this off). |
-| Completion | existing `certificates` | Record of completion + `/verify/[ref]`. |
+| Completion | existing `certificates` | Designed certificate, PDF, and `/verify/[ref]`. |
 
 Do **not** ship: leaderboards, avatars, confetti, daily quests, push nags, public profiles.
 
@@ -1191,11 +1210,11 @@ One course, the AI-track social hook, real money on a **preview**, never on `aia
 - Attach-film field, even if every playback id is still empty.
 - Receipt to buyer, alert to `ag@experrt.com`.
 - My Learning resume.
-- Completion record earned by finishing the practice, not by watching.
+- Completion certificate earned only when every check has passed and the prompt card is signed. Verify page and PDF. Not earned by watching.
 - Homepage Latest can show the single pilot if published.
 - Feature flag `SELF_SERVE_COURSES` default false on production.
 
-Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open lesson 1 from the mail into the focused room (one column, no video chrome, no module sidebar), do the practice, keep the prompt card, continue, finish, and see the purchase on admin revenue. If he has already filmed one lesson, pasting its playback id makes Watch appear in that same column without resetting the run. If the room feels like a form, Phase 1 is not done.
+Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open lesson 1 from the mail into the focused room, follow one technical example without a lecture, mark or build on the object, be blocked by a wrong or empty check, finish, sign the prompt card, and receive a certificate page plus PDF that a second person can open at `/verify/[ref]`. The page must not claim compliance. He can see the purchase on admin revenue. If he has already filmed one lesson, pasting its playback id makes Watch appear in that same column without resetting the run. If the room feels like a form, or the certificate feels like a badge, Phase 1 is not done.
 
 #### Phase 2: full catalogue and polish
 
@@ -1221,7 +1240,7 @@ Company / tenant course-authoring. White-label "companies create their own cours
 - Calendly, `/contact`, or enquiry as the self-serve closer.
 - SCORM, xAPI, or a generic LMS.
 - Experrt AI as tutor or grader of these courses.
-- Article 4 compliance claims or a certificate shop.
+- Article 4 compliance claims, or a certificate that says the buyer is compliant. A completion certificate for a finished, checked course is in scope. A certificate for clicking through is not.
 - Replacing facilitated cohorts, evidence packs, or the assessment funnel.
 - Video files or API keys committed to git.
 - Blocking publish, checkout, or lesson completion on a film that does not exist yet.
@@ -1247,6 +1266,7 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 - [x] Pay-then-account chosen, with a written happy path.
 - [x] Homepage / `/courses` IA and copy samples; course closer is buy / start.
 - [x] Forty courses, ten each in AI, technology, robotics, and HR transformation, with buyer, hours, modules, and GBP band. Four social launch courses named. Each course must leave an artefact a free post cannot replace.
+- [x] Lessons are technically true and easy to follow. Checks block progress. A designed, verifiable certificate is issued only after the artefact is signed.
 - [x] Text and practice are the course. Video is optional and can be attached after publish.
 - [x] The lesson is a focused room (one column, frames, artefact sheet). The interface is part of the course, not a generic player.
 - [x] Phases 0–3 and non-goals, including no production deploy.
