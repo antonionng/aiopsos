@@ -35,6 +35,12 @@ test("use cases are public marketing pages", () => {
   assert.equal(isPublicPath("/use-cases/finance"), true);
 });
 
+test("self-serve learn routes stay public and 404 inside the flag, not at login", () => {
+  assert.equal(isPublicPath("/learn"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work"), true);
+  assert.equal(isSessionGatedPath("/learn"), false);
+});
+
 test("money pages are public so they do not 307 to /login", () => {
   assert.equal(isPublicPath("/ai-literacy-training"), true);
   assert.equal(isPublicPath("/ai-readiness-assessment"), true);

@@ -17,6 +17,7 @@ import {
   type CourseLevel,
 } from "@/lib/constants";
 import { coursesIndexMetadata } from "@/lib/public-share-metadata";
+import { isSelfServeEnabled } from "@/lib/self-serve/flag";
 
 export const metadata: Metadata = coursesIndexMetadata();
 
@@ -55,6 +56,14 @@ export default async function CoursesPage({
         <h1 className="mb-4 font-display text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
           Training courses
         </h1>
+        {isSelfServeEnabled() ? (
+          <p className="mb-4 text-sm">
+            <Link href="/learn" className="font-medium text-foreground">
+              Self-serve courses
+            </Link>
+            <span className="text-muted-foreground"> are open in this preview. One course can be taken now.</span>
+          </p>
+        ) : null}
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
           Applied AI, technology adoption and applied robotics - every course
           facilitated live by a trainer, in person or online, and worked
