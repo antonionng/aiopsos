@@ -46,7 +46,7 @@ v1 does **not** replace that. It adds a second product line on the same brand an
 
 | Line | Buyer | Closer | Record |
 | --- | --- | --- | --- |
-| **Self-serve (this scope)** | Individual, often from Instagram / LinkedIn | Buy / start course | Personal progress + completion record |
+| **Self-serve (this scope)** | Individual, often from Instagram / LinkedIn. **AI courses only in v1.** | Buy / start course | Personal progress + completion record |
 | **Facilitated (already live)** | Organisation / L&D | Conversation, then cohort | Attendance, grades, evidence pack |
 
 Copy rule that must survive implementation: a self-serve course is **skill and judgement**, not Article 4 compliance. Keep `LITERACY_DISCLAIMER` in `lib/constants.ts`. No certificate shop. No "this makes you compliant."
@@ -337,15 +337,15 @@ Keep the current branded design: horizon illustration, Space Grotesk headline, a
                  with the judgement to check it.
 
                  Short courses you can buy and finish
-                 on your own. Applied AI, Article 4
-                 literacy, robotics as operations.
+                 on your own. Applied AI and Article 4
+                 literacy, with the judgement to use it.
 
                  [ Start a course ]     Facilitated programmes
 
                  Latest courses
                  [ AI Output Verification                         £99   Buy ]
                  [ AI Literacy under EU AI Act Article 4         £129  Buy ]
-                 [ Technology Decisions for Non-Technical Directors   £199  Buy ]
+                 [ AI Investment Decisions for Directors          £199  Buy ]
                  All courses →
 
                  For teams
@@ -362,7 +362,7 @@ Hero h1 (option A, value-first):
 
 Hero standfirst:
 
-> Short courses you buy and start now. Read the method, do the work on your own material, check your judgement. Applied AI, EU AI Act literacy, technology decisions, and robotics operations. Not a demo. Not a webinar you abandon.
+> Short courses you buy and start now. Read the method, do the work on your own material, check your judgement. Applied AI, EU AI Act literacy, and decisions for directors and managers. Not a demo. Not a webinar you abandon.
 
 Primary CTA: `Start a course` → `/courses`.
 
@@ -442,7 +442,9 @@ Creatives on Instagram and LinkedIn should deep-link to `/courses/[slug]`, not `
 
 These are **new SKUs** with new slugs so we do not collide with the 34 facilitated rows in `lib/published-course-slugs.ts`. Each row names the facilitated course or programme it ladders into.
 
-Titles are catalogue names: the subject, and the audience when that changes who should buy it. They are the words on the card, the receipt, and the completion record. Same register as the live facilitated catalogue (`Prompting and Output Verification`, `Technology for Non-Technical Leaders`), not an insight headline.
+Titles are catalogue names: the subject, and the audience when that changes who should buy it. They are the words on the card, the receipt, and the completion record. Same register as the live facilitated catalogue (`Prompting and Output Verification`, `AI Governance and Oversight for Managers`), not an insight headline.
+
+**v1 is AI only.** All ten self-serve courses are applied AI: using it, checking it, governing it, and deciding whether to buy it. Robotics stays on the facilitated catalogue for teams who book a live programme. It is not in Latest, it has no self-serve price, and it is not promoted on the AI with Antonio closer.
 
 All ten are **written courses with required practice**. Antonio can film a walkthrough per lesson when he has time. The film is the same lesson, not a second product, and it is not required to publish or to finish. No live cohort is required to fulfil a purchase.
 
@@ -523,22 +525,22 @@ Modules:
 4. When the tool is the wrong place to start.
 5. Hand-off: what your manager should expect to see.
 
-### 4.4 Technology Decisions for Non-Technical Directors
+### 4.4 AI Investment Decisions for Directors
 
 | | |
 | --- | --- |
-| **Slug** | `technology-decisions-for-non-technical-directors` |
-| **Title** | Technology Decisions for Non-Technical Directors |
-| **Promise** | You do not need to become technical. You need a way to tell a real operating change from a slide. This course gives non-technical directors five questions for any AI or automation proposal, a way to read a vendor demo, and a standard for what "good" looks like after ninety days. |
-| **Target buyer** | Non-technical directors and heads of function who sign or block spend. |
+| **Slug** | `ai-investment-decisions-for-directors` |
+| **Title** | AI Investment Decisions for Directors |
+| **Promise** | You do not need to become technical. You need to tell a real change in how the organisation works from an AI slide. This course gives non-technical directors five questions for any AI proposal, a way to read a vendor demo, and a standard for what good looks like after ninety days. |
+| **Target buyer** | Non-technical directors and heads of function who sign or block AI spend. |
 | **Length** | 2 hours |
 | **Price band** | £149–£249 |
-| **Ladders into facilitated?** | Yes. `technology-for-non-technical-leaders` and `choosing-technology-well`. |
+| **Ladders into facilitated?** | Yes. `ai-strategy-and-oversight-for-executives`. |
 
 Modules:
 
 1. What you are actually being asked to buy.
-2. Five questions that puncture a demo.
+2. Five questions that puncture an AI demo.
 3. Risk, data, and who owns the failure.
 4. A ninety-day test you can hold a sponsor to.
 
@@ -581,44 +583,45 @@ Modules:
 3. Access, policy, and the quiet reasons people opt out.
 4. A 30-day use plan you can show a budget holder.
 
-### 4.7 Robotics for Operations Managers
+### 4.7 AI for Customer Communications
 
 | | |
 | --- | --- |
-| **Slug** | `robotics-for-operations-managers` |
-| **Title** | Robotics for Operations Managers |
-| **Promise** | A cell that looks good in a vendor video fails on the shift if nobody owns recovery, material flow, or the exception pile. This course is for people who specify or sponsor robotics, not people who build arms. You will leave able to write a one-page operating brief an integrator cannot hide behind. |
-| **Target buyer** | Operations, plant, and logistics managers considering a cell or living with a bad one. |
+| **Slug** | `ai-for-customer-communications` |
+| **Title** | AI for Customer Communications |
+| **Promise** | A reply, a proposal paragraph, or a complaint acknowledgement is where a wrong AI sentence does the most damage. This course is for people who write to customers. They leave with three patterns they can use on Monday, and a send-or-hold standard so a plausible draft does not go out unchecked. |
+| **Target buyer** | Customer service, sales, and account managers who already draft with ChatGPT, Copilot, or a similar tool. |
 | **Length** | 2.5 hours |
-| **Price band** | £129–£199 |
-| **Ladders into facilitated?** | Yes. `specifying-a-robotics-deployment` and `robotics-what-it-can-and-cannot-do`. Insight: `/insights/robotics-training-is-an-ops-problem`. |
+| **Price band** | £99–£149 |
+| **Ladders into facilitated?** | Yes. `ai-for-customer-facing-teams`. |
 
 Modules:
 
-1. What the machine can do, and what the process must do.
-2. Specifying outcomes, not a brand of arm.
-3. Who owns the cell on a Tuesday night.
-4. Safety, exceptions, and the pile the robot will not touch.
-5. A one-page operating brief.
+1. What can be sent to a customer, and what cannot.
+2. Reply, proposal, complaint acknowledgement: three patterns.
+3. The check before send.
+4. Claims, tone, and the sentence that overpromises.
+5. A send-or-hold note the team can reuse.
 
-### 4.8 Collaborative Robot Operations for Shift Teams
+### 4.8 AI Governance for Managers
 
 | | |
 | --- | --- |
-| **Slug** | `collaborative-robot-operations-for-shift-teams` |
-| **Title** | Collaborative Robot Operations for Shift Teams |
-| **Promise** | Integrators leave. The shift stays. This course trains supervisors and operators to work alongside a cobot: start, stop, recover, and know when to call a human, without pretending they are robotics engineers. |
-| **Target buyer** | Shift supervisors and operators who have (or will have) a cobot on the line. |
+| **Slug** | `ai-governance-for-managers` |
+| **Title** | AI Governance for Managers |
+| **Promise** | A manager does not need a policy manual. They need to know which AI tools the team may use, what must be reviewed before it leaves the team, and how to spot use that nobody approved. This course produces a one-page team standard they can issue the same week. |
+| **Target buyer** | Line managers and heads of function who are accountable for how their team uses AI. |
 | **Length** | 2 hours |
-| **Price band** | £79–£129 |
-| **Ladders into facilitated?** | Yes. `working-alongside-a-cobot`. Insight: `/insights/cobot-training-for-the-shift-not-the-integrator`. |
+| **Price band** | £129–£199 |
+| **Ladders into facilitated?** | Yes. `ai-governance-and-oversight-for-managers`. |
 
 Modules:
 
-1. What a cobot is for on your shift (and what it is not).
-2. Start, stop, recover: the three drills.
-3. When to stop and call a person.
-4. Handover notes the next shift can trust.
+1. What you are accountable for, in plain language.
+2. Allowed tools, banned tools, and the ones in between.
+3. What must be reviewed before it leaves the team.
+4. How to spot use that nobody approved.
+5. A one-page team standard.
 
 ### 4.9 AI-Assisted Analysis and Reporting
 
@@ -666,11 +669,11 @@ Modules:
 | AI Output Verification | 2.5 | 79–129 | `prompting-and-output-verification` |
 | AI Literacy under EU AI Act Article 4 | 2 | 99–149 | `/ai-literacy-training`, `sponsoring-an-ai-literacy-programme` |
 | Applying AI in Daily Work | 3 | 99–149 | `embedding-ai-in-daily-workflows` |
-| Technology Decisions for Non-Technical Directors | 2 | 149–249 | `technology-for-non-technical-leaders` |
+| AI Investment Decisions for Directors | 2 | 149–249 | `ai-strategy-and-oversight-for-executives` |
 | AI Adoption for Line Managers | 2.5 | 129–199 | `leading-an-ai-ready-team` |
 | Getting Value from Existing AI Licences | 2 | 79–129 | `getting-value-from-tools-you-already-own` |
-| Robotics for Operations Managers | 2.5 | 129–199 | `specifying-a-robotics-deployment` |
-| Collaborative Robot Operations for Shift Teams | 2 | 79–129 | `working-alongside-a-cobot` |
+| AI for Customer Communications | 2.5 | 99–149 | `ai-for-customer-facing-teams` |
+| AI Governance for Managers | 2 | 129–199 | `ai-governance-and-oversight-for-managers` |
 | AI-Assisted Analysis and Reporting | 2.5 | 99–149 | `ai-for-analysis-and-reporting` |
 | Secure Use of AI Tools at Work | 1.5 | 59–99 | `everyday-security-for-busy-teams` |
 
@@ -843,6 +846,7 @@ Company / tenant course-authoring. White-label "companies create their own cours
 - Stripe Tax without a registration.
 - Leaderboards, childish gamification, or public learner profiles.
 - Native mobile apps.
+- Self-serve robotics. Live facilitated robotics courses stay on the existing catalogue. They are not priced, not in Latest, and not the Instagram or LinkedIn closer in v1.
 
 ---
 
@@ -856,7 +860,7 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 - [x] Learner portal only; company authoring shelved.
 - [x] Pay-then-account chosen, with a written happy path.
 - [x] Homepage / `/courses` IA and copy samples; course closer is buy / start.
-- [x] Exactly ten courses, each with promise, buyer, hours, modules, GBP band, ladder.
+- [x] Exactly ten courses, all applied AI, each with promise, buyer, hours, modules, GBP band, ladder. No self-serve robotics.
 - [x] Text and practice are the course. Video is optional and can be attached after publish.
 - [x] The lesson is a focused room (one column, frames, artefact sheet). The interface is part of the course, not a generic player.
 - [x] Phases 0–3 and non-goals, including no production deploy.
@@ -889,7 +893,7 @@ These are product calls, not blockers for this scope:
 2. **VAT.** Confirm whether prices are inclusive and whether Experrt is registered to collect.
 3. **Holding org vs nullable `org_id`.** Engineering prefers a single hidden holding org so current RLS keeps working.
 4. **Video host, when he films.** Mux or Cloudflare Stream, signed playback. Not YouTube unlisted (leaks). Not files in this git repo. Launch does not wait on this choice. The attach-film field can stay empty.
-5. **Hero copy.** Option A above is value-first and keeps robotics / Article 4 available in the standfirst. He may want his face or a specific line from AI with Antonio.
+5. **Hero copy.** Option A above is value-first and names applied AI and Article 4. He may want his face or a specific line from AI with Antonio.
 6. **Insight tension.** The in-person vs LMS article should later add one sentence: self-serve is for individuals; live remains the team record. Do not rewrite that article in this PR.
 
 ---
@@ -918,6 +922,6 @@ Do not edit Vercel project settings. Do not put keys in `.env` files that get co
 
 ## 9. One-page summary for Antonio
 
-We add a **buy-and-start** path on experrt.com for ten short courses. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay, in a focused room: one column, the homepage's type and air, the example and the task as the same object. The screen is part of the course. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card) and get a magic link back into that room. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
+We add a **buy-and-start** path on experrt.com for ten short AI courses. Robotics stays a facilitated programme, not a self-serve SKU. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay, in a focused room: one column, the homepage's type and air, the example and the task as the same object. The screen is part of the course. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card) and get a magic link back into that room. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
 
 First build, when you say go: **AI Output Verification** at £99, full text and practice, on a preview, not on production. Film is welcome on day one and not required.
