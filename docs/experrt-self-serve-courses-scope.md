@@ -17,7 +17,7 @@ Give Antonio this file. It answers, in one place:
 1. What we build (Experrt learner portal only).
 2. How a learner buys and learns (pay-then-account).
 3. How the homepage and `/courses` sell it.
-4. Thirteen self-serve AI courses, with prices and modules, including prompt engineering and setting up agents.
+4. Forty self-serve courses: ten in AI, ten in technology, ten in robotics, ten in HR transformation.
 5. What already exists in this repo versus what to build, in phases.
 
 Do **not**:
@@ -46,7 +46,7 @@ v1 does **not** replace that. It adds a second product line on the same brand an
 
 | Line | Buyer | Closer | Record |
 | --- | --- | --- | --- |
-| **Self-serve (this scope)** | Individual, often from Instagram / LinkedIn. **AI courses only in v1.** | Buy / start course | Personal progress + completion record |
+| **Self-serve (this scope)** | Individual from Instagram or LinkedIn. Four tracks: AI, technology, robotics, HR transformation. Ten courses each. | Buy / start course | Personal progress + completion record |
 | **Facilitated (already live)** | Organisation / L&D | Conversation, then cohort | Attendance, grades, evidence pack |
 
 Copy rule that must survive implementation: a self-serve course is **skill and judgement**, not Article 4 compliance. Keep `LITERACY_DISCLAIMER` in `lib/constants.ts`. No certificate shop. No "this makes you compliant."
@@ -61,7 +61,7 @@ Reuse the existing public routes. Do not invent `/academy` or a second site.
 
 | Surface | Today | v1 |
 | --- | --- | --- |
-| `/courses` | 34 facilitated outlines, enquiry CTA, assessment CTA | Default view is **Latest courses** (the thirteen self-serve SKUs) with price and **Buy and start**. Facilitated catalogue remains a second filter / section. |
+| `/courses` | 34 facilitated outlines, enquiry CTA, assessment CTA | Default view is the four self-serve tracks (ten courses each) with price and **Buy and start**. Facilitated catalogue remains a second filter. |
 | `/courses/[slug]` | Outline + `CourseEnquiryForm` | Self-serve slugs: promise, modules, price, **Buy and start**. Facilitated slugs: keep enquiry. |
 | `/courses/sector/[sector]` | Sector browse for facilitated | Leave as facilitated / org browse. Do not force self-serve into sector SEO in v1. |
 | `/` homepage | Hero closer is `/contact` ("Book a conversation") | Hero / first commercial section sells self-serve. Course CTA is buy / start. Facilitated is secondary. |
@@ -302,7 +302,7 @@ v1 admin is **not** a CMS. He needs:
 
 Out of v1: a full lesson editor, video upload UI, quiz builder, multi-tenant authoring, seat licences, discount engine beyond one optional facilitated-programme code.
 
-Theory and practice for the thirteen courses are seeded in a migration (same pattern as `020_courses.sql`). Antonio writes or approves that prose before publish. Film is not in the seed. When a lesson is filmed, he (or an implementer) sets the playback id in the admin field. No media binaries in git. No secrets in git.
+Theory and practice are seeded in a migration, wave by wave. The first four social courses are written in full before they are published. The other thirty-six can sit as drafted outlines until their wave. (same pattern as `020_courses.sql`). Antonio writes or approves that prose before publish. Film is not in the seed. When a lesson is filmed, he (or an implementer) sets the playback id in the admin field. No media binaries in git. No secrets in git.
 
 ---
 
@@ -333,20 +333,24 @@ Keep the current branded design: horizon illustration, Space Grotesk headline, a
 ```text
 [ Wordmark ]  Experrt AI   AI literacy   Academy   Use cases   Insights   Sign in   [ Get started ]
 
-                 We train people to use AI
-                 with the judgement to check it.
+                 Courses you can start today.
+                 AI. Technology. Robotics. HR.
 
-                 Short courses you can buy and finish
-                 on your own. Prompt engineering, agents
-                 you supervise, and the judgement to check the output.
+                 Buy a course, open lesson 1, and do the work.
+                 For the person who saw the post, and for the
+                 team they go back to on Monday.
 
-                 [ Start a course ]     Facilitated programmes
+                 [ Browse courses ]     Facilitated programmes
 
-                 Latest courses
-                 [ AI Output Verification                         £99   Buy ]
-                 [ Prompt Engineering for Professional Work      £129  Buy ]
-                 [ Setting Up and Supervising AI Agents          £199  Buy ]
-                 All courses →
+                 AI                  Prompting, agents, real work
+                 Technology          The tools you already pay for
+                 Robotics            What they can do, and who runs them
+                 HR transformation   Skills, hiring, learning, adoption
+
+                 Start here
+                 [ Prompt Engineering for Professional Work      £99   Buy ]
+                 [ Robotics for Non-Engineers                    £79   Buy ]
+                 [ AI for HR and People Teams                    £99   Buy ]
 
                  For teams
                  Live, in the room or online.
@@ -358,13 +362,13 @@ Keep the current branded design: horizon illustration, Space Grotesk headline, a
 
 Hero h1 (option A, value-first):
 
-> We train people to use AI with the judgement to check it.
+> Courses you can start today.
 
 Hero standfirst:
 
-> Short courses you buy and start now. Read the method, do the work on your own material, check your judgement. Applied AI, prompt engineering, and agents you set up and supervise. Not a demo. Not a list of prompt tricks.
+> AI, technology, robotics, and HR transformation. Buy a course, open lesson 1, and do the work on something you already own. For the person who saw the post, and for the team they go back to on Monday.
 
-Primary CTA: `Start a course` → `/courses`.
+Primary CTA: `Browse courses` → `/courses`. Track buttons go to `/courses?category=ai`, `technology`, `robotics`, and `hr`.
 
 Secondary CTA: `Facilitated programmes` → `/ai-literacy-training` (not `/contact`).
 
@@ -434,319 +438,621 @@ After this
 
 ### 3.5 Social
 
-Creatives on Instagram and LinkedIn should deep-link to `/courses/[slug]`, not `/contact` and not `/register`. UTM on the checkout request so Antonio can see source on the revenue table (`utm_source=instagram` / `linkedin`).
+A reel or a LinkedIn post names one course and links to `/courses/[slug]`. A series links to the track: `/courses?category=ai`, `technology`, `robotics`, or `hr`. Never `/contact` and never `/register`. UTM on the checkout request so Antonio can see which post sold (`utm_source=instagram` or `linkedin`).
+
+First four to publish, one per audience, so inbound has somewhere to land:
+
+1. Prompt Engineering for Professional Work
+2. Getting Value from the Technology You Already Pay For
+3. Robotics for Non-Engineers
+4. AI for HR and People Teams
 
 ---
 
-## 4. Thirteen self-serve courses
+## 4. Forty self-serve courses
 
-These are **new SKUs** with new slugs so we do not collide with the 34 facilitated rows in `lib/published-course-slugs.ts`. Each row names the facilitated course or programme it ladders into.
+Four tracks, ten courses each. A person who sees a post should recognise themselves in one track and be able to buy in that session.
 
-Titles are catalogue names: the subject, and the audience when that changes who should buy it. They are the words on the card, the receipt, and the completion record. Same register as the live facilitated catalogue (`Prompting and Output Verification`, `AI Governance and Oversight for Managers`), not an insight headline.
+| Track | Who it is for | Where a post sends them |
+| --- | --- | --- |
+| AI | Anyone already using ChatGPT, Copilot, Claude, or a similar tool | `/courses?category=ai` |
+| Technology | People who live in the tools the company already pays for | `/courses?category=technology` |
+| Robotics | Curious professionals and operators, not only engineers | `/courses?category=robotics` |
+| HR transformation | HR, L&D, and people managers | `/courses?category=hr` |
 
-**v1 is AI only.** All thirteen self-serve courses are applied AI: using it, checking it, briefing it, setting up agents, governing it, and deciding whether to buy it. Robotics stays on the facilitated catalogue for teams who book a live programme. It is not in Latest, it has no self-serve price, and it is not promoted on the AI with Antonio closer.
+`hr` is a new value on `COURSE_CATEGORIES` in `lib/constants.ts`. AI, technology, and robotics already exist. Add one artwork in the same line family as `components/course-artwork.tsx`. Do not add a fifth colour system.
 
-Three of the thirteen are a path people can take in order, sold separately (no bundle in v1):
+Titles are catalogue names a person can say out loud in a reel. They name the skill. They are the words on the card, the receipt, and the completion record.
 
-1. **Prompt Engineering for Professional Work.** How to brief a model so a colleague could reuse the instruction.
-2. **Designing AI Agents for Business Workflows.** One job, the approvals, and what the agent must not do.
-3. **Setting Up and Supervising AI Agents.** Stand it up in the tools the organisation already pays for, then watch it.
+Every course is written theory plus practice. Film is added later and is not required to publish. Prices are GBP bands. The number on the card is one price inside the band. Most common-user courses sit at £49 to £129 so a post can convert. A few specialist courses sit higher.
 
-**AI Output Verification** sits beside the first. A strong prompt still gets checked before the result leaves the desk.
+The agent courses are not a coding bootcamp. A strong prompt still gets checked. Robotics here is for a general audience as well as operators. Facilitated programmes stay available as the team version.
 
-All thirteen are **written courses with required practice**. Antonio can film a walkthrough per lesson when he has time. The film is the same lesson, not a second product, and it is not required to publish or to finish. No live cohort is required to fulfil a purchase. The agent courses are not a coding bootcamp and not a tour of frameworks. The learner leaves with a prompt card, an agent brief, or a supervision note for a task they already own.
+Publish in waves. Do not wait for all forty scripts. The first post in each track needs one finished course behind it. See the four named in section 3.5.
 
-Price bands are GBP, retail, v1 starting point. Final number is a single amount on the row (e.g. £99), not a slider.
+### 4.1 AI
 
-### 4.1 AI Output Verification
+#### Prompt Engineering for Professional Work
 
-| | |
-| --- | --- |
-| **Slug** | `ai-output-verification` |
-| **Title** | AI Output Verification |
-| **Promise** | You already get an answer from ChatGPT or Copilot in under a minute. This course installs a short, repeatable check so a confident, plausible, wrong result does not reach a customer, a board pack, or a colleague. You will leave with a four-step routine and a verification note you can reuse on Monday. |
-| **Target buyer** | Individual contributors and team leads who already use a general AI tool at work and have no standard for checking it. |
-| **Length** | 2.5 hours |
-| **Price band** | £79–£129 (pilot price: **£99**) |
-| **Ladders into facilitated?** | Yes. `prompting-and-output-verification` (7 facilitated hours). |
-| **Pilot** | **Yes. Phase 1 course.** Insight already exists: `/insights/ai-output-verification-at-work`. |
+You already get a weak answer because the brief was weak. This course shows you how to instruct a model the way you would brief a sharp colleague: role, context, constraints, and the shape of the output. You leave with a prompt card someone else on your team can run.
 
-Modules (each one is theory, then practice; video optional on top):
-
-1. How confident error happens (and why speed makes it worse).
-2. A four-step check you can run in five minutes.
-3. Prompts that make checking easier, not theatre.
-4. Write a verification note a colleague can reuse.
-5. What you still do not send (legal, personal, invented citations).
-
-**Worked lesson (the standard for all ten).** Module 2, "A four-step check". This is the shape of immense value with no film on the page.
-
-Theory (written, ~600 words, not reproduced in full here):
-
-- The four checks, in the order a busy person will actually run them: source, date, names and numbers, would you sign it.
-- One worked example: a plausible customer email that cites a policy clause the company does not have. Show the sentence that feels finished, then show which check catches it.
-- One line on what the check is not: it is not "ask the model if it is sure".
-
-Do the work:
-
-1. Judgement check. Three short outputs. For each: send, fix, or do not send. Wrong answers explain the miss ("the date is right and the clause is invented").
-2. Applied task. Paste one AI answer from this week (redact the client). Mark the four checks. Save it as the verification note. That note is theirs; it is what "finished the lesson" means.
-
-Watch, later: Antonio runs the same email and the same four checks on screen. The lesson does not change when the film is attached.
-
-### 4.2 AI Literacy under EU AI Act Article 4
-
-| | |
-| --- | --- |
-| **Slug** | `ai-literacy-under-eu-ai-act-article-4` |
-| **Title** | AI Literacy under EU AI Act Article 4 |
-| **Promise** | Article 4 is a duty to take measures supporting AI literacy, not a certificate you can buy. This course tells you what the duty actually says, what a proportionate measure looks like by role, and what a dated record contains, so you stop shopping for a PDF that will not help you. |
-| **Target buyer** | L&D, HR, risk, and transformation leads asked to "do something about Article 4." |
-| **Length** | 2 hours |
-| **Price band** | £99–£149 |
-| **Ladders into facilitated?** | Yes. Programme page `/ai-literacy-training` and `sponsoring-an-ai-literacy-programme`. |
-
-Modules:
-
-1. What Article 4 requires (and what it does not).
-2. Role-proportionate measures: handler, manager, sponsor.
-3. What belongs in the record, and what a certificate cannot do.
-4. A one-page plan you can take to a sponsor.
-
-### 4.3 Applying AI in Daily Work
-
-| | |
-| --- | --- |
-| **Slug** | `applying-ai-in-daily-work` |
-| **Title** | Applying AI in Daily Work |
-| **Promise** | Most people try AI on a toy task, then go back to email. This course picks three pieces of work you already own (a draft, a summary, a decision pack), runs them through a tool, and sets a weekly habit so the tool stays in the job rather than in a demo. |
-| **Target buyer** | Practitioners with a licence and no habit. |
-| **Length** | 3 hours |
-| **Price band** | £99–£149 |
-| **Ladders into facilitated?** | Yes. `embedding-ai-in-daily-workflows`. |
-
-Modules:
-
-1. Pick the work, not the tool.
-2. Draft, summarise, decide: three patterns.
-3. A weekly loop that survives a busy month.
-4. When the tool is the wrong place to start.
-5. Hand-off: what your manager should expect to see.
-
-### 4.4 AI Investment Decisions for Directors
-
-| | |
-| --- | --- |
-| **Slug** | `ai-investment-decisions-for-directors` |
-| **Title** | AI Investment Decisions for Directors |
-| **Promise** | You do not need to become technical. You need to tell a real change in how the organisation works from an AI slide. This course gives non-technical directors five questions for any AI proposal, a way to read a vendor demo, and a standard for what good looks like after ninety days. |
-| **Target buyer** | Non-technical directors and heads of function who sign or block AI spend. |
-| **Length** | 2 hours |
-| **Price band** | £149–£249 |
-| **Ladders into facilitated?** | Yes. `ai-strategy-and-oversight-for-executives`. |
-
-Modules:
-
-1. What you are actually being asked to buy.
-2. Five questions that puncture an AI demo.
-3. Risk, data, and who owns the failure.
-4. A ninety-day test you can hold a sponsor to.
-
-### 4.5 AI Adoption for Line Managers
-
-| | |
-| --- | --- |
-| **Slug** | `ai-adoption-for-line-managers` |
-| **Title** | AI Adoption for Line Managers |
-| **Promise** | Champions do not make training stick. Managers do, in 1:1s and on the work they accept. This course shows line managers how to set a standard for AI use, review output without becoming the helpdesk, and tell whether last month's course is still in the job. |
-| **Target buyer** | Line managers whose team "did the AI training" and reverted. |
-| **Length** | 2.5 hours |
-| **Price band** | £129–£199 |
-| **Ladders into facilitated?** | Yes. `leading-an-ai-ready-team` and `running-a-rollout-that-sticks`. Insight: `/insights/managers-not-champions-ai-adoption`. |
-
-Modules:
-
-1. Why champions fail and managers do not have to.
-2. A standard you can say out loud in a 1:1.
-3. Reviewing AI-touched work without doing it yourself.
-4. Signals the training has stuck (and what to do if it has not).
-5. What to ask L&D for next, instead of another webinar.
-
-### 4.6 Getting Value from Existing AI Licences
-
-| | |
-| --- | --- |
-| **Slug** | `getting-value-from-existing-ai-licences` |
-| **Title** | Getting Value from Existing AI Licences |
-| **Promise** | Copilot, ChatGPT, and the rest are already on the bill. This course is how a practitioner or an ops lead turns an unused licence into three jobs the team actually runs, without buying another tool to feel like progress. |
-| **Target buyer** | Ops, IT, and ambitious ICs sitting on unused seats. |
-| **Length** | 2 hours |
-| **Price band** | £79–£129 |
-| **Ladders into facilitated?** | Yes. `getting-value-from-tools-you-already-own`. Insight: `/insights/unused-ai-licences-training-gap`. |
-
-Modules:
-
-1. Inventory what you already pay for (honestly).
-2. Three jobs that belong in the existing tool.
-3. Access, policy, and the quiet reasons people opt out.
-4. A 30-day use plan you can show a budget holder.
-
-### 4.7 AI for Customer Communications
-
-| | |
-| --- | --- |
-| **Slug** | `ai-for-customer-communications` |
-| **Title** | AI for Customer Communications |
-| **Promise** | A reply, a proposal paragraph, or a complaint acknowledgement is where a wrong AI sentence does the most damage. This course is for people who write to customers. They leave with three patterns they can use on Monday, and a send-or-hold standard so a plausible draft does not go out unchecked. |
-| **Target buyer** | Customer service, sales, and account managers who already draft with ChatGPT, Copilot, or a similar tool. |
-| **Length** | 2.5 hours |
-| **Price band** | £99–£149 |
-| **Ladders into facilitated?** | Yes. `ai-for-customer-facing-teams`. |
-
-Modules:
-
-1. What can be sent to a customer, and what cannot.
-2. Reply, proposal, complaint acknowledgement: three patterns.
-3. The check before send.
-4. Claims, tone, and the sentence that overpromises.
-5. A send-or-hold note the team can reuse.
-
-### 4.8 AI Governance for Managers
-
-| | |
-| --- | --- |
-| **Slug** | `ai-governance-for-managers` |
-| **Title** | AI Governance for Managers |
-| **Promise** | A manager does not need a policy manual. They need to know which AI tools the team may use, what must be reviewed before it leaves the team, and how to spot use that nobody approved. This course produces a one-page team standard they can issue the same week. |
-| **Target buyer** | Line managers and heads of function who are accountable for how their team uses AI. |
-| **Length** | 2 hours |
-| **Price band** | £129–£199 |
-| **Ladders into facilitated?** | Yes. `ai-governance-and-oversight-for-managers`. |
-
-Modules:
-
-1. What you are accountable for, in plain language.
-2. Allowed tools, banned tools, and the ones in between.
-3. What must be reviewed before it leaves the team.
-4. How to spot use that nobody approved.
-5. A one-page team standard.
-
-### 4.9 AI-Assisted Analysis and Reporting
-
-| | |
-| --- | --- |
-| **Slug** | `ai-assisted-analysis-and-reporting` |
-| **Title** | AI-Assisted Analysis and Reporting |
-| **Promise** | AI will draft the chart. You still own the number. This course is how analysts and anyone who puts figures in front of a manager use a model for first-pass analysis without shipping a hallucinated total, a silent filter, or a chart that cannot be rebuilt. |
-| **Target buyer** | Analysts, finance, and ops people who already paste spreadsheets into a chat tool. |
-| **Length** | 2.5 hours |
-| **Price band** | £99–£149 |
-| **Ladders into facilitated?** | Yes. `ai-for-analysis-and-reporting`. |
-
-Modules:
-
-1. Where models invent a number (and how it looks plausible).
-2. A rebuild test: if you cannot replay it, you cannot send it.
-3. Charts, commentary, and the sentence that overclaims.
-4. A working file: prompt, check, source, sign-off.
-5. What never goes into the tool.
-
-### 4.10 Secure Use of AI Tools at Work
-
-| | |
-| --- | --- |
-| **Slug** | `secure-use-of-ai-tools-at-work` |
-| **Title** | Secure Use of AI Tools at Work |
-| **Promise** | Most leaks from AI use are ordinary: a client name in a prompt, a screenshot into a free tool, a setting nobody changed. This short course is the hygiene standard for anyone who pastes work into a model, without turning you into a security engineer. |
-| **Target buyer** | Any employee already using a public or work AI tool. |
-| **Length** | 1.5 hours |
-| **Price band** | £59–£99 |
-| **Ladders into facilitated?** | Yes. `everyday-security-for-busy-teams` and `responsible-ai-use-at-work`. |
-
-Modules:
-
-1. What you just pasted, and who can see it.
-2. Settings that matter (retention, training, plugins).
-3. A short red-list: names, files, and tools you do not use.
-4. What to do in the first hour if something went out.
-
-### 4.11 Prompt Engineering for Professional Work
-
-| | |
-| --- | --- |
-| **Slug** | `prompt-engineering-for-professional-work` |
-| **Title** | Prompt Engineering for Professional Work |
-| **Promise** | Most weak results come from a brief a colleague would have sent back. This course teaches you to instruct a model the way you would instruct a capable person: role, context, constraints, and the exact form of the output. You leave with a prompt card for a real task, written so someone else on the team can run it without you in the room. |
-| **Target buyer** | Professionals who already use ChatGPT, Copilot, Claude, or a similar tool and want reliable output, not a longer list of tricks. |
-| **Length** | 2.5 hours |
-| **Price band** | £99–£149 (catalogue price: **£129**) |
-| **Ladders into facilitated?** | Yes. `prompting-and-output-verification`. Take **AI Output Verification** as the companion course. |
+Buyer: anyone who uses a general AI tool at work and wants a better result tomorrow. Hours: 2.5. Price: £79–£129, card price **£99**. Social launch course for the AI track. Ladders into `prompting-and-output-verification`.
 
 Modules:
 
 1. Brief the model the way you would brief a colleague.
 2. Role, context, constraints, and output format.
-3. Iterate on a weak result instead of starting again.
-4. Write a prompt card a colleague can reuse.
-5. What you still check before the result leaves your desk.
+3. Fix a weak result instead of starting again.
+4. A prompt card a colleague can reuse.
+5. What you still check before it leaves your desk.
 
-### 4.12 Designing AI Agents for Business Workflows
+#### AI Output Verification
 
-| | |
-| --- | --- |
-| **Slug** | `designing-ai-agents-for-business-workflows` |
-| **Title** | Designing AI Agents for Business Workflows |
-| **Promise** | An agent is not a cleverer prompt. It is a standing worker with a job, inputs, tools, and a point where a person must say yes. This course is how you choose one workflow worth handing over, write the job so it cannot wander, and decide which actions it may take and which it must stop for. You leave with a one-page agent brief. |
-| **Target buyer** | Team leads and operators who are about to automate a repeating task and need the design before anyone configures a tool. |
-| **Length** | 2.5 hours |
-| **Price band** | £129–£199 |
-| **Ladders into facilitated?** | Yes. `building-ai-assistants-for-your-team`. |
+A fast answer is not a finished answer. You learn a four-step check so a confident, plausible, wrong result does not reach a customer, a manager, or a colleague. You leave with a verification note you can use on Monday.
+
+Buyer: anyone who already pastes work into an AI tool. Hours: 2.5. Price: £79–£129. Ladders into `prompting-and-output-verification`.
+
+Modules:
+
+1. How confident error happens.
+2. A four-step check you can run in five minutes.
+3. Judge three real outputs: send, fix, or hold.
+4. Write the verification note.
+5. What you still do not send.
+
+#### Applying AI in Daily Work
+
+Pick three pieces of work you already own and put the tool inside them, then build a weekly habit so it does not die after the demo. You leave with a one-week plan.
+
+Buyer: professionals with a licence and no habit. Hours: 2.5. Price: £79–£129. Ladders into `embedding-ai-in-daily-workflows`.
+
+Modules:
+
+1. Pick the work, not the tool.
+2. Draft, summarise, decide.
+3. A weekly loop that survives a busy month.
+4. When the tool is the wrong place to start.
+
+#### AI for Writing and Communication
+
+Email, a slide narrative, a briefing note. You use AI to get to a draft faster, then you take back the judgement: audience, claim, and what you are willing to sign. You leave with one finished piece from your own week.
+
+Buyer: anyone who writes for other people at work. Hours: 2. Price: £59–£99. Ladders into `writing-and-communicating-with-ai`.
+
+Modules:
+
+1. What the model is good at in a first draft.
+2. Audience, claim, and the sentence that overreaches.
+3. Rewrite a real email or note from this week.
+4. A standard you can hand a colleague.
+
+#### Designing AI Agents for Business Workflows
+
+An agent is a standing worker with one job, not a cleverer chat. You choose a repeating task, write the job so it cannot wander, and mark the step where a person has to say yes. You leave with a one-page agent brief.
+
+Buyer: team leads and operators about to automate a task. Hours: 2.5. Price: £99–£149. Ladders into `building-ai-assistants-for-your-team`.
 
 Modules:
 
 1. What an agent is, and what is still just a prompt.
-2. Pick one job. Refuse the general assistant.
-3. Inputs, tools, and the actions you will not grant.
-4. Where a person approves before anything is sent or changed.
-5. A one-page agent brief: job, stop conditions, owner.
+2. One job. Not a general assistant.
+3. Tools you will grant, and actions you will not.
+4. Where a person approves before anything is sent.
+5. The one-page brief.
 
-### 4.13 Setting Up and Supervising AI Agents
+#### Setting Up and Supervising AI Agents
 
-| | |
-| --- | --- |
-| **Slug** | `setting-up-and-supervising-ai-agents` |
-| **Title** | Setting Up and Supervising AI Agents |
-| **Promise** | This is the build. You take a brief and stand an agent up in a tool the organisation already pays for, with standing instructions, only the tools that job needs, and tests for the case it must refuse. Then you decide what you will watch in the first two weeks, and who owns it when you are not there. You leave with a working setup and a supervision note. |
-| **Target buyer** | Operators and team leads who will configure the agent themselves. Not a software engineering course, and not a framework tutorial. |
-| **Length** | 3 hours |
-| **Price band** | £149–£249 (catalogue price: **£199**) |
-| **Ladders into facilitated?** | Yes. `ai-tooling-and-integration-clinic` and `automating-the-work-nobody-wants`. |
+Take the brief and stand the agent up in a tool the organisation already pays for. Standing instructions, only the tools that job needs, and three tests, including the action it must refuse. You leave with a working setup and a supervision note.
+
+Buyer: the person who will actually configure it. Not a software engineering course. Hours: 3. Price: £149–£199. Ladders into `ai-tooling-and-integration-clinic`.
 
 Modules:
 
-1. Turn the agent brief into standing instructions.
+1. Turn the brief into standing instructions.
 2. Connect only the tools that job needs.
-3. Three tests: the normal case, the missing fact, the action it must refuse.
+3. Three tests: normal, missing fact, must refuse.
 4. What you watch in the first two weeks.
-5. A supervision note for the person who owns it in your absence.
+5. A supervision note for when you are away.
 
-### 4.14 Ladder map (at a glance)
+#### AI for Customer Communications
 
-| Self-serve | Hours | Band (GBP) | Facilitated slug / programme |
+Replies, proposals, and complaint acknowledgements are where a wrong sentence does the most damage. You learn three patterns and a send-or-hold rule. You leave with a note the team can reuse.
+
+Buyer: customer service, sales, and account managers. Hours: 2.5. Price: £79–£129. Ladders into `ai-for-customer-facing-teams`.
+
+Modules:
+
+1. What can be sent to a customer.
+2. Reply, proposal, complaint: three patterns.
+3. The check before send.
+4. Claims and the sentence that overpromises.
+5. A send-or-hold note.
+
+#### AI-Assisted Analysis and Reporting
+
+The model will draft the chart. You still own the number. You learn how to use it for a first pass without shipping a total you cannot rebuild. You leave with a working file: prompt, check, source, sign-off.
+
+Buyer: analysts, finance, and anyone who puts figures in front of a manager. Hours: 2.5. Price: £79–£129. Ladders into `ai-for-analysis-and-reporting`.
+
+Modules:
+
+1. Where a model invents a number.
+2. If you cannot replay it, you cannot send it.
+3. Charts and the sentence that overclaims.
+4. A working file you can defend.
+
+#### Secure Use of AI Tools at Work
+
+Most leaks are ordinary: a client name in a prompt, a screenshot in a free tool, a setting nobody changed. You leave with a short red-list and a first-hour response if something went out.
+
+Buyer: any employee already using a public or work AI tool. Hours: 1.5. Price: £49–£79. Ladders into `everyday-security-for-busy-teams`.
+
+Modules:
+
+1. What you just pasted, and who can see it.
+2. Settings that matter.
+3. A red-list: names, files, and tools.
+4. The first hour if something went out.
+
+#### AI Literacy under the EU AI Act
+
+Article 4 asks organisations to take measures so staff can use AI with some literacy. It is not a certificate you can buy. This course tells a working person what that duty means for their role, and what a sensible record looks like. You leave with a one-page plan, not a compliance claim.
+
+Buyer: professionals and people managers who have been told to "do something about the AI Act". Hours: 2. Price: £79–£129. Ladders into `/ai-literacy-training` and `sponsoring-an-ai-literacy-programme`.
+
+Modules:
+
+1. What Article 4 asks for, in plain language.
+2. What it does not give you.
+3. A proportionate measure for your role.
+4. A one-page plan you can show a sponsor.
+
+### 4.2 Technology
+
+#### Getting Value from the Technology You Already Pay For
+
+The licences are on the bill. The team uses a fraction of them. You inventory what you already have and pick three jobs that belong in those tools, with no new purchase to feel like progress. You leave with a 30-day use plan. Social launch course for the technology track.
+
+Buyer: operators, IT-adjacent staff, and anyone sitting on unused seats. Hours: 2. Price: £79–£129. Ladders into `getting-value-from-tools-you-already-own`.
+
+Modules:
+
+1. Inventory what you already pay for.
+2. Three jobs that belong in the current tool.
+3. Why people quietly opt out.
+4. A 30-day plan a budget holder can read.
+
+#### Choosing Technology for Your Team
+
+A demo is not a decision. You learn how to compare tools against the work, the people who must use them, and the cost of switching. You leave with a one-page choice record.
+
+Buyer: managers who are about to buy or renew a tool. Hours: 2. Price: £99–£149. Ladders into `choosing-technology-well`.
+
+Modules:
+
+1. The job the tool has to do.
+2. Five questions that puncture a demo.
+3. Switching cost, and who feels it.
+4. A one-page choice record.
+
+#### No-Code Automation for Everyday Work
+
+Repeatable clicks, copy-paste between systems, the same weekly file. You build one small automation without writing software, and you write down what happens when it fails. You leave with that automation and a failure note.
+
+Buyer: operators and coordinators who are tired of the same manual job. Hours: 2.5. Price: £79–£129. Ladders into `automating-the-work-nobody-wants`.
+
+Modules:
+
+1. Which task is worth automating.
+2. A no-code path in tools you already have.
+3. Build one and run it on real inputs.
+4. What you do when it breaks.
+
+#### From Spreadsheets to Simple Systems
+
+The spreadsheet was fine until it became the system. You learn when to keep it, when to split it, and when a light tool should take over. You leave with a map of one workbook you actually depend on.
+
+Buyer: operators, finance, and coordinators who run the business from a file. Hours: 2.5. Price: £79–£129. Ladders into `from-spreadsheets-to-systems`.
+
+Modules:
+
+1. What the workbook is really doing.
+2. The parts that are dangerous to keep.
+3. A simpler shape for the same job.
+4. What you move, and what you leave.
+
+#### Data Skills for People Who Are Not Analysts
+
+You do not need to become an analyst. You need to trust a number enough to use it, and to know when you do not. You leave with a short checklist for any table someone sends you.
+
+Buyer: managers and operators who consume reports. Hours: 2.5. Price: £79–£129. Ladders into `data-you-can-actually-use`.
+
+Modules:
+
+1. What the table is claiming.
+2. Filters, dates, and the missing row.
+3. A question you can ask before you act.
+4. Your checklist.
+
+#### Everyday Cyber Security
+
+The attacks that hit busy teams are ordinary: a link, a shared login, a file in the wrong place. You leave with a personal standard and what to do in the first hour.
+
+Buyer: any employee. Hours: 1.5. Price: £49–£79. Ladders into `everyday-security-for-busy-teams`.
+
+Modules:
+
+1. The three ways this actually happens.
+2. Passwords, links, and shared access.
+3. Your personal standard.
+4. The first hour.
+
+#### Digital Change for Managers
+
+Most rollouts fail in the week after go-live, not in the business case. You learn how to run a change people can feel in their work, without a theatre of town halls. You leave with a two-week manager plan.
+
+Buyer: line managers in the middle of a tool change. Hours: 2. Price: £99–£149. Ladders into `digital-change-without-the-theatre`.
+
+Modules:
+
+1. What people are being asked to stop doing.
+2. The first two weeks, in their actual work.
+3. How you know it is being used.
+4. A two-week plan.
+
+#### Technology Decisions for Non-Technical Leaders
+
+You sign or block spend without being the technical person in the room. You learn five questions for a proposal and a ninety-day test you can hold someone to. You leave with those questions written in your own words.
+
+Buyer: directors and heads of function. Hours: 2. Price: £129–£199. Ladders into `technology-for-non-technical-leaders`.
+
+Modules:
+
+1. What you are actually being asked to buy.
+2. Five questions for any proposal.
+3. Risk, data, and who owns the failure.
+4. A ninety-day test.
+
+#### Personal Productivity Systems
+
+Your week is a pile of tools that do not talk to each other. You design a simple system for capture, tasks, and follow-up using what you already have. You leave with that system running on your own work.
+
+Buyer: professionals drowning in tabs, inboxes, and half-finished lists. Hours: 2. Price: £59–£99. No facilitated twin yet. It can lead into `getting-value-from-tools-you-already-own`.
+
+Modules:
+
+1. Where work goes to die.
+2. One inbox, one list, one weekly review.
+3. Set it up with your current tools.
+4. The review you will actually keep.
+
+#### Running a Technology Rollout
+
+You have the tool. You do not have the habit. This course is how a manager or project lead gets a rollout out of the slide and into the job, with a date, an owner, and a sign that it stuck. You leave with a rollout sheet for one tool.
+
+Buyer: the person named as the rollout lead. Hours: 2. Price: £99–£149. Ladders into `running-a-rollout-that-sticks`.
+
+Modules:
+
+1. The behaviour you are trying to change.
+2. Who has to do it, by when.
+3. Support in the first month, then stop.
+4. The sign that it stuck.
+
+### 4.3 Robotics
+
+These are for a general audience as well as people on a site. A reel can sell the first three without assuming the viewer runs a factory. The later courses go deeper for operators and sponsors. Facilitated robotics programmes remain the team version.
+
+#### Robotics for Non-Engineers
+
+What a robot is doing in a workplace, in plain language, and what still needs a person. You leave able to explain it to a colleague who has only seen a video. Social launch course for the robotics track.
+
+Buyer: professionals, managers, and students of the field who are not engineers. Hours: 2. Price: £59–£99, card price **£79**. Ladders into `robotics-what-it-can-and-cannot-do`.
+
+Modules:
+
+1. What the machine is actually for.
+2. What it cannot see, hold, or decide.
+3. Who still owns the exception.
+4. Explain it in one page.
+
+#### Collaborative Robots at Work
+
+A cobot next to a person is an operations question: start, stop, recover, and when to call someone. You leave with the three drills and a handover note.
+
+Buyer: supervisors, operators, and managers who will work near one. Hours: 2. Price: £79–£129. Ladders into `working-alongside-a-cobot`.
+
+Modules:
+
+1. What it is for on a shift.
+2. Start, stop, recover.
+3. When to stop and call a person.
+4. A handover the next shift can trust.
+
+#### The Future of Work with Robots
+
+Where robots show up in ordinary industries, what changes for the people around them, and what does not. You leave with a clear view of the jobs that move, the jobs that stay, and the skills in between.
+
+Buyer: anyone who wants a serious picture, not a hype reel. Hours: 2. Price: £59–£99. Ladders into `preparing-your-team-for-automation`.
+
+Modules:
+
+1. Where this is already normal.
+2. Tasks that move, tasks that stay.
+3. The skills in between.
+4. What you would tell your own team.
+
+#### Preparing a Team for Automation
+
+The machine is the easy part. The team needs to know what changes on Monday. You leave with a preparation brief: who is affected, what they must be able to do, and what you will not pretend.
+
+Buyer: managers introducing automation to people who did not ask for it. Hours: 2. Price: £79–£129. Ladders into `preparing-your-team-for-automation`.
+
+Modules:
+
+1. Who is affected, by name of role.
+2. What they must be able to do.
+3. What you will stop asking them to do.
+4. A preparation brief.
+
+#### Warehouse and Logistics Automation
+
+Goods in, storage, pick, pack, goods out. You learn which jobs automation actually takes in a warehouse, and which ones it makes worse if the process is messy. You leave with a one-page map of one flow.
+
+Buyer: warehouse, logistics, and operations managers. Hours: 2.5. Price: £99–£149. Ladders into `warehouse-and-logistics-automation-in-practice`.
+
+Modules:
+
+1. The flow, before the machine.
+2. Where automation pays, and where it does not.
+3. Exceptions and the pile it will not touch.
+4. A one-page map.
+
+#### Specifying a Robotics Project
+
+Write what you need the cell to do so a vendor cannot hide behind a video. Outcomes, volume, exceptions, and who owns it on a Tuesday night. You leave with a one-page specification.
+
+Buyer: operations managers about to talk to an integrator. Hours: 2.5. Price: £129–£199. Ladders into `specifying-a-robotics-deployment`.
+
+Modules:
+
+1. Outcomes, not a brand of arm.
+2. Volume, exceptions, and uptime.
+3. Who owns it when it stops.
+4. A one-page specification.
+
+#### Robotics Safety and Risk
+
+The rules are not a poster. You learn the questions a non-specialist must ask about a robotic workplace: guarding, stops, people in the zone, and what "safe enough" is not. You leave with a question list for the next walk of the floor.
+
+Buyer: supervisors and managers accountable for a cell, not safety engineers. Hours: 2. Price: £99–£149. Ladders into `safety-risk-and-compliance-for-robotic-workcells`.
+
+Modules:
+
+1. How people and machines share a space.
+2. Stops, zones, and the boring failures.
+3. Questions for a floor walk.
+4. What you escalate the same day.
+
+#### Running a Robotic Cell
+
+Start of shift, running, stop, recover, hand over. You practise the operating rhythm of a cell so it does not depend on the person who installed it. You leave with a shift card.
+
+Buyer: team leaders who will run the cell. Hours: 2.5. Price: £99–£149. Ladders into `running-and-troubleshooting-a-robotic-cell`.
+
+Modules:
+
+1. Start of shift.
+2. What normal looks like.
+3. Recover, then escalate.
+4. A shift card.
+
+#### Vision Systems and Automated Inspection
+
+Cameras that pass or fail a part. You learn what they are good at, how they fail quietly, and what a person must still look at. You leave with an inspection brief.
+
+Buyer: quality and operations people living with, or buying, inspection automation. Hours: 2. Price: £99–£149. Ladders into `vision-systems-and-automated-inspection`.
+
+Modules:
+
+1. What the camera is judging.
+2. How a quiet failure looks.
+3. What a person still checks.
+4. An inspection brief.
+
+#### Robotics Investment Decisions
+
+A capital request for robots is a bet on a process, not on a brand. You learn how to read the payback, the operating cost, and the staffing change. You leave with five questions for the next proposal.
+
+Buyer: directors and senior managers who will sign. Hours: 2. Price: £129–£199. Ladders into `robotics-investment-and-operating-model`.
+
+Modules:
+
+1. The process you are buying, not the machine.
+2. Payback, uptime, and people.
+3. Five questions for the proposal.
+4. What good looks like after ninety days.
+
+### 4.4 HR transformation
+
+For HR, L&D, and people managers. This is the LinkedIn audience. The courses are about using AI and technology inside the people function, and about making adoption stick in the rest of the organisation.
+
+#### AI for HR and People Teams
+
+The daily work of HR: a policy draft, a job description, an employee letter, a note for a manager. You put AI inside that work and you learn what must still be yours. You leave with three patterns and a hold list. Social launch course for this track.
+
+Buyer: HR advisors, people partners, and coordinators. Hours: 2.5. Price: £79–£129, card price **£99**. Ladders into `ai-foundations-for-every-role` for the wider workforce, and into the HR track that follows.
+
+Modules:
+
+1. Which HR tasks are safe to draft.
+2. Three patterns from your own week.
+3. What you never paste.
+4. A hold list for the team.
+
+#### EU AI Act Literacy for HR and L&D
+
+You have been asked what the organisation is doing about AI literacy. This course is the people-function version: who needs what, by role, and what a record contains. It does not make anyone compliant. You leave with a role map and a record outline.
+
+Buyer: HR and L&D leads. Hours: 2. Price: £99–£149. Ladders into `sponsoring-an-ai-literacy-programme`.
+
+Modules:
+
+1. What Article 4 asks of an employer.
+2. A role map: who needs which measure.
+3. What a record contains.
+4. What you will not claim.
+
+#### Redesigning Workplace Learning
+
+Stop buying a library nobody opens. You redesign one programme so people do the work, not just attend. You leave with a one-page learning design for a real skill in your organisation.
+
+Buyer: L&D and anyone who commissions training. Hours: 2.5. Price: £99–£149. Ladders into `sponsoring-an-ai-literacy-programme`.
+
+Modules:
+
+1. Why people finish nothing.
+2. A skill, a task, and a check.
+3. Redesign one real programme.
+4. How a manager will see it in the work.
+
+#### Hiring and Selection with AI
+
+Drafting a job post is the easy part. Judging candidates with a model in the loop is where it goes wrong. You learn what AI may draft, what a person must decide, and how to keep a fair process. You leave with a selection standard.
+
+Buyer: recruiters and hiring managers. Hours: 2.5. Price: £99–£149. No direct facilitated twin yet. It can lead into `responsible-ai-use-at-work`.
+
+Modules:
+
+1. What a model may draft.
+2. What a person must decide.
+3. Bias, notes, and the audit trail.
+4. A selection standard.
+
+#### Performance and Feedback with AI
+
+A model can draft the words. The judgement about a person stays with the manager. You learn a safe way to prepare feedback, and the lines you do not cross. You leave with a preparation sheet.
+
+Buyer: people managers and HR supporting them. Hours: 2. Price: £79–£129. No direct facilitated twin yet.
+
+Modules:
+
+1. What you may draft.
+2. What you must have seen yourself.
+3. Prepare one real conversation.
+4. A preparation sheet.
+
+#### AI Adoption for Line Managers
+
+Training fails when the manager does not change what they accept. You learn how to set a standard, review AI-touched work, and tell whether last month's course is still in the job. You leave with a 1:1 standard.
+
+Buyer: line managers. Hours: 2.5. Price: £99–£149. Ladders into `leading-an-ai-ready-team`.
+
+Modules:
+
+1. The standard you can say out loud.
+2. Review the work without doing it yourself.
+3. Signs it has stuck.
+4. What you ask L&D for next.
+
+#### Building a Workforce Skills Plan
+
+You cannot train everyone in everything. You pick the few skills the next two quarters actually need, by role, and you sequence them. You leave with a one-page skills plan.
+
+Buyer: HR and L&D planning a year. Hours: 2. Price: £99–£149. Ladders into `measuring-ai-adoption-and-value`.
+
+Modules:
+
+1. The work that is changing.
+2. Skills by role, not a generic catalogue.
+3. What you will not train this quarter.
+4. A one-page plan.
+
+#### HR Operations with AI
+
+Contracts admin, case notes, onboarding checklists, the questions that arrive every week. You take one HR operation and put a checked AI step inside it. You leave with that workflow written down.
+
+Buyer: HR operations and coordinators. Hours: 2. Price: £79–£129. Ladders into `embedding-ai-in-daily-workflows`.
+
+Modules:
+
+1. Pick one repeating HR operation.
+2. The step a model may take.
+3. The step a person must keep.
+4. Write the workflow.
+
+#### Employee Data, Privacy and AI
+
+People data is not a prompt. You learn what HR may use a tool for, what must never be pasted, and how to answer a manager who wants to "just run the team through ChatGPT". You leave with a red-list for the people team.
+
+Buyer: HR, people partners, and anyone handling employee data. Hours: 2. Price: £99–£149. Ladders into `responsible-ai-use-at-work`.
+
+Modules:
+
+1. What counts as people data.
+2. The red-list.
+3. How to answer the manager.
+4. A team rule you can issue.
+
+#### Measuring Whether Training Stuck
+
+Attendance is not a result. You learn a small set of signs that a course is still in the work two weeks later, and how to report that without a vanity dashboard. You leave with a measurement sheet for one programme.
+
+Buyer: L&D and HR business partners. Hours: 2. Price: £79–£129. Ladders into `measuring-ai-adoption-and-value`.
+
+Modules:
+
+1. What you will stop counting.
+2. Signs in the work, two weeks on.
+3. A conversation with the manager.
+4. A measurement sheet.
+
+### 4.5 Catalogue at a glance
+
+| Track | Course | Hours | Band (GBP) |
 | --- | --- | --- | --- |
-| AI Output Verification | 2.5 | 79–129 | `prompting-and-output-verification` |
-| AI Literacy under EU AI Act Article 4 | 2 | 99–149 | `/ai-literacy-training`, `sponsoring-an-ai-literacy-programme` |
-| Applying AI in Daily Work | 3 | 99–149 | `embedding-ai-in-daily-workflows` |
-| AI Investment Decisions for Directors | 2 | 149–249 | `ai-strategy-and-oversight-for-executives` |
-| AI Adoption for Line Managers | 2.5 | 129–199 | `leading-an-ai-ready-team` |
-| Getting Value from Existing AI Licences | 2 | 79–129 | `getting-value-from-tools-you-already-own` |
-| AI for Customer Communications | 2.5 | 99–149 | `ai-for-customer-facing-teams` |
-| AI Governance for Managers | 2 | 129–199 | `ai-governance-and-oversight-for-managers` |
-| AI-Assisted Analysis and Reporting | 2.5 | 99–149 | `ai-for-analysis-and-reporting` |
-| Secure Use of AI Tools at Work | 1.5 | 59–99 | `everyday-security-for-busy-teams` |
-| Prompt Engineering for Professional Work | 2.5 | 99–149 | `prompting-and-output-verification` |
-| Designing AI Agents for Business Workflows | 2.5 | 129–199 | `building-ai-assistants-for-your-team` |
-| Setting Up and Supervising AI Agents | 3 | 149–249 | `ai-tooling-and-integration-clinic` |
+| AI | Prompt Engineering for Professional Work | 2.5 | 79–129 |
+| AI | AI Output Verification | 2.5 | 79–129 |
+| AI | Applying AI in Daily Work | 2.5 | 79–129 |
+| AI | AI for Writing and Communication | 2 | 59–99 |
+| AI | Designing AI Agents for Business Workflows | 2.5 | 99–149 |
+| AI | Setting Up and Supervising AI Agents | 3 | 149–199 |
+| AI | AI for Customer Communications | 2.5 | 79–129 |
+| AI | AI-Assisted Analysis and Reporting | 2.5 | 79–129 |
+| AI | Secure Use of AI Tools at Work | 1.5 | 49–79 |
+| AI | AI Literacy under the EU AI Act | 2 | 79–129 |
+| Technology | Getting Value from the Technology You Already Pay For | 2 | 79–129 |
+| Technology | Choosing Technology for Your Team | 2 | 99–149 |
+| Technology | No-Code Automation for Everyday Work | 2.5 | 79–129 |
+| Technology | From Spreadsheets to Simple Systems | 2.5 | 79–129 |
+| Technology | Data Skills for People Who Are Not Analysts | 2.5 | 79–129 |
+| Technology | Everyday Cyber Security | 1.5 | 49–79 |
+| Technology | Digital Change for Managers | 2 | 99–149 |
+| Technology | Technology Decisions for Non-Technical Leaders | 2 | 129–199 |
+| Technology | Personal Productivity Systems | 2 | 59–99 |
+| Technology | Running a Technology Rollout | 2 | 99–149 |
+| Robotics | Robotics for Non-Engineers | 2 | 59–99 |
+| Robotics | Collaborative Robots at Work | 2 | 79–129 |
+| Robotics | The Future of Work with Robots | 2 | 59–99 |
+| Robotics | Preparing a Team for Automation | 2 | 79–129 |
+| Robotics | Warehouse and Logistics Automation | 2.5 | 99–149 |
+| Robotics | Specifying a Robotics Project | 2.5 | 129–199 |
+| Robotics | Robotics Safety and Risk | 2 | 99–149 |
+| Robotics | Running a Robotic Cell | 2.5 | 99–149 |
+| Robotics | Vision Systems and Automated Inspection | 2 | 99–149 |
+| Robotics | Robotics Investment Decisions | 2 | 129–199 |
+| HR transformation | AI for HR and People Teams | 2.5 | 79–129 |
+| HR transformation | EU AI Act Literacy for HR and L&D | 2 | 99–149 |
+| HR transformation | Redesigning Workplace Learning | 2.5 | 99–149 |
+| HR transformation | Hiring and Selection with AI | 2.5 | 99–149 |
+| HR transformation | Performance and Feedback with AI | 2 | 79–129 |
+| HR transformation | AI Adoption for Line Managers | 2.5 | 99–149 |
+| HR transformation | Building a Workforce Skills Plan | 2 | 99–149 |
+| HR transformation | HR Operations with AI | 2 | 79–129 |
+| HR transformation | Employee Data, Privacy and AI | 2 | 99–149 |
+| HR transformation | Measuring Whether Training Stuck | 2 | 79–129 |
+
+Card prices for the four social launch courses: Prompt Engineering £99, Getting Value from the Technology You Already Pay For £99, Robotics for Non-Engineers £79, AI for HR and People Teams £99.
 
 ---
 
@@ -775,7 +1081,7 @@ Modules:
 
 ### 5.2 What to build (v1)
 
-1. Format + price on `courses` (or a child `course_offers` table) for the thirteen SKUs.
+1. Format + price on `courses` (or a child `course_offers` table) for the forty SKUs, with `hr` added to the category list.
 2. `lessons`, `course_enrollments` (self-serve), `lesson_progress`, `lesson_checks`.
 3. Public checkout endpoint + webhook purpose `self_serve_course`.
 4. Learner identity path (holding org or nullable `org_id`) + magic-link claim.
@@ -870,9 +1176,9 @@ Add `/learn` to `isSessionGatedPath` in `lib/public-routes.ts`. Checkout and (if
 - No player. No checkout. No new env secrets in the repo.
 - Optional later: empty types and a `format` column behind a feature flag that defaults **off** on production. Prefer not to land even that until a build branch exists.
 
-#### Phase 1: pilot, *AI Output Verification*
+#### Phase 1: pilot, *Prompt Engineering for Professional Work*
 
-One course, real money on a **preview**, never on `aiadop` production until Antonio says so.
+One course, the AI-track social hook, real money on a **preview**, never on `aiadop` production until Antonio says so. The artefact is a prompt card. The room is the same focused lesson described in 2.4a.
 
 - Schema for the new tables + the full pilot seeded as `draft`: every module, theory, and practice. Zero videos required.
 - Checkout + webhook + magic link + player that opens lesson 1 on the writing.
@@ -883,11 +1189,12 @@ One course, real money on a **preview**, never on `aiadop` production until Anto
 - Homepage Latest can show the single pilot if published.
 - Feature flag `SELF_SERVE_COURSES` default false on production.
 
-Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open lesson 1 from the mail into the focused room (one column, no video chrome, no module sidebar), judge a draft, fill the four-line sheet, continue, finish, and see the purchase on admin revenue. If he has already filmed one lesson, pasting its playback id makes Watch appear in that same column without resetting the run. If the room feels like a form, Phase 1 is not done.
+Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open lesson 1 from the mail into the focused room (one column, no video chrome, no module sidebar), do the practice, keep the prompt card, continue, finish, and see the purchase on admin revenue. If he has already filmed one lesson, pasting its playback id makes Watch appear in that same column without resetting the run. If the room feels like a form, Phase 1 is not done.
 
 #### Phase 2: full catalogue and polish
 
-- Seed the other twelve as complete text-and-practice courses (draft until he publishes), including the prompt and agent path.
+- Publish the other three social launch courses, one each for technology, robotics, and HR, so every inbound audience has a buy button.
+- Seed the remaining thirty-six as drafts and fill them in waves. Do not block the first posts on a full catalogue of forty scripts.
 - Catalog format filter, prices on cards, Latest of three on the homepage.
 - Practice score, streak, standing.
 - Publish toggle.
@@ -917,8 +1224,8 @@ Company / tenant course-authoring. White-label "companies create their own cours
 - Stripe Tax without a registration.
 - Leaderboards, childish gamification, or public learner profiles.
 - Native mobile apps.
-- Self-serve robotics. Live facilitated robotics courses stay on the existing catalogue. They are not priced, not in Latest, and not the Instagram or LinkedIn closer in v1.
-- A prompt-tricks course, a framework tutorial, or an agent that sends or changes customer work with no approval step. The three new courses are briefing, design, and supervised setup.
+- Publishing forty empty course pages. A track goes on sale when its launch course has full text and practice.
+- A prompt-tricks list, a framework tutorial, or an agent that sends or changes customer work with no approval step.
 
 ---
 
@@ -932,7 +1239,7 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 - [x] Learner portal only; company authoring shelved.
 - [x] Pay-then-account chosen, with a written happy path.
 - [x] Homepage / `/courses` IA and copy samples; course closer is buy / start.
-- [x] Thirteen AI courses, each with promise, buyer, hours, modules, GBP band, ladder. Includes prompt engineering, agent design, and agent setup. No self-serve robotics.
+- [x] Forty courses, ten each in AI, technology, robotics, and HR transformation, with buyer, hours, modules, and GBP band. Four social launch courses named.
 - [x] Text and practice are the course. Video is optional and can be attached after publish.
 - [x] The lesson is a focused room (one column, frames, artefact sheet). The interface is part of the course, not a generic player.
 - [x] Phases 0–3 and non-goals, including no production deploy.
@@ -961,7 +1268,7 @@ Passing the list above on a preview is not permission to promote `aiadop` or mer
 
 These are product calls, not blockers for this scope:
 
-1. **Pilot price.** Scope assumes **£99** for *AI Output Verification*. He can move inside the band.
+1. **Launch prices.** Scope assumes **£99** for Prompt Engineering, **£99** for the technology and HR launch courses, and **£79** for Robotics for Non-Engineers. He can move inside the bands.
 2. **VAT.** Confirm whether prices are inclusive and whether Experrt is registered to collect.
 3. **Holding org vs nullable `org_id`.** Engineering prefers a single hidden holding org so current RLS keeps working.
 4. **Video host, when he films.** Mux or Cloudflare Stream, signed playback. Not YouTube unlisted (leaks). Not files in this git repo. Launch does not wait on this choice. The attach-film field can stay empty.
@@ -994,6 +1301,6 @@ Do not edit Vercel project settings. Do not put keys in `.env` files that get co
 
 ## 9. One-page summary for Antonio
 
-We add a **buy-and-start** path on experrt.com for thirteen short AI courses, including prompt engineering, designing an agent, and setting one up under supervision. Robotics stays a facilitated programme, not a self-serve SKU. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay, in a focused room: one column, the homepage's type and air, the example and the task as the same object. The screen is part of the course. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card) and get a magic link back into that room. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
+We add a **buy-and-start** path on experrt.com for forty short courses: ten in AI, ten in technology, ten in robotics, and ten in HR transformation. A post can point at a track or at one course. The first four on sale are Prompt Engineering for Professional Work, Getting Value from the Technology You Already Pay For, Robotics for Non-Engineers, and AI for HR and People Teams. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay, in a focused room: one column, the homepage's type and air, the example and the task as the same object. The screen is part of the course. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card) and get a magic link back into that room. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
 
-First build, when you say go: **AI Output Verification** at £99, full text and practice, on a preview, not on production. Film is welcome on day one and not required.
+First build, when you say go: **Prompt Engineering for Professional Work** at £99, full text and practice, on a preview, not on production. The other three launch courses follow so each audience has a buy button when the posts go out. Film is welcome on day one and not required.
