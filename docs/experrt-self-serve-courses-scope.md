@@ -17,7 +17,7 @@ Give Antonio this file. It answers, in one place:
 1. What we build (Experrt learner portal only).
 2. How a learner buys and learns (pay-then-account).
 3. How the homepage and `/courses` sell it.
-4. Exactly ten self-serve courses, with prices and modules.
+4. Thirteen self-serve AI courses, with prices and modules, including prompt engineering and setting up agents.
 5. What already exists in this repo versus what to build, in phases.
 
 Do **not**:
@@ -61,7 +61,7 @@ Reuse the existing public routes. Do not invent `/academy` or a second site.
 
 | Surface | Today | v1 |
 | --- | --- | --- |
-| `/courses` | 34 facilitated outlines, enquiry CTA, assessment CTA | Default view is **Latest courses** (the ten self-serve SKUs) with price and **Buy and start**. Facilitated catalogue remains a second filter / section. |
+| `/courses` | 34 facilitated outlines, enquiry CTA, assessment CTA | Default view is **Latest courses** (the thirteen self-serve SKUs) with price and **Buy and start**. Facilitated catalogue remains a second filter / section. |
 | `/courses/[slug]` | Outline + `CourseEnquiryForm` | Self-serve slugs: promise, modules, price, **Buy and start**. Facilitated slugs: keep enquiry. |
 | `/courses/sector/[sector]` | Sector browse for facilitated | Leave as facilitated / org browse. Do not force self-serve into sector SEO in v1. |
 | `/` homepage | Hero closer is `/contact` ("Book a conversation") | Hero / first commercial section sells self-serve. Course CTA is buy / start. Facilitated is secondary. |
@@ -302,7 +302,7 @@ v1 admin is **not** a CMS. He needs:
 
 Out of v1: a full lesson editor, video upload UI, quiz builder, multi-tenant authoring, seat licences, discount engine beyond one optional facilitated-programme code.
 
-Theory and practice for the ten courses are seeded in a migration (same pattern as `020_courses.sql`). Antonio writes or approves that prose before publish. Film is not in the seed. When a lesson is filmed, he (or an implementer) sets the playback id in the admin field. No media binaries in git. No secrets in git.
+Theory and practice for the thirteen courses are seeded in a migration (same pattern as `020_courses.sql`). Antonio writes or approves that prose before publish. Film is not in the seed. When a lesson is filmed, he (or an implementer) sets the playback id in the admin field. No media binaries in git. No secrets in git.
 
 ---
 
@@ -337,15 +337,15 @@ Keep the current branded design: horizon illustration, Space Grotesk headline, a
                  with the judgement to check it.
 
                  Short courses you can buy and finish
-                 on your own. Applied AI and Article 4
-                 literacy, with the judgement to use it.
+                 on your own. Prompt engineering, agents
+                 you supervise, and the judgement to check the output.
 
                  [ Start a course ]     Facilitated programmes
 
                  Latest courses
                  [ AI Output Verification                         £99   Buy ]
-                 [ AI Literacy under EU AI Act Article 4         £129  Buy ]
-                 [ AI Investment Decisions for Directors          £199  Buy ]
+                 [ Prompt Engineering for Professional Work      £129  Buy ]
+                 [ Setting Up and Supervising AI Agents          £199  Buy ]
                  All courses →
 
                  For teams
@@ -362,7 +362,7 @@ Hero h1 (option A, value-first):
 
 Hero standfirst:
 
-> Short courses you buy and start now. Read the method, do the work on your own material, check your judgement. Applied AI, EU AI Act literacy, and decisions for directors and managers. Not a demo. Not a webinar you abandon.
+> Short courses you buy and start now. Read the method, do the work on your own material, check your judgement. Applied AI, prompt engineering, and agents you set up and supervise. Not a demo. Not a list of prompt tricks.
 
 Primary CTA: `Start a course` → `/courses`.
 
@@ -438,15 +438,23 @@ Creatives on Instagram and LinkedIn should deep-link to `/courses/[slug]`, not `
 
 ---
 
-## 4. Ten self-serve courses
+## 4. Thirteen self-serve courses
 
 These are **new SKUs** with new slugs so we do not collide with the 34 facilitated rows in `lib/published-course-slugs.ts`. Each row names the facilitated course or programme it ladders into.
 
 Titles are catalogue names: the subject, and the audience when that changes who should buy it. They are the words on the card, the receipt, and the completion record. Same register as the live facilitated catalogue (`Prompting and Output Verification`, `AI Governance and Oversight for Managers`), not an insight headline.
 
-**v1 is AI only.** All ten self-serve courses are applied AI: using it, checking it, governing it, and deciding whether to buy it. Robotics stays on the facilitated catalogue for teams who book a live programme. It is not in Latest, it has no self-serve price, and it is not promoted on the AI with Antonio closer.
+**v1 is AI only.** All thirteen self-serve courses are applied AI: using it, checking it, briefing it, setting up agents, governing it, and deciding whether to buy it. Robotics stays on the facilitated catalogue for teams who book a live programme. It is not in Latest, it has no self-serve price, and it is not promoted on the AI with Antonio closer.
 
-All ten are **written courses with required practice**. Antonio can film a walkthrough per lesson when he has time. The film is the same lesson, not a second product, and it is not required to publish or to finish. No live cohort is required to fulfil a purchase.
+Three of the thirteen are a path people can take in order, sold separately (no bundle in v1):
+
+1. **Prompt Engineering for Professional Work.** How to brief a model so a colleague could reuse the instruction.
+2. **Designing AI Agents for Business Workflows.** One job, the approvals, and what the agent must not do.
+3. **Setting Up and Supervising AI Agents.** Stand it up in the tools the organisation already pays for, then watch it.
+
+**AI Output Verification** sits beside the first. A strong prompt still gets checked before the result leaves the desk.
+
+All thirteen are **written courses with required practice**. Antonio can film a walkthrough per lesson when he has time. The film is the same lesson, not a second product, and it is not required to publish or to finish. No live cohort is required to fulfil a purchase. The agent courses are not a coding bootcamp and not a tour of frameworks. The learner leaves with a prompt card, an agent brief, or a supervision note for a task they already own.
 
 Price bands are GBP, retail, v1 starting point. Final number is a single amount on the row (e.g. £99), not a slider.
 
@@ -662,7 +670,67 @@ Modules:
 3. A short red-list: names, files, and tools you do not use.
 4. What to do in the first hour if something went out.
 
-### 4.11 Ladder map (at a glance)
+### 4.11 Prompt Engineering for Professional Work
+
+| | |
+| --- | --- |
+| **Slug** | `prompt-engineering-for-professional-work` |
+| **Title** | Prompt Engineering for Professional Work |
+| **Promise** | Most weak results come from a brief a colleague would have sent back. This course teaches you to instruct a model the way you would instruct a capable person: role, context, constraints, and the exact form of the output. You leave with a prompt card for a real task, written so someone else on the team can run it without you in the room. |
+| **Target buyer** | Professionals who already use ChatGPT, Copilot, Claude, or a similar tool and want reliable output, not a longer list of tricks. |
+| **Length** | 2.5 hours |
+| **Price band** | £99–£149 (catalogue price: **£129**) |
+| **Ladders into facilitated?** | Yes. `prompting-and-output-verification`. Take **AI Output Verification** as the companion course. |
+
+Modules:
+
+1. Brief the model the way you would brief a colleague.
+2. Role, context, constraints, and output format.
+3. Iterate on a weak result instead of starting again.
+4. Write a prompt card a colleague can reuse.
+5. What you still check before the result leaves your desk.
+
+### 4.12 Designing AI Agents for Business Workflows
+
+| | |
+| --- | --- |
+| **Slug** | `designing-ai-agents-for-business-workflows` |
+| **Title** | Designing AI Agents for Business Workflows |
+| **Promise** | An agent is not a cleverer prompt. It is a standing worker with a job, inputs, tools, and a point where a person must say yes. This course is how you choose one workflow worth handing over, write the job so it cannot wander, and decide which actions it may take and which it must stop for. You leave with a one-page agent brief. |
+| **Target buyer** | Team leads and operators who are about to automate a repeating task and need the design before anyone configures a tool. |
+| **Length** | 2.5 hours |
+| **Price band** | £129–£199 |
+| **Ladders into facilitated?** | Yes. `building-ai-assistants-for-your-team`. |
+
+Modules:
+
+1. What an agent is, and what is still just a prompt.
+2. Pick one job. Refuse the general assistant.
+3. Inputs, tools, and the actions you will not grant.
+4. Where a person approves before anything is sent or changed.
+5. A one-page agent brief: job, stop conditions, owner.
+
+### 4.13 Setting Up and Supervising AI Agents
+
+| | |
+| --- | --- |
+| **Slug** | `setting-up-and-supervising-ai-agents` |
+| **Title** | Setting Up and Supervising AI Agents |
+| **Promise** | This is the build. You take a brief and stand an agent up in a tool the organisation already pays for, with standing instructions, only the tools that job needs, and tests for the case it must refuse. Then you decide what you will watch in the first two weeks, and who owns it when you are not there. You leave with a working setup and a supervision note. |
+| **Target buyer** | Operators and team leads who will configure the agent themselves. Not a software engineering course, and not a framework tutorial. |
+| **Length** | 3 hours |
+| **Price band** | £149–£249 (catalogue price: **£199**) |
+| **Ladders into facilitated?** | Yes. `ai-tooling-and-integration-clinic` and `automating-the-work-nobody-wants`. |
+
+Modules:
+
+1. Turn the agent brief into standing instructions.
+2. Connect only the tools that job needs.
+3. Three tests: the normal case, the missing fact, the action it must refuse.
+4. What you watch in the first two weeks.
+5. A supervision note for the person who owns it in your absence.
+
+### 4.14 Ladder map (at a glance)
 
 | Self-serve | Hours | Band (GBP) | Facilitated slug / programme |
 | --- | --- | --- | --- |
@@ -676,6 +744,9 @@ Modules:
 | AI Governance for Managers | 2 | 129–199 | `ai-governance-and-oversight-for-managers` |
 | AI-Assisted Analysis and Reporting | 2.5 | 99–149 | `ai-for-analysis-and-reporting` |
 | Secure Use of AI Tools at Work | 1.5 | 59–99 | `everyday-security-for-busy-teams` |
+| Prompt Engineering for Professional Work | 2.5 | 99–149 | `prompting-and-output-verification` |
+| Designing AI Agents for Business Workflows | 2.5 | 129–199 | `building-ai-assistants-for-your-team` |
+| Setting Up and Supervising AI Agents | 3 | 149–249 | `ai-tooling-and-integration-clinic` |
 
 ---
 
@@ -704,7 +775,7 @@ Modules:
 
 ### 5.2 What to build (v1)
 
-1. Format + price on `courses` (or a child `course_offers` table) for the ten SKUs.
+1. Format + price on `courses` (or a child `course_offers` table) for the thirteen SKUs.
 2. `lessons`, `course_enrollments` (self-serve), `lesson_progress`, `lesson_checks`.
 3. Public checkout endpoint + webhook purpose `self_serve_course`.
 4. Learner identity path (holding org or nullable `org_id`) + magic-link claim.
@@ -814,9 +885,9 @@ One course, real money on a **preview**, never on `aiadop` production until Anto
 
 Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open lesson 1 from the mail into the focused room (one column, no video chrome, no module sidebar), judge a draft, fill the four-line sheet, continue, finish, and see the purchase on admin revenue. If he has already filmed one lesson, pasting its playback id makes Watch appear in that same column without resetting the run. If the room feels like a form, Phase 1 is not done.
 
-#### Phase 2: ten courses and polish
+#### Phase 2: full catalogue and polish
 
-- Seed the other nine as complete text-and-practice courses (draft until he publishes).
+- Seed the other twelve as complete text-and-practice courses (draft until he publishes), including the prompt and agent path.
 - Catalog format filter, prices on cards, Latest of three on the homepage.
 - Practice score, streak, standing.
 - Publish toggle.
@@ -847,6 +918,7 @@ Company / tenant course-authoring. White-label "companies create their own cours
 - Leaderboards, childish gamification, or public learner profiles.
 - Native mobile apps.
 - Self-serve robotics. Live facilitated robotics courses stay on the existing catalogue. They are not priced, not in Latest, and not the Instagram or LinkedIn closer in v1.
+- A prompt-tricks course, a framework tutorial, or an agent that sends or changes customer work with no approval step. The three new courses are briefing, design, and supervised setup.
 
 ---
 
@@ -860,7 +932,7 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 - [x] Learner portal only; company authoring shelved.
 - [x] Pay-then-account chosen, with a written happy path.
 - [x] Homepage / `/courses` IA and copy samples; course closer is buy / start.
-- [x] Exactly ten courses, all applied AI, each with promise, buyer, hours, modules, GBP band, ladder. No self-serve robotics.
+- [x] Thirteen AI courses, each with promise, buyer, hours, modules, GBP band, ladder. Includes prompt engineering, agent design, and agent setup. No self-serve robotics.
 - [x] Text and practice are the course. Video is optional and can be attached after publish.
 - [x] The lesson is a focused room (one column, frames, artefact sheet). The interface is part of the course, not a generic player.
 - [x] Phases 0–3 and non-goals, including no production deploy.
@@ -922,6 +994,6 @@ Do not edit Vercel project settings. Do not put keys in `.env` files that get co
 
 ## 9. One-page summary for Antonio
 
-We add a **buy-and-start** path on experrt.com for ten short AI courses. Robotics stays a facilitated programme, not a self-serve SKU. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay, in a focused room: one column, the homepage's type and air, the example and the task as the same object. The screen is part of the course. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card) and get a magic link back into that room. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
+We add a **buy-and-start** path on experrt.com for thirteen short AI courses, including prompt engineering, designing an agent, and setting one up under supervision. Robotics stays a facilitated programme, not a self-serve SKU. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay, in a focused room: one column, the homepage's type and air, the example and the task as the same object. The screen is part of the course. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card) and get a magic link back into that room. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
 
 First build, when you say go: **AI Output Verification** at £99, full text and practice, on a preview, not on production. Film is welcome on day one and not required.
