@@ -66,8 +66,11 @@ test("the thin brief is not the one a colleague can run", () => {
 
 test("the repair has to be read, named, added, then checked", () => {
   const check = lessons[2].check;
-  assert.equal(evaluateCheck(check, ["add", "read", "name", "check"]).passed, false);
-  assert.equal(evaluateCheck(check, ["read", "name", "add", "check"]).passed, true);
+  const wrong = evaluateCheck(check, ["add", "read", "name", "check"]);
+  const right = evaluateCheck(check, ["read", "name", "add", "check"]);
+  assert.equal(wrong.passed, false);
+  assert.equal(right.passed, true);
+  assert.notEqual(wrong.detail, right.detail);
 });
 
 test("a prompt card with empty lines does not pass", () => {

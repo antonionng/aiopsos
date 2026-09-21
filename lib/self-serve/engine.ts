@@ -99,7 +99,10 @@ function evaluateOrder(
     return { passed: false, detail: "Put every step in order." };
   }
   const passed = check.correct.every((id, index) => answer[index] === id);
-  return { passed, detail: check.why };
+  if (!passed) {
+    return { passed: false, detail: "Not that order yet. Read the miss before you change the brief." };
+  }
+  return { passed: true, detail: check.why };
 }
 
 function evaluateBuild(

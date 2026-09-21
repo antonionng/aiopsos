@@ -98,11 +98,9 @@ export function LessonRoom({ course }: { course: SelfServeCourse }) {
       },
     }));
     if (outcome.passed && index < lessons.length - 1) {
-      window.setTimeout(() => {
-        setIndex(index + 1);
-        setDraft(null);
-        setFeedback(null);
-      }, 700);
+      setIndex(index + 1);
+      setDraft(null);
+      setFeedback(null);
     }
   }
 
@@ -164,6 +162,21 @@ export function LessonRoom({ course }: { course: SelfServeCourse }) {
                 );
               })}
             </ol>
+            <button
+              type="button"
+              onClick={() => {
+                setProgress(emptyProgress());
+                setIndex(0);
+                setDraft(null);
+                setFeedback(null);
+                setName("");
+                setIndexOpen(false);
+                window.localStorage.removeItem(storageKey(course.slug));
+              }}
+              className="mt-6 text-xs text-muted-foreground"
+            >
+              Start again
+            </button>
           </div>
         </div>
       ) : null}
