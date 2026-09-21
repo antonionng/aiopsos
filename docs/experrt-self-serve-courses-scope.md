@@ -173,6 +173,7 @@ Not SCORM. Not a video library with a worksheet taped on. A quiet Experrt page w
 3. The practice uses their material or a realistic artefact from the job in the course promise.
 4. A wrong answer teaches the miss. It does not say "try again" with no reason.
 5. Video, when it arrives, walks the same decision and the same artefact. It does not add a second curriculum.
+6. A free post cannot hand them the same result. The lesson is the work, not a summary of the work.
 
 **Adding film later (no rebuild):**
 
@@ -349,7 +350,7 @@ Keep the current branded design: horizon illustration, Space Grotesk headline, a
 
                  Start here
                  [ Prompt Engineering for Professional Work      £99   Buy ]
-                 [ Robotics for Non-Engineers                    £79   Buy ]
+                 [ Robotics for Non-Engineers                    £99   Buy ]
                  [ AI for HR and People Teams                    £99   Buy ]
 
                  For teams
@@ -464,7 +465,9 @@ Four tracks, ten courses each. A person who sees a post should recognise themsel
 
 Titles are catalogue names a person can say out loud in a reel. They name the skill. They are the words on the card, the receipt, and the completion record.
 
-Every course is written theory plus practice. Film is added later and is not required to publish. Prices are GBP bands. The number on the card is one price inside the band. Most common-user courses sit at £49 to £129 so a post can convert. A few specialist courses sit higher.
+Every course is written theory plus practice. Film is added later and is not required to publish. Prices are GBP bands. The number on the card is one price inside the band. Common courses sit at £79 to £149. Specialist courses sit higher. Nothing is priced like a tip sheet.
+
+**A course is not publishable unless the buyer leaves with something they would otherwise pay a person to produce.** That is a prompt card, a verification note, an agent that has been tested, a specification, a selection standard, a skills plan, a shift card. A tour, an opinion, or "the future of" fails. If a reel could replace the course, the course is rewritten or cut before it goes on sale. Breadth is how we reach people. The artefact is why they do not regret paying.
 
 The agent courses are not a coding bootcamp. A strong prompt still gets checked. Robotics here is for a general audience as well as operators. Facilitated programmes stay available as the team version.
 
@@ -515,9 +518,9 @@ Modules:
 
 #### AI for Writing and Communication
 
-Email, a slide narrative, a briefing note. You use AI to get to a draft faster, then you take back the judgement: audience, claim, and what you are willing to sign. You leave with one finished piece from your own week.
+Email, a slide narrative, a briefing note. You use AI to get to a draft faster, then you take back the judgement: audience, claim, and what you are willing to sign. You leave with one finished piece from your own week, and a short standard a colleague can apply to the next one.
 
-Buyer: anyone who writes for other people at work. Hours: 2. Price: £59–£99. Ladders into `writing-and-communicating-with-ai`.
+Buyer: anyone who writes for other people at work. Hours: 2. Price: £79–£129. Ladders into `writing-and-communicating-with-ai`.
 
 Modules:
 
@@ -583,16 +586,16 @@ Modules:
 
 #### Secure Use of AI Tools at Work
 
-Most leaks are ordinary: a client name in a prompt, a screenshot in a free tool, a setting nobody changed. You leave with a short red-list and a first-hour response if something went out.
+You take the files, prompts, and tools your own team actually uses and decide what may be pasted, what must stay inside the company tool, and who is told if something goes out. You leave with a one-page rule written for those tools, plus a worked example of a paste you would now refuse.
 
-Buyer: any employee already using a public or work AI tool. Hours: 1.5. Price: £49–£79. Ladders into `everyday-security-for-busy-teams`.
+Buyer: anyone whose team already puts real work into an AI tool. Hours: 2. Price: £79–£129. Ladders into `everyday-security-for-busy-teams`.
 
 Modules:
 
-1. What you just pasted, and who can see it.
-2. Settings that matter.
-3. A red-list: names, files, and tools.
-4. The first hour if something went out.
+1. What your team pasted last week, and who can see it.
+2. The settings on the tools you actually have.
+3. Write the rule: allowed, refused, and who to tell.
+4. Run the rule on one real prompt and keep the result.
 
 #### AI Literacy under the EU AI Act
 
@@ -674,18 +677,18 @@ Modules:
 3. A question you can ask before you act.
 4. Your checklist.
 
-#### Everyday Cyber Security
+#### Security Decisions for Non-Technical Teams
 
-The attacks that hit busy teams are ordinary: a link, a shared login, a file in the wrong place. You leave with a personal standard and what to do in the first hour.
+You review how your own team actually shares access, files, and logins, and you decide what would hurt if it failed tomorrow. You leave with a one-page exposure list and the three changes you will make this week, not a generic security lecture.
 
-Buyer: any employee. Hours: 1.5. Price: £49–£79. Ladders into `everyday-security-for-busy-teams`.
+Buyer: managers and operators who are not in IT and still own the risk. Hours: 2. Price: £79–£129. Ladders into `everyday-security-for-busy-teams`.
 
 Modules:
 
-1. The three ways this actually happens.
-2. Passwords, links, and shared access.
-3. Your personal standard.
-4. The first hour.
+1. The accesses, files, and logins your team really uses.
+2. Which failure would hurt this week.
+3. Three changes you can make without an IT project.
+4. The exposure list, and who owns each line.
 
 #### Digital Change for Managers
 
@@ -713,18 +716,19 @@ Modules:
 3. Risk, data, and who owns the failure.
 4. A ninety-day test.
 
-#### Personal Productivity Systems
+#### Connecting the Tools Your Team Already Uses
 
-Your week is a pile of tools that do not talk to each other. You design a simple system for capture, tasks, and follow-up using what you already have. You leave with that system running on your own work.
+Work dies when someone retypes it from email into a sheet into a chat. You pick one real handoff and connect it with the tools you already pay for, then you write what still has to be done by a person. You leave with that connection running and a one-page map of the handoff.
 
-Buyer: professionals drowning in tabs, inboxes, and half-finished lists. Hours: 2. Price: £59–£99. No facilitated twin yet. It can lead into `getting-value-from-tools-you-already-own`.
+Buyer: operators and team leads who move the same information between systems every week. Hours: 2.5. Price: £99–£149. Ladders into `automating-the-work-nobody-wants`.
 
 Modules:
 
-1. Where work goes to die.
-2. One inbox, one list, one weekly review.
-3. Set it up with your current tools.
-4. The review you will actually keep.
+1. Name the handoff and what it costs in hours.
+2. Connect it with tools you already have.
+3. Run it on this week's real inputs.
+4. Write what a person must still check.
+5. The map: source, step, owner, failure.
 
 #### Running a Technology Rollout
 
@@ -745,16 +749,17 @@ These are for a general audience as well as people on a site. A reel can sell th
 
 #### Robotics for Non-Engineers
 
-What a robot is doing in a workplace, in plain language, and what still needs a person. You leave able to explain it to a colleague who has only seen a video. Social launch course for the robotics track.
+You take one real process, or a full worked case if you are not on a site yet, and decide what a robot could take, what a person must keep, and what would make the idea a bad buy. You leave with a go or not-yet brief a director could read. Social launch course for the robotics track. It is a decision, not an introduction.
 
-Buyer: professionals, managers, and students of the field who are not engineers. Hours: 2. Price: £59–£99, card price **£79**. Ladders into `robotics-what-it-can-and-cannot-do`.
+Buyer: managers and professionals who will be asked for a view and are not engineers. Hours: 2.5. Price: £79–£129, card price **£99**. Ladders into `robotics-what-it-can-and-cannot-do`.
 
 Modules:
 
-1. What the machine is actually for.
+1. What the machine can take in this process.
 2. What it cannot see, hold, or decide.
-3. Who still owns the exception.
-4. Explain it in one page.
+3. The exception a person still owns.
+4. The cost of being wrong.
+5. A go or not-yet brief.
 
 #### Collaborative Robots at Work
 
@@ -769,18 +774,19 @@ Modules:
 3. When to stop and call a person.
 4. A handover the next shift can trust.
 
-#### The Future of Work with Robots
+#### Where a Robot Belongs in the Process
 
-Where robots show up in ordinary industries, what changes for the people around them, and what does not. You leave with a clear view of the jobs that move, the jobs that stay, and the skills in between.
+You mark one process task by task: robot, person, or not yet. You price the mistake of automating the wrong step. You leave with that marked process and a recommendation you could defend in a meeting.
 
-Buyer: anyone who wants a serious picture, not a hype reel. Hours: 2. Price: £59–£99. Ladders into `preparing-your-team-for-automation`.
+Buyer: operations managers and team leads looking at a real flow. Hours: 2.5. Price: £99–£149. Ladders into `preparing-your-team-for-automation`.
 
 Modules:
 
-1. Where this is already normal.
-2. Tasks that move, tasks that stay.
-3. The skills in between.
-4. What you would tell your own team.
+1. Break the process into tasks.
+2. Mark each one: robot, person, or not yet.
+3. The step that looks easy and is not.
+4. What the mistake would cost.
+5. The recommendation.
 
 #### Preparing a Team for Automation
 
@@ -1014,26 +1020,26 @@ Modules:
 | AI | Prompt Engineering for Professional Work | 2.5 | 79–129 |
 | AI | AI Output Verification | 2.5 | 79–129 |
 | AI | Applying AI in Daily Work | 2.5 | 79–129 |
-| AI | AI for Writing and Communication | 2 | 59–99 |
+| AI | AI for Writing and Communication | 2 | 79–129 |
 | AI | Designing AI Agents for Business Workflows | 2.5 | 99–149 |
 | AI | Setting Up and Supervising AI Agents | 3 | 149–199 |
 | AI | AI for Customer Communications | 2.5 | 79–129 |
 | AI | AI-Assisted Analysis and Reporting | 2.5 | 79–129 |
-| AI | Secure Use of AI Tools at Work | 1.5 | 49–79 |
+| AI | Secure Use of AI Tools at Work | 2 | 79–129 |
 | AI | AI Literacy under the EU AI Act | 2 | 79–129 |
 | Technology | Getting Value from the Technology You Already Pay For | 2 | 79–129 |
 | Technology | Choosing Technology for Your Team | 2 | 99–149 |
 | Technology | No-Code Automation for Everyday Work | 2.5 | 79–129 |
 | Technology | From Spreadsheets to Simple Systems | 2.5 | 79–129 |
 | Technology | Data Skills for People Who Are Not Analysts | 2.5 | 79–129 |
-| Technology | Everyday Cyber Security | 1.5 | 49–79 |
+| Technology | Security Decisions for Non-Technical Teams | 2 | 79–129 |
 | Technology | Digital Change for Managers | 2 | 99–149 |
 | Technology | Technology Decisions for Non-Technical Leaders | 2 | 129–199 |
-| Technology | Personal Productivity Systems | 2 | 59–99 |
+| Technology | Connecting the Tools Your Team Already Uses | 2.5 | 99–149 |
 | Technology | Running a Technology Rollout | 2 | 99–149 |
-| Robotics | Robotics for Non-Engineers | 2 | 59–99 |
+| Robotics | Robotics for Non-Engineers | 2.5 | 79–129 |
 | Robotics | Collaborative Robots at Work | 2 | 79–129 |
-| Robotics | The Future of Work with Robots | 2 | 59–99 |
+| Robotics | Where a Robot Belongs in the Process | 2.5 | 99–149 |
 | Robotics | Preparing a Team for Automation | 2 | 79–129 |
 | Robotics | Warehouse and Logistics Automation | 2.5 | 99–149 |
 | Robotics | Specifying a Robotics Project | 2.5 | 129–199 |
@@ -1052,7 +1058,7 @@ Modules:
 | HR transformation | Employee Data, Privacy and AI | 2 | 99–149 |
 | HR transformation | Measuring Whether Training Stuck | 2 | 79–129 |
 
-Card prices for the four social launch courses: Prompt Engineering £99, Getting Value from the Technology You Already Pay For £99, Robotics for Non-Engineers £79, AI for HR and People Teams £99.
+Card prices for the four social launch courses: Prompt Engineering £99, Getting Value from the Technology You Already Pay For £99, Robotics for Non-Engineers £99, AI for HR and People Teams £99. Each one produces a working artefact, not an overview.
 
 ---
 
@@ -1225,6 +1231,7 @@ Company / tenant course-authoring. White-label "companies create their own cours
 - Leaderboards, childish gamification, or public learner profiles.
 - Native mobile apps.
 - Publishing forty empty course pages. A track goes on sale when its launch course has full text and practice.
+- Overview courses, "future of" briefings, and tip sheets. If the buyer does not leave with an artefact they would otherwise pay someone to produce, it does not ship.
 - A prompt-tricks list, a framework tutorial, or an agent that sends or changes customer work with no approval step.
 
 ---
@@ -1239,7 +1246,7 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 - [x] Learner portal only; company authoring shelved.
 - [x] Pay-then-account chosen, with a written happy path.
 - [x] Homepage / `/courses` IA and copy samples; course closer is buy / start.
-- [x] Forty courses, ten each in AI, technology, robotics, and HR transformation, with buyer, hours, modules, and GBP band. Four social launch courses named.
+- [x] Forty courses, ten each in AI, technology, robotics, and HR transformation, with buyer, hours, modules, and GBP band. Four social launch courses named. Each course must leave an artefact a free post cannot replace.
 - [x] Text and practice are the course. Video is optional and can be attached after publish.
 - [x] The lesson is a focused room (one column, frames, artefact sheet). The interface is part of the course, not a generic player.
 - [x] Phases 0–3 and non-goals, including no production deploy.
@@ -1268,7 +1275,7 @@ Passing the list above on a preview is not permission to promote `aiadop` or mer
 
 These are product calls, not blockers for this scope:
 
-1. **Launch prices.** Scope assumes **£99** for Prompt Engineering, **£99** for the technology and HR launch courses, and **£79** for Robotics for Non-Engineers. He can move inside the bands.
+1. **Launch prices.** Scope assumes **£99** for each of the four launch courses. He can move inside the bands. The price is for the artefact, not for a short read.
 2. **VAT.** Confirm whether prices are inclusive and whether Experrt is registered to collect.
 3. **Holding org vs nullable `org_id`.** Engineering prefers a single hidden holding org so current RLS keeps working.
 4. **Video host, when he films.** Mux or Cloudflare Stream, signed playback. Not YouTube unlisted (leaks). Not files in this git repo. Launch does not wait on this choice. The attach-film field can stay empty.
