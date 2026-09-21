@@ -152,7 +152,7 @@ Not SCORM. Not a video library with a worksheet taped on. A quiet Experrt page w
 | **Watch** | Only if filmed | Antonio's walkthrough of the same lesson. Rendered only when `playback_id` is set. No empty player. No "video coming soon" placeholder. |
 | **Do the work** | Always | A judgement check, an applied task on their own material, or both. This is what marks the lesson done. |
 
-**Layout (desktop):** left rail of modules and lessons; centre column is the lesson (optional watch, then theory, then the work). **Mobile:** title, watch if present, theory, work, then Next.
+**Layout:** one reading column, not a dashboard. The lesson moves through frames (read, watch only if filmed, do the work). The lesson index is a panel they open, not a permanent sidebar. Detail is in 2.4a. Phone and desktop use the same column; the phone just has less air.
 
 **Structure:** Course → Module (3–6) → Lesson (theory + practice, video optional). Existing `course_modules` is outline metadata only (`lib/courses.ts`, `lab_url` is an external link). v1 adds a `lessons` table under those modules. Lesson body is markdown in the database, seeded like the catalogue. Not a file in git full of media.
 
@@ -181,6 +181,41 @@ Not SCORM. Not a video library with a worksheet taped on. A quiet Experrt page w
 - No "new video" email in v1. The player is the announcement.
 - Buyers who finished the course can reopen the lesson and watch. Completion is not revoked and not re-required.
 
+### 2.4a The interface is the lesson
+
+The screen is part of what they paid for. It should feel like stepping into the homepage: horizon, one type, a lot of air. It should not feel like a training admin tool with the lesson pasted in the middle.
+
+**Focused shell.** On `/learn`, the marketing links (Academy, Insights, Pricing) step back. Left on the bar: the wordmark, the course title in small muted type, and a 1px brand hairline showing how much of the course is done. That hairline is the insight reading bar (`components/public/reading-progress.tsx`) driven by lessons finished, not by scroll. "Lessons" opens the index over the page and closes when they pick one. The default is the column.
+
+**One column.** Lesson title in Space Grotesk, `tracking-[-0.03em]`. Body in Inter, about the width of an insight (`max-w-2xl`), with real vertical space between ideas. Category colour shows once: the artwork, or a soft band behind the title. It does not become a row of badges inside the lesson.
+
+**Three frames, one object.**
+
+| Frame | What they see |
+| --- | --- |
+| Read | Title, one sentence, the theory. The worked example is typeset as the thing it is: an email, a line in a board pack, a one-page brief. Same card as the site (`rounded-2xl`, hairline border, `bg-card`). |
+| Watch | Only when that lesson has a film. The film sits in the same card, the width of the column. No related-video strip. No autoplay with sound. One line under it: "This is the same method, on screen." They can move on without playing it. |
+| Do the work | The same object again, now in their hands. Judgement means choosing between drafts that look like drafts. The reason appears under the choice in muted type. An applied task is a sheet with named lines, not a box labelled "Your answer". |
+
+A right choice settles: the border goes quiet and the reason stays. A wrong choice shows the reason and remains so they can choose again. Nothing shakes. Nothing stamps a red X. There is no score out of ten on the frame.
+
+For *Verify the output*, the sheet is four lines they fill and keep: source, date, names and numbers, would you sign it. Saving happens in place. That sheet is the artefact.
+
+**Continue.** One pill at the end of the last frame, the same shape as the homepage CTA. The label is `Continue`. It enables when the practice is done, then opens the next lesson. The move is the homepage fade: opacity and a short rise, about half a second, via the `framer-motion` already on `app/page.tsx`. `useReducedMotion` makes that instant.
+
+**The last page.** The final Continue opens a still page. Their artefact. One sentence. The completion record and the verify link. Course artwork, or the horizon illustration, sits behind the type at low opacity the way `SectionAnchor` sits behind homepage copy. Then nothing else. No modal. No sound.
+
+**Theme.** Use the tokens already in `app/globals.css`. Light is warm white and `#191919`. Dark is the existing deep black (`#0d0d0d` background, `#ececec` type). The player follows the site theme. It does not invent a third "learning" palette.
+
+**Sound.** None in v1. Quiet is part of the room.
+
+**Keep this out of the column, or the room collapses:**
+
+- A fixed sidebar of modules, doughnuts, and "Mark as complete".
+- An exam layout: question numbers, a Submit button, a percentage.
+- A video on top and a worksheet underneath, which is the failure mode of this design.
+- Toasts, stickers, or a streak mark on every frame. Practice and standing live on My Learning, and as one quiet line when they leave the lesson. Not in the reading measure.
+
 **Completion record:**
 
 - When all lessons + required checks are done, issue a **record of completion** using the existing certificate pipeline (`lib/certification.ts`, `/verify/[ref]`, `CertificateIssuedEmail`).
@@ -202,11 +237,11 @@ Match the brand: black, air, one type (Space Grotesk display, Inter body, amber 
 
 Do **not** ship: leaderboards, avatars, confetti, daily quests, push nags, public profiles.
 
-Tone: the player should feel like the homepage hero (horizon illustration, tracking-tight display type, lots of air), not like a gamified app chrome.
+These sit outside the reading column. The lesson itself stays a room. Practice, standing, and the streak are visible when they pause or finish, on My Learning and as one quiet line, in the same type as the rest of the site.
 
 ### 2.6 UI and design system
 
-Reuse. Do not restyle.
+Same tokens, new composition. The catalog and homepage keep today's cards and nav. The lesson is the focused room in 2.4a, built from these pieces rather than a new visual language.
 
 | Token / piece | Where |
 | --- | --- |
@@ -220,7 +255,7 @@ Reuse. Do not restyle.
 | Nav / footer | `components/site-nav.tsx`, `components/public/site-footer.tsx` |
 | Dark mode | existing `theme-provider` |
 
-Player chrome: same public layout padding (`pt-14` under the fixed nav), same max width family as courses (`max-w-6xl` / `max-w-5xl`), no new colour palette.
+The lesson column uses the insight measure (`max-w-2xl`) under the same fixed bar offset (`pt-14`). The index panel and the end page can use the wider course measure (`max-w-5xl` / `max-w-6xl`). No new colour palette. Motion reuses the homepage fade and the reduced-motion check. The 1px progress hairline reuses the insight reading-bar pattern.
 
 ### 2.7 Payments
 
@@ -772,7 +807,7 @@ One course, real money on a **preview**, never on `aiadop` production until Anto
 - Homepage Latest can show the single pilot if published.
 - Feature flag `SELF_SERVE_COURSES` default false on production.
 
-Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open lesson 1 from the mail with no video on the page, finish the course by doing the work, and see the purchase on admin revenue. If he has already filmed one lesson, pasting its playback id makes Watch appear without resetting that run.
+Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open lesson 1 from the mail into the focused room (one column, no video chrome, no module sidebar), judge a draft, fill the four-line sheet, continue, finish, and see the purchase on admin revenue. If he has already filmed one lesson, pasting its playback id makes Watch appear in that same column without resetting the run. If the room feels like a form, Phase 1 is not done.
 
 #### Phase 2: ten courses and polish
 
@@ -802,6 +837,7 @@ Company / tenant course-authoring. White-label "companies create their own cours
 - Video files or API keys committed to git.
 - Blocking publish, checkout, or lesson completion on a film that does not exist yet.
 - Empty video players, "coming soon" slots, or a trailer before lesson 1.
+- LMS chrome in the lesson: a permanent module sidebar, exam layout, score popups, sound, or confetti. The interface in 2.4a is the experience. A generic player with the text dropped in fails the phase.
 - Stripe Tax without a registration.
 - Leaderboards, childish gamification, or public learner profiles.
 - Native mobile apps.
@@ -820,6 +856,7 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 - [x] Homepage / `/courses` IA and copy samples; course closer is buy / start.
 - [x] Exactly ten courses, each with promise, buyer, hours, modules, GBP band, ladder.
 - [x] Text and practice are the course. Video is optional and can be attached after publish.
+- [x] The lesson is a focused room (one column, frames, artefact sheet). The interface is part of the course, not a generic player.
 - [x] Phases 0–3 and non-goals, including no production deploy.
 - [x] No secrets. No em dashes in user-facing copy samples.
 - [x] Draft PR, docs only.
@@ -831,10 +868,10 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 | Unit | Entitlement grant is idempotent. Progress % math. Standing thresholds. Certificate snapshot includes disclaimer and `self_serve_completion`. `isPublicPath('/api/public/courses/x/checkout')`. Notify email still `ag@experrt.com` if `NOTIFY_EMAIL` is a `@kumohr.com` leftover. |
 | RLS | Anonymous cannot read `playback_id`. Other users cannot read another learner's progress. Super-admin can. |
 | Checkout | Guest pay → mail → magic link → player. Signed-in pay → player. Double submit does not double charge. Failed pay creates no entitlement. |
-| Player | Resume opens the first incomplete lesson on the theory, not on a video. Practice required to complete. A lesson with a null playback id has no player chrome. Pasting a playback id shows Watch and does not wipe `response`. Unsigned user hitting `/learn` goes to login with `next=`. |
+| Player | Resume opens the first incomplete lesson on the theory, in the focused room, not on a video and not in a module sidebar. Practice required to complete. A lesson with a null playback id has no player chrome. Judgement reveals the reason in place. The sheet saves in place. `Continue` is one control. Reduced motion skips the fade. Pasting a playback id shows Watch in the same column and does not wipe `response`. Unsigned user hitting `/learn` goes to login with `next=`. |
 | Admin | Purchase appears with email, course, pence. Publish/unpublish hides the catalog card but not a paid player's access. |
 | Copy | No `/contact` or Calendly on self-serve closers. No "compliant" / "Article 4 certificate" strings on the player or completion mail. |
-| Browser | Homepage Latest → course → buy (test mode) → player, desktop and a mobile viewport. Facilitated course page still shows enquiry, not a fake price. |
+| Browser | Homepage Latest → course → buy (test mode) → focused lesson, desktop and a mobile viewport. Complete one judgement and the sheet. Confirm the end page is still, with the artefact and no popup. Facilitated course page still shows enquiry, not a fake price. |
 
 ### 6.3 What "done" is not
 
@@ -879,6 +916,6 @@ Do not edit Vercel project settings. Do not put keys in `.env` files that get co
 
 ## 9. One-page summary for Antonio
 
-We add a **buy-and-start** path on experrt.com for ten short courses. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card), get a magic link, and resume in a player that looks like the current site. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
+We add a **buy-and-start** path on experrt.com for ten short courses. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay, in a focused room: one column, the homepage's type and air, the example and the task as the same object. The screen is part of the course. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card) and get a magic link back into that room. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
 
 First build, when you say go: **Verify the output** at £99, full text and practice, on a preview, not on production. Film is welcome on day one and not required.
