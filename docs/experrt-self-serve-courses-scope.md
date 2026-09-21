@@ -199,7 +199,7 @@ The screen is part of what they paid for. It should feel like stepping into the 
 
 A right choice settles: the border goes quiet and the reason stays. A wrong choice shows the reason and remains so they can choose again. Nothing shakes. Nothing stamps a red X. There is no score out of ten on the frame.
 
-For *Verify the output*, the sheet is four lines they fill and keep: source, date, names and numbers, would you sign it. Saving happens in place. That sheet is the artefact.
+For *AI Output Verification*, the sheet is four lines they fill and keep: source, date, names and numbers, would you sign it. Saving happens in place. That sheet is the artefact.
 
 **Continue.** One pill at the end of the last frame, the same shape as the homepage CTA. The label is `Continue`. It enables when the practice is done, then opens the next lesson. The move is the homepage fade: opacity and a short rise, about half a second, via the `framer-motion` already on `app/page.tsx`. `useReducedMotion` makes that instant.
 
@@ -343,9 +343,9 @@ Keep the current branded design: horizon illustration, Space Grotesk headline, a
                  [ Start a course ]     Facilitated programmes
 
                  Latest courses
-                 [ Verify the output      £99   Buy ]
-                 [ Article 4 literacy     £129  Buy ]
-                 [ Technology judgement   £199  Buy ]
+                 [ AI Output Verification                         £99   Buy ]
+                 [ AI Literacy under EU AI Act Article 4         £129  Buy ]
+                 [ Technology Decisions for Non-Technical Directors   £199  Buy ]
                  All courses →
 
                  For teams
@@ -362,7 +362,7 @@ Hero h1 (option A, value-first):
 
 Hero standfirst:
 
-> Short courses you buy and start now. Read the method, do the work on your own material, check your judgement. Applied AI, Article 4 literacy, and robotics as an operations problem. Not a demo. Not a webinar you abandon.
+> Short courses you buy and start now. Read the method, do the work on your own material, check your judgement. Applied AI, EU AI Act literacy, technology decisions, and robotics operations. Not a demo. Not a webinar you abandon.
 
 Primary CTA: `Start a course` → `/courses`.
 
@@ -402,7 +402,7 @@ Reuse `app/(public)/courses/[slug]/page.tsx` header (artwork band, category, lev
 [ artwork ]
 Applied AI   Practitioner   2.5 hrs   £99
 
-Verify the output
+AI Output Verification
 
 You already use ChatGPT at work. This course
 installs the checking habit so a plausible
@@ -442,16 +442,18 @@ Creatives on Instagram and LinkedIn should deep-link to `/courses/[slug]`, not `
 
 These are **new SKUs** with new slugs so we do not collide with the 34 facilitated rows in `lib/published-course-slugs.ts`. Each row names the facilitated course or programme it ladders into.
 
+Titles are catalogue names: the subject, and the audience when that changes who should buy it. They are the words on the card, the receipt, and the completion record. Same register as the live facilitated catalogue (`Prompting and Output Verification`, `Technology for Non-Technical Leaders`), not an insight headline.
+
 All ten are **written courses with required practice**. Antonio can film a walkthrough per lesson when he has time. The film is the same lesson, not a second product, and it is not required to publish or to finish. No live cohort is required to fulfil a purchase.
 
 Price bands are GBP, retail, v1 starting point. Final number is a single amount on the row (e.g. £99), not a slider.
 
-### 4.1 Verify the output
+### 4.1 AI Output Verification
 
 | | |
 | --- | --- |
-| **Slug** | `verify-the-output` |
-| **Title** | Verify the output |
+| **Slug** | `ai-output-verification` |
+| **Title** | AI Output Verification |
 | **Promise** | You already get an answer from ChatGPT or Copilot in under a minute. This course installs a short, repeatable check so a confident, plausible, wrong result does not reach a customer, a board pack, or a colleague. You will leave with a four-step routine and a verification note you can reuse on Monday. |
 | **Target buyer** | Individual contributors and team leads who already use a general AI tool at work and have no standard for checking it. |
 | **Length** | 2.5 hours |
@@ -482,12 +484,12 @@ Do the work:
 
 Watch, later: Antonio runs the same email and the same four checks on screen. The lesson does not change when the film is attached.
 
-### 4.2 Article 4 literacy that matches the work
+### 4.2 AI Literacy under EU AI Act Article 4
 
 | | |
 | --- | --- |
-| **Slug** | `article-4-literacy-that-matches-the-work` |
-| **Title** | Article 4 literacy that matches the work |
+| **Slug** | `ai-literacy-under-eu-ai-act-article-4` |
+| **Title** | AI Literacy under EU AI Act Article 4 |
 | **Promise** | Article 4 is a duty to take measures supporting AI literacy, not a certificate you can buy. This course tells you what the duty actually says, what a proportionate measure looks like by role, and what a dated record contains, so you stop shopping for a PDF that will not help you. |
 | **Target buyer** | L&D, HR, risk, and transformation leads asked to "do something about Article 4." |
 | **Length** | 2 hours |
@@ -501,12 +503,12 @@ Modules:
 3. What belongs in the record, and what a certificate cannot do.
 4. A one-page plan you can take to a sponsor.
 
-### 4.3 Put AI into the work you already do
+### 4.3 Applying AI in Daily Work
 
 | | |
 | --- | --- |
-| **Slug** | `put-ai-into-the-work-you-already-do` |
-| **Title** | Put AI into the work you already do |
+| **Slug** | `applying-ai-in-daily-work` |
+| **Title** | Applying AI in Daily Work |
 | **Promise** | Most people try AI on a toy task, then go back to email. This course picks three pieces of work you already own (a draft, a summary, a decision pack), runs them through a tool, and sets a weekly habit so the tool stays in the job rather than in a demo. |
 | **Target buyer** | Practitioners with a licence and no habit. |
 | **Length** | 3 hours |
@@ -521,12 +523,12 @@ Modules:
 4. When the tool is the wrong place to start.
 5. Hand-off: what your manager should expect to see.
 
-### 4.4 Technology judgement for directors
+### 4.4 Technology Decisions for Non-Technical Directors
 
 | | |
 | --- | --- |
-| **Slug** | `technology-judgement-for-directors` |
-| **Title** | Technology judgement for directors |
+| **Slug** | `technology-decisions-for-non-technical-directors` |
+| **Title** | Technology Decisions for Non-Technical Directors |
 | **Promise** | You do not need to become technical. You need a way to tell a real operating change from a slide. This course gives non-technical directors five questions for any AI or automation proposal, a way to read a vendor demo, and a standard for what "good" looks like after ninety days. |
 | **Target buyer** | Non-technical directors and heads of function who sign or block spend. |
 | **Length** | 2 hours |
@@ -540,12 +542,12 @@ Modules:
 3. Risk, data, and who owns the failure.
 4. A ninety-day test you can hold a sponsor to.
 
-### 4.5 Managers, not champions
+### 4.5 AI Adoption for Line Managers
 
 | | |
 | --- | --- |
-| **Slug** | `managers-not-champions` |
-| **Title** | Managers, not champions |
+| **Slug** | `ai-adoption-for-line-managers` |
+| **Title** | AI Adoption for Line Managers |
 | **Promise** | Champions do not make training stick. Managers do, in 1:1s and on the work they accept. This course shows line managers how to set a standard for AI use, review output without becoming the helpdesk, and tell whether last month's course is still in the job. |
 | **Target buyer** | Line managers whose team "did the AI training" and reverted. |
 | **Length** | 2.5 hours |
@@ -560,12 +562,12 @@ Modules:
 4. Signals the training has stuck (and what to do if it has not).
 5. What to ask L&D for next, instead of another webinar.
 
-### 4.6 The licences are paid for
+### 4.6 Getting Value from Existing AI Licences
 
 | | |
 | --- | --- |
-| **Slug** | `the-licences-are-paid-for` |
-| **Title** | The licences are paid for |
+| **Slug** | `getting-value-from-existing-ai-licences` |
+| **Title** | Getting Value from Existing AI Licences |
 | **Promise** | Copilot, ChatGPT, and the rest are already on the bill. This course is how a practitioner or an ops lead turns an unused licence into three jobs the team actually runs, without buying another tool to feel like progress. |
 | **Target buyer** | Ops, IT, and ambitious ICs sitting on unused seats. |
 | **Length** | 2 hours |
@@ -579,12 +581,12 @@ Modules:
 3. Access, policy, and the quiet reasons people opt out.
 4. A 30-day use plan you can show a budget holder.
 
-### 4.7 Robotics is an operations problem
+### 4.7 Robotics for Operations Managers
 
 | | |
 | --- | --- |
-| **Slug** | `robotics-is-an-operations-problem` |
-| **Title** | Robotics is an operations problem |
+| **Slug** | `robotics-for-operations-managers` |
+| **Title** | Robotics for Operations Managers |
 | **Promise** | A cell that looks good in a vendor video fails on the shift if nobody owns recovery, material flow, or the exception pile. This course is for people who specify or sponsor robotics, not people who build arms. You will leave able to write a one-page operating brief an integrator cannot hide behind. |
 | **Target buyer** | Operations, plant, and logistics managers considering a cell or living with a bad one. |
 | **Length** | 2.5 hours |
@@ -599,12 +601,12 @@ Modules:
 4. Safety, exceptions, and the pile the robot will not touch.
 5. A one-page operating brief.
 
-### 4.8 The shift, not the integrator
+### 4.8 Collaborative Robot Operations for Shift Teams
 
 | | |
 | --- | --- |
-| **Slug** | `the-shift-not-the-integrator` |
-| **Title** | The shift, not the integrator |
+| **Slug** | `collaborative-robot-operations-for-shift-teams` |
+| **Title** | Collaborative Robot Operations for Shift Teams |
 | **Promise** | Integrators leave. The shift stays. This course trains supervisors and operators to work alongside a cobot: start, stop, recover, and know when to call a human, without pretending they are robotics engineers. |
 | **Target buyer** | Shift supervisors and operators who have (or will have) a cobot on the line. |
 | **Length** | 2 hours |
@@ -618,12 +620,12 @@ Modules:
 3. When to stop and call a person.
 4. Handover notes the next shift can trust.
 
-### 4.9 Numbers you can defend
+### 4.9 AI-Assisted Analysis and Reporting
 
 | | |
 | --- | --- |
-| **Slug** | `numbers-you-can-defend` |
-| **Title** | Numbers you can defend |
+| **Slug** | `ai-assisted-analysis-and-reporting` |
+| **Title** | AI-Assisted Analysis and Reporting |
 | **Promise** | AI will draft the chart. You still own the number. This course is how analysts and anyone who puts figures in front of a manager use a model for first-pass analysis without shipping a hallucinated total, a silent filter, or a chart that cannot be rebuilt. |
 | **Target buyer** | Analysts, finance, and ops people who already paste spreadsheets into a chat tool. |
 | **Length** | 2.5 hours |
@@ -638,12 +640,12 @@ Modules:
 4. A working file: prompt, check, source, sign-off.
 5. What never goes into the tool.
 
-### 4.10 Everyday security for people who use AI
+### 4.10 Secure Use of AI Tools at Work
 
 | | |
 | --- | --- |
-| **Slug** | `everyday-security-for-people-who-use-ai` |
-| **Title** | Everyday security for people who use AI |
+| **Slug** | `secure-use-of-ai-tools-at-work` |
+| **Title** | Secure Use of AI Tools at Work |
 | **Promise** | Most leaks from AI use are ordinary: a client name in a prompt, a screenshot into a free tool, a setting nobody changed. This short course is the hygiene standard for anyone who pastes work into a model, without turning you into a security engineer. |
 | **Target buyer** | Any employee already using a public or work AI tool. |
 | **Length** | 1.5 hours |
@@ -661,16 +663,16 @@ Modules:
 
 | Self-serve | Hours | Band (GBP) | Facilitated slug / programme |
 | --- | --- | --- | --- |
-| Verify the output | 2.5 | 79–129 | `prompting-and-output-verification` |
-| Article 4 literacy that matches the work | 2 | 99–149 | `/ai-literacy-training`, `sponsoring-an-ai-literacy-programme` |
-| Put AI into the work you already do | 3 | 99–149 | `embedding-ai-in-daily-workflows` |
-| Technology judgement for directors | 2 | 149–249 | `technology-for-non-technical-leaders` |
-| Managers, not champions | 2.5 | 129–199 | `leading-an-ai-ready-team` |
-| The licences are paid for | 2 | 79–129 | `getting-value-from-tools-you-already-own` |
-| Robotics is an operations problem | 2.5 | 129–199 | `specifying-a-robotics-deployment` |
-| The shift, not the integrator | 2 | 79–129 | `working-alongside-a-cobot` |
-| Numbers you can defend | 2.5 | 99–149 | `ai-for-analysis-and-reporting` |
-| Everyday security for people who use AI | 1.5 | 59–99 | `everyday-security-for-busy-teams` |
+| AI Output Verification | 2.5 | 79–129 | `prompting-and-output-verification` |
+| AI Literacy under EU AI Act Article 4 | 2 | 99–149 | `/ai-literacy-training`, `sponsoring-an-ai-literacy-programme` |
+| Applying AI in Daily Work | 3 | 99–149 | `embedding-ai-in-daily-workflows` |
+| Technology Decisions for Non-Technical Directors | 2 | 149–249 | `technology-for-non-technical-leaders` |
+| AI Adoption for Line Managers | 2.5 | 129–199 | `leading-an-ai-ready-team` |
+| Getting Value from Existing AI Licences | 2 | 79–129 | `getting-value-from-tools-you-already-own` |
+| Robotics for Operations Managers | 2.5 | 129–199 | `specifying-a-robotics-deployment` |
+| Collaborative Robot Operations for Shift Teams | 2 | 79–129 | `working-alongside-a-cobot` |
+| AI-Assisted Analysis and Reporting | 2.5 | 99–149 | `ai-for-analysis-and-reporting` |
+| Secure Use of AI Tools at Work | 1.5 | 59–99 | `everyday-security-for-busy-teams` |
 
 ---
 
@@ -794,7 +796,7 @@ Add `/learn` to `isSessionGatedPath` in `lib/public-routes.ts`. Checkout and (if
 - No player. No checkout. No new env secrets in the repo.
 - Optional later: empty types and a `format` column behind a feature flag that defaults **off** on production. Prefer not to land even that until a build branch exists.
 
-#### Phase 1: pilot, *Verify the output*
+#### Phase 1: pilot, *AI Output Verification*
 
 One course, real money on a **preview**, never on `aiadop` production until Antonio says so.
 
@@ -883,7 +885,7 @@ Passing the list above on a preview is not permission to promote `aiadop` or mer
 
 These are product calls, not blockers for this scope:
 
-1. **Pilot price.** Scope assumes **£99** for *Verify the output*. He can move inside the band.
+1. **Pilot price.** Scope assumes **£99** for *AI Output Verification*. He can move inside the band.
 2. **VAT.** Confirm whether prices are inclusive and whether Experrt is registered to collect.
 3. **Holding org vs nullable `org_id`.** Engineering prefers a single hidden holding org so current RLS keeps working.
 4. **Video host, when he films.** Mux or Cloudflare Stream, signed playback. Not YouTube unlisted (leaks). Not files in this git repo. Launch does not wait on this choice. The attach-film field can stay empty.
@@ -918,4 +920,4 @@ Do not edit Vercel project settings. Do not put keys in `.env` files that get co
 
 We add a **buy-and-start** path on experrt.com for ten short courses. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay, in a focused room: one column, the homepage's type and air, the example and the task as the same object. The screen is part of the course. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card) and get a magic link back into that room. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
 
-First build, when you say go: **Verify the output** at £99, full text and practice, on a preview, not on production. Film is welcome on day one and not required.
+First build, when you say go: **AI Output Verification** at £99, full text and practice, on a preview, not on production. Film is welcome on day one and not required.
