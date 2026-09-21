@@ -439,6 +439,14 @@ export default function Home() {
             >
               See the courses
             </Link>
+            {process.env.NEXT_PUBLIC_SELF_SERVE_COURSES === "true" ? (
+              <Link
+                href="/learn"
+                className="ml-3 inline-flex h-12 items-center justify-center rounded-full border border-border px-8 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+              >
+                Start a course
+              </Link>
+            ) : null}
           </motion.div>
         </motion.div>
       </section>

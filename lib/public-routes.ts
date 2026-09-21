@@ -27,6 +27,8 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/verify/") ||
     pathname === "/courses" ||
     pathname.startsWith("/courses/") ||
+    pathname === "/learn" ||
+    pathname.startsWith("/learn/") ||
     pathname.startsWith("/assess/") ||
     pathname.startsWith("/assessment/") ||
     pathname === "/ai-literacy-training" ||
