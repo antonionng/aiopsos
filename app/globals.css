@@ -49,6 +49,8 @@
   --color-cat-ai-soft: var(--cat-ai-soft);
   --color-cat-technology: var(--cat-technology);
   --color-cat-technology-soft: var(--cat-technology-soft);
+  --color-cat-hr: var(--cat-hr);
+  --color-cat-hr-soft: var(--cat-hr-soft);
   --color-cat-robotics: var(--cat-robotics);
   --color-cat-robotics-soft: var(--cat-robotics-soft);
   --font-display: var(--font-space-grotesk);
@@ -61,10 +63,10 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
-/* Light mode -- Notion-inspired warm whites */
+/* Light mode: a bright learning palette with violet actions. */
 :root {
   --radius: 0.75rem;
-  --background: #ffffff;
+  --background: #faf9fd;
   --foreground: #191919;
   --card: #ffffff;
   --card-foreground: #191919;
@@ -76,17 +78,15 @@
   --secondary-foreground: #191919;
   --muted: #f5f5f4;
   --muted-foreground: #6b6b6b;
-  /* A real highlight, not a muted twin: warm amber wash for hovers and
-     selected states. Distinct from --muted so highlighting reads at all. */
-  --accent: #f7f1e8;
+  /* A violet wash distinguishes selected controls from neutral surfaces. */
+  --accent: #eee7fa;
   --accent-foreground: #191919;
   --destructive: #ef4444;
   --border: #e5e5e5;
   --input: #e5e5e5;
-  --ring: #b45309;
-  /* amber-700, not amber-500: brand renders as text and small UI on white
-     in ~500 places, and amber-500 fails AA there (2.2:1). */
-  --brand: #b45309;
+  --ring: #6d38d1;
+  /* Dark violet keeps action text legible on light surfaces. */
+  --brand: #6d38d1;
   --brand-foreground: #ffffff;
   --surface: #ffffff;
   --surface-elevated: #f9f9f8;
@@ -97,6 +97,8 @@
   --cat-ai-soft: #f3eefc;
   --cat-technology: #b45309;
   --cat-technology-soft: #faf1e4;
+  --cat-hr: #0f766e;
+  --cat-hr-soft: #e1f5ee;
   --cat-robotics: #c2410c;
   --cat-robotics-soft: #fdeee4;
   --chart-1: #b45309;
@@ -104,11 +106,11 @@
   --chart-3: #c2410c;
   --chart-4: #047857;
   --chart-5: #6b7280;
-  --sidebar: #f7f7f5;
+  --sidebar: #f3f0fa;
   --sidebar-foreground: #191919;
   --sidebar-primary: #0d0d0d;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ebebea;
+  --sidebar-accent: #e8e0f8;
   --sidebar-accent-foreground: #191919;
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #0d0d0d;
@@ -145,6 +147,8 @@
   --cat-ai-soft: rgba(167, 139, 250, 0.13);
   --cat-technology: #fbbf24;
   --cat-technology-soft: rgba(251, 191, 36, 0.11);
+  --cat-hr: #5eead4;
+  --cat-hr-soft: rgba(94, 234, 212, 0.12);
   --cat-robotics: #fb923c;
   --cat-robotics-soft: rgba(251, 146, 60, 0.12);
   --chart-1: #fbbf24;

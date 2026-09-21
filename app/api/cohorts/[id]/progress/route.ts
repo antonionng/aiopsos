@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getActor } from "@/lib/cohorts";
+import { getWorkspaceActor as getActor } from "@/lib/cohorts";
 import { evaluateCertificateEligibility } from "@/lib/certification";
 import type { AttendanceStatus } from "@/lib/constants";
 

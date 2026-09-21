@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -21,6 +22,9 @@ export async function GET(
       .eq("id", user.id)
       .single();
 
+    const denied = await resourceAccessError(supabase, profile?.org_id, profile?.role);
+    if (denied) return denied;
+
     if (
       !profile?.org_id ||
       !["admin", "super_admin"].includes(profile.role)
@@ -28,13 +32,17 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { data: invites } = await supabaseAdmin
+    const { data: assessment, error: assessmentError } = await supabaseAdmin.from("assessments").select("id").eq("id", assessmentId).eq("org_id", profile.org_id).maybeSingle();
+    if (assessmentError) return NextResponse.json({ error: "Campaign could not be loaded." }, { status: 503 });
+    if (!assessment) return NextResponse.json({ error: "Campaign not found." }, { status: 404 });
+    const { data: invites, error: inviteError } = await supabaseAdmin
       .from("assessment_invites")
       .select("*")
       .eq("assessment_id", assessmentId)
       .eq("org_id", profile.org_id)
       .order("created_at", { ascending: false });
 
+    if (inviteError) return NextResponse.json({ error: "Invitations could not be loaded. Please retry." }, { status: 503 });
     const list = invites ?? [];
     const invited = list.length;
     const sent = list.filter((i) => i.status !== "pending").length;

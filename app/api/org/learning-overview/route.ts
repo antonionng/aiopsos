@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -19,6 +20,9 @@ export async function GET() {
     .select("org_id, role")
     .eq("id", user.id)
     .maybeSingle();
+
+  const denied = await resourceAccessError(supabase, profile?.org_id, profile?.role);
+  if (denied) return denied;
   if (!profile?.org_id) return NextResponse.json({ error: "No organisation" }, { status: 404 });
   if (!["admin", "manager", "super_admin"].includes(profile.role ?? "user")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -133,6 +137,6 @@ export async function GET() {
       activity,
       needsByDepartment,
     },
-    { headers: { "Cache-Control": "no-store" } }
+    { headers: { "Cache-Control": "private, no-store" } }
   );
 }

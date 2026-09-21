@@ -14,10 +14,12 @@ export function CreditBalanceCard({
   balance,
   billingMethod,
   lowThreshold = 200,
+  reservedCredits = 0,
 }: {
   balance: number | null;
   billingMethod: string;
   lowThreshold?: number;
+  reservedCredits?: number | null;
 }) {
   const isLow = balance !== null && balance <= lowThreshold && balance > 0;
   const isEmpty = balance !== null && balance <= 0;
@@ -27,7 +29,7 @@ export function CreditBalanceCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-sm font-semibold">
           <Coins className="h-4 w-4 text-brand" />
-          AI Credits
+          Available AI credits
           {billingMethod === "invoice" && (
             <Badge variant="outline" className="ml-auto text-[10px]">
               Invoice billing
@@ -55,7 +57,7 @@ export function CreditBalanceCard({
               </span>
               {isEmpty && (
                 <Badge variant="destructive" className="text-[10px]">
-                  Out of credits
+                  No credits available
                 </Badge>
               )}
               {isLow && (
@@ -67,9 +69,11 @@ export function CreditBalanceCard({
             <p className="mt-1 text-xs text-muted-foreground">
               ≈ £{(balance / 100).toFixed(2)} of AI usage remaining
             </p>
+            {reservedCredits === null ? <p className="mt-3 text-xs text-muted-foreground">The amount reserved for agent work is temporarily unavailable.</p>
+              : reservedCredits > 0 ? <p className="mt-3 rounded-lg bg-brand/5 p-3 text-xs leading-relaxed"><strong>{reservedCredits.toLocaleString()} credits reserved</strong> for agent work. These are excluded from the available balance. Unused credits return when the work finishes.</p> : null}
             {isEmpty && (
               <p className="mt-3 text-xs text-red-500">
-                AI features are paused for your organisation until the balance is topped up.
+                New agent tasks need available credits. Top up or wait for unused reservations to return.
               </p>
             )}
           </>

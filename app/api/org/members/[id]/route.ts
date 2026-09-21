@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { assembleMemberRecord } from "@/lib/member-record";
@@ -24,12 +25,17 @@ export async function GET(
     .select("org_id, role")
     .eq("id", user.id)
     .maybeSingle();
+
+  const denied = await resourceAccessError(supabase, viewer?.org_id, viewer?.role);
+  if (denied) return denied;
   if (!viewer?.org_id) return NextResponse.json({ error: "No organisation" }, { status: 404 });
   if (!["admin", "manager", "super_admin"].includes(viewer.role ?? "user")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const record = await assembleMemberRecord(viewer.org_id, id);
+  let record;
+  try { record = await assembleMemberRecord(viewer.org_id, id); }
+  catch { return NextResponse.json({ error: "Training records could not be loaded. Please retry." }, { status: 503 }); }
   if (!record) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   await logAudit({
@@ -39,5 +45,8 @@ export async function GET(
     metadata: { member_id: record.member.id, member_email: record.member.email },
   });
 
-  return NextResponse.json(record, { headers: { "Cache-Control": "no-store" } });
+  const accessChanged = await resourceAccessError(supabase, viewer.org_id, viewer.role);
+  if (accessChanged) return accessChanged;
+
+  return NextResponse.json(record, { headers: { "Cache-Control": "private, no-store" } });
 }

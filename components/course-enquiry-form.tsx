@@ -78,7 +78,7 @@ export function CourseEnquiryForm({
 
   if (sent) {
     return (
-      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+      <div role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
         <div className="mb-1 flex items-center gap-2">
           <Check className="h-4 w-4 text-emerald-500" />
           <p className="text-sm font-semibold">Thank you - that has reached us.</p>
@@ -103,7 +103,7 @@ export function CourseEnquiryForm({
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="enq-name" className="text-xs">Your name</Label>
           <Input id="enq-name" required value={form.name} onChange={set("name")}
@@ -116,7 +116,7 @@ export function CourseEnquiryForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="enq-org" className="text-xs">Organisation</Label>
           <Input id="enq-org" value={form.organisation_name} onChange={set("organisation_name")}
@@ -124,7 +124,7 @@ export function CourseEnquiryForm({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="enq-seats" className="text-xs">Roughly how many people</Label>
-          <Input id="enq-seats" inputMode="numeric" value={form.seats} onChange={set("seats")}
+          <Input id="enq-seats" type="number" min="1" step="1" inputMode="numeric" value={form.seats} onChange={set("seats")}
                  placeholder="12" className="h-10 bg-surface" />
         </div>
       </div>
@@ -138,10 +138,10 @@ export function CourseEnquiryForm({
                   className="min-h-[70px] bg-surface text-xs" />
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       <Button type="submit" disabled={sending} className="w-full">
-        {sending ? "Sending..." : "Request this course"}
+        {sending ? "Sending..." : (courseSlug ? "Enquire about this course" : "Discuss my learning goals")}
         {!sending && <ArrowRight className="ml-2 h-4 w-4" />}
       </Button>
 

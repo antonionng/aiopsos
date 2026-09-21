@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getActor } from "@/lib/cohorts";
+import { getWorkspaceActor as getActor } from "@/lib/cohorts";
 import { renderInvoicePdf } from "@/lib/pdf/invoice-document";
 import type { InvoicePayload } from "@/lib/invoices";
 

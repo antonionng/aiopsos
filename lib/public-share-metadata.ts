@@ -12,17 +12,17 @@ import type { UseCaseEntry } from "./use-cases.ts";
 export function insightsIndexMetadata() {
   const site = getPublicSiteUrl();
   return withSiteShareImages({
-    title: "Insights on workforce AI and robotics training",
+    title: "AI training, HR transformation & learning guides",
     description:
-      "Briefings for L&D, HR, operations and transformation leads commissioning in-house AI, technology and robotics training. No login required.",
+      "Practical guides to AI training, HR transformation, people operations and LMS buying. Templates and checklists for employers and training providers.",
     alternates: {
       canonical: `${site}/insights`,
       types: { "application/rss+xml": `${site}/insights/rss.xml` },
     },
     openGraph: {
-      title: "Insights on workforce AI and robotics training",
+      title: "AI training, HR transformation & learning guides",
       description:
-        "Public briefings for people buying in-house AI and robotics training.",
+        "Practical guides, checklists and templates for AI adoption, HR transformation and better learning.",
       url: `${site}/insights`,
       type: "website",
     },
@@ -57,12 +57,12 @@ export function insightArticleMetadata(article: InsightArticle) {
 
 export function coursesIndexMetadata() {
   return withSiteShareImages({
-    title: "Courses - applied AI, technology and robotics training",
+    title: "Courses - AI, technology, robotics and HR training",
     description:
-      "Facilitated training courses in applied AI, technology adoption and applied robotics, by subject, by level and by sector. Delivered live by a trainer, in person or online, with attendance and grades recorded.",
+      "Facilitated training courses in applied AI, technology, robotics and HR transformation, by subject, by level and by sector. Delivered live by a trainer, in person or online, with attendance and grades recorded.",
     alternates: { canonical: "/courses" },
     openGraph: {
-      title: "Courses - applied AI, technology and robotics training | Experrt",
+      title: "Courses - AI, technology, robotics and HR training | Experrt",
       description:
         "Facilitated live by a trainer, in person or online. Courses by subject, by level and by sector.",
       url: "/courses",
@@ -123,7 +123,7 @@ export function useCasesIndexMetadata() {
   return withSiteShareImages({
     title: "Use cases",
     description:
-      "What facilitated AI, technology and robotics training looks like applied to your kind of organisation - enterprise or growing team - and to the function doing the work.",
+      "What facilitated AI, technology, robotics and HR training looks like applied to your kind of organisation - enterprise or growing team - and to the function doing the work.",
     alternates: { canonical: "/use-cases" },
   });
 }
@@ -176,21 +176,24 @@ export function unsubscribedMetadata() {
 
 export function termsMetadata() {
   return withSiteShareImages({
-    title: "Terms of Service | Experrt",
-    description: "Terms of Service for the Experrt enterprise AI adoption platform.",
+    title: "Terms of Service",
+    alternates: { canonical: "/terms" },
+    description: "Terms of Service for the Experrt learning platform.",
   });
 }
 
 export function privacyMetadata() {
   return withSiteShareImages({
-    title: "Privacy Policy | Experrt",
-    description: "Privacy Policy for the Experrt enterprise AI adoption platform.",
+    title: "Privacy Policy",
+    alternates: { canonical: "/privacy" },
+    description: "Privacy Policy for the Experrt learning platform.",
   });
 }
 
 export function cookiesMetadata() {
   return withSiteShareImages({
-    title: "Cookie Policy | Experrt",
-    description: "Cookie Policy for the Experrt enterprise AI adoption platform.",
+    title: "Cookie Policy",
+    alternates: { canonical: "/cookies" },
+    description: "Cookie Policy for the Experrt learning platform.",
   });
 }

@@ -28,6 +28,8 @@ const COLUMNS = [
     heading: "Company",
     links: [
       { href: "/about", label: "About" },
+      { href: "/case-studies", label: "Case studies" },
+  { href: "/ai-labs", label: "AI Labs · Consulting & delivery" },
       { href: "/experrt-ai", label: "Experrt AI" },
       { href: "/contact", label: "Contact" },
       { href: "/docs", label: "Docs" },

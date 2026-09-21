@@ -1,16 +1,18 @@
 import { SiteNav } from "@/components/site-nav";
 import { PublicSiteFooter } from "@/components/public/site-footer";
 
+import "./academy.css";
+
 export default function CoursesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="academy flex min-h-screen flex-col">
       <SiteNav />
-      {/* The top padding also clears the fixed bar; the homepage hero does that for itself. */}
-      <main className="mx-auto w-full max-w-5xl flex-1 px-6 pb-14 pt-28 sm:pb-16 sm:pt-32">
+      <a href="#academy-content" className="academy-skip">Skip to courses</a>
+      <main id="academy-content" className="academy-main">
         {children}
       </main>
       <PublicSiteFooter />

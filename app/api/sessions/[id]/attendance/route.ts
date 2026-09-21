@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getActor } from "@/lib/cohorts";
+import { getWorkspaceActor as getActor } from "@/lib/cohorts";
 import { logAuditBatch, AUDIT_ACTIONS } from "@/lib/audit";
 import { attendanceBulkSchema, validateBody } from "@/lib/validations";
 

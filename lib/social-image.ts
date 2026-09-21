@@ -2,7 +2,7 @@ import { getPublicSiteUrl } from "./site.ts";
 
 /**
  * Site-wide social card: the branded 1200x630 artwork at
- * app/opengraph-image.png. Child pages that set their own openGraph object
+ * app/opengraph-image.png/route.tsx. Child pages that set their own openGraph object
  * replace the parent (Next does not deep-merge nested metadata), so every
  * public metadata export must re-attach these fields or LinkedIn/Facebook
  * get a bare link.
@@ -10,8 +10,9 @@ import { getPublicSiteUrl } from "./site.ts";
 export const SITE_OG_IMAGE_WIDTH = 1200;
 export const SITE_OG_IMAGE_HEIGHT = 630;
 export const SITE_OG_IMAGE_PATH = "/opengraph-image.png";
+export const SITE_OG_IMAGE_VERSION = "brand-20260911-build-academy";
 export const SITE_OG_IMAGE_ALT =
-  "Experrt - AI training for teams that need capability, not just tools";
+  "Experrt: build capability and build what’s next. Agentic learning platform, academy and AI Labs consulting and implementation.";
 export const SITE_TWITTER_CARD = "summary_large_image" as const;
 
 export type SiteShareImage = {
@@ -22,7 +23,7 @@ export type SiteShareImage = {
 };
 
 export function siteOgImageUrl(baseUrl = getPublicSiteUrl()): string {
-  return `${baseUrl}${SITE_OG_IMAGE_PATH}`;
+  return `${baseUrl}${SITE_OG_IMAGE_PATH}?v=${SITE_OG_IMAGE_VERSION}`;
 }
 
 export function siteShareImage(baseUrl = getPublicSiteUrl()): SiteShareImage {
@@ -61,6 +62,14 @@ export function withSiteShareImages<T extends ShareMetadata>(
   baseUrl = getPublicSiteUrl()
 ): T {
   const image = siteShareImage(baseUrl);
+  const pageTitle = metadata.openGraph?.title ?? metadata.title;
+  const pageDescription = metadata.openGraph?.description ?? metadata.description;
+  if (typeof pageTitle === "string") {
+    const params = new URLSearchParams({ title: pageTitle.slice(0, 150) });
+    if (typeof pageDescription === "string") params.set("description", pageDescription.slice(0, 190));
+    image.url += `&${params}`;
+    image.alt = `${pageTitle} | Experrt`;
+  }
   const openGraph = { ...(metadata.openGraph ?? {}) };
   const twitter = { ...(metadata.twitter ?? {}) };
 

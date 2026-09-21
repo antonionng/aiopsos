@@ -28,7 +28,7 @@ import { getNotifyEmail } from "./notify-email";
 import { getPublicSiteUrl } from "./site";
 import type { DimensionScores } from "./types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const BASE_URL = getPublicSiteUrl();
 
 /**
  * Links in the insights emails point at the public marketing origin, not at
@@ -49,6 +49,12 @@ function getEmailConfig() {
 
 function getResend() {
   return new Resend(getEmailConfig().apiKey);
+}
+
+async function sendEmail(options: Parameters<Resend["emails"]["send"]>[0]) {
+  const result = await getResend().emails.send(options);
+  if (result.error) throw new Error(`Email delivery rejected: ${result.error.message}`);
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,7 +102,7 @@ export async function sendWelcomeEmail(
       : orgName
         ? `Thanks for joining ${orgName}`
         : "Welcome to Experrt";
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject,
@@ -116,18 +122,13 @@ export async function sendWelcomeEmail(
   }
 }
 
-export async function sendTeamInviteEmail(to: string, name: string, inviterName: string) {
-  try {
-    const { from } = getEmailConfig();
-    await getResend().emails.send({
-      from,
-      to,
-      subject: `You're invited to join Experrt`,
-      react: InviteEmail({ name, inviterName, loginUrl: `${BASE_URL}/auth/login` }),
-    });
-  } catch (error) {
-    console.error("Failed to send invite email:", error);
-  }
+export async function sendTeamInviteEmail(to: string, name: string, inviterName: string, inviteUrl: string) {
+  const { from } = getEmailConfig();
+  await sendEmail({
+    from, to,
+    subject: "You're invited to join Experrt",
+    react: InviteEmail({ name, inviterName, loginUrl: inviteUrl }),
+  });
 }
 
 export async function sendAssessmentResultsEmail(
@@ -139,7 +140,7 @@ export async function sendAssessmentResultsEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Your AI Maturity Score: ${overall.toFixed(1)} / 5`,
@@ -165,7 +166,7 @@ export async function sendApprovalDecisionEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: decision === "approved" ? "Your request was approved" : "Your request was declined",
@@ -190,7 +191,7 @@ export async function sendRoadmapReadyEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: "Your 90-Day AI Adoption Roadmap is Ready",
@@ -219,7 +220,7 @@ export async function sendAssessmentInviteEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `${orgName} needs your input - ${assessmentTitle} (5 min)`,
@@ -241,7 +242,7 @@ export async function sendAssessmentReminderEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Reminder: ${orgName} ${assessmentTitle}`,
@@ -270,7 +271,7 @@ export async function sendScoreCardEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Your AI Readiness Score: ${overallScore.toFixed(1)} / 5`,
@@ -415,7 +416,7 @@ export async function sendAdminNewMemberEmail(
 
     await Promise.allSettled(
       admins.map((admin) =>
-        getResend().emails.send({
+        sendEmail({
           from,
           to: admin.email,
           subject: `${memberName} has joined ${orgName}`,
@@ -447,7 +448,7 @@ export async function sendApprovalRequestEmail(
 
     await Promise.allSettled(
       reviewers.map((reviewer) =>
-        getResend().emails.send({
+        sendEmail({
           from,
           to: reviewer.email,
           subject: `Approval request from ${requesterName}`,
@@ -481,7 +482,7 @@ export async function sendCohortEnrolmentEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `You are enrolled: ${details.courseTitle}`,
@@ -509,7 +510,7 @@ export async function sendSessionReminderEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Tomorrow: ${details.sessionTitle}`,
@@ -535,7 +536,7 @@ export async function sendCertificateIssuedEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Certificate issued: ${details.courseTitle}`,
@@ -567,7 +568,7 @@ export async function sendLowCreditsEmail(orgId: string, balance: number) {
     if (admins.length === 0) return;
 
     const { LowCreditsEmail } = await import("./emails/low-credits");
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to: admins.map((a) => a.email),
       subject: `AI credits running low - ${balance.toLocaleString()} left`,
@@ -602,7 +603,7 @@ export async function sendInvoiceEmail(
     console.warn("[email] invoice has no recipients", payload.invoice_number);
     return;
   }
-  await getResend().emails.send({
+  await sendEmail({
     from,
     to,
     subject: options.isReminder
@@ -648,7 +649,7 @@ export async function sendConfirmWelcomeEmail(
   confirmUrl: string
 ) {
   const { from } = getEmailConfig();
-  const { error } = await getResend().emails.send({
+  const { error } = await sendEmail({
     from,
     to,
     subject: organisationName
@@ -662,7 +663,7 @@ export async function sendConfirmWelcomeEmail(
 /** Branded password reset. Throws on Resend error. */
 export async function sendResetPasswordEmail(to: string, resetUrl: string) {
   const { from } = getEmailConfig();
-  const { error } = await getResend().emails.send({
+  const { error } = await sendEmail({
     from,
     to,
     subject: "Reset your Experrt password",
@@ -682,7 +683,7 @@ export async function sendContactAlert(details: {
   const notify = getNotifyEmail();
   console.log("[email] contact notify-to", notify);
 
-  const { error } = await getResend().emails.send({
+  const { error } = await sendEmail({
     from,
     to: notify,
     replyTo: details.email,
@@ -710,7 +711,7 @@ export async function sendEnquiryEmails(details: {
   console.log("[email] enquiry notify-to", notify);
 
   await Promise.allSettled([
-    getResend().emails.send({
+    sendEmail({
       from,
       to: details.email,
       subject: details.courseTitle
@@ -721,7 +722,7 @@ export async function sendEnquiryEmails(details: {
         courseTitle: details.courseTitle,
       }),
     }),
-    getResend().emails.send({
+    sendEmail({
       from,
       to: notify,
       replyTo: details.email,
@@ -755,7 +756,7 @@ export async function sendInsightConfirmationEmail(
 ) {
   const { from } = getEmailConfig();
 
-  await getResend().emails.send({
+  await sendEmail({
     from,
     to,
     subject: "Confirm your Experrt insights subscription",
@@ -789,7 +790,7 @@ export async function sendInsightArticleEmail(
     `/insights/unsubscribe?token=${unsubscribeToken}`
   );
 
-  await getResend().emails.send({
+  await sendEmail({
     from,
     to,
     subject: article.title,

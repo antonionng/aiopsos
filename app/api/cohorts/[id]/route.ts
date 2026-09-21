@@ -1,6 +1,8 @@
+import { cohortMembershipGuardsEnabled } from "@/lib/workspace-rollout";
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { getActor } from "@/lib/cohorts";
+import { getWorkspaceActor as getActor } from "@/lib/cohorts";
 import { logAudit, diffForAudit, AUDIT_ACTIONS } from "@/lib/audit";
 import { cohortUpdateSchema, validateBody } from "@/lib/validations";
 
@@ -12,25 +14,31 @@ const COHORT_COLUMNS =
 /** One cohort with its sessions and register. RLS decides visibility. */
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const actor = await getActor();
-  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!actor)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const supabase = await createClient();
 
   const { data: cohort } = await supabase
     .from("cohorts")
     .select(
-      `${COHORT_COLUMNS}, courses:course_id(slug, title, level, duration_hours), facilitators:facilitator_id(id, display_name, bio, credentials)`
+      `${COHORT_COLUMNS}, courses:course_id(slug, title, level, duration_hours), facilitators:facilitator_id(id, display_name, bio, credentials)`,
     )
     .eq("id", id)
     .maybeSingle();
 
-  if (!cohort) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!cohort)
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const [{ data: sessions }, { data: enrolments }] = await Promise.all([
+  const [
+    { data: sessions, error: sessionsError },
+    { data: enrolments, error: enrolmentsError },
+    { data: modules, error: modulesError },
+  ] = await Promise.all([
     supabase
       .from("sessions")
       .select("id, module_id, position, title, starts_at, ends_at, join_url")
@@ -39,10 +47,20 @@ export async function GET(
     supabase
       .from("enrolments")
       .select(
-        "id, user_id, org_id, department_id, status, enrolled_at, completed_at, user_profiles(name, email, avatar_url), departments(name)"
+        "id, user_id, org_id, department_id, status, enrolled_at, completed_at, user_profiles(name, email, avatar_url), departments(name)",
       )
       .eq("cohort_id", id),
+    supabase
+      .from("course_modules")
+      .select("id,position,title,summary,duration_hours,outcomes")
+      .eq("course_id", cohort.course_id)
+      .order("position"),
   ]);
+  if (sessionsError || enrolmentsError || modulesError)
+    return NextResponse.json(
+      { error: "Could not load the full delivery. Please retry." },
+      { status: 503 },
+    );
 
   const participants = (enrolments ?? [])
     .map((e) => {
@@ -66,34 +84,46 @@ export async function GET(
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  const linked = await supabaseAdmin.rpc(cohortMembershipGuardsEnabled() ? "lms_live_delivery_scoped" : "lms_live_delivery", { p_actor: actor.userId, ...(cohortMembershipGuardsEnabled() ? { p_org: actor.orgId } : {}), p_cohort: id });
+  const learningProgramme = linked.error || !linked.data ? null : {
+    title: linked.data.programme_title,
+    href: linked.data.assignment_id ? `/dashboard/learn/${linked.data.assignment_id}` : `/dashboard/programmes/${linked.data.programme_id}`,
+  };
   return NextResponse.json(
     {
+      learning_programme: learningProgramme,
       cohort,
+      modules: modules ?? [],
       sessions: sessions ?? [],
       participants,
       can_grade:
         actor.role === "super_admin" ||
         actor.role === "admin" ||
         actor.role === "manager" ||
-        (!!actor.facilitatorId && cohort.facilitator_id === actor.facilitatorId),
+        (!!actor.facilitatorId &&
+          cohort.facilitator_id === actor.facilitatorId),
       can_manage:
         actor.role === "super_admin" ||
         ((actor.role === "admin" || actor.role === "manager") &&
           cohort.org_id === actor.orgId),
     },
-    { headers: { "Cache-Control": "no-store" } }
+    { headers: { "Cache-Control": "no-store" } },
   );
 }
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const actor = await getActor();
-  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!actor)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const validation = validateBody(cohortUpdateSchema, await req.json().catch(() => null));
+  const validation = validateBody(
+    cohortUpdateSchema,
+    await req.json().catch(() => null),
+  );
   if (!validation.success) {
     return NextResponse.json({ error: validation.error }, { status: 400 });
   }
@@ -106,10 +136,11 @@ export async function PATCH(
     .eq("id", id)
     .maybeSingle();
 
-  if (!before) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!before)
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const patch = Object.fromEntries(
-    Object.entries(validation.data).filter(([, v]) => v !== undefined)
+    Object.entries(validation.data).filter(([, v]) => v !== undefined),
   );
 
   if (Object.keys(patch).length === 0) {
@@ -132,7 +163,7 @@ export async function PATCH(
   // wants the change, and the previous value is the point of the record.
   const diff = diffForAudit(
     before as Record<string, unknown>,
-    after as Record<string, unknown>
+    after as Record<string, unknown>,
   );
 
   if (diff.changed.length > 0 && after.org_id) {
@@ -157,11 +188,12 @@ export async function PATCH(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const actor = await getActor();
-  if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!actor)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const supabase = await createClient();
 
@@ -171,7 +203,8 @@ export async function DELETE(
     .eq("id", id)
     .maybeSingle();
 
-  if (!cohort) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!cohort)
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   // A cohort that has run is a training record. Deleting it would destroy
   // evidence, so it is cancelled instead and the rows stay.
@@ -182,7 +215,7 @@ export async function DELETE(
       "enrolment_id",
       (
         await supabase.from("enrolments").select("id").eq("cohort_id", id)
-      ).data?.map((e) => e.id) ?? ["00000000-0000-0000-0000-000000000000"]
+      ).data?.map((e) => e.id) ?? ["00000000-0000-0000-0000-000000000000"],
     );
 
   if ((count ?? 0) > 0) {
@@ -191,7 +224,7 @@ export async function DELETE(
         error:
           "This cohort has attendance recorded against it and cannot be deleted. Set its status to cancelled instead.",
       },
-      { status: 409 }
+      { status: 409 },
     );
   }
 

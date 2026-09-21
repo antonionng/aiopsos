@@ -13,6 +13,8 @@ import {
   relatedCoursesFor,
   relatedInsights,
 } from "../insights/catalog.ts";
+import { growthGuides } from "../insights/articles/growth-guides.ts";
+import { COURSE_TITLES } from "../published-course-slugs.ts";
 import { INSIGHT_TOPICS } from "../insights/types.ts";
 
 const ORIGINAL_SLUGS = [
@@ -48,8 +50,8 @@ const EXPECTED_DATES: Record<string, string> = {
   "technology-judgement-for-nontechnical-directors": "2026-08-19",
 };
 
-test("eleven published insights with unique titles, descriptions, and dates", () => {
-  const articles = getPublishedInsights();
+test("original eleven insights retain their titles and publication dates", () => {
+  const articles = getPublishedInsights().filter(a => a.slug in EXPECTED_DATES);
   assert.equal(articles.length, 11);
 
   const slugs = articles.map((a) => a.slug).sort();
@@ -78,8 +80,8 @@ test("eleven published insights with unique titles, descriptions, and dates", ()
   assert.equal(originalNewest.publishedAt, "2026-08-05");
 });
 
-test("published dates are weekly-ish, not a consecutive dump", () => {
-  const dates = getPublishedInsights()
+test("original archive publication dates remain unchanged", () => {
+  const dates = getPublishedInsights().filter(a => a.slug in EXPECTED_DATES)
     .map((a) => a.publishedAt)
     .sort();
   for (let i = 1; i < dates.length; i++) {
@@ -91,8 +93,8 @@ test("published dates are weekly-ish, not a consecutive dump", () => {
   }
 });
 
-test("each article is 900-1400 words, one H1-free body, no em dashes", () => {
-  for (const article of getPublishedInsights()) {
+test("original articles retain their long-form content", () => {
+  for (const article of getPublishedInsights().filter(a => a.slug in EXPECTED_DATES)) {
     const words = insightWordCount(article);
     assert.ok(
       words >= 900 && words <= 1400,
@@ -282,4 +284,35 @@ test("related insights never include the article itself and prefer its topic", (
       assert.equal(related[0].topic, article.topic);
     }
   }
+});
+
+
+test("growth guides have unique metadata, valid editorial dates and resolvable internal links", () => {
+  const all = getPublishedInsights();
+  assert.equal(growthGuides.length, 12);
+  assert.equal(new Set(all.map(a => a.slug)).size, all.length);
+  assert.equal(new Set(all.map(a => a.title)).size, all.length);
+  assert.equal(new Set(all.map(a => a.description)).size, all.length);
+  for (const article of growthGuides) {
+    assert.ok(article.publishedAt >= "2026-06-10" && article.publishedAt <= "2026-09-09");
+    assert.ok(insightWordCount(article) >= 500, article.slug);
+    assert.ok(!/(^|\n)# /.test(article.body), article.slug);
+    assert.ok(!article.body.includes("\u2014"), article.slug);
+    assert.ok(article.body.includes("](/contact)"), article.slug);
+    for (const course of article.relatedCourseSlugs) assert.ok(COURSE_TITLES[course], course);
+    for (const link of article.body.matchAll(/\]\((\/[^)]+)\)/g)) {
+      const path = link[1];
+      if (path.startsWith("/insights/")) assert.ok(getInsightBySlug(path.slice(10)), `${article.slug}: ${path}`);
+      else if (path.startsWith("/courses/")) assert.ok(COURSE_TITLES[path.slice(9)], path);
+      else assert.ok(["/contact", "/assessment/start"].includes(path), path);
+    }
+  }
+});
+
+test("archive dates are distributed through 10 September 2026", () => {
+  const articles = getPublishedInsights();
+  assert.equal(new Set(articles.map(article => article.publishedAt)).size, articles.length);
+  assert.equal(articles[0].publishedAt, "2026-09-10");
+  assert.equal(articles.at(-1)?.publishedAt, "2026-06-10");
+  assert.ok(articles.every(article => article.publishedAt <= "2026-09-10"));
 });

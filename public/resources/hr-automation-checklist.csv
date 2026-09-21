@@ -1,0 +1,12 @@
+Requirement,Question,Your answer,Owner,Acceptance example
+Trigger,What starts the workflow?,,,
+Required inputs,What must be present before continuing?,,,
+Authoritative record,Where is the final state stored?,,,
+Permissions,Who may read and change the record?,,,
+Approvals,What requires a human decision?,,,
+Duplicates,How is an existing request recognised?,,,
+Recovery,How does interrupted work resume?,,,
+Escalation,Who receives exceptions?,,,
+Employee visibility,How does the employee find status and help?,,,
+Audit evidence,What happened and under whose authority?,,,
+Service measures,How will quality and effort be assessed?,,,

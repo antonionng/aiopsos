@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { OgCard, OG_SIZE } from "@/lib/og-template";
+import { OgCard, OG_SIZE, getOgFonts } from "@/lib/og-template";
 import { fetchCourseBySlug } from "@/lib/courses";
 import {
   COURSE_CATEGORY_LABELS,
@@ -20,8 +20,8 @@ export default async function Image({
 
   if (!result) {
     return new ImageResponse(
-      <OgCard title="Experrt courses" subtitle="Applied AI, technology and robotics training." />,
-      size
+      <OgCard title="Experrt courses" subtitle="AI, technology, robotics and HR transformation training." />,
+      { ...size, fonts: getOgFonts() }
     );
   }
 
@@ -35,6 +35,6 @@ export default async function Image({
         category={course.category}
       />
     ),
-    size
+    { ...size, fonts: getOgFonts() }
   );
 }

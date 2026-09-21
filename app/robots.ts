@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        allow: ["/", "/assessment/start", "/api/og/"],
         // Signed-in surfaces, one-time assessment links and individual
         // certificates have no business in an index. The certificate pages in
         // particular name a person; the holder shares the link, a crawler
@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/dashboard/",
           "/api/",
+          "/learning-agent/chat",
           "/assess/",
           "/assessment/",
           "/verify/",

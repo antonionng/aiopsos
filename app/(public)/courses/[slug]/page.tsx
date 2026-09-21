@@ -6,7 +6,7 @@ import { fetchCourseBySlug, fetchPublishedCourses } from "@/lib/courses";
 import { insightForCourse } from "@/lib/insights/catalog";
 import { StructuredData, courseLd } from "@/components/structured-data";
 import { CourseEnquiryForm } from "@/components/course-enquiry-form";
-import { CourseArtwork } from "@/components/course-artwork";
+import { AcademyArtwork } from "@/components/courses/academy-artwork";
 import {
   COURSE_CATEGORY_LABELS,
   COURSE_LEVEL_LABELS,
@@ -19,13 +19,8 @@ import {
 } from "@/lib/constants";
 import { coursePageMetadata } from "@/lib/public-share-metadata";
 
-const CATEGORY_BAND: Record<CourseCategory, string> = {
-  ai: "bg-cat-ai-soft",
-  technology: "bg-cat-technology-soft",
-  robotics: "bg-cat-robotics-soft",
-};
-
 const CATEGORY_BADGE: Record<CourseCategory, string> = {
+  hr: "bg-cat-hr-soft text-cat-hr",
   ai: "bg-cat-ai-soft text-cat-ai",
   technology: "bg-cat-technology-soft text-cat-technology",
   robotics: "bg-cat-robotics-soft text-cat-robotics",
@@ -74,14 +69,8 @@ export default async function CoursePage({
         All courses
       </Link>
 
-      <header className="mb-10">
-        <div
-          className={`mb-6 flex h-32 items-center justify-center overflow-hidden rounded-2xl border border-border ${
-            CATEGORY_BAND[course.category] ?? "bg-card"
-          }`}
-        >
-          <CourseArtwork category={course.category} className="h-24 w-32" />
-        </div>
+      <header className="academy-detail-header mb-10">
+        <AcademyArtwork category={course.category} variant={course.slug} className="academy-detail-art" />
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span
             className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -111,6 +100,11 @@ export default async function CoursePage({
           {course.summary}
         </p>
 
+        <div className="academy-actions">
+          <a href="#request" className="academy-button">Enquire about this course <ArrowRight size={18} /></a>
+          <a href="#course-outline" className="academy-text-link">Explore what you’ll learn <ArrowRight size={18} /></a>
+        </div>
+
         {/*
           Sectors sit under the summary rather than in the badge row above.
           They are not another attribute of the course; they are a way out of
@@ -133,8 +127,8 @@ export default async function CoursePage({
         )}
       </header>
 
-      <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
-        <div className="space-y-10">
+      <div className="grid gap-10 lg:grid-cols-[1fr_23rem]">
+        <div id="course-outline" className="academy-outline space-y-10">
           {course.learning_outcomes.length > 0 && (
             <section>
               <h2 className="mb-4 text-xl font-semibold tracking-[-0.01em]">
@@ -328,7 +322,7 @@ export default async function CoursePage({
           </div>
 
           <div id="request" className="scroll-mt-24 rounded-2xl border-2 border-brand/20 bg-card p-6">
-            <h2 className="mb-1 text-sm font-semibold">Run this for your team</h2>
+            <h2 className="mb-1 text-sm font-semibold">Make this your next step</h2>
             <CourseEnquiryForm
               courseSlug={course.slug}
               courseTitle={course.title}

@@ -1,0 +1,14 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {programmeJourney} from './programme-journey.ts';
+import type {LiveProgress} from './delivery-progress.ts';
+const done={passed:4,total:4,awaitingReview:0,needsRevision:0,completedAt:'2026-09-09T00:00:00Z'};
+const live:LiveProgress={cohortId:'group',title:'Workshop',status:'completed',enrolmentStatus:'enrolled',sessions:2,recorded:2,attended:2,excused:0,attendancePercent:100,attendanceRequired:80,gradePercent:90,gradeRequired:70,certificate:'none',upcoming:0};
+test('passing live thresholds does not claim a certificate or completion',()=>{const result=programmeJourney(done,[live]);assert.equal(result.state,'certificate_review');assert.equal(result.completed,false);assert.equal(result.owner,'trainer');});
+test('course completion cannot hide an unconfirmed live place',()=>{const result=programmeJourney(done,[{...live,enrolmentStatus:null}]);assert.equal(result.completed,false);assert.equal(result.owner,'manager');assert.equal(result.cohortId,'group');});
+test('all linked groups must have recorded certification',()=>{assert.equal(programmeJourney(done,[{...live,certificate:'issued'},live]).completed,false);assert.equal(programmeJourney(done,[{...live,certificate:'issued'}]).completed,true);});
+test('revoked credentials and withdrawn enrolments remain actionable',()=>{for(const item of [{...live,certificate:'revoked' as const},{...live,certificate:'issued' as const,enrolmentStatus:'withdrawn'}])assert.equal(programmeJourney(done,[item]).completed,false);});
+test('unfinished activities remain actionable while another task is in review',()=>{const result=programmeJourney({...done,passed:2,awaitingReview:1,completedAt:null},[]);assert.equal(result.state,'learning');assert.equal(result.owner,'learner');});
+test('review and revision have distinct owners',()=>{assert.equal(programmeJourney({...done,passed:3,awaitingReview:1,completedAt:null},[]).owner,'trainer');assert.equal(programmeJourney({...done,passed:3,needsRevision:1,completedAt:null},[]).state,'revision');});
+test('empty content or an inconsistent completion record is never complete',()=>{assert.equal(programmeJourney({...done,total:0},[]).state,'setup');assert.equal(programmeJourney({...done,completedAt:null},[]).state,'review');});
+test('self-paced completion does not imply a certificate',()=>{const result=programmeJourney(done,[]);assert.equal(result.completed,true);assert.equal(result.title,'Your coursework is complete');assert.match(result.message,/No live groups/);});

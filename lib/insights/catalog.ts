@@ -1,3 +1,4 @@
+import { aiLabsGuides } from "./articles/ai-labs-guides.ts";
 import { article as euAiAct } from "./articles/eu-ai-act-article-4-literacy-for-ld.ts";
 import { article as unusedLicences } from "./articles/unused-ai-licences-training-gap.ts";
 import { article as commissionTraining } from "./articles/how-to-commission-workforce-ai-training.ts";
@@ -10,9 +11,15 @@ import { article as measureStuck } from "./articles/how-to-measure-if-ai-trainin
 import { article as cobotShift } from "./articles/cobot-training-for-the-shift-not-the-integrator.ts";
 import { article as directorJudgement } from "./articles/technology-judgement-for-nontechnical-directors.ts";
 import { COURSE_TITLES } from "../published-course-slugs.ts";
+import { growthGuides } from "./articles/growth-guides.ts";
 import { INSIGHT_TOPICS, type InsightArticle, type InsightTopic } from "./types.ts";
 
+import { hrAndAgenticGuides } from "./articles/hr-and-agentic-guides.ts";
+
 const PUBLISHED: InsightArticle[] = [
+  ...aiLabsGuides,
+  ...hrAndAgenticGuides,
+  ...growthGuides,
   euAiAct,
   unusedLicences,
   commissionTraining,

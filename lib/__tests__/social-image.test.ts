@@ -35,7 +35,7 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
 test("the branded card is 1200x630 at an absolute www.experrt.com URL", () => {
   const image = siteShareImage();
-  assert.equal(image.url, "https://www.experrt.com/opengraph-image.png");
+  assert.equal(image.url, "https://www.experrt.com/opengraph-image.png?v=brand-20260911-build-academy");
   assert.equal(image.url, siteOgImageUrl());
   assert.equal(image.width, SITE_OG_IMAGE_WIDTH);
   assert.equal(image.height, SITE_OG_IMAGE_HEIGHT);

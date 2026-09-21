@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
@@ -8,21 +8,24 @@ import { getPublicSiteUrl } from "@/lib/site";
 import { siteOgImageUrl, siteShareImage, SITE_TWITTER_CARD } from "@/lib/social-image";
 import "./globals.css";
 
-const inter = Inter({
+const inter = localFont({
+  src: "../public/fonts/inter.woff2",
+  weight: "100 900",
   variable: "--font-inter",
-  subsets: ["latin"],
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const jetbrainsMono = localFont({
+  src: "../public/fonts/jetbrains_mono.woff2",
+  weight: "100 800",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const spaceGrotesk = localFont({
+  src: "../public/fonts/space_grotesk.woff2",
+  weight: "300 700",
   variable: "--font-space-grotesk",
-  subsets: ["latin"],
   display: "swap",
 });
 
@@ -33,20 +36,21 @@ export const metadata: Metadata = {
   // app. Without it Next emits warnings and social cards resolve nowhere.
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Experrt - applied AI, technology and robotics training",
+    default: "Experrt | Learning Platform, Academy & AI Labs",
     // Course and section pages set their own title; this keeps the brand on
     // the end of it without every page repeating it by hand.
     template: "%s | Experrt",
   },
   description:
-    "A training academy for applied AI, technology and robotics. Facilitated live by a trainer, in person or online, and built around your team's real work. Attendance, grades and outcomes recorded.",
+    "Build capability with our agentic learning platform and academy. Build AI systems, technology products, robotics and HR transformation with Experrt AI Labs.",
   applicationName: "Experrt",
   keywords: [
     "AI training for business",
     "applied AI training",
     "corporate AI training",
     "AI literacy training",
-    "EU AI Act Article 4 training",
+    "learning platform for training providers",
+    "enterprise learning and development",
     "applied robotics training",
     "robotics adoption training",
     "technology adoption training",
@@ -54,21 +58,21 @@ export const metadata: Metadata = {
     "AI training academy",
   ],
   authors: [{ name: "Experrt" }],
-  alternates: { canonical: "/" },
+
   openGraph: {
     type: "website",
     siteName: "Experrt",
     url: BASE_URL,
-    title: "Experrt - applied AI, technology and robotics training",
+    title: "Experrt | Learning Platform, Academy & AI Labs",
     description:
-      "Facilitated live by a trainer, in person or online. We train your people to actually use AI, technology and robotics at work.",
+      "Build capability with our agentic learning platform and academy. Build AI systems, technology products, robotics and HR transformation with Experrt AI Labs.",
     images: [siteShareImage()],
   },
   twitter: {
     card: SITE_TWITTER_CARD,
-    title: "Experrt - applied AI, technology and robotics training",
+    title: "Experrt | Learning Platform, Academy & AI Labs",
     description:
-      "We train your people to actually use AI, technology and robotics at work. Facilitated live.",
+      "Build capability with our agentic learning platform and academy. Build AI systems, technology products, robotics and HR transformation with Experrt AI Labs.",
     images: [siteOgImageUrl()],
   },
   robots: { index: true, follow: true },
@@ -86,7 +90,7 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >

@@ -16,7 +16,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("course_enquiries")
     .select(
-      "id, name, email, organisation_name, message, seats, source, status, created_at, courses:course_id(slug, title)"
+      "id, name, email, organisation_name, message, seats, source, status, created_at, assessment_data, marketing_consent, consent_recorded_at, courses:course_id(slug, title)"
     )
     .order("created_at", { ascending: false })
     .limit(200);

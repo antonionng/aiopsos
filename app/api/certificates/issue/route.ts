@@ -5,7 +5,7 @@ import {
   assessEnrolment,
   buildCertificateSnapshot,
   generateCertificateRef,
-  getActor,
+  getWorkspaceActor as getActor,
 } from "@/lib/cohorts";
 import { logAudit, AUDIT_ACTIONS } from "@/lib/audit";
 import { certificateIssueSchema, validateBody } from "@/lib/validations";

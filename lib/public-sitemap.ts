@@ -1,3 +1,5 @@
+import { caseStudies } from "./case-studies.ts";
+import { INSIGHT_TOPIC_PAGES } from "./insights/topics.ts";
 import { COURSE_SECTOR_SLUGS } from "./constants.ts";
 import { getPublishedInsights } from "./insights/catalog.ts";
 import { getSectors } from "./sectors.ts";
@@ -31,6 +33,9 @@ export function staticMarketingEntries(
 ): PublicSitemapEntry[] {
   return [
     { path: "", priority: 1, changeFrequency: "weekly" as const },
+    { path: "/ai-labs", priority: 0.9, changeFrequency: "monthly" as const },
+    { path: "/learning-agent", priority: 0.9, changeFrequency: "monthly" as const },
+    { path: "/assessment/start", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/courses", priority: 0.9, changeFrequency: "weekly" as const },
     { path: "/use-cases", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/insights", priority: 0.8, changeFrequency: "weekly" as const },
@@ -105,10 +110,14 @@ export function buildPublicSitemap(options: {
   const lastModified = options.lastModified ?? new Date();
   const entries = [
     ...staticMarketingEntries(options.baseUrl, lastModified),
+    ...["/case-studies", ...caseStudies.map(item => `/case-studies/${item.slug}`)].map(path => ({url: `${options.baseUrl}${path}`, lastModified, changeFrequency: "monthly" as const, priority: 0.8})),
     ...courseSitemapEntries(options.baseUrl, options.courseSlugs, lastModified),
     ...sectorSitemapEntries(options.baseUrl, lastModified),
+    // This is a use-case URL utility, not a React hook.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     ...useCaseSitemapEntries(options.baseUrl, lastModified),
     ...insightSitemapEntries(options.baseUrl),
+    ...INSIGHT_TOPIC_PAGES.map(entry => ({url: `${options.baseUrl}/insights/topic/${entry.slug}`,lastModified,changeFrequency: "monthly" as const,priority: 0.7})),
   ];
 
   return entries.filter((entry) => {

@@ -9,7 +9,7 @@ export default function PrivacyPage() {
   return (
     <article className="prose prose-neutral dark:prose-invert max-w-none">
       <h1 className="text-3xl font-bold tracking-tight">Privacy Policy</h1>
-      <p className="text-sm text-muted-foreground">Last updated: 24 February 2026</p>
+      <p className="text-sm text-muted-foreground">Last updated: 9 September 2026</p>
 
       <p>
         Experrt (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) is committed to protecting your
@@ -51,6 +51,10 @@ export default function PrivacyPage() {
         </li>
       </ul>
 
+      <h3>Public learning check and enquiries</h3>
+      <p>When you try the public learning agent, we save your brief, generated materials and task progress in a guest session. An essential cookie lets you return to that session for up to 12 hours. We use usage counters and a hashed network identifier to limit free use. Your brief is processed by our AI provider to create the materials. If you ask us to email your pack, we save your name, email, optional organisation and permission, send the pack to you, and share your details, brief and materials with our team at ag@experrt.com for follow-up about your request. This does not subscribe you to a newsletter.</p>
+      <p>When you unlock a public learning check, we save your name, email, optional organisation, selected subjects, answers and calculated learning priorities. We also record your consent choices and when you submitted them. Answers remain in your browser tab until you submit the results form. This self-reported check is not automatically linked to an employer or added to an employee assessment record.</p>
+      <p>We save contact enquiries so our team can respond even if an email notification fails. Access to these enquiries is restricted to authorised staff. Submitting an enquiry or unlocking results does not subscribe you to marketing. We use a separate optional choice for learning ideas and promotional updates; you can withdraw it by contacting ag@experrt.com or using the unsubscribe option in a marketing email.</p>
       <h3>1.2 Information Collected Automatically</h3>
       <ul>
         <li>

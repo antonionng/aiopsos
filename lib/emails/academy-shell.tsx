@@ -2,7 +2,7 @@ import * as React from "react";
 import { EMAIL_BRAND, EMAIL_BRAND_FOREGROUND } from "@/lib/email-theme";
 
 /**
- * Shared shell for the academy emails.
+ * Shared shell for Experrt transactional emails.
  *
  * The existing transactional emails each repeat their inline styles, which is
  * fine for one-offs but would mean three more copies of the same 120 lines
@@ -14,8 +14,8 @@ const styles = {
   page: {
     fontFamily:
       "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
-    backgroundColor: "#0d0d0d",
-    color: "#ececec",
+    backgroundColor: "#201C29",
+    color: "#FFFEFA",
     padding: "48px 24px",
   },
   inner: { maxWidth: "480px", margin: "0 auto" },
@@ -37,13 +37,13 @@ const styles = {
   paragraph: {
     fontSize: "15px",
     lineHeight: 1.6,
-    color: "#888888",
+    color: "#D5C7FF",
     margin: "0 0 8px",
   },
   lastParagraph: {
     fontSize: "15px",
     lineHeight: 1.6,
-    color: "#888888",
+    color: "#D5C7FF",
     margin: "0 0 32px",
   },
   strong: { color: "#cccccc" },
@@ -62,14 +62,14 @@ const styles = {
     borderTop: "1px solid rgba(255,255,255,0.06)",
     margin: "40px 0 20px",
   },
-  footer: { fontSize: "12px", color: "#555555", margin: 0 },
+  footer: { fontSize: "12px", color: "#BEB3D0", margin: 0 },
   detailRow: {
     fontSize: "14px",
     lineHeight: 1.7,
     color: "#cccccc",
     margin: "0 0 4px",
   },
-  detailLabel: { color: "#666666" },
+  detailLabel: { color: "#BEB3D0" },
 } as const;
 
 export const emailStyles = styles;
@@ -130,7 +130,7 @@ export function EmailShell({
         <hr style={styles.rule} />
         <p style={styles.footer}>
           {footerNote ??
-            "Sent via Experrt - workforce AI assessment, facilitated training, and the records that evidence it."}
+            "Stay curious. Get unstoppable. Learning for people with big ideas."}
         </p>
       </div>
     </div>

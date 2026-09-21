@@ -26,12 +26,12 @@ import { cn } from "@/lib/utils";
  */
 
 const NAV_LINKS = [
-  { href: "#capabilities", label: "Experrt AI" },
+  { href: "#capabilities", label: "Platform" },
   { href: "/courses", label: "Academy" },
-  { href: "/use-cases", label: "Use cases" },
+  { href: "/learning-agent", label: "Try the agent" },
+  { href: "#enterprise", label: "For teams & providers" },
   { href: "/insights", label: "Insights" },
-  { href: "#enterprise", label: "Enterprise" },
-  { href: "#pricing", label: "Pricing" },
+  { href: "/ai-labs", label: "AI Labs" },
 ] as const;
 
 /**
@@ -97,7 +97,7 @@ export function SiteNav() {
           >
             <Wordmark size="md" />
           </Link>
-          <div className="hidden items-center gap-6 md:flex">
+          <div className="hidden items-center gap-6 xl:flex">
             {NAV_LINKS.map((link) => {
               const active = isActive(link.href, pathname);
               return (
@@ -110,7 +110,7 @@ export function SiteNav() {
                     "text-sm transition-colors hover:text-foreground",
                     active
                       ? "font-medium text-foreground"
-                      : "text-muted-foreground"
+                      : "text-muted-foreground",
                   )}
                 >
                   {link.label}
@@ -122,7 +122,7 @@ export function SiteNav() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="hidden h-9 items-center justify-center px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
+            className="hidden h-9 items-center justify-center px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground xl:inline-flex"
           >
             Sign in
           </Link>
@@ -138,7 +138,7 @@ export function SiteNav() {
             aria-expanded={open}
             aria-controls="site-nav-mobile"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="-mr-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground md:hidden"
+            className="-mr-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground xl:hidden"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -148,7 +148,7 @@ export function SiteNav() {
       {open ? (
         <div
           id="site-nav-mobile"
-          className="border-t border-border/40 bg-background md:hidden"
+          className="border-t border-border/40 bg-background xl:hidden"
         >
           <div className="mx-auto flex max-w-6xl flex-col px-6 pb-4 pt-1">
             {NAV_LINKS.map((link) => {
@@ -164,7 +164,7 @@ export function SiteNav() {
                     "border-b border-border/40 py-3 text-sm transition-colors hover:text-foreground",
                     active
                       ? "font-medium text-foreground"
-                      : "text-muted-foreground"
+                      : "text-muted-foreground",
                   )}
                 >
                   {link.label}
@@ -184,4 +184,3 @@ export function SiteNav() {
     </nav>
   );
 }
-

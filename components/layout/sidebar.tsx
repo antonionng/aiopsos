@@ -1,535 +1,192 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { Wordmark } from "@/components/wordmark";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft,
-  BarChart3,
-  BrainCircuit,
-  Building2,
-  ChevronDown,
-  ChevronLeft,
-  ClipboardCheck,
-  CreditCard,
-  FileCheck,
-  FileText,
-  Receipt,
-  Inbox,
-  GraduationCap,
-  Layers,
-  LayoutDashboard,
-  LinkIcon,
-  LogOut,
-  Mail,
-  MessageSquare,
-  Route,
-  ScrollText,
-  Settings,
-  Shield,
-  Moon,
-  Sun,
+  BookOpen,
   Users,
+  FileCheck,
+  Settings,
+  Library,
+  LogOut,
+  Sun,
+  Moon,
+  ChevronDown,
+  Shield,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { Wordmark } from "@/components/wordmark";
 import { createClient } from "@/lib/supabase/client";
-import { useSetCurrentOrgId } from "@/components/layout/current-org-context";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
-import type { PlanType } from "@/lib/constants";
-
-type UserRole = "super_admin" | "admin" | "manager" | "user";
-
-interface NavItem {
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  minRole?: UserRole[];
-  requiredPlan?: "pro" | "enterprise";
-  /**
-   * Also show this to facilitators. Facilitation is not a tenancy role - a
-   * facilitator is usually a plain `user`, and often not a member of the org
-   * whose cohort they are running - so `minRole` alone would hide the
-   * register from the one person who has to take it.
-   */
-  alsoFacilitators?: boolean;
-}
-
-interface NavSection {
-  label: string;
-  items: NavItem[];
-}
-
-const NAV_SECTIONS: NavSection[] = [
-  {
-    label: "INTELLIGENCE",
-    items: [
-      { href: "/dashboard/hub", icon: LayoutDashboard, label: "Overview" },
-      { href: "/dashboard/assessment", icon: BrainCircuit, label: "Readiness Assessment" },
-      { href: "/dashboard/my-results", icon: ClipboardCheck, label: "My Results" },
-      { href: "/dashboard/my-learning", icon: GraduationCap, label: "My Learning" },
-      { href: "/dashboard/recommend", icon: Layers, label: "Stack Recommendation", requiredPlan: "pro", minRole: ["super_admin", "admin", "manager"] },
-      { href: "/dashboard/roadmap", icon: Route, label: "90-Day Roadmap", requiredPlan: "pro", minRole: ["super_admin", "admin", "manager"] },
-    ],
-  },
-  {
-    label: "TOOLS",
-    items: [
-      { href: "/dashboard/analytics", icon: BarChart3, label: "Analytics", requiredPlan: "pro", minRole: ["super_admin", "admin", "manager"] },
-      { href: "/dashboard/knowledge", icon: FileText, label: "Document Library", requiredPlan: "pro", minRole: ["super_admin", "admin", "manager"] },
-      { href: "/dashboard/ai-policy", icon: ScrollText, label: "AI Policy", requiredPlan: "pro" },
-      { href: "/dashboard/cohorts", icon: GraduationCap, label: "Cohorts", minRole: ["super_admin", "admin", "manager"], alsoFacilitators: true },
-      { href: "/dashboard/evidence", icon: FileCheck, label: "Evidence Packs", minRole: ["super_admin", "admin", "manager"] },
-      { href: "/dashboard/enquiries", icon: Inbox, label: "Enquiries", minRole: ["super_admin", "admin", "manager"] },
-      { href: "/dashboard/links", icon: LinkIcon, label: "Share Links", minRole: ["super_admin", "admin", "manager"] },
-    ],
-  },
-  {
-    label: "ADMIN",
-    items: [
-      {
-        href: "/dashboard/admin",
-        icon: Shield,
-        label: "Platform Admin",
-        minRole: ["super_admin"],
-      },
-      {
-        href: "/dashboard/admin/revenue",
-        icon: BarChart3,
-        label: "Revenue",
-        minRole: ["super_admin"],
-      },
-      {
-        href: "/dashboard/admin/billing",
-        icon: CreditCard,
-        label: "Billing & Credits",
-        minRole: ["super_admin"],
-      },
-      {
-        href: "/dashboard/admin/invoices",
-        icon: Receipt,
-        label: "Invoices",
-        minRole: ["super_admin"],
-      },
-      {
-        href: "/dashboard/admin/users",
-        icon: Users,
-        label: "User Directory",
-        minRole: ["super_admin"],
-      },
-      {
-        href: "/dashboard/admin/audit",
-        icon: FileText,
-        label: "Audit Log",
-        minRole: ["super_admin"],
-      },
-      {
-        href: "/dashboard/admin/insights",
-        icon: Mail,
-        label: "Insights List",
-        minRole: ["super_admin"],
-      },
-    ],
-  },
-  {
-    label: "SETTINGS",
-    items: [
-      { href: "/dashboard/settings", icon: Settings, label: "Settings" },
-    ],
-  },
-];
-
-const PLAN_RANK: Record<PlanType, number> = { basic: 0, pro: 1, enterprise: 2 };
-
-interface OrgOption {
-  id: string;
-  name: string;
-}
-
-async function fetchOrgs(supabase: ReturnType<typeof createClient>) {
-  const { data } = await supabase
-    .from("organisations")
-    .select("id, name")
-    .order("name");
-  return data ?? [];
-}
-
+import { useWorkspaceIdentity } from "./current-org-context";
 export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [userRole, setUserRole] = useState<UserRole>("user");
-  const [isFacilitator, setIsFacilitator] = useState(false);
-  const [userPlan, setUserPlan] = useState<PlanType>("basic");
-  const [orgs, setOrgs] = useState<OrgOption[]>([]);
-  const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
-  const [orgSwitcherOpen, setOrgSwitcherOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const identity = useWorkspaceIdentity();
+  const role = identity?.role || "user";
+  const orgId = identity?.currentOrgId || null;
+  const orgs = identity?.organisations || [];
+  const mounted = identity?.ready || false;
+  const [switching, setSwitching] = useState(false);
+  const [error, setError] = useState("");
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const setCurrentOrgId = useSetCurrentOrgId();
-
-  useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    async function loadProfile() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("role, org_id, plan_override")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      const { data: facilitator } = await supabase
-        .from("facilitators")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("active", true)
-        .maybeSingle();
-      setIsFacilitator(!!facilitator);
-
-      if (profile) {
-        setUserRole(profile.role as UserRole);
-        setActiveOrgId(profile.org_id);
-        setCurrentOrgId(profile.org_id);
-
-        if (profile.plan_override) {
-          setUserPlan(profile.plan_override as PlanType);
-        } else if (profile.org_id) {
-          const { data: org } = await supabase
-            .from("organisations")
-            .select("subscription_plan_id, subscription_status, trial_ends_at")
-            .eq("id", profile.org_id)
-            .maybeSingle();
-          if (org?.subscription_plan_id) {
-            const { data: planRow } = await supabase
-              .from("subscription_plans")
-              .select("name")
-              .eq("id", org.subscription_plan_id)
-              .maybeSingle();
-            if (planRow) setUserPlan(planRow.name as PlanType);
-          } else if (
-            org?.subscription_status === "trialing" &&
-            org?.trial_ends_at &&
-            new Date(org.trial_ends_at) > new Date()
-          ) {
-            setUserPlan("pro");
-          }
-        }
-
-        if (profile.role === "super_admin") {
-          setOrgs(await fetchOrgs(supabase));
-        }
-      }
+  async function switchOrg(next: string) {
+    setSwitching(true);
+    const db = createClient();
+    const {
+      data: { user },
+    } = await db.auth.getUser();
+    if (!user) {
+      router.push("/login");
+      return;
     }
-    loadProfile();
-  }, [setCurrentOrgId]);
-
-  useEffect(() => {
-    const handler = () => {
-      if (userRole !== "super_admin") return;
-      fetchOrgs(createClient()).then(setOrgs);
-    };
-    window.addEventListener("organisation-updated", handler);
-    return () => window.removeEventListener("organisation-updated", handler);
-  }, [userRole]);
-
-  async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
+    const { error } = await db
+      .from("user_profiles")
+      .update({ org_id: next })
+      .eq("id", user.id);
+    if (error) {
+      setError("Could not switch workspace. Please retry.");
+      setSwitching(false);
+    } else window.location.assign("/dashboard/learning");
   }
-
-  async function switchOrg(orgId: string) {
-    setActiveOrgId(orgId);
-    setOrgSwitcherOpen(false);
-    setCurrentOrgId(orgId);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from("user_profiles")
-        .update({ org_id: orgId })
-        .eq("id", user.id);
-    }
-    router.refresh();
-  }
-
-  const isActive = (href: string) => {
-    if (href === "/dashboard/hub") return pathname === "/dashboard/hub";
-    return pathname.startsWith(href);
-  };
-
-  const canSee = (item: NavItem) => {
-    if (!item.minRole) return true;
-    if (item.alsoFacilitators && isFacilitator) return true;
-    return item.minRole.includes(userRole);
-  };
-
-  const activeOrgName = orgs.find((o) => o.id === activeOrgId)?.name;
-
-  const isInSheet = !!onNavigate;
-
+  const manager = ["admin", "manager", "super_admin"].includes(role);
+  const items = [
+    {href:"/dashboard/programmes",label:"Programmes",hint:"Your learning and teaching",icon:BookOpen,match:["/dashboard/programmes","/dashboard/delivery","/dashboard/learning","/dashboard/learn/"]},
+    ...(manager ? [
+      {href:"/dashboard/studio",label:"Content library",hint:"Reusable courses and materials",icon:Library,match:["/dashboard/studio"]},
+      {href:"/dashboard/clients",label:"People & organisations",hint:"Your team and clients",icon:Users,match:["/dashboard/clients"]},
+      {href:"/dashboard/records",label:"Organisation records",hint:"Records across programmes",icon:FileCheck,match:["/dashboard/records","/dashboard/evidence"]},
+    ] : [{href:"/dashboard/transcript",label:"My record",hint:"Learning and certificates",icon:FileCheck,match:["/dashboard/transcript","/dashboard/my-results"]}]),
+  ];
   return (
-    <motion.aside
-      initial={false}
-      animate={{ width: isInSheet ? 280 : collapsed ? 60 : 260 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className={`${isInSheet ? "relative" : "fixed left-0 top-0 z-40"} flex h-screen flex-col border-r border-sidebar-border bg-sidebar`}
+    <aside
+      className={`${onNavigate ? "relative w-full" : "fixed left-0 top-0 z-40 w-[240px]"} flex h-dvh flex-col border-r border-sidebar-border bg-sidebar`}
     >
-      {/* Logo */}
-      <div className="flex h-14 items-center px-4">
-        <AnimatePresence mode="wait">
-          {collapsed ? (
-            <motion.div
-              key="collapsed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <Wordmark size="md" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="expanded"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <Wordmark size="md" />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="px-6 pt-7 pb-6">
+        <Link
+          href="/dashboard/learning"
+          aria-label="Experrt home"
+          onClick={onNavigate}
+        >
+          <Wordmark size="md" />
+        </Link>
       </div>
-
-      {/* Chat link */}
-      <div className="px-2 pb-2">
-        {userRole === "super_admin" ? (
-          collapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="/dashboard/chat"
-                  className="flex h-9 w-full items-center justify-center rounded-lg bg-brand/10 text-brand transition-colors hover:bg-brand/20"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>
-                Back to Chat
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Link
-              href="/dashboard/chat"
-              className="flex h-9 w-full items-center gap-2.5 rounded-lg bg-brand/10 px-3 text-sm font-medium text-brand transition-colors hover:bg-brand/20"
+      <div className="px-4 pb-5">
+        {role === "super_admin" ? (
+          <label className="relative block">
+            <span className="sr-only">Current organisation</span>
+            <select
+              disabled={switching}
+              value={orgId || ""}
+              onChange={(e) => switchOrg(e.target.value)}
+              className="w-full appearance-none rounded-xl border border-sidebar-border bg-background px-3 py-3 pr-7 text-sm"
             >
-              <ArrowLeft className="h-4 w-4 shrink-0" />
-              Back to Chat
-            </Link>
-          )
-        ) : collapsed ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="/dashboard/chat"
-                onClick={onNavigate}
-                className="flex h-9 w-full items-center justify-center rounded-lg bg-gradient-to-r from-brand/10 to-brand/5 text-muted-foreground transition-colors hover:from-brand/20 hover:to-brand/10"
-              >
-                <MessageSquare className="h-4 w-4" />
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right" sideOffset={8}>
-              AI companions
-            </TooltipContent>
-          </Tooltip>
+              <option value="" disabled>
+                Choose organisation
+              </option>
+              {orgs.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2 top-3.5 h-4 w-4" />
+          </label>
         ) : (
-          <Link
-            href="/dashboard/chat"
-            onClick={onNavigate}
-            className="flex h-9 w-full items-center gap-2.5 rounded-lg bg-gradient-to-r from-brand/10 to-brand/5 px-3 text-sm font-medium text-muted-foreground transition-colors hover:from-brand/20 hover:to-brand/10"
-          >
-            <MessageSquare className="h-4 w-4 shrink-0" />
-            <span className="flex-1">AI companions</span>
-          </Link>
+          <p className="truncate px-2 text-sm font-semibold">
+            {orgs[0]?.name || "Your learning space"}
+          </p>
+        )}
+        {identity?.error && <div role="alert" className="mt-3 rounded-xl border border-destructive/20 p-3 text-xs"><p>{identity.error}</p><button onClick={identity.retry} className="mt-2 font-semibold underline">Retry workspace</button></div>}
+        {error && (
+          <p role="alert" className="mt-2 text-xs text-destructive">
+            {error}
+          </p>
         )}
       </div>
-
-      {/* Tenant switcher (super_admin only) */}
-      {userRole === "super_admin" && !collapsed && orgs.length > 0 && (
-        <div className="px-2 pb-2">
-          <button
-            onClick={() => setOrgSwitcherOpen(!orgSwitcherOpen)}
-            className="flex w-full items-center justify-between rounded-lg border border-sidebar-border bg-sidebar-accent/50 px-3 py-2 text-xs font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
-          >
-            <span className="flex items-center gap-2 truncate">
-              <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <span className="truncate">{activeOrgName || "Select tenant"}</span>
-            </span>
-            <ChevronDown
-              className={`h-3 w-3 shrink-0 text-muted-foreground transition-transform ${
-                orgSwitcherOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-          <AnimatePresence>
-            {orgSwitcherOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-1 overflow-hidden rounded-lg border border-sidebar-border bg-sidebar"
-              >
-                {orgs.map((org) => (
-                  <button
-                    key={org.id}
-                    onClick={() => switchOrg(org.id)}
-                    className={`flex w-full items-center gap-2 px-3 py-2 text-xs transition-colors hover:bg-sidebar-accent ${
-                      org.id === activeOrgId
-                        ? "font-semibold text-brand"
-                        : "text-sidebar-foreground"
-                    }`}
-                  >
-                    {org.name}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-2">
-        {NAV_SECTIONS.map((section) => {
-          const visibleItems = section.items.filter(canSee);
-          if (visibleItems.length === 0) return null;
-
+      <nav
+        aria-label="Main navigation"
+        className="flex-1 space-y-1 overflow-y-auto px-3"
+      >
+        {!mounted ? <div aria-label="Loading navigation" className="space-y-3 p-3">{[1,2,3,4].map(n => <div key={n} className="h-14 rounded-xl bg-sidebar-accent" />)}</div> : items.map((item) => {
+          const active = item.match.some(
+            (p) =>
+              pathname === p ||
+              pathname.startsWith(p + "/") ||
+              (p.endsWith("/") && pathname.startsWith(p)),
+          );
           return (
-            <div key={section.label} className="mb-4">
-              <AnimatePresence>
-                {!collapsed && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="mb-1 px-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
-                  >
-                    {section.label}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-              <div className="space-y-0.5">
-                {visibleItems.map((item) => {
-                  const gated =
-                    item.requiredPlan &&
-                    userRole !== "super_admin" &&
-                    PLAN_RANK[userPlan] < PLAN_RANK[item.requiredPlan];
-                  const active = !gated && isActive(item.href);
-
-                  const content = (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={onNavigate}
-                      className={`group relative flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm font-medium transition-colors duration-150 ${
-                        active
-                          ? "bg-sidebar-accent text-sidebar-foreground"
-                          : gated
-                            ? "text-muted-foreground/60 hover:bg-sidebar-accent/30 hover:text-muted-foreground"
-                            : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                      }`}
-                    >
-                      {active && (
-                        <motion.div
-                          layoutId="sidebar-active"
-                          className="absolute left-0 top-1.5 h-5 w-0.5 rounded-full bg-brand"
-                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        />
-                      )}
-                      <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      <AnimatePresence>
-                        {!collapsed && (
-                          <motion.span
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: "auto" }}
-                            exit={{ opacity: 0, width: 0 }}
-                            className="flex flex-1 items-center justify-between overflow-hidden whitespace-nowrap"
-                          >
-                            <span>{item.label}</span>
-                            {gated && (
-                              <span className="ml-1.5 rounded-full bg-brand/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-brand">
-                                {item.requiredPlan === "enterprise" ? "Ent" : "Pro"}
-                              </span>
-                            )}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </Link>
-                  );
-
-                  if (collapsed) {
-                    return (
-                      <Tooltip key={item.href}>
-                        <TooltipTrigger asChild>{content}</TooltipTrigger>
-                        <TooltipContent side="right" sideOffset={8}>
-                          {item.label}
-                          {gated && ` - ${item.requiredPlan === "enterprise" ? "Enterprise" : "Pro"}`}
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  }
-                  return content;
-                })}
-              </div>
-            </div>
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onNavigate}
+              aria-current={active ? "page" : undefined}
+              className={`flex items-start gap-3 rounded-2xl px-4 py-3 transition-colors ${active ? "bg-brand/10 text-brand" : "text-muted-foreground hover:bg-sidebar-accent"}`}
+            >
+              <item.icon className="mt-0.5 h-5 w-5 shrink-0" />
+              <span>
+                <span className="block text-sm font-semibold">
+                  {item.label}
+                </span>
+                <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                  {item.hint}
+                </span>
+              </span>
+            </Link>
           );
         })}
       </nav>
-
-      {/* Bottom controls */}
-      <div className="border-t border-sidebar-border p-2">
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+      <div className="space-y-1 border-t border-sidebar-border p-3">
+        <Link
+          href="/dashboard/resources"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-muted-foreground hover:bg-sidebar-accent"
+        >
+          <Library size={17} />
+          Resources & tools
+        </Link>
+        {role === "super_admin" && (
+          <Link
+            href="/dashboard/admin"
+            onClick={onNavigate}
+            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-muted-foreground hover:bg-sidebar-accent"
           >
-            {!mounted ? (
-              <span className="h-4 w-4" aria-hidden />
-            ) : theme === "dark" ? (
-              <Sun className="h-4 w-4" />
+            <Shield size={17} />
+            Platform administration
+          </Link>
+        )}
+        <Link
+          href="/dashboard/settings"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-muted-foreground hover:bg-sidebar-accent"
+        >
+          <Settings size={17} />
+          Settings
+        </Link>
+        <div className="flex items-center justify-between px-3 pt-3">
+          <button
+            aria-label={theme === "dark" ? "Use light theme" : "Use dark theme"}
+            className="rounded-lg p-2 hover:bg-sidebar-accent"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {mounted && theme === "dark" ? (
+              <Sun size={17} />
             ) : (
-              <Moon className="h-4 w-4" />
+              <Moon size={17} />
             )}
           </button>
-          {!collapsed && (
-            <button
-              onClick={handleSignOut}
-              className="flex h-9 flex-1 items-center gap-2 rounded-lg px-2 text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </button>
-          )}
           <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="flex items-center gap-2 rounded-lg p-2 text-sm text-muted-foreground"
+            onClick={async () => {
+              await createClient().auth.signOut();
+              router.push("/login");
+              router.refresh();
+            }}
           >
-            <motion.div animate={{ rotate: collapsed ? 180 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronLeft className="h-4 w-4" />
-            </motion.div>
+            <LogOut size={16} />
+            Sign out
           </button>
         </div>
       </div>
-    </motion.aside>
+    </aside>
   );
 }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Clock, Users } from "lucide-react";
-import { CourseArtwork } from "@/components/course-artwork";
+import { AcademyArtwork } from "@/components/courses/academy-artwork";
 import {
   COURSE_CATEGORY_LABELS,
   COURSE_LEVEL_LABELS,
@@ -11,12 +11,8 @@ import {
 } from "@/lib/constants";
 import type { Course } from "@/lib/types";
 
-/**
- * One catalogue card. Lifted out of the courses page unchanged so the sector
- * pages show exactly the same card rather than a second, drifting copy.
- */
-
 const CATEGORY_BADGE: Record<CourseCategory, string> = {
+  hr: "bg-cat-hr-soft text-cat-hr",
   ai: "bg-cat-ai-soft text-cat-ai",
   technology: "bg-cat-technology-soft text-cat-technology",
   robotics: "bg-cat-robotics-soft text-cat-robotics",
@@ -26,11 +22,9 @@ export function CourseCard({ course }: { course: Course }) {
   return (
     <Link
       href={`/courses/${course.slug}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-foreground/30"
+      className="academy-course-card group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-foreground/30"
     >
-      <div className="flex h-20 items-center justify-center border-b border-border/60 bg-foreground/[0.02]">
-        <CourseArtwork category={course.category} className="h-14 w-20" />
-      </div>
+      <AcademyArtwork category={course.category} variant={course.slug} />
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <span
@@ -84,7 +78,7 @@ export function CourseCard({ course }: { course: Course }) {
         )}
 
         <span className="mt-auto inline-flex items-center text-sm font-medium text-foreground">
-          Course outline
+          Explore course
           <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </span>
       </div>

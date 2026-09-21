@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import { CourseEnquiryForm } from "@/components/course-enquiry-form";
 import { ArrowRight } from "lucide-react";
 import { fetchPublishedCourses } from "@/lib/courses";
 import { StructuredData, ORGANISATION_LD } from "@/components/structured-data";
@@ -51,17 +53,36 @@ export default async function CoursesPage({
   return (
     <div>
       <StructuredData data={ORGANISATION_LD} />
-      <header className="mb-10">
-        <h1 className="mb-4 font-display text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
-          Training courses
-        </h1>
-        <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Applied AI, technology adoption and applied robotics - every course
-          facilitated live by a trainer, in person or online, and worked
-          through on your team&apos;s own material. Pick from the catalogue, or
-          run the assessment first and let it tell you which teams need what.
-        </p>
+      <header className="academy-hero">
+        <div>
+          <p className="academy-eyebrow">EXPERRT ACADEMY / YOUR NEXT CHAPTER</p>
+          <h1>Big curiosity.<br />Practical skills.<br /><em>New possibilities.</em></h1>
+          <p className="academy-intro">Discover what you and your team could do next. Explore live, hands-on courses in AI, technology, robotics and HR transformation, built around the work that matters to you.</p>
+          <div className="academy-actions">
+            <a href="#catalogue" className="academy-button">Find your course <ArrowRight size={18} /></a>
+            <a href="#enquire" className="academy-text-link">Let’s talk learning <ArrowRight size={18} /></a>
+          </div>
+          <p className="academy-hero-note">Real trainers. Your questions. Skills to put to work.</p>
+        </div>
+        <div className="academy-hero-visual">
+          <Image src="/images/learning/together.webp" alt="An illustrative workshop scene of professionals exploring ideas together" fill priority sizes="(max-width: 760px) 100vw, 50vw" />
+          <span className="academy-photo-tag">A little curiosity changes everything. ↗</span>
+          <div className="academy-visual-note"><span>YOUR NEXT STEP</span><strong>Learn it.<br />Try it.<br />Make it yours.</strong></div>
+        </div>
       </header>
+      <div className="academy-promise-strip">
+        <span><b>01</b> Learn with a live facilitator</span>
+        <span><b>02</b> Practise on real work</span>
+        <span><b>03</b> Build your team’s confidence</span>
+      </div>
+      <section className="academy-hr-discovery" aria-label="HR academy">
+        <div><h2>HR, AI &amp; People Ops Academy</h2><p>Make people work better. Explore AI for HR, connected people systems and practical transformation, from everyday operations to leadership strategy.</p></div>
+        <Link href="/courses?category=hr#catalogue" className="academy-text-link">Explore HR courses <ArrowRight size={18} /></Link>
+      </section>
+      <section id="catalogue" className="academy-catalogue-heading">
+        <div><p className="academy-eyebrow">FOLLOW YOUR CURIOSITY</p><h2>What will you learn next?</h2></div>
+        <p>Start with a subject. Find your level.<br />We’ll help you make it your own.</p>
+      </section>
 
       <CatalogueFilters
         active={{ category: activeCategory, level: activeLevel, sector: null }}
@@ -86,8 +107,7 @@ export default async function CoursesPage({
       {courses.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-10 text-center">
           <p className="text-sm text-muted-foreground">
-            Nothing matches that combination yet. Try a different subject or
-            level.
+            No courses match these filters yet. Try another subject or level, or ask us to help you find the right fit.
           </p>
         </div>
       ) : (
@@ -105,9 +125,8 @@ export default async function CoursesPage({
           Browse by sector
         </h2>
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          The catalogue is the catalogue. What changes by sector is the
-          material the room works through, the constraints in it, and which
-          courses matter most first. These pages say which, and why.
+          Learning feels different when it speaks your language. Explore courses
+          with the challenges, examples and opportunities of your industry in mind.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {getSectors().map((entry) => (
@@ -130,23 +149,15 @@ export default async function CoursesPage({
         </div>
       </section>
 
-      <section className="mt-16 rounded-2xl border border-border bg-card p-8">
-        <h2 className="mb-3 text-xl font-semibold tracking-[-0.01em]">
-          Not sure which courses your teams need?
-        </h2>
-        <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          The readiness assessment scores each person across five dimensions and
-          maps the gaps onto this catalogue, by department and by role. Five
-          minutes per person, and it is usually the cheapest way to find out
-          that the team you assumed was fine is not.
-        </p>
-        <Link
-          href="/register"
-          className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
-        >
-          Run an assessment
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
+      <section id="enquire" className="academy-enquiry">
+        <div>
+          <p className="academy-eyebrow">LET’S MAKE A START</p>
+          <h2>Your next chapter<br />starts with<br /><em>a conversation.</em></h2>
+          <p>One course or a learning journey for your whole team. Tell us what you have in mind and we’ll help you explore the right fit, dates and pricing.</p>
+          <p className="academy-enquiry-note">Not sure where to start? That’s a good place to begin, too.</p>
+          <Link href="/assessment/start" className="academy-text-link">Find your starting point with a learning check <ArrowRight size={18} /></Link>
+        </div>
+        <div className="academy-form-panel"><h3>Let’s talk about your learning</h3><CourseEnquiryForm source="catalogue" /></div>
       </section>
     </div>
   );

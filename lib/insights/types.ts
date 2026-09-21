@@ -4,6 +4,9 @@
  * index filter stops being useful the moment that happens.
  */
 export const INSIGHT_TOPICS = [
+  "AI implementation",
+  "HR transformation",
+  "Learning platforms",
   "AI literacy",
   "Commissioning",
   "Adoption",

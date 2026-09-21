@@ -9,7 +9,7 @@ export default function CookiesPage() {
   return (
     <article className="prose prose-neutral dark:prose-invert max-w-none">
       <h1 className="text-3xl font-bold tracking-tight">Cookie Policy</h1>
-      <p className="text-sm text-muted-foreground">Last updated: 24 February 2026</p>
+      <p className="text-sm text-muted-foreground">Last updated: 9 September 2026</p>
 
       <p>
         This Cookie Policy explains how Experrt (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) uses
@@ -52,6 +52,12 @@ export default function CookiesPage() {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td><code>experrt_guest_agent</code></td>
+              <td>Experrt</td>
+              <td>Protects your guest learning-agent session, retrieves your materials and enforces free-session limits.</td>
+              <td>12 hours</td>
+            </tr>
             <tr>
               <td><code>sb-*-auth-token</code></td>
               <td>Supabase</td>

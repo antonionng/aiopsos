@@ -15,6 +15,16 @@ export function isAuthPath(pathname: string): boolean {
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/" ||
+    pathname === "/accept-invite" ||
+    pathname === "/api/auth/accept-invite" ||
+    // Scheduler authentication is checked by the route, without a browser session.
+    pathname === "/api/cron/learning-agent-recovery" ||
+    pathname === "/ai-labs" ||
+    pathname === "/case-studies" ||
+    pathname.startsWith("/case-studies/") ||
+    pathname === "/learning-agent" ||
+    pathname === "/learning-agent/chat" ||
+    pathname === "/resources/hr-automation-checklist.csv" ||
     pathname.startsWith("/verify/") ||
     pathname === "/courses" ||
     pathname.startsWith("/courses/") ||
@@ -28,6 +38,7 @@ export function isPublicPath(pathname: string): boolean {
     pathname === "/api/auth/register" ||
     pathname === "/api/auth/forgot" ||
     pathname === "/api/contact" ||
+    pathname === "/api/learning-check" ||
     // Mooov's servers post here with an HMAC signature, not a session;
     // the route verifies the signature itself.
     pathname === "/api/mooov/webhook" ||

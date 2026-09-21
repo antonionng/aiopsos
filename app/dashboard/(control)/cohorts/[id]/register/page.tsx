@@ -63,7 +63,9 @@ export default function RegisterPage() {
 
   // Marks not yet acknowledged by the server. Keyed by enrolment so repeated
   // taps on the same person collapse to their latest value.
-  const pending = useRef(new Map<string, { status: AttendanceStatus; minutes_attended: number }>());
+  const pending = useRef(
+    new Map<string, { status: AttendanceStatus; minutes_attended: number }>(),
+  );
   const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlight = useRef(false);
 
@@ -84,10 +86,14 @@ export default function RegisterPage() {
         // Default to whatever is running now, else the next one, else the last.
         const now = Date.now();
         const current = list.find(
-          (s) => new Date(s.starts_at).getTime() <= now && new Date(s.ends_at).getTime() >= now
+          (s) =>
+            new Date(s.starts_at).getTime() <= now &&
+            new Date(s.ends_at).getTime() >= now,
         );
         const next = list.find((s) => new Date(s.starts_at).getTime() > now);
-        setSessionId(current?.id ?? next?.id ?? list[list.length - 1]?.id ?? null);
+        setSessionId(
+          current?.id ?? next?.id ?? list[list.length - 1]?.id ?? null,
+        );
       })
       .catch(() => setError("Failed to load this cohort"))
       .finally(() => setLoading(false));
@@ -106,7 +112,9 @@ export default function RegisterPage() {
       setRows(data.register ?? []);
       setError("");
     } catch {
-      setError("Could not load the register. Your marks are still saved locally.");
+      setError(
+        "Could not load the register. Your marks are still saved locally.",
+      );
     }
   }, []);
 
@@ -131,11 +139,13 @@ export default function RegisterPage() {
 
     // Snapshot what we are sending. Anything marked while this is in flight
     // stays in the queue for the next flush rather than being dropped.
-    const batch = Array.from(pending.current.entries()).map(([enrolment_id, value]) => ({
-      enrolment_id,
-      status: value.status,
-      minutes_attended: value.minutes_attended,
-    }));
+    const batch = Array.from(pending.current.entries()).map(
+      ([enrolment_id, value]) => ({
+        enrolment_id,
+        status: value.status,
+        minutes_attended: value.minutes_attended,
+      }),
+    );
 
     try {
       const res = await fetch(`/api/sessions/${sessionId}/attendance`, {
@@ -188,8 +198,8 @@ export default function RegisterPage() {
   function mark(enrolmentId: string, status: AttendanceStatus) {
     setRows((current) =>
       current.map((row) =>
-        row.enrolment_id === enrolmentId ? { ...row, status } : row
-      )
+        row.enrolment_id === enrolmentId ? { ...row, status } : row,
+      ),
     );
 
     const existing = pending.current.get(enrolmentId);
@@ -209,7 +219,10 @@ export default function RegisterPage() {
     }
   }
 
-  const unmarked = useMemo(() => rows.filter((r) => r.status === null).length, [rows]);
+  const unmarked = useMemo(
+    () => rows.filter((r) => r.status === null).length,
+    [rows],
+  );
   const activeSession = sessions.find((s) => s.id === sessionId) ?? null;
 
   if (loading) {
@@ -247,7 +260,7 @@ export default function RegisterPage() {
           >
             {sessions.map((session) => (
               <option key={session.id} value={session.id}>
-                {session.position}. {session.title}  - {" "}
+                {session.position}. {session.title} -{" "}
                 {new Date(session.starts_at).toLocaleString("en-GB", {
                   day: "numeric",
                   month: "short",

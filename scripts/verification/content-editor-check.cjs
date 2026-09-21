@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {MarkdownManager}=require('@tiptap/markdown');
+const StarterKit=require('@tiptap/starter-kit').default;
+const {TableKit}=require('@tiptap/extension-table');
+const {TaskItem,TaskList}=require('@tiptap/extension-list');
+const manager=new MarkdownManager({extensions:[StarterKit.configure({underline:false}),TableKit,TaskItem,TaskList]});
+const source='## Your goal\n\n**Check** the evidence and *record* the decision.\n\n1. Read\n2. Review\n\n> Ask when uncertain.\n\n| Check | Result |\n| --- | --- |\n| Source | Found |\n\n- [ ] Review\n\n```js\nconst verified = true;\n```';
+const document=manager.parse(source);const roundTrip=manager.parse(manager.serialize(document));
+assert.deepEqual(roundTrip,document);
+assert(document.content.some(n=>n.type==='heading'));
+assert(document.content.some(n=>n.type==='orderedList'));
+assert(document.content.some(n=>n.type==='table'));
+assert(document.content.some(n=>n.type==='taskList'));
+console.log('PASS: visual-editor Markdown round trip preserves headings, emphasis, lists, tables, checklists and code.');

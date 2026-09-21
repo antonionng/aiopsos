@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AcademyArtwork } from "@/components/courses/academy-artwork";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { fetchPublishedCourses } from "@/lib/courses";
@@ -87,7 +88,8 @@ export default async function SectorCoursesPage({
         <span className="text-foreground">{label}</span>
       </nav>
 
-      <header className="mb-10">
+      <header className="academy-sector-header mb-10">
+        <AcademyArtwork category={activeCategory ?? "ai"} variant={sector} className="academy-detail-art" />
         <p className="mb-3 text-sm font-medium text-brand">{label}</p>
         <h1 className="mb-4 font-display text-3xl font-bold tracking-[-0.03em] sm:text-4xl">
           {entry.headline}
@@ -95,6 +97,7 @@ export default async function SectorCoursesPage({
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
           {entry.intro}
         </p>
+        <div className="academy-actions"><Link href="/courses#enquire" className="academy-button">Plan your team’s learning <ArrowRight size={18} /></Link></div>
       </header>
 
       <CatalogueFilters

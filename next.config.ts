@@ -43,6 +43,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Page metadata imports the image route too. Include assets for both the
+  // page and image functions, not just the public CDN upload.
+  outputFileTracingIncludes: {
+    "/*": ["./public/experrt-logo.png", "./public/fonts/space-grotesk-bold.ttf"],
+  },
   serverExternalPackages: ["@react-pdf/renderer"],
   images: {
     remotePatterns: [

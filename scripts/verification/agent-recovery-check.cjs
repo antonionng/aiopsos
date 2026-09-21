@@ -1,0 +1,22 @@
+require('@next/env').loadEnvConfig(process.cwd());
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),assert=require('node:assert/strict');
+const {createClient}=require('@supabase/supabase-js');
+const db=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false}});
+const base=process.env.VERIFICATION_BASE_URL||'http://localhost:3012';
+const dir=fs.mkdtempSync(path.join(os.tmpdir(),'experrt-lms-verification-'));fs.chmodSync(dir,0o700);const s={dir,orgs:[],users:[],cookies:{}};const save=()=>fs.writeFileSync(path.join(dir,'fixture.json'),JSON.stringify(s),{mode:0o600});save();console.log('Private fixture directory:',dir);
+(async()=>{
+ const existing=await db.from('lms_agent_runs').select('id').not('dispatch_requested_at','is',null).in('state',['queued','running']);if(existing.error)throw existing.error;assert.equal(existing.data.length,0,'Do not run verification while real dispatched work is pending');
+ const org=await db.from('organisations').insert({name:'Verification only: agent recovery'}).select('id').single();if(org.error)throw org.error;s.orgs.push(org.data.id);save();
+ const user=await db.auth.admin.createUser({email:crypto.randomUUID()+'@example.invalid',email_confirm:true});if(user.error)throw user.error;s.users.push(user.data.user.id);save();
+ const profile=await db.from('user_profiles').update({org_id:org.data.id,role:'admin'}).eq('id',user.data.user.id);if(profile.error)throw profile.error;
+ const taskIds=[crypto.randomUUID(),crypto.randomUUID(),crypto.randomUUID()];
+ const rows=taskIds.map((id,i)=>({id,org_id:org.data.id,created_by:user.data.user.id,kind:'delivery',goal:'Verification only: no generation',state:'queued',attempts:i===0?3:0,dispatch_requested_at:i===2?null:new Date().toISOString()}));
+ const insert=await db.from('lms_agent_runs').insert(rows);if(insert.error)throw insert.error;
+ const revoke=await db.from('organisation_memberships').update({status:'revoked',revoked_at:new Date().toISOString()}).eq('user_id',user.data.user.id).eq('org_id',org.data.id);if(revoke.error)throw revoke.error;
+ const unauth=await fetch(base+'/api/cron/learning-agent-recovery');assert.equal(unauth.status,401);
+ const response=await fetch(base+'/api/cron/learning-agent-recovery',{headers:{Authorization:'Bearer '+process.env.CRON_SECRET}});const result=await response.json();assert.equal(response.status,200);assert.equal(result.exhausted,1);assert.equal(result.blocked,1);
+ const tasks=await db.from('lms_agent_runs').select('id,state,attempts').in('id',taskIds);if(tasks.error)throw tasks.error;
+ assert.equal(tasks.data.find(t=>t.id===taskIds[0]).state,'failed');assert.equal(tasks.data.find(t=>t.id===taskIds[1]).state,'failed');assert.equal(tasks.data.find(t=>t.id===taskIds[2]).state,'queued');assert.equal(tasks.data.find(t=>t.id===taskIds[2]).attempts,0);
+ const again=await fetch(base+'/api/cron/learning-agent-recovery',{headers:{Authorization:'Bearer '+process.env.CRON_SECRET}});assert.equal((await again.json()).examined,0);
+ console.log('PASS: protected scheduler, exhausted work closed, revoked owner blocked, unstarted draft untouched, repeated recovery harmless; no model calls.');
+})().catch(e=>{console.error('Verification failed:',e.message);process.exitCode=1});

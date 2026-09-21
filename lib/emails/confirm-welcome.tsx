@@ -5,7 +5,7 @@ import { EmailShell, emailStyles } from "./academy-shell";
  * The ONE email a new signup receives: welcome and confirmation combined.
  * Supabase's own confirmation email is bypassed (the account is created via
  * admin.generateLink, which sends nothing), so this is both the greeting
- * and the activation step - the amber button IS the confirmation link.
+ * and the activation step - the citrus button IS the confirmation link.
  */
 export function ConfirmWelcomeEmail({
   name,

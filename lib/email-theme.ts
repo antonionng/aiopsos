@@ -1,8 +1,6 @@
-/**
- * Brand literals for email HTML. Email clients get no CSS variables, so the
- * amber pair from globals.css is repeated here as constants - if the brand
- * hue changes there, change it here too. Emails use the dark shell, so this
- * is the dark-theme amber with its dark foreground.
- */
-export const EMAIL_BRAND = "#fbbf24";
-export const EMAIL_BRAND_FOREGROUND = "#1c1503";
+/** Shared Experrt colours for email clients without CSS variables. */
+export const EMAIL_BRAND = "#E4F477";
+export const EMAIL_BRAND_FOREGROUND = "#201C29";
+export const EMAIL_INK = "#201C29";
+export const EMAIL_PAPER = "#FFFEFA";
+export const EMAIL_VIOLET = "#7046EB";

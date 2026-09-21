@@ -51,6 +51,7 @@ interface BillingData {
   billingMethod?: string;
   creditBalance?: number | null;
   creditPacks?: CreditPack[];
+  reservedCredits?: number | null;
   creditHistory?: LedgerRow[];
   invoices?: InvoiceRow[];
 }
@@ -115,6 +116,7 @@ export default function BillingPage() {
         <motion.div variants={item}>
           <CreditBalanceCard
             balance={billing.creditBalance ?? null}
+            reservedCredits={billing.reservedCredits}
             billingMethod={billing.billingMethod ?? "card"}
           />
         </motion.div>

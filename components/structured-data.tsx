@@ -82,6 +82,7 @@ export function articleLd(article: {
   return {
     "@context": "https://schema.org",
     "@type": "Article",
+    image: `${BASE_URL}/opengraph-image.png?${new URLSearchParams({ title: article.title, description: article.description }).toString()}`,
     headline: article.title,
     description: article.description,
     datePublished: article.publishedAt,

@@ -144,11 +144,13 @@ export default function SettingsPage() {
     department_name: string | null;
     plan_override: string | null;
     is_self: boolean;
+    is_owner: boolean;
   }
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [teamLoading, setTeamLoading] = useState(false);
   const [callerRole, setCallerRole] = useState("");
+  const [canTransferOwnership, setCanTransferOwnership] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
@@ -240,6 +242,7 @@ export default function SettingsPage() {
       const data = await res.json();
       setTeamMembers(data.members ?? []);
       setCallerRole(data.caller_role ?? "");
+      setCanTransferOwnership(data.can_transfer_ownership === true);
     } catch {
       // ignore
     } finally {
@@ -410,8 +413,15 @@ export default function SettingsPage() {
     }
   }
 
+  async function transferOwnership(member: TeamMember) {
+    if (!confirm(`Make ${member.name || member.email} the workspace owner? You will keep your current administrator access.`)) return;
+    const response = await fetch(`/api/team/${member.id}/ownership`, { method: "POST" });
+    if (response.ok) { toast.success("Workspace ownership transferred"); await loadTeam(); }
+    else { const data = await response.json().catch(() => ({})); toast.error(data.error || "Ownership could not be transferred"); }
+  }
+
   async function removeMember(memberId: string) {
-    if (!confirm("Remove this team member? This cannot be undone.")) return;
+    if (!confirm("Remove access to this workspace? Their login account and learning records will be preserved.")) return;
     const res = await fetch(`/api/team/${memberId}`, { method: "DELETE" });
     if (res.ok) loadTeam();
     else {
@@ -431,8 +441,6 @@ export default function SettingsPage() {
     ? Math.max(0, Math.ceil((new Date(billing.trialEndsAt).getTime() - Date.now()) / 86400000))
     : 0;
 
-  const PLAN_ORDER: PlanType[] = ["basic", "pro", "enterprise"];
-  const currentPlanIndex = billing ? PLAN_ORDER.indexOf(billing.plan) : 0;
 
   return (
     <motion.div variants={container} initial="hidden" animate="show">
@@ -1023,16 +1031,17 @@ export default function SettingsPage() {
                                 : "Org Default"}
                             </Badge>
                             <Badge variant="secondary" className="text-xs capitalize">
-                              {m.role}
+                              {m.is_owner ? "Owner" : m.role}
                             </Badge>
-                            {canManageTeam && !m.is_self && m.role !== "super_admin" && (
+                            {["admin", "super_admin"].includes(callerRole) && !m.is_self && m.role !== "super_admin" && (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" aria-label={`Manage ${m.name || m.email}`}>
                                     <MoreHorizontal className="h-3.5 w-3.5" />
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
+                                  {!m.is_owner && <>
                                   {m.role !== "admin" && (
                                     <DropdownMenuItem onClick={() => changeRole(m.id, "admin")}>
                                       Make Admin
@@ -1048,6 +1057,8 @@ export default function SettingsPage() {
                                       Make User
                                     </DropdownMenuItem>
                                   )}
+                                  </>}
+                                  {callerRole === "super_admin" && <>
                                   {m.plan_override !== "basic" && (
                                     <DropdownMenuItem onClick={() => changePlan(m.id, "basic")}>
                                       Set Basic Plan
@@ -1068,13 +1079,17 @@ export default function SettingsPage() {
                                       Reset to Org Default
                                     </DropdownMenuItem>
                                   )}
-                                  <DropdownMenuItem
+                                  </>}
+                                  {canTransferOwnership && m.role === "admin" && !m.is_owner && (
+                                    <DropdownMenuItem onClick={() => transferOwnership(m)}>Transfer ownership</DropdownMenuItem>
+                                  )}
+                                  {!m.is_owner && (                                  <DropdownMenuItem
                                     className="text-destructive"
                                     onClick={() => removeMember(m.id)}
                                   >
                                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                                     Remove
-                                  </DropdownMenuItem>
+                                  </DropdownMenuItem>)}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             )}
@@ -1099,8 +1114,6 @@ export default function SettingsPage() {
                     const models = PLAN_MODELS[planKey];
                     const quotas = FEATURE_QUOTAS[planKey];
                     const isCurrent = billing?.plan === planKey;
-                    const planIndex = PLAN_ORDER.indexOf(planKey);
-                    const isUpgrade = planIndex > currentPlanIndex;
 
                     return (
                       <Card
@@ -1195,14 +1208,7 @@ export default function SettingsPage() {
                           )}
 
                           {planKey === "enterprise" && (
-                            <div className="mt-3 space-y-1">
-                              {["SSO & SAML", "Dedicated account manager", "Custom model fine-tuning", "Priority support SLA"].map((item) => (
-                                <div key={item} className="flex items-center gap-2 text-xs">
-                                  <Sparkles className="h-3 w-3 shrink-0 text-brand" />
-                                  <span className="font-medium">{item}</span>
-                                </div>
-                              ))}
-                            </div>
+                            <p className="mt-3 text-xs text-muted-foreground">Need identity integrations or a support agreement? Discuss availability and scope with our team before purchasing.</p>
                           )}
 
                           <div className="mt-5">
@@ -1221,7 +1227,7 @@ export default function SettingsPage() {
                                 onClick={() => handleCheckout(planKey)}
                                 disabled={stripeLoading}
                               >
-                                {isUpgrade ? "Upgrade" : "Switch"} to {plan.name}
+                                Enquire about {plan.name}
                                 <ArrowUpRight className="ml-1.5 h-3 w-3" />
                               </Button>
                             )}
@@ -1241,20 +1247,17 @@ export default function SettingsPage() {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <Sparkles className="h-5 w-5 text-brand" />
-                          <h3 className="text-lg font-bold">Ready to Scale with Enterprise?</h3>
+                          <h3 className="text-lg font-bold">Plan your organisation’s rollout</h3>
                         </div>
                         <p className="max-w-lg text-sm text-muted-foreground">
-                          Unlock the full power of AI for your organisation with enterprise-grade security,
-                          unlimited premium features, and dedicated support.
+                          Bring your learning, team and usage requirements to our team. We’ll help define the right plan and confirm any integration or support requirements.
                         </p>
                         <div className="grid gap-x-6 gap-y-1 pt-1 sm:grid-cols-2">
                           {[
-                            "Voice chat & deep research included",
-                            "SSO & SAML authentication",
-                            "Dedicated customer success manager",
-                            "Custom model fine-tuning",
-                            "Priority support with SLA",
-                            "Advanced governance & compliance",
+                            "Course and programme planning",
+                            "Team onboarding and delivery",
+                            "AI usage and capacity planning",
+                            "Branding and learning materials",
                           ].map((perk) => (
                             <div key={perk} className="flex items-center gap-2 text-xs">
                               <Check className="h-3.5 w-3.5 shrink-0 text-brand" />
@@ -1270,7 +1273,7 @@ export default function SettingsPage() {
                           disabled={stripeLoading}
                         >
                           <Zap className="mr-1.5 h-3.5 w-3.5" />
-                          Upgrade to Enterprise
+                          Discuss Enterprise
                         </Button>
                         <Button variant="outline" asChild>
                           <a href="mailto:sales@experrt.com">Talk to Sales</a>
@@ -1315,9 +1318,9 @@ export default function SettingsPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
-                          <SelectItem value="manager">Manager</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="user">Learner</SelectItem>
+                          {callerRole !== "manager" && <SelectItem value="manager">Manager</SelectItem>}
+                          {callerRole !== "manager" && <SelectItem value="admin">Admin</SelectItem>}
                         </SelectContent>
                       </Select>
                     </div>

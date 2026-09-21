@@ -1,3 +1,4 @@
+import { cohortMembershipGuardsEnabled } from "@/lib/workspace-rollout";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -14,6 +15,10 @@ async function requireSuperAdmin(supabase: Awaited<ReturnType<typeof createClien
     .maybeSingle();
 
   if (!profile || profile.role !== "super_admin") return null;
+  if (cohortMembershipGuardsEnabled()) {
+    const { data: access, error } = await supabase.rpc("current_workspace_access");
+    if (error || access !== true) return null;
+  }
   return profile;
 }
 

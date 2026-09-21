@@ -1,0 +1,42 @@
+begin;
+insert into auth.users(id,email,raw_user_meta_data) values('44444444-4444-4444-a444-000000000081','credit-test@example.invalid','{}');
+insert into organisations(id,name) values('55555555-5555-4555-a555-000000000081','Credit settlement verification');
+update user_profiles set org_id='55555555-5555-4555-a555-000000000081',role='admin' where id='44444444-4444-4444-a444-000000000081';
+insert into credit_wallets(org_id,balance) values('55555555-5555-4555-a555-000000000081',100);
+do $$ declare r1 uuid; r2 uuid; l1 uuid:=gen_random_uuid(); l2 uuid:=gen_random_uuid(); result jsonb; begin
+ insert into lms_agent_runs(org_id,created_by,kind,goal,state,lease_token,lease_until) values('55555555-5555-4555-a555-000000000081','44444444-4444-4444-a444-000000000081','delivery','Fixture','running',l1,now()+interval '2 minutes') returning id into r1;
+ insert into lms_agent_runs(org_id,created_by,kind,goal,state,lease_token,lease_until) values('55555555-5555-4555-a555-000000000081','44444444-4444-4444-a444-000000000081','delivery','Fixture 2','running',l2,now()+interval '2 minutes') returning id into r2;
+ perform lms_reserve_agent_credits('44444444-4444-4444-a444-000000000081',r1,l1,60,'test-model',0.1,0.1,1,1);
+ perform lms_reserve_agent_credits('44444444-4444-4444-a444-000000000081',r1,l1,60,'test-model',0.1,0.1,1,1);
+ if (select balance from credit_wallets where org_id='55555555-5555-4555-a555-000000000081')<>40 then raise exception 'Reservation charged twice'; end if;
+ begin
+  perform lms_reserve_agent_credits('44444444-4444-4444-a444-000000000081',r2,l2,60,'test-model',0.1,0.1,1,1);
+  raise exception 'Oversubscription allowed' using errcode='22023';
+ exception when raise_exception then null; end;
+ result:=lms_settle_agent_credits(l1,1000,1000);
+ if (result->>'charged')::int<>20 then raise exception 'Incorrect settlement'; end if;
+ perform lms_settle_agent_credits(l1,1000,1000);
+ if (select balance from credit_wallets where org_id='55555555-5555-4555-a555-000000000081')<>80 then raise exception 'Unused reservation not returned or duplicate charge'; end if;
+ if (select count(*) from usage_logs where org_id='55555555-5555-4555-a555-000000000081')<>1 then raise exception 'Duplicate usage'; end if;
+ if (select count(*) from credit_ledger where org_id='55555555-5555-4555-a555-000000000081' and reason='usage')<>1 then raise exception 'Duplicate ledger debit'; end if;
+ begin perform lms_settle_agent_credits(l1,2000,1000); raise exception 'Conflicting settlement accepted'; exception when serialization_failure then null; end;
+ perform lms_reserve_agent_credits('44444444-4444-4444-a444-000000000081',r2,l2,60,'test-model',0.1,0.1,1,1);
+ update lms_agent_runs set state='cancelled',lease_token=null,lease_until=null where id=r2;
+ update lms_agent_credit_holds set created_at=now()-interval '20 minutes' where lease_token=l2;
+ if lms_release_abandoned_credit_holds()<>1 then raise exception 'Interrupted reservation not recovered'; end if;
+ if lms_release_abandoned_credit_holds()<>0 then raise exception 'Reservation released twice'; end if;
+ if (select balance from credit_wallets where org_id='55555555-5555-4555-a555-000000000081')<>80 then raise exception 'Released balance incorrect'; end if;
+ if not exists(select 1 from lms_agent_credit_holds where lease_token=l2 and state='released' and reconciliation_note is not null) then raise exception 'Reconciliation trail missing'; end if;
+ -- A malformed lease cannot acquire a hold.
+ update lms_agent_runs set state='running',lease_token=gen_random_uuid(),lease_until=null where id=r2 returning lease_token into l2;
+ begin perform lms_reserve_agent_credits('44444444-4444-4444-a444-000000000081',r2,l2,60,'test-model',0.1,0.1,1,1); raise exception 'Missing lease expiry accepted'; exception when serialization_failure then null; end;
+ update lms_agent_runs set lease_until=now()+interval '2 minutes' where id=r2;
+ perform lms_reserve_agent_credits('44444444-4444-4444-a444-000000000081',r2,l2,60,'test-model',0.1,0.1,1,1);
+ result:=lms_settle_agent_credits(l2,100000,100000);
+ if (result->>'charged')::int<>60 then raise exception 'Charge exceeded reserved cap'; end if;
+ if not exists(select 1 from lms_agent_credit_holds where lease_token=l2 and reconciliation_note like 'Usage exceeded%') then raise exception 'Unbilled excess not flagged'; end if;
+ if (select balance from credit_wallets where org_id='55555555-5555-4555-a555-000000000081')<>20 then raise exception 'Capped charge balance incorrect'; end if;
+ if has_function_privilege('authenticated','lms_settle_agent_credits(uuid,bigint,bigint,text)','EXECUTE') then raise exception 'Client can settle credits'; end if;
+end $$;
+select 'PASS: reservation retry, insufficient funds, settlement idempotency, usage/ledger reconciliation, abandoned hold release and service-only access' as verification;
+rollback;

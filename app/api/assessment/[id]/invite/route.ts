@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -25,6 +26,9 @@ export async function POST(
       .select("org_id, role, name")
       .eq("id", user.id)
       .single();
+
+    const denied = await resourceAccessError(supabase, profile?.org_id, profile?.role);
+    if (denied) return denied;
 
     if (
       !profile?.org_id ||
@@ -111,6 +115,8 @@ export async function POST(
         continue;
       }
 
+      const accessChanged = await resourceAccessError(supabase, profile.org_id, profile.role);
+      if (accessChanged) return accessChanged;
       await sendAssessmentInviteEmail(
         email,
         invite.name?.trim() ?? "",

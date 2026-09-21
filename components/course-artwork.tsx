@@ -70,6 +70,7 @@ function RoboticsArtwork() {
 }
 
 const ARTWORK: Record<CourseCategory, () => React.JSX.Element> = {
+  hr: AiArtwork,
   ai: AiArtwork,
   technology: TechnologyArtwork,
   robotics: RoboticsArtwork,
@@ -77,6 +78,7 @@ const ARTWORK: Record<CourseCategory, () => React.JSX.Element> = {
 
 // The SVGs draw in currentColor, so the subject hue is one class here.
 const ARTWORK_COLOR: Record<CourseCategory, string> = {
+  hr: "text-cat-hr",
   ai: "text-cat-ai",
   technology: "text-cat-technology",
   robotics: "text-cat-robotics",
