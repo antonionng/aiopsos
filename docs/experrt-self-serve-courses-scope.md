@@ -132,26 +132,54 @@ Account-then-pay would reuse `/register`, which today creates an **organisation*
 
 - Catalog and course marketing stay public (`lib/public-routes.ts` already allows `/courses` and `/courses/*`).
 - `/learn/*` is **session + entitlement**. Add it as a gated path (sibling to `/dashboard`, or under it).
-- Entitlement is a row: this user (or this email, claimed) paid for this course. No entitlement, no video, no checks.
+- Entitlement is a row: this user (or this email, claimed) paid for this course. No entitlement, no lesson text, no practice.
 - Resume: store `last_lesson_id` and per-lesson `completed_at`. `/learn/[slug]` opens the first incomplete lesson. `/dashboard/my-learning` already lists facilitated enrolments; extend it with a **Self-serve** block so one page is "where I left off."
 - Do not force `user_profiles.org_id` to invent a fake company. Today `org_id` is `NOT NULL` (`001_initial_schema.sql`). v1 needs a learner path: either nullable `org_id` for this role, or a single shared "Experrt learners" holding org created in a migration (not per-buyer orgs). Prefer **one holding org** so existing RLS that assumes `org_id` does not explode. Name it internally. Never show it as a company the buyer "joined."
 
 ### 2.4 Course player
 
-Not SCORM. Not a second LMS product. A quiet Experrt page.
+Not SCORM. Not a video library with a worksheet taped on. A quiet Experrt page where the **writing is the course** and the learner does the work before they move on.
 
-**Layout (desktop):** left rail of modules / lessons; centre: video + transcript; right or below: the check for this lesson. **Mobile:** lesson title, player, check, then "Next."
+**Decision (Antonio, 21 Sep 2026):** text and interaction ship first. He will film, but filming must not gate launch. A lesson is complete with no video. When a film exists, it is added to that lesson and the learner can watch it. They can also skip it.
 
-**Structure:** Course → Module (3–6) → Lesson (video or short task). Existing `course_modules` is outline metadata only (`lib/courses.ts`, `lab_url` is an external link). v1 adds a `lessons` table under those modules.
+**Jump straight in.** After payment the magic link opens lesson 1 on the theory, not an intro, not a trailer, not a "how to use this player" screen. If they already have an account, checkout returns them to the same place.
 
-**Progress:** percent of lessons completed. Reuse `components/ui/progress.tsx`. Show it on the player, the catalog card (if entitled), and My Learning.
+**Every lesson has the same three beats:**
 
-**Interactive elements (cheap, filmable):**
+| Beat | Required? | What it is |
+| --- | --- | --- |
+| **Theory** | Always | Short written lesson. One decision they will make this week. One worked example from a real job. Reading width and type like an Experrt insight, not a slide dump. |
+| **Watch** | Only if filmed | Antonio's walkthrough of the same lesson. Rendered only when `playback_id` is set. No empty player. No "video coming soon" placeholder. |
+| **Do the work** | Always | A judgement check, an applied task on their own material, or both. This is what marks the lesson done. |
 
-- End-of-lesson **check**: 2–4 questions or a short written task (paste a verification note, pick the unsafe output).
-- Must pass or complete the check to mark the lesson done and unlock the next (soft lock: they can revisit; they cannot skip the check).
-- No essay grading. A written task is stored and auto-marked "submitted."
+**Layout (desktop):** left rail of modules and lessons; centre column is the lesson (optional watch, then theory, then the work). **Mobile:** title, watch if present, theory, work, then Next.
+
+**Structure:** Course → Module (3–6) → Lesson (theory + practice, video optional). Existing `course_modules` is outline metadata only (`lib/courses.ts`, `lab_url` is an external link). v1 adds a `lessons` table under those modules. Lesson body is markdown in the database, seeded like the catalogue. Not a file in git full of media.
+
+**Progress:** percent of lessons whose practice is done. Watching is not progress. Skipping a film is not a fail. Reuse `components/ui/progress.tsx` on the player, the catalog card (if entitled), and My Learning.
+
+**What "do the work" means (this is the value, not a garnish):**
+
+- **Judgement check.** 2–4 items. Not trivia ("what does LLM stand for?"). A realistic artefact and a decision: which draft would you send, which number would you sign, which prompt just leaked a client name. Each option carries a one-line reason, shown when they answer, including on the wrong ones. They can retry. No lives, no timer, no points taken off.
+- **Applied task.** They use their own work, redacted: paste an answer from this week, mark the four checks, save the note, write the one-page brief, list the three jobs already inside a licence they pay for. Stored on the lesson. Non-empty submission counts. No human essay marking in v1.
+- A lesson can be check only, task only, or check then task. The course as a whole must leave them holding an **artefact** (verification note, literacy plan, operating brief, red-list). That artefact is the reason the price is real before any film exists.
+- Soft lock: they can reread any earlier lesson. They cannot skip the practice to open the next one.
 - No chatbot tutor in v1. Experrt AI stays the org workspace. It does not teach or grade this product (same rule as `lib/money-pages.ts`).
+
+**Value bar (a lesson fails this if any line is false):**
+
+1. It teaches one decision, not a tour of features.
+2. Theory is tight (aim under 800 words) and includes a worked example, not a pep talk.
+3. The practice uses their material or a realistic artefact from the job in the course promise.
+4. A wrong answer teaches the miss. It does not say "try again" with no reason.
+5. Video, when it arrives, walks the same decision and the same artefact. It does not add a second curriculum.
+
+**Adding film later (no rebuild):**
+
+- Super admin pastes a playback id and a duration on a lesson that is already published.
+- Next page load shows Watch above the theory. Progress, answers, and saved tasks stay put.
+- No "new video" email in v1. The player is the announcement.
+- Buyers who finished the course can reopen the lesson and watch. Completion is not revoked and not re-required.
 
 **Completion record:**
 
@@ -233,12 +261,13 @@ v1 admin is **not** a CMS. He needs:
 | Action | Where |
 | --- | --- |
 | See purchases | New block on `/dashboard/admin/revenue` (already shows credit packs + cohort sales) plus a simple table: date, email, course, amount, status. |
-| Mark published | One toggle per self-serve course (`draft` / `published` / `retired` already exists on `courses.status`). Super-admin only. No module editor. |
+| Mark published | One toggle per self-serve course (`draft` / `published` / `retired` already exists on `courses.status`). Super-admin only. |
 | Unpublish | Same toggle. Player stays up for people who already paid. |
+| Attach a film | One field per lesson: playback id + duration. Empty means the lesson is text and practice only. Saving it does not reset anyone's progress. |
 
-Out of v1: lesson editor, video upload UI, quiz builder, multi-tenant authoring, seat licences, discount engine beyond one optional facilitated-programme code.
+Out of v1: a full lesson editor, video upload UI, quiz builder, multi-tenant authoring, seat licences, discount engine beyond one optional facilitated-programme code.
 
-Content for the ten courses is seeded in a migration (same pattern as `020_courses.sql`). Antonio films; an implementer pastes Mux/Cloudflare playback ids into the seed or a private env-backed table. No media binaries in git. No secrets in git.
+Theory and practice for the ten courses are seeded in a migration (same pattern as `020_courses.sql`). Antonio writes or approves that prose before publish. Film is not in the seed. When a lesson is filmed, he (or an implementer) sets the playback id in the admin field. No media binaries in git. No secrets in git.
 
 ---
 
@@ -298,7 +327,7 @@ Hero h1 (option A, value-first):
 
 Hero standfirst:
 
-> Short courses you buy and take yourself. Applied AI, Article 4 literacy, and robotics as an operations problem. Not a demo. Not a webinar you abandon.
+> Short courses you buy and start now. Read the method, do the work on your own material, check your judgement. Applied AI, Article 4 literacy, and robotics as an operations problem. Not a demo. Not a webinar you abandon.
 
 Primary CTA: `Start a course` → `/courses`.
 
@@ -324,7 +353,7 @@ h1: `Courses`
 
 Standfirst sample:
 
-> Buy a course and start today. Or browse the live programmes we run for teams.
+> Buy a course and start on the first lesson today. Read it, do the work, and watch a walkthrough where one has been filmed. Or browse the live programmes we run for teams.
 
 Default filter: **Self-serve**. Cards show price and `Buy and start`.
 
@@ -346,10 +375,17 @@ answer does not leave your desk.
 
 [ Buy and start · £99 ]
 
+You start on lesson 1 the moment you pay.
+No intro. No waiting for a film date.
+
 What you will do
-  1. See how confident error happens
+  1. Read how confident error happens
   2. Run a four-step check on your own work
-  3. Write a verification note a colleague can reuse
+  3. Leave with a verification note a colleague can reuse
+
+Walkthroughs
+  Watch sits on a lesson only after it is filmed.
+  The course is complete without them.
 
 Modules
   ...
@@ -371,7 +407,7 @@ Creatives on Instagram and LinkedIn should deep-link to `/courses/[slug]`, not `
 
 These are **new SKUs** with new slugs so we do not collide with the 34 facilitated rows in `lib/published-course-slugs.ts`. Each row names the facilitated course or programme it ladders into.
 
-All ten are designed so Antonio can **film or voice once** (talking head + screen + a worksheet). No live cohort required to fulfil.
+All ten are **written courses with required practice**. Antonio can film a walkthrough per lesson when he has time. The film is the same lesson, not a second product, and it is not required to publish or to finish. No live cohort is required to fulfil a purchase.
 
 Price bands are GBP, retail, v1 starting point. Final number is a single amount on the row (e.g. £99), not a slider.
 
@@ -388,13 +424,28 @@ Price bands are GBP, retail, v1 starting point. Final number is a single amount 
 | **Ladders into facilitated?** | Yes. `prompting-and-output-verification` (7 facilitated hours). |
 | **Pilot** | **Yes. Phase 1 course.** Insight already exists: `/insights/ai-output-verification-at-work`. |
 
-Modules:
+Modules (each one is theory, then practice; video optional on top):
 
 1. How confident error happens (and why speed makes it worse).
 2. A four-step check you can run in five minutes.
 3. Prompts that make checking easier, not theatre.
 4. Write a verification note a colleague can reuse.
 5. What you still do not send (legal, personal, invented citations).
+
+**Worked lesson (the standard for all ten).** Module 2, "A four-step check". This is the shape of immense value with no film on the page.
+
+Theory (written, ~600 words, not reproduced in full here):
+
+- The four checks, in the order a busy person will actually run them: source, date, names and numbers, would you sign it.
+- One worked example: a plausible customer email that cites a policy clause the company does not have. Show the sentence that feels finished, then show which check catches it.
+- One line on what the check is not: it is not "ask the model if it is sure".
+
+Do the work:
+
+1. Judgement check. Three short outputs. For each: send, fix, or do not send. Wrong answers explain the miss ("the date is right and the clause is invented").
+2. Applied task. Paste one AI answer from this week (redact the client). Mark the four checks. Save it as the verification note. That note is theirs; it is what "finished the lesson" means.
+
+Watch, later: Antonio runs the same email and the same four checks on screen. The lesson does not change when the film is attached.
 
 ### 4.2 Article 4 literacy that matches the work
 
@@ -617,7 +668,7 @@ Modules:
 2. `lessons`, `course_enrollments` (self-serve), `lesson_progress`, `lesson_checks`.
 3. Public checkout endpoint + webhook purpose `self_serve_course`.
 4. Learner identity path (holding org or nullable `org_id`) + magic-link claim.
-5. `/learn/[slug]` player + signed video URLs.
+5. `/learn/[slug]` player: markdown theory, practice, and a signed video URL only when that lesson has a playback id.
 6. Homepage Latest section + catalog format filter + buy CTA.
 7. My Learning self-serve block.
 8. Revenue purchases table + publish toggle.
@@ -640,10 +691,10 @@ course_modules                   (existing)
 lessons                          (new)
   id, module_id, position
   title, summary
-  content_kind        'video' | 'task'
-  playback_id         text        Mux / Cloudflare id, not a raw secret
-  duration_seconds    int
-  check_spec          jsonb       questions or task prompt
+  body_md             text        theory, required, the spine of the lesson
+  practice_spec       jsonb       judgement checks and/or applied task, required
+  playback_id         text        null until filmed; Mux / Cloudflare id, not a secret
+  video_seconds       int         null until filmed
   created_at
 
 course_enrollments               (new, self-serve only)
@@ -662,8 +713,9 @@ course_enrollments               (new, self-serve only)
 lesson_progress                  (new)
   enrollment_id, lesson_id
   started_at, completed_at
-  check_passed        bool
-  response            jsonb
+  practice_passed     bool        gates the next lesson; video does not
+  response            jsonb       choices, reasons shown, saved artefact
+  video_started_at    timestamptz null if they never pressed play
   unique (enrollment_id, lesson_id)
 
 mooov_payments                   (existing, widen)
@@ -679,7 +731,7 @@ certificates                     (existing)
 RLS sketch:
 
 - Published self-serve courses readable by anyone (same as today).
-- Lessons readable only if the course is published **and** (user is entitled **or** super_admin). Marketing pages read module titles only, not `playback_id`.
+- Lessons readable only if the course is published **and** (user is entitled **or** super_admin). Marketing pages read module titles only, not `body_md` and not `playback_id`. The buy page sells the promise and the outline, not the method.
 - Enrollments and progress: owner or super_admin.
 - Payments: service role write, super_admin read.
 
@@ -711,23 +763,25 @@ Add `/learn` to `isSessionGatedPath` in `lib/public-routes.ts`. Checkout and (if
 
 One course, real money on a **preview**, never on `aiadop` production until Antonio says so.
 
-- Schema for the new tables + one seeded course (draft until he publishes).
-- Checkout + webhook + magic link + player + one module of real video.
+- Schema for the new tables + the full pilot seeded as `draft`: every module, theory, and practice. Zero videos required.
+- Checkout + webhook + magic link + player that opens lesson 1 on the writing.
+- Attach-film field, even if every playback id is still empty.
 - Receipt to buyer, alert to `ag@experrt.com`.
 - My Learning resume.
-- Completion record.
+- Completion record earned by finishing the practice, not by watching.
 - Homepage Latest can show the single pilot if published.
 - Feature flag `SELF_SERVE_COURSES` default false on production.
 
-Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open the course from the mail, finish it, and see the purchase on admin revenue.
+Definition of a good Phase 1: Antonio can pay with a test card on a preview URL, open lesson 1 from the mail with no video on the page, finish the course by doing the work, and see the purchase on admin revenue. If he has already filmed one lesson, pasting its playback id makes Watch appear without resetting that run.
 
 #### Phase 2: ten courses and polish
 
-- Seed the other nine (draft).
+- Seed the other nine as complete text-and-practice courses (draft until he publishes).
 - Catalog format filter, prices on cards, Latest of three on the homepage.
-- Checks, practice score, streak, standing.
+- Practice score, streak, standing.
 - Publish toggle.
 - UTM on purchases.
+- Attach films to any published lesson as they are recorded.
 - Optional Google sign-in.
 - Optional facilitated discount unlock.
 
@@ -746,6 +800,8 @@ Company / tenant course-authoring. White-label "companies create their own cours
 - Article 4 compliance claims or a certificate shop.
 - Replacing facilitated cohorts, evidence packs, or the assessment funnel.
 - Video files or API keys committed to git.
+- Blocking publish, checkout, or lesson completion on a film that does not exist yet.
+- Empty video players, "coming soon" slots, or a trailer before lesson 1.
 - Stripe Tax without a registration.
 - Leaderboards, childish gamification, or public learner profiles.
 - Native mobile apps.
@@ -763,6 +819,7 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 - [x] Pay-then-account chosen, with a written happy path.
 - [x] Homepage / `/courses` IA and copy samples; course closer is buy / start.
 - [x] Exactly ten courses, each with promise, buyer, hours, modules, GBP band, ladder.
+- [x] Text and practice are the course. Video is optional and can be attached after publish.
 - [x] Phases 0–3 and non-goals, including no production deploy.
 - [x] No secrets. No em dashes in user-facing copy samples.
 - [x] Draft PR, docs only.
@@ -774,7 +831,7 @@ This section is how we know **the scope is complete**, not how we ship experrt.c
 | Unit | Entitlement grant is idempotent. Progress % math. Standing thresholds. Certificate snapshot includes disclaimer and `self_serve_completion`. `isPublicPath('/api/public/courses/x/checkout')`. Notify email still `ag@experrt.com` if `NOTIFY_EMAIL` is a `@kumohr.com` leftover. |
 | RLS | Anonymous cannot read `playback_id`. Other users cannot read another learner's progress. Super-admin can. |
 | Checkout | Guest pay → mail → magic link → player. Signed-in pay → player. Double submit does not double charge. Failed pay creates no entitlement. |
-| Player | Resume opens the first incomplete lesson. Check required to complete. Unsigned user hitting `/learn` goes to login with `next=`. |
+| Player | Resume opens the first incomplete lesson on the theory, not on a video. Practice required to complete. A lesson with a null playback id has no player chrome. Pasting a playback id shows Watch and does not wipe `response`. Unsigned user hitting `/learn` goes to login with `next=`. |
 | Admin | Purchase appears with email, course, pence. Publish/unpublish hides the catalog card but not a paid player's access. |
 | Copy | No `/contact` or Calendly on self-serve closers. No "compliant" / "Article 4 certificate" strings on the player or completion mail. |
 | Browser | Homepage Latest → course → buy (test mode) → player, desktop and a mobile viewport. Facilitated course page still shows enquiry, not a fake price. |
@@ -792,7 +849,7 @@ These are product calls, not blockers for this scope:
 1. **Pilot price.** Scope assumes **£99** for *Verify the output*. He can move inside the band.
 2. **VAT.** Confirm whether prices are inclusive and whether Experrt is registered to collect.
 3. **Holding org vs nullable `org_id`.** Engineering prefers a single hidden holding org so current RLS keeps working.
-4. **Video host.** Mux or Cloudflare Stream, signed playback. Not YouTube unlisted (leaks). Not files in this git repo.
+4. **Video host, when he films.** Mux or Cloudflare Stream, signed playback. Not YouTube unlisted (leaks). Not files in this git repo. Launch does not wait on this choice. The attach-film field can stay empty.
 5. **Hero copy.** Option A above is value-first and keeps robotics / Article 4 available in the standfirst. He may want his face or a specific line from AI with Antonio.
 6. **Insight tension.** The in-person vs LMS article should later add one sentence: self-serve is for individuals; live remains the team record. Do not rewrite that article in this PR.
 
@@ -822,6 +879,6 @@ Do not edit Vercel project settings. Do not put keys in `.env` files that get co
 
 ## 9. One-page summary for Antonio
 
-We add a **buy-and-take** path on experrt.com for ten short courses you can film once. People coming from Instagram and LinkedIn pay first (guest, email + card), get a magic link, and resume in a player that looks like the current site. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
+We add a **buy-and-start** path on experrt.com for ten short courses. Each lesson is written theory plus work the learner actually does (a judgement check, a task on their own material, or both). They land on lesson 1 the moment they pay. You film when you can. A walkthrough is attached to that lesson afterwards and does not rewrite it. People coming from Instagram and LinkedIn pay first (guest, email + card), get a magic link, and resume in a player that looks like the current site. You see the purchase and you can publish or hide a course. Live programmes stay. Companies do not get a course builder.
 
-First build, when you say go: **Verify the output** at £99, on a preview, not on production.
+First build, when you say go: **Verify the output** at £99, full text and practice, on a preview, not on production. Film is welcome on day one and not required.
