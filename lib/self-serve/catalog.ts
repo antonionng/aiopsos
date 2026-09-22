@@ -351,7 +351,7 @@ const PILOT: SelfServeCourse = {
   title: "Prompt Engineering for Professional Work",
   track: "ai",
   hours: 2.5,
-  priceGbp: 99,
+  priceGbp: 1,
   playable: true,
   promise:
     "Instruct a model the way you would brief a colleague. Leave with a prompt card someone else can run.",

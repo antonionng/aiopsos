@@ -1,43 +1,20 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
-import {
-  coursesByTrack,
-  getSelfServeCourse,
-  SELF_SERVE_TRACKS,
-  trackLabel,
-} from "@/lib/self-serve/catalog";
+import { previewCourses, SelfServeCourseCards } from "@/components/learn/course-cards";
+import { getSelfServeCourse, SELF_SERVE_TRACKS, trackLabel } from "@/lib/self-serve/catalog";
 import type { SelfServeTrack } from "@/lib/self-serve/types";
 
 const OPEN_SLUG = "prompt-engineering-for-professional-work";
 
-const FEATURED_COURSES: { slug: string; benefit: string }[] = [
-  {
-    slug: OPEN_SLUG,
-    benefit: "Write a brief a model can follow, then leave with a prompt card a colleague can run.",
-  },
-  {
-    slug: "getting-value-from-the-technology-you-already-pay-for",
-    benefit: "Find three jobs that belong in the software your organisation already pays for.",
-  },
-  {
-    slug: "robotics-for-non-engineers",
-    benefit: "Decide whether a robot belongs in one process before you commit to buying one.",
-  },
-  {
-    slug: "ai-for-hr-and-people-teams",
-    benefit: "Draft people work with a model, and keep a clear line around what you never paste.",
-  },
-];
-
 export function SelfServeHomePitch() {
-  const featured = FEATURED_COURSES.map((item) => {
-    const course = getSelfServeCourse(item.slug);
-    if (!course) {
-      throw new Error(`Missing homepage course ${item.slug}`);
-    }
-    return { ...item, course };
-  });
+  const course = getSelfServeCourse(OPEN_SLUG);
+  const price = course?.priceGbp ?? 1;
+  const [track, setTrack] = useState<SelfServeTrack | "all">("all");
+  const courses = previewCourses(track);
 
   return (
     <section className="ex-autumn" aria-labelledby="self-serve-home-title">
@@ -55,36 +32,38 @@ export function SelfServeHomePitch() {
             </p>
             <h2 id="self-serve-home-title">Brief AI the way you would brief a colleague.</h2>
             <p>
-              Prompt Engineering for Professional Work shows you how to write a brief a model can follow, check what comes back, and leave a prompt card a colleague can run. The course is £99, and you can start as soon as you pay.
+              Prompt Engineering for Professional Work shows you how to write a brief a model can follow, check what comes back, and leave a prompt card a colleague can run. The course is £{price}, and you can start as soon as you pay.
             </p>
           </div>
           <div className="ex-autumn-buy">
             <p>
-              <b>£99</b>
+              <b>£{price}</b>
               <span>Start as soon as you pay.</span>
             </p>
-            <BuyCourseButton slug={OPEN_SLUG} label="Buy this course for £99" />
+            <BuyCourseButton slug={OPEN_SLUG} label={`Buy this course for £${price}`} />
           </div>
         </article>
 
-        <ul className="ex-autumn-list">
-          {featured.map(({ course, benefit }) => (
-            <li key={course.slug}>
-              <Link href={`/learn/${course.slug}`}>
-                <strong>
-                  <small>{trackLabel(course.track)}</small>
-                  {course.title}
-                  {course.playable ? <span>Available now</span> : null}
-                </strong>
-                <p>{benefit}</p>
-                <em>£{course.priceGbp}</em>
-              </Link>
-            </li>
+        <div className="ss-filters" role="group" aria-label="Course tracks">
+          <button type="button" className={track === "all" ? "is-on" : undefined} aria-pressed={track === "all"} onClick={() => setTrack("all")}>
+            All
+          </button>
+          {SELF_SERVE_TRACKS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              className={track === item ? "is-on" : undefined}
+              aria-pressed={track === item}
+              onClick={() => setTrack(item)}
+            >
+              {trackLabel(item)}
+            </button>
           ))}
-        </ul>
+        </div>
+        <SelfServeCourseCards courses={courses} />
 
         <div className="ex-autumn-foot">
-          <Link className="ex-text-link" href="/learn">
+          <Link className="ex-text-link" href={track === "all" ? "/learn" : `/learn?track=${track}`}>
             View more <ArrowRight size={16} />
           </Link>
         </div>
@@ -115,7 +94,6 @@ export function SelfServeAcademyCatalogue({
   level: string | null;
   category: string | null;
 }) {
-  const tracks = track ? SELF_SERVE_TRACKS.filter((item) => item === track) : SELF_SERVE_TRACKS;
   const showOpen = !track || track === "ai";
 
   return (
@@ -126,10 +104,10 @@ export function SelfServeAcademyCatalogue({
           Take a course in your own time, and leave with work your organisation can <em>use.</em>
         </h2>
         <p>
-          These courses sit alongside the facilitated programmes. All forty are listed across AI, technology, robotics, and HR. Prompt Engineering for Professional Work is the one you can buy now, including the checks and the signed record. The others describe what the course will cover, and they are not available to purchase yet.
+          These courses sit beside the facilitated programmes. Prompt Engineering for Professional Work is £{getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 1}, and you can start as soon as you pay. Choose a subject to see four courses. The rest of the catalogue is on the course list.
         </p>
       </div>
-      <nav className="academy-self-filters" aria-label="Self-serve tracks">
+      <nav className="ss-filters academy-self-filters" aria-label="Self-serve tracks">
         <Link href={catalogueHref(null, level, category)} aria-current={track ? undefined : "page"}>
           All tracks
         </Link>
@@ -150,34 +128,21 @@ export function SelfServeAcademyCatalogue({
             <span className="academy-self-tag">Available to buy</span>
             <h3>Prompt Engineering for Professional Work</h3>
             <p>
-              Buy the course to work through the four lessons. You will brief a model the way you would brief a colleague, and you will sign the prompt card you produce. The course costs £99. Checkout asks only for an email address and a card.
+              You work through four lessons, check each one, and sign the prompt card you produce. Checkout asks only for an email address and a card. The price is £{getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 1}.
             </p>
           </div>
           <BuyCourseButton
             slug={OPEN_SLUG}
-            label="Buy this course for £99"
+            label={`Buy this course for £${getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 1}`}
             className="academy-button"
           />
         </article>
       ) : null}
 
-      {tracks.map((item) => {
-        const courses = coursesByTrack(item).filter((course) => !course.playable);
-        return (
-          <div key={item} className="academy-self-track">
-            <h3>{trackLabel(item)}</h3>
-            {courses.map((course) => (
-              <Link key={course.slug} href={`/learn/${course.slug}`} className="academy-self-row">
-                <strong>{course.title}</strong>
-                <span>{course.promise}</span>
-                <em>
-                  {course.hours} hours, listed at £{course.priceGbp}. This course is not available to purchase yet.
-                </em>
-              </Link>
-            ))}
-          </div>
-        );
-      })}
+      <SelfServeCourseCards courses={previewCourses(track ?? "all")} />
+      <p className="academy-self-more">
+        <Link href={track ? `/learn?track=${track}` : "/learn"}>View the full course list</Link>
+      </p>
     </section>
   );
 }

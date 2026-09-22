@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
  */
 
 const NAV_LINKS = [
-  { href: "#capabilities", label: "Platform" },
+  { href: "#capabilities", label: "AI LMS" },
   { href: "/courses", label: "Academy" },
   { href: "/learning-agent", label: "Try the agent" },
   { href: "#enterprise", label: "For teams & providers" },

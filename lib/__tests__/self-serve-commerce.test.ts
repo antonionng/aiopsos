@@ -10,10 +10,10 @@ import {
   SELF_SERVE_PURPOSE,
 } from "../self-serve/commerce.ts";
 
-test("the playable course is ninety-nine pounds in pence", () => {
+test("the playable course is one pound in pence", () => {
   const course = playablePaidCourse("prompt-engineering-for-professional-work");
   assert.ok(course);
-  assert.equal(courseAmountPence(course.priceGbp), 9900);
+  assert.equal(courseAmountPence(course.priceGbp), 100);
   assert.equal(playablePaidCourse("robotics-for-non-engineers"), undefined);
 });
 

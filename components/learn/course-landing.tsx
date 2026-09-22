@@ -1,9 +1,7 @@
-import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Plus } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
-import { Emphasis, LearnBar } from "@/components/learn/learn-bar";
 import { trackLabel } from "@/lib/self-serve/catalog";
 import { formatCourseHours, getCourseLanding } from "@/lib/self-serve/landing";
 import type { SelfServeCourse } from "@/lib/self-serve/types";
@@ -13,13 +11,6 @@ function ribbonLine(value: string, label: string): string {
   if (value === "180,000") return "UK postings that asked for specialist AI skills.";
   if (value.startsWith("£")) return "Published midpoint for an AI Prompt Engineer.";
   return label;
-}
-
-function titleEmphasis(title: string): string {
-  for (const word of ["Professional", "Managers", "Teams", "Technology", "Engineers", "Leaders"]) {
-    if (title.includes(word)) return word;
-  }
-  return title.split(" ").pop() ?? title;
 }
 
 export function CourseLanding({
@@ -33,97 +24,71 @@ export function CourseLanding({
 
   return (
     <>
-      <LearnBar action={<Link href="/learn">All courses</Link>} />
       <main className="ex-landing">
-        <section className="ex-land-hero">
-          <div className="ex-wide ex-land-hero-grid">
-            <div className="ex-land-copy">
+        <section className="ex-product">
+          <div className="ex-wide ex-product-grid">
+            <div className="ex-product-copy">
+              <p className="ex-product-crumb">
+                <Link href="/learn">All courses</Link>
+                <span aria-hidden="true"> / </span>
+                {trackLabel(course.track)}
+              </p>
               <p className="ex-eyebrow">
                 <span />
-                {trackLabel(course.track).toUpperCase()} · {formatCourseHours(course.hours).toUpperCase()} · £{course.priceGbp}
+                {trackLabel(course.track).toUpperCase()} · {formatCourseHours(course.hours).toUpperCase()}
               </p>
-              <h1>
-                <Emphasis text={course.title} word={titleEmphasis(course.title)} />
-              </h1>
-              <p className="ex-land-hook">{landing.hook}</p>
+              <h1>{course.title}</h1>
               <p className="ex-lede">{landing.outcome}</p>
-              <div className="ex-land-cta">
-                {course.playable ? (
-                  <BuyCourseButton slug={course.slug} label={`Buy this course for £${course.priceGbp}`} />
-                ) : (
-                  <p className="ex-land-soon">
-                    This course is listed so you can see the work it will cover. The lessons are not open yet, and nothing on this page takes payment.
-                  </p>
-                )}
-                {retry ? (
-                  <p className="ex-hint">
-                    Payment has not been confirmed yet. If you were charged, open the link in the receipt email. If you were not charged, buy the course again.
-                  </p>
-                ) : null}
-              </div>
-              <div className="ex-land-foot">
-                <span className="ex-land-pips" aria-hidden="true">
-                  <span>AI</span>
-                  <span>£</span>
-                  <span>↗</span>
-                </span>
-                <span>
-                  A brief, a check, and a card you sign.
-                  <br />
-                  <strong>Work a colleague can run on Monday.</strong>
-                </span>
-              </div>
+              <p className="ex-product-hook">{landing.hook}</p>
+              <h2>What you will do</h2>
+              {course.playable ? (
+                <p className="ex-product-note">You cannot continue until the check on each lesson is right.</p>
+              ) : null}
+              <ol className="ex-product-lessons">
+                {course.modules.map((module, index) => (
+                  <li key={module}>
+                    <b>{String(index + 1).padStart(2, "0")}</b>
+                    <span>{module}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
-            <figure className="ex-land-art">
-              <Image
-                src="/images/learn/desk.jpg"
-                alt="A laptop and notebook on a wooden desk, the kind of work this course is built around."
-                fill
-                priority
-                sizes="(max-width: 800px) 100vw, 46vw"
-                className="ex-land-art-image"
-              />
-              <span className="ex-land-art-label">
-                MAKE SPACE
-                <br />
-                FOR THE BRIEF.
-              </span>
-              <div className="ex-land-float ex-land-float-top">
-                <span className="ex-land-float-mark" aria-hidden="true">
-                  ✓
-                </span>
-                <div>
-                  <strong>A card a colleague can run.</strong>
-                  <span>That is the artefact you leave with.</span>
-                </div>
-              </div>
-              <div className="ex-land-float ex-land-float-bottom">
-                <span className="ex-land-float-glyph" aria-hidden="true">
-                  ↗
-                </span>
-                <div>
-                  <span>AFTER YOU PAY</span>
-                  <strong>Lesson one opens.</strong>
-                </div>
-              </div>
-              <figcaption>A desk, not a lecture hall.</figcaption>
-            </figure>
+            <aside className="ex-product-buy">
+              <figure>
+                <Image
+                  src="/images/learn/desk.jpg"
+                  alt="A laptop and notebook on a wooden desk, the kind of work this course is built around."
+                  fill
+                  priority
+                  sizes="(max-width: 800px) 100vw, 360px"
+                />
+              </figure>
+              <p>
+                <b>£{course.priceGbp}</b>
+                <span>{course.playable ? "Start as soon as you pay." : "Listed price. This course is not for sale yet."}</span>
+              </p>
+              {course.playable ? (
+                <BuyCourseButton slug={course.slug} label={`Buy this course for £${course.priceGbp}`} />
+              ) : (
+                <p className="ex-land-soon">
+                  This page shows the work the course will cover. Nothing here takes payment.
+                </p>
+              )}
+              {retry ? (
+                <p className="ex-hint">
+                  Payment has not been confirmed yet. If you were charged, open the link in the receipt email. If you were not charged, buy the course again.
+                </p>
+              ) : null}
+              <ul>
+                {landing.stats.map((stat) => (
+                  <li key={stat.value}>
+                    <b>{stat.value}</b> {ribbonLine(stat.value, stat.label)}
+                  </li>
+                ))}
+              </ul>
+            </aside>
           </div>
         </section>
-
-        <div className="ex-land-ribbon">
-          <div className="ex-wide">
-            {landing.stats.map((stat, index) => (
-              <Fragment key={stat.value}>
-                {index > 0 ? <Plus aria-hidden="true" /> : null}
-                <span>
-                  <b>{stat.value}</b>
-                  <em>{ribbonLine(stat.value, stat.label)}</em>
-                </span>
-              </Fragment>
-            ))}
-          </div>
-        </div>
 
         <section className="ex-land-band" aria-labelledby="benefits-heading">
           <div className="ex-wide ex-land-split">
@@ -220,24 +185,6 @@ export function CourseLanding({
             </div>
           </section>
         ) : null}
-
-        <section className="ex-land-modules" aria-labelledby="modules-heading">
-          <div className="ex-wide">
-            <p className="ex-eyebrow">
-              <span />
-              THE WORK
-            </p>
-            <h2 id="modules-heading">Four lessons. You cannot continue until the check is right.</h2>
-            <ol className="ex-land-module-grid">
-              {course.modules.map((module, index) => (
-                <li key={module}>
-                  <b>{String(index + 1).padStart(2, "0")}</b>
-                  <span>{module}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
 
         <section className="ex-land-close">
           <div className="ex-wide">
