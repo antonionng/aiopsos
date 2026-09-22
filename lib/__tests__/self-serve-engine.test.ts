@@ -61,7 +61,7 @@ function lessonById(id: string) {
   return lesson;
 }
 
-test("the course is the six lessons in the standard, ending on the prompt card", () => {
+test("the course is the seven lessons in the standard, with an assessment before the prompt card", () => {
   assert.deepEqual(
     lessons.map((lesson) => lesson.id),
     [
@@ -70,6 +70,7 @@ test("the course is the six lessons in the standard, ending on the prompt card",
       "parts-of-a-prompt",
       "read-a-reply",
       "repair-the-prompt",
+      "course-assessment",
       "prompt-card",
     ]
   );
@@ -106,6 +107,100 @@ test("the reading labels are defined in lesson two before lesson four uses them"
   assert.ok(taught.includes(check.passLabel), `lesson two defines ${check.passLabel}`);
   assert.ok(taught.includes(check.failLabel), `lesson two defines ${check.failLabel}`);
   assert.ok(taught.includes("only thanks them"));
+});
+
+function assessmentCheck() {
+  const check = lessons[lessons.length - 2].check;
+  assert.equal(check.kind, "scenario");
+  if (check.kind !== "scenario") throw new Error("the course assessment must be a scenario");
+  return check;
+}
+
+test("the second-to-last lesson is a seven-question scenario assessment with a pass mark of six", () => {
+  assert.equal(lessons[lessons.length - 2].id, "course-assessment");
+  const check = assessmentCheck();
+  assert.equal(check.questions.length, 7);
+  assert.equal(check.passMark, 6);
+  assert.ok(check.why.length > 40);
+  const positions = new Set<number>();
+  for (const question of check.questions) {
+    assert.ok(question.options.length >= 3 && question.options.length <= 4, `${question.id} has three or four options`);
+    assert.equal(question.options.filter((option) => option.correct).length, 1, `${question.id} has one right option`);
+    for (const option of question.options) {
+      assert.ok(option.feedback.length > 40, `${question.id}/${option.id} has feedback`);
+    }
+    positions.add(question.options.findIndex((option) => option.correct));
+  }
+  assert.ok(positions.size >= 3, "the right option sits in varying positions");
+});
+
+test("the course assessment passes with every answer right and fails with two wrong", () => {
+  const check = assessmentCheck();
+  const right = Object.fromEntries(
+    check.questions.map((question) => [question.id, question.options.find((option) => option.correct)!.id])
+  );
+  const wrongPick = (index: number) => {
+    const question = check.questions[index];
+    return question.options.find((option) => !option.correct)!.id;
+  };
+
+  assert.equal(answerComplete(check, right), true);
+  const passed = evaluateCheck(check, right);
+  assert.equal(passed.passed, true);
+  assert.match(passed.detail, /7 of 7/);
+
+  const oneWrong = evaluateCheck(check, { ...right, [check.questions[0].id]: wrongPick(0) });
+  assert.equal(oneWrong.passed, true);
+
+  const twoWrong = evaluateCheck(check, {
+    ...right,
+    [check.questions[0].id]: wrongPick(0),
+    [check.questions[3].id]: wrongPick(3),
+  });
+  assert.equal(twoWrong.passed, false);
+  assert.match(twoWrong.detail, /5 of 7/);
+  assert.match(twoWrong.detail, /Question 1:/);
+  assert.match(twoWrong.detail, /Question 4:/);
+});
+
+test("no string in the Prompt Engineering lessons uses a dash or a banned word", () => {
+  const banned = [
+    "delve",
+    "unlock",
+    "unleash",
+    "empower",
+    "elevate",
+    "leverage",
+    "harness",
+    "supercharge",
+    "seamless",
+    "robust",
+    "cutting-edge",
+    "landscape",
+    "realm",
+    "tapestry",
+    "journey",
+    "game-changer",
+    "deep dive",
+    "dive into",
+    "it's important to note",
+    "in today's",
+  ];
+  const strings: string[] = [];
+  const collect = (value: unknown) => {
+    if (typeof value === "string") strings.push(value);
+    else if (Array.isArray(value)) value.forEach(collect);
+    else if (value && typeof value === "object") Object.values(value).forEach(collect);
+  };
+  collect(lessons);
+  assert.ok(strings.length > 100);
+  for (const text of strings) {
+    assert.doesNotMatch(text, /[\u2014\u2013]/, `dash in: ${text}`);
+    const lower = text.toLowerCase().replace(/\u2019/g, "'");
+    for (const word of banned) {
+      assert.ok(!lower.includes(word), `"${word}" in: ${text}`);
+    }
+  }
 });
 
 test("reading a reply rejects a promise that was waved through, and names it", () => {

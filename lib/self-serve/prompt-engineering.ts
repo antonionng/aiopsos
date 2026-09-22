@@ -9,7 +9,7 @@ export const PROMPT_ENGINEERING_LESSONS: SelfServeLesson[] = [
     title: "What a prompt is",
     emphasis: "prompt",
     place:
-      "This is the first of six lessons. Before you can write a good prompt, you need a clear picture of what a prompt is and of what the model does with it.",
+      "This is the first of seven lessons. Before you can write a good prompt, you need a clear picture of what a prompt is and of what the model does with it.",
     sections: [
       {
         heading: "The prompt is everything the model knows",
@@ -131,7 +131,7 @@ export const PROMPT_ENGINEERING_LESSONS: SelfServeLesson[] = [
       {
         heading: "The polite reply",
         paragraphs: [
-          "Imagine that a client has emailed to ask how the pilot is going, and you type only that the model should write a polite reply. You have given it an instruction and a tone, but you have given it no facts about the pilot, the price, or anything that has been agreed.",
+          "Consider a client who has emailed to ask how the pilot is going, where you type only that the model should write a polite reply. You have given it an instruction and a tone, but you have given it no facts about the pilot, the price, or anything that has been agreed.",
           "The model will still produce a full reply. Some of it will be harmless, because a thank-you or a friendly closing line commits nobody to anything. Some of it may not be harmless, because a sentence about an extension or a discount reads as an offer from your company, and the client is entitled to hold you to it.",
         ],
       },
@@ -552,7 +552,286 @@ export const PROMPT_ENGINEERING_LESSONS: SelfServeLesson[] = [
       },
     },
     bridge:
-      "You can now read a reply and repair the prompt behind it. In the final lesson you will write a prompt of your own for a real task, and that prompt becomes the card on your record.",
+      "You can now read a reply and repair the prompt behind it. In the next lesson you will use every move in the course on situations you have not seen, and in the final lesson you will write a prompt of your own for a real task, which becomes the card on your record.",
+  },
+  {
+    id: "course-assessment",
+    title: "Course assessment",
+    emphasis: "assessment",
+    place:
+      "This is the sixth of seven lessons. It brings together the method from the first five lessons, works one mixed example, and then assesses the whole method on situations you have not seen, before the final lesson asks you to write your own prompt card.",
+    sections: [
+      {
+        heading: "What a prompt is, and what the model does with silence",
+        paragraphs: [
+          "A prompt is the instruction and the evidence you give a language model before it writes. For the task in front of it, the prompt is the only information the model has. It has not read your inbox, it did not hear the call, and it cannot see the contract. It knows how replies, notes, and summaries are usually written, but it knows nothing about your client, your price, or your deadline unless the prompt says so.",
+          "When the prompt is silent on a point, the model does not stop and ask. It fills the gap with whatever usually comes next in writing of that kind, and the result reads as confidently as the facts you did give it. A date, a discount, or a claim that something was agreed can appear in a reply without anyone asking for it, and the person who receives that reply is entitled to act on it.",
+        ],
+      },
+      {
+        heading: "The four parts of a prompt",
+        paragraphs: [
+          "A prompt that a colleague could run without asking you what you meant has four parts. Who is speaking tells the model whose voice the reply is in and what that person can and cannot agree. The facts that are true give it the names, dates, and amounts, and also the things that have not happened. What it must not add or promise sets a limit in a plain sentence that begins with do not, must not, never, or only. The shape of the answer says how long the reply is and what form it takes.",
+          "Each part closes one kind of gap. The facts close the gap that the model would otherwise fill with a guess, and the limit closes the gap that it would otherwise fill with a gesture of goodwill. A long prompt can still be missing a part, so the test is whether you can point to the sentence that does each job, and not whether the prompt feels thorough. A request for a warm or reassuring tone is not a limit, and it often creates the pressure that produces a promise.",
+        ],
+      },
+      {
+        heading: "Reading a reply and repairing the prompt",
+        paragraphs: [
+          "Read a reply one sentence at a time with the prompt beside you, and give each sentence one of the two labels. A sentence is Safe to send when it only thanks, greets, closes politely, or repeats a fact that the prompt gave. A sentence Adds a promise that was not in the prompt when it commits you to a date, a price, a discount, a refund, or an action that the prompt never mentioned, or when it claims an earlier agreement with words such as 'as agreed'.",
+          "When you find a sentence that went too far, repair the prompt rather than only the reply. Say exactly what the sentence added, name the limit that was missing, add that limit to the same prompt close to the facts it protects, and run it again. Read the new reply as carefully as the first, because a repair is finished only when the promise has gone and nothing new has taken its place.",
+          "The assessment at the end of this lesson sets seven situations you have not seen, in HR, finance, customer service, operations, sales, procurement, and internal communications. Each question has one right answer, and each draws on one or more of the moves above. You need six of the seven to pass, and after you submit, each question shows the feedback for the option you chose.",
+        ],
+      },
+    ],
+    workedExample: {
+      title: "One prompt, read and repaired",
+      prompt:
+        "You are the payroll officer at Ashby Clinics. The facts are these: Kerry Lowe worked 11 hours of overtime in September, and it will be paid in the October payroll on 28 October. Write three short sentences to Kerry confirming this.",
+      output:
+        "Thank you for your message, Kerry. Your 11 hours of September overtime will be paid in the October payroll on 28 October. We have also applied the bank holiday rate, so you will receive time and a half.",
+      reading: [
+        "The prompt says who is speaking, gives the facts, and sets the shape, but it has no limit. Nothing tells the model what it must not add about pay, so the gap is still open.",
+        "The first sentence only thanks Kerry, and the second repeats the hours and the date that the prompt gave, so both are safe to send.",
+        "The third sentence adds a promise that was not in the prompt. Nobody gave the model a rate of pay, and Kerry could quote time and a half back to the payroll team.",
+        "The repair keeps the rest of the prompt and adds one sentence after the facts: 'Do not mention a rate of pay, a bonus, or any date that is not in these facts.' The payroll officer then runs the prompt again and reads the new reply one sentence at a time.",
+      ],
+    },
+    practice: {
+      intro:
+        "Before the assessment, choose the prompt that would stop Kerry's reply from promising time and a half. The worked example and the paragraph on repairing the prompt are above if you want to read them again.",
+      check: {
+        kind: "choose",
+        prompt: "Choose the version of Kerry's prompt that a colleague could run without the reply adding a rate of pay.",
+        leftLabel: "Prompt A",
+        left: "You are the payroll officer at Ashby Clinics. The facts are these: Kerry Lowe worked 11 hours of overtime in September, and it will be paid in the October payroll on 28 October. Be accurate and careful about pay. Write three short sentences to Kerry confirming this.",
+        rightLabel: "Prompt B",
+        right:
+          "You are the payroll officer at Ashby Clinics. The facts are these: Kerry Lowe worked 11 hours of overtime in September, and it will be paid in the October payroll on 28 October. Do not mention a rate of pay, a bonus, or any date that is not in these facts. Write three short sentences to Kerry confirming this.",
+        correct: "right",
+        why: "Prompt B names what the reply must not add, which is a rate of pay, a bonus, or another date, and it keeps who is speaking, the facts, and the shape. Prompt A asks for care but does not say what to leave out, so the model could still write time and a half.",
+        wrong:
+          "Look again at Prompt A. Asking the model to be accurate and careful about pay does not tell it that it must not mention a rate, so it could still promise time and a half. Prompt B names the limit directly.",
+      },
+    },
+    check: {
+      kind: "scenario",
+      prompt:
+        "Read each situation and choose what you would do. Each question has one right answer, and you need six of the seven to pass.",
+      passMark: 6,
+      questions: [
+        {
+          id: "hr",
+          situation:
+            "Ruth Kemp is an HR adviser at Tolland Housing. A team leader, Marcus Obi, has asked whether his request for compressed hours has been approved. The request is still with his head of service, and no decision date has been set. Ruth asks the model for a polite reply, and the reply ends with 'You can expect an answer by Friday.'",
+          question: "What should Ruth do next?",
+          options: [
+            {
+              id: "a",
+              text: "Delete the last sentence and send the rest, because the reply is otherwise accurate.",
+              feedback:
+                "That fixes this one reply, but the prompt still has no limit, so the next reply it writes for Marcus, or for a colleague who reuses it, may promise a date again. Add the limit to the prompt as well.",
+            },
+            {
+              id: "b",
+              text: "Add 'Do not give a date for the decision, because none has been set' to the prompt, run it again, and read the new reply.",
+              correct: true,
+              feedback:
+                "This is the repair the course teaches. You named what the sentence added, which was a date, added the missing limit to the same prompt, and kept the rest. Reading the new reply confirms that nothing else has taken its place.",
+            },
+            {
+              id: "c",
+              text: "Add 'Please be careful about timings' to the prompt and send the next reply it writes.",
+              feedback:
+                "Asking for care does not tell the model what to leave out, so it can still write a date. Sending without reading the new reply also skips the step that confirms the promise has gone. A limit that names the date does the job.",
+            },
+            {
+              id: "d",
+              text: "Start again with a new prompt that asks for a warm, reassuring reply to Marcus.",
+              feedback:
+                "Starting again throws away who is speaking and the facts that were working, and asking for reassurance is the kind of pressure that produces a promised date. Repair the prompt you have by adding a limit on dates.",
+            },
+          ],
+        },
+        {
+          id: "finance",
+          situation:
+            "Priya Nair works in accounts payable at Calder Engineering. A supplier, Westgate Fixings, has emailed to ask when invoice 20931 for £4,380 will be paid. Her prompt reads: 'You are the accounts payable officer at Calder Engineering. Invoice 20931 was approved on 2 October and will be paid in the payment run on 16 October. Reply to Westgate Fixings in three sentences.'",
+          question: "Which part does the prompt still need before Priya runs it?",
+          options: [
+            {
+              id: "a",
+              text: "Who is speaking, because the model will not know that the reply comes from finance.",
+              feedback:
+                "The prompt already names the accounts payable officer, so the model knows whose voice to use. The gap is elsewhere, because nothing says what the reply must not add, such as an earlier payment date or a late payment charge.",
+            },
+            {
+              id: "b",
+              text: "A longer shape, because three sentences is too short for a supplier.",
+              feedback:
+                "Three sentences is a clear shape and enough for a payment update. The missing part is the limit. Without it, the model may offer an earlier date or interest on the payment to sound helpful.",
+            },
+            {
+              id: "c",
+              text: "More facts, such as the history of every invoice from Westgate Fixings this year.",
+              feedback:
+                "The prompt already gives the facts this reply needs, which are the approval date and the payment run. Extra history gives the model more to misquote. What is missing is a sentence that says what the reply must not add or promise.",
+            },
+            {
+              id: "d",
+              text: "A limit, such as 'Do not promise payment before 16 October, and do not offer interest or a late payment charge.'",
+              correct: true,
+              feedback:
+                "That is the missing part. The prompt says who is speaking, gives the true dates, and sets the shape, but nothing stops the model from offering an earlier payment or compensation. A limit that names both closes the gap.",
+            },
+          ],
+        },
+        {
+          id: "customer-service",
+          situation:
+            "Owen Hart is a customer service adviser at Lumen Broadband. His prompt gave two facts: Mrs Sato's outage on 4 November lasted six hours, and the engineer has fixed the fault. The reply reads: 'Thank you for your patience, Mrs Sato. The outage on 4 November lasted six hours, and the fault has now been fixed. We have credited £20 to your account for the disruption.'",
+          question: "Which sentence would you stop before the reply goes out?",
+          options: [
+            {
+              id: "a",
+              text: "The sentence about the £20 credit.",
+              correct: true,
+              feedback:
+                "The prompt said nothing about a credit, so £20 is a promise that was not in the prompt. Mrs Sato could quote it to the billing team, and nobody with the authority to agree it has done so.",
+            },
+            {
+              id: "b",
+              text: "The sentence about the outage and the fix, because it contains a date and a number.",
+              feedback:
+                "That sentence repeats the date, the six hours, and the fix, all of which the prompt gave. Detail is safe when it came from you. The sentence to stop is the one about the £20 credit, which nobody supplied.",
+            },
+            {
+              id: "c",
+              text: "The thank-you, because thanking her for her patience admits that the company was at fault.",
+              feedback:
+                "A thank-you commits nobody to anything, so it is safe to send. The sentence that commits the company is the £20 credit, which the prompt never mentioned.",
+            },
+          ],
+        },
+        {
+          id: "operations",
+          situation:
+            "Hannah Doyle is the warehouse operations manager at Brook Lane Logistics. She needs a note for the night shift saying that the bay 3 roller door is out of use from Monday 10 November until a contractor repairs it, and that pallets for bay 3 should go to bay 5. No repair date has been given. She has two minutes before the handover.",
+          question: "Which prompt should Hannah run?",
+          options: [
+            {
+              id: "a",
+              text: "Write a note to the night shift about the bay 3 door. Keep it short and friendly.",
+              feedback:
+                "This prompt has no facts, so the model will guess a date, a reason, and perhaps a repair day. It also does not say who is speaking. The prompt that gives the facts, the limit, and the shape is the one to run.",
+            },
+            {
+              id: "b",
+              text: "You are the warehouse operations manager. Write a clear, reassuring, and professional note to the night shift about the problem with the bay 3 door, and make sure everyone feels informed.",
+              feedback:
+                "This says who is speaking, but it gives no dates and no instruction about bay 5, and asking for reassurance invites the model to promise a repair date. The prompt with the facts and a limit is the safer choice.",
+            },
+            {
+              id: "c",
+              text: "You are the warehouse operations manager at Brook Lane Logistics. The facts are these: the bay 3 roller door is out of use from Monday 10 November, and pallets for bay 3 go to bay 5. Do not give a repair date, because none has been set. Write three short sentences for the handover board.",
+              correct: true,
+              feedback:
+                "This prompt has all four parts. It says who is speaking, gives the date and the change of bay, stops the model from inventing a repair date, and asks for three sentences, so the night shift reads only what is true.",
+            },
+          ],
+        },
+        {
+          id: "sales",
+          situation:
+            "Callum Reeves is a sales executive at Orchard Payroll Software. A prospect, Leanne Fox at Denby Dental, has asked whether the price of £85 a month includes onboarding. Callum does not know, because the answer sits with the pricing team, and his prompt gave only the price. The reply reads: 'Yes, onboarding is included in the £85 a month, as agreed on our call.'",
+          question: "What is wrong with this reply?",
+          options: [
+            {
+              id: "a",
+              text: "Nothing, because the price of £85 a month came from Callum's prompt.",
+              feedback:
+                "The price came from the prompt, but the rest did not. Callum never said that onboarding was included, and 'as agreed on our call' claims an agreement nobody made. The sentence adds a promise that was not in the prompt.",
+            },
+            {
+              id: "b",
+              text: "It confirms that onboarding is included and claims an earlier agreement, and the prompt said neither.",
+              correct: true,
+              feedback:
+                "The model filled Callum's silence with the answer Leanne wanted and added 'as agreed' to make it sound settled. Denby Dental could hold the company to both, so the prompt needs the fact that onboarding is still to be confirmed and a limit on what the reply may say about it.",
+            },
+            {
+              id: "c",
+              text: "It is too short, and a sales reply should say more about the product.",
+              feedback:
+                "Length is not the problem, and a longer reply would give the model more room to add promises. The problem is that the sentence confirms onboarding and an agreement that the prompt never gave.",
+            },
+          ],
+        },
+        {
+          id: "procurement",
+          situation:
+            "Adaeze Okoro is a procurement officer at Hollins County Council. She is writing to the three suppliers who bid for a cleaning contract to say that the evaluation has been delayed. The panel now meets on 18 November, and no supplier has been selected. Her prompt gives those facts and asks for four sentences, and it ends: 'Reassure them that their bids are in a strong position.'",
+          question: "What should Adaeze change before she runs the prompt?",
+          options: [
+            {
+              id: "a",
+              text: "Remove the request to reassure them, and add 'Do not suggest that any bid is ahead, and do not give a decision date.'",
+              correct: true,
+              feedback:
+                "Asking the model to say the bids are strong invites it to write something that every supplier will read as a signal, which is a real problem in a public tender. Removing that line and naming what must not be said keeps the letter to the facts.",
+            },
+            {
+              id: "b",
+              text: "Add the names of all three suppliers so that each letter feels more personal.",
+              feedback:
+                "Names are harmless, but they do not remove the risk. The prompt still asks the model to say that the bids are strong, which it will do for all three suppliers. The fix is to remove that request and add a limit.",
+            },
+            {
+              id: "c",
+              text: "Nothing, because the prompt already gives the facts and the shape.",
+              feedback:
+                "Facts and a shape are two of the four parts. The prompt still has no limit, and its last line asks the model to reassure. That is the line that would produce a sentence suggesting one bid is ahead.",
+            },
+            {
+              id: "d",
+              text: "Ask for a longer letter that explains the reasons for the delay in detail.",
+              feedback:
+                "Adaeze has no detail to give beyond the new date, so a longer letter would be filled with reasons the model supplies. A limit on what it must not suggest or promise is the change that matters.",
+            },
+          ],
+        },
+        {
+          id: "internal-comms",
+          situation:
+            "Tom Barrow runs internal communications at Selby Water. He needs an intranet post saying that the staff car park at the Riverside site closes for resurfacing on Saturday 22 November and Sunday 23 November. His prompt reads: 'You are the internal communications lead at Selby Water. Write an intranet post about the Riverside car park closure.'",
+          question: "Which line, added to the prompt, would make the biggest difference to what comes back?",
+          options: [
+            {
+              id: "a",
+              text: "Make it upbeat, so that staff do not mind the disruption.",
+              feedback:
+                "Asking for an upbeat post invites the model to soften the news with something staff would welcome, such as free parking elsewhere or a later start. That adds promises. The prompt needs the facts first.",
+            },
+            {
+              id: "b",
+              text: "Write it in the house style.",
+              feedback:
+                "The model has not seen the house style, so this line tells it very little. The bigger gap is that the prompt gives no dates, so the model will choose its own.",
+            },
+            {
+              id: "c",
+              text: "The facts are these: the car park closes on Saturday 22 November and Sunday 23 November for resurfacing. Do not offer other parking, and do not give any other dates. Write four short sentences.",
+              correct: true,
+              feedback:
+                "The prompt said who was speaking but was silent on the dates, the limit, and the shape. This line gives the true dates, stops the model from offering parking that nobody has arranged, and sets the length, so the post can go up after one careful read.",
+            },
+          ],
+        },
+      ],
+      why: "You applied the whole method to situations you had not seen before. You checked what each prompt said and what it left silent, named the part that was missing, read each reply one sentence at a time, and repaired the prompt rather than only the reply.",
+    },
+    bridge:
+      "You have now used every move in the course on new situations. In the last lesson you will write a prompt card for a real task of your own, with all four parts, and that card is the work your record will show.",
   },
   {
     id: "prompt-card",

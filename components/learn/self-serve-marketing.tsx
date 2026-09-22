@@ -128,7 +128,7 @@ export function SelfServeAcademyCatalogue({
             <span className="academy-self-tag">Available to buy</span>
             <h3>Prompt Engineering for Professional Work</h3>
             <p>
-              You work through six lessons, check each one, and sign the prompt card you produce. Checkout asks only for an email address and a card. The price is £{getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 1}.
+              You work through seven lessons, including a course assessment, check each one, and sign the prompt card you produce. Checkout asks only for an email address and a card. The price is £{getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 1}.
             </p>
           </div>
           <BuyCourseButton
