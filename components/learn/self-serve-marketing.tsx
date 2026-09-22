@@ -38,7 +38,7 @@ export function SelfServeHomePitch() {
             Build practical <em>capability</em> your people can apply in their role, and leave with work the organisation can use.
           </h2>
           <p>
-            These courses cover AI, technology, robotics, and HR. Each one is taught as reading and a check, so a learner has to do the work before they can continue. Prompt Engineering for Professional Work is the course you can take now. The other thirty-nine are listed in the catalogue, and their lessons will open one course at a time.
+            These courses cover AI, technology, robotics, and HR. Each one is taught as reading and a check, so a learner has to do the work before they can continue. Prompt Engineering for Professional Work is the course you can buy now. The other thirty-nine are listed in the catalogue, and their lessons will open one course at a time.
           </p>
           <div className="ex-hero-actions">
             <Link className="ex-button ex-button-dark" href={`/learn/${OPEN_SLUG}`}>

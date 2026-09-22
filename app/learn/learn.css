@@ -235,7 +235,10 @@
 }
 .ex-button-dark {
   background: var(--ex-ink);
-  color: white;
+  color: #fffefa;
+}
+.ex-learn .ex-button-dark {
+  color: #fffefa;
 }
 .ex-button:disabled,
 .ex-button:disabled:hover {
