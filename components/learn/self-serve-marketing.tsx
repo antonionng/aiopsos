@@ -10,68 +10,60 @@ import type { SelfServeTrack } from "@/lib/self-serve/types";
 
 const OPEN_SLUG = "prompt-engineering-for-professional-work";
 
-const BENEFITS = [
-  {
-    n: "01",
-    body: "Each course is designed so that a professional leaves with an artefact they would otherwise pay a person to produce, such as a prompt card a colleague can run, or a brief, a plan, or a decision for a real piece of work.",
-  },
-  {
-    n: "02",
-    body: "A learner cannot continue until the check is right. They mark a claim the model invented, choose the brief a colleague could run, put a repair in the correct order, or build the artefact itself.",
-  },
-  {
-    n: "03",
-    body: "When every check has passed, the learner signs their name. The record confirms that they completed the course and names the artefact they signed. It does not certify compliance with the EU AI Act or any other regulation.",
-  },
-] as const;
-
 export function SelfServeHomePitch() {
   return (
-    <section className="ex-section ex-self-serve" aria-labelledby="self-serve-home-title">
-      <div className="ex-container ex-self-serve-grid">
-        <div>
-          <div className="ex-eyebrow">
-            <span />
-            SELF-SERVE COURSES
-          </div>
-          <h2 id="self-serve-home-title">
-            Build practical <em>capability</em> your people can apply in their role, and leave with work the organisation can use.
-          </h2>
-          <p>
-            These courses cover AI, technology, robotics, and HR. Each one is taught as reading and a check, so a learner has to do the work before they can continue. Prompt Engineering for Professional Work is the course you can buy now. The other thirty-nine are listed in the catalogue, and their lessons will open one course at a time.
-          </p>
-          <div className="ex-hero-actions">
-            <Link className="ex-button ex-button-dark" href={`/learn/${OPEN_SLUG}`}>
-              Buy a course <ArrowRight size={18} />
-            </Link>
-            <Link className="ex-button ex-button-plain" href="/courses#self-serve">
-              View the catalogue <ArrowRight size={18} />
-            </Link>
-          </div>
-          <p className="ex-self-where">
-            Buy a course opens checkout for Prompt Engineering for Professional Work, then the first lesson.
-          </p>
-        </div>
-        <ol className="ex-self-benefits">
-          {BENEFITS.map((benefit) => (
-            <li key={benefit.n}>
-              <b>{benefit.n}</b>
-              <p>{benefit.body}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
+    <section className="ex-autumn" aria-labelledby="self-serve-home-title">
       <div className="ex-container">
-        <article className="ex-self-open">
+        <article className="ex-autumn-offer">
+          <div className="ex-autumn-leaves" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
           <div>
-            <span className="ex-self-tag">Available to buy</span>
-            <h3>Prompt Engineering for Professional Work</h3>
+            <p className="ex-eyebrow">
+              <span />
+              AUTUMN START
+            </p>
+            <h2 id="self-serve-home-title">One course is open. The whole path is listed.</h2>
             <p>
-              You will learn how to brief a model with the same care you would brief a colleague, and you will leave with a prompt card someone else on your team can run. The course costs £99. Checkout asks only for an email address and a card.
+              Prompt Engineering for Professional Work is the course you can buy this autumn for £99. You brief a model the way you would brief a colleague, and you leave with a prompt card someone else can run. Every other course is below, with its price. Those lessons are not open yet.
             </p>
           </div>
-          <BuyCourseButton slug={OPEN_SLUG} label="Buy this course for £99" />
+          <div className="ex-autumn-buy">
+            <p>
+              <b>£99</b>
+              <span>Open now. This is the amount charged.</span>
+            </p>
+            <BuyCourseButton slug={OPEN_SLUG} label="Buy this course for £99" />
+          </div>
         </article>
+
+        <div className="ex-autumn-path">
+          {SELF_SERVE_TRACKS.map((track) => (
+            <section key={track} aria-labelledby={`home-track-${track}`}>
+              <h3 id={`home-track-${track}`}>{trackLabel(track)}</h3>
+              <ul>
+                {coursesByTrack(track).map((course) => (
+                  <li key={course.slug}>
+                    <Link href={`/learn/${course.slug}`}>
+                      <strong>{course.title}</strong>
+                      <em>£{course.priceGbp}</em>
+                      {course.playable ? <span>Open</span> : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+
+        <div className="ex-autumn-foot">
+          <p>All forty courses live on one page, with the open course at the top.</p>
+          <Link className="ex-button ex-button-dark" href="/learn">
+            Explore courses <ArrowRight size={18} />
+          </Link>
+        </div>
       </div>
     </section>
   );

@@ -24,11 +24,9 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
           <span />
           THE NEXT CHAPTER OF LEARNING
         </div>
-        <h1 className="ex-plain-title">
-          Browse the courses your people can take in their own time.
-        </h1>
+        <h1 className="ex-plain-title">All courses.</h1>
         <p className="ex-lede">
-          Prompt Engineering for Professional Work can be bought now. You will work through four lessons and sign the prompt card you produce. The other courses are listed so you can see what they will cover, and they are not available to purchase yet.
+          This is the place for every self-serve course. Prompt Engineering for Professional Work can be bought now for £99. You work through four lessons and sign the prompt card you produce. The other courses are listed with their prices so you can see the path, and they are not available to purchase yet.
         </p>
         <nav className="ex-filters" aria-label="Tracks">
           <Link href="/learn" className={track ? undefined : "is-on"}>

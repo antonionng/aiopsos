@@ -285,17 +285,15 @@ export default function Home() {
               .
             </h1>
             <p>
-              A learning platform for people with big ideas.
-              <br className="ex-desktop-break" /> Bring courses, teams and
-              progress together, with AI to help you find your next step.
+              Experrt teaches courses you can buy and start on your own, and programmes you take with a facilitator. Prompt Engineering for Professional Work is open now for £99.
             </p>
             <div className="ex-hero-actions">
-              <a className="ex-button ex-button-dark" href="#capabilities">
+              <Link className="ex-button ex-button-dark" href="/learn">
+                Explore courses <ArrowRight size={18} />
+              </Link>
+              <a className="ex-button ex-button-plain" href="#capabilities">
                 Explore the platform <ArrowUpRight size={19} />
               </a>
-              <Link className="ex-button ex-button-plain" href="/courses">
-                Find your next skill <ArrowRight size={18} />
-              </Link>
             </div>
             <div className="ex-hero-foot">
               <span className="ex-stacked-labels">
@@ -348,6 +346,8 @@ export default function Home() {
           </Reveal>
         </section>
 
+        {showSelfServeOnHomepage() ? <SelfServeHomePitch /> : null}
+
         <div className="ex-ribbon">
           <div className="ex-container">
             <span>Human curiosity.</span>
@@ -360,8 +360,6 @@ export default function Home() {
             </span>
           </div>
         </div>
-
-        {showSelfServeOnHomepage() ? <SelfServeHomePitch /> : null}
 
         <PlatformFeatures />
 
