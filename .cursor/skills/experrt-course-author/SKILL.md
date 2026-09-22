@@ -7,7 +7,17 @@ description: The brief a course writer fills in for every single Experrt course 
 
 Read `.cursor/skills/experrt-course/SKILL.md` first. It says what the academy is, who the learners are, and how they sign back in. This skill is the build sheet for one course. Fill in every section below for the course you are writing, and do not ship a lesson until the course passes the gates at the end.
 
-The plans for all forty courses are in `.cursor/skills/experrt-course/plans/`. Start from the plan for your course. The data lives in `lib/self-serve/` (one file of lessons per course, registered in `catalog.ts`), and the player is `components/learn/lesson-room.tsx`.
+The plans for all forty courses are in `.cursor/skills/experrt-course/plans/`. Start from the plan for your course. Each course is one file, `lib/self-serve/courses/<slug>.ts`, exporting `COURSE: CourseContent` (see `lib/self-serve/courses/types.ts`), registered in `lib/self-serve/courses/index.ts`. Prompt Engineering in `lib/self-serve/prompt-engineering.ts` is the reference for depth and shape. The types are in `lib/self-serve/types.ts`, the pass rules in `lib/self-serve/engine.ts`, and the player is `components/learn/lesson-room.tsx`.
+
+## 0. Enterprise language
+
+Experrt sells to organisations. Every line must read like it was written by a senior practitioner for a professional audience, and nothing may read as machine-written.
+
+- Plain, precise British English. Short and medium sentences. Concrete nouns: the invoice, the rota, the supplier, the cell, the Tuesday handover.
+- Name real roles, documents, and decisions from the workplace. Use realistic but invented company and person names.
+- Do not use these words or patterns: delve, dive into, deep dive, unlock, unleash, empower, elevate, leverage (as a verb), harness, supercharge, game-changer, seamless, robust, cutting-edge, landscape, realm, tapestry, journey (for learning), navigate (for anything that is not a route), in today's fast-paced world, it's important to note, in conclusion, let's, imagine a world, not just X but Y, rhetorical questions as openers, triplets for rhythm, exclamation marks, emoji, em dashes.
+- Do not address the learner with hype. No "you've got this", no "amazing". Respect their time and experience.
+- A sentence earns its place by teaching, showing, or instructing. Cut anything that only sounds impressive.
 
 ## 1. The promise
 
@@ -62,6 +72,9 @@ The learner does the work. Choose the interaction that matches the move being ta
 | Fix something | Edit the starting text in place |
 | Make the thing | Write the artefact in labelled parts |
 | Follow a procedure where order is the skill | Put the steps in order |
+| Apply judgement across several real situations | A scenario assessment: several situations, one right option each, feedback on every option |
+
+The check kinds in code are `mark`, `choose`, `edit`, `build`, `order`, and `scenario`. A practice can use any of them.
 
 - Do not ask them to sort steps the lesson has just listed in order.
 - Every control is a full word or a short sentence, large enough to tap, and the selected state is obvious.
@@ -79,6 +92,25 @@ A pass means the work meets the lesson's outcome. It does not mean a box was tic
 - The course is complete when every check has passed and the learner has signed their name against the artefact.
 - Add a test in `lib/__tests__/` for every pass rule: one answer that passes, and one wrong answer for each rule.
 
+### The shape of assessment in every course
+
+1. **A check in every lesson,** on a new case, using the move that lesson taught.
+2. **A course assessment,** as the second-to-last lesson. Its check is a `scenario` of six to eight questions set in situations the learner has not yet seen, drawing on every earlier lesson. Set `passMark` to about eighty per cent (for example five of six, or six of eight). The lesson itself still teaches: it recaps the course's method in full paragraphs, works one mixed example, and gives a short practice before the assessment.
+3. **The artefact,** as the last lesson. A `build` check whose fields each have a `rule` or an `any` list, so every part is checked for substance. This is what the certificate shows.
+
+Writing good scenario questions:
+
+- The situation is two to four full sentences with names, numbers, and a real document or decision. The learner should recognise their own week in it.
+- Each question has three or four options. Every option is something a reasonable professional might do. There are no joke options and no "all of the above".
+- Exactly one option is right, and it is right for a reason the course taught.
+- Every option carries `feedback` written to the person who chose it. For a wrong option, say what that choice would cause at work and what the better move is. For the right option, say why it holds.
+- Vary which letter position the right option sits in.
+
+Build fields for the artefact:
+
+- `rule: "role"` needs a named role, `"fact"` a concrete fact (a number, a date, or a name), `"limit"` a clear limit (do not, must not, never, only), and `"shape"` a length or format.
+- `any: [...]` requires at least one course-specific word or phrase, for example `["risk", "hazard", "guard"]` for a safety note. Choose words a correct answer will naturally contain, and write `missing` as a full sentence telling the learner what that part needs.
+
 ## 7. Feedback people enjoy
 
 Feedback is where the course feels alive. It is specific, warm, and quick. It never mocks, and it never pretends a wrong answer was nearly right.
@@ -89,6 +121,8 @@ Feedback is where the course feels alive. It is specific, warm, and quick. It ne
 - **Moments of progress.** A tick fills on the lesson bar when a check passes. The pass panel turns citrus for a moment. The last lesson of the course has a short finish moment that quotes the artefact they wrote back to them before they sign.
 - **In the inbox.** The receipt thanks them by name. The welcome email tells them how to sign back in. A nudge names the lesson they stopped at. The finish email links their record.
 - Momentum is fine. Points, streaks, and scores that hide a failed check are not. A learner should feel progress because they can see their own work improving.
+- **Tutor feedback on written work.** On every `build` and `edit` check, in the practice and the check, a signed-in learner can choose "Get feedback on my draft". A tutor model reads their draft against the lesson's teaching and replies in three short paragraphs: what works, what to change (quoting it), and a suggested rewrite. It never decides the pass. Write each lesson's teaching so that it gives the tutor enough to judge against: name the standard clearly in the paragraphs, and make the field hints precise. The route is `app/api/learn/feedback/route.ts`.
+- **Scenario feedback.** After a scenario assessment is submitted, each question shows whether the choice was right and the feedback for the option chosen, and the result states the score against the pass mark.
 
 ## 8. Certification
 
@@ -96,7 +130,8 @@ Feedback is where the course feels alive. It is specific, warm, and quick. It ne
 - It shows the name they signed, the course, the date, the artefact, and a public reference.
 - It never says the person is compliant with the EU AI Act or any other regulation, and it is not the facilitated cohort certificate.
 - The learner can open it from My courses, and a verifier can open `/verify/[ref]` and download the PDF.
-- Write the one sentence the record uses to describe what was done, for example "Wrote and signed a prompt a colleague can run without asking what was meant."
+- Write the one sentence the record uses to describe what was done, for example "Wrote and signed a prompt a colleague can run without asking what was meant." It goes in `artefact.recordLine`, with `artefact.title` (for example "The rollout plan") and `artefact.lessonId` pointing at the final build lesson.
+- The record page, the public verify page, and the PDF all show the course, the name, the date, the record sentence, the artefact under its title with each field label, and the reference. The field labels are the build field labels, so write them as clean headings a stranger could read.
 
 ## 9. The build sheet
 
