@@ -2,10 +2,29 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getPublicSiteUrl } from "@/lib/site";
 import { Wordmark } from "@/components/wordmark";
 import { LITERACY_DISCLAIMER } from "@/lib/constants";
 import { progressStorageKey } from "@/lib/self-serve/engine";
 import type { BuildAnswer, CourseProgress, ResolvedArtefact } from "@/lib/self-serve/types";
+
+function verifyUrl(ref: string): string {
+  return `${getPublicSiteUrl()}/verify/${ref}`;
+}
+
+function linkedInAddUrl(course: string, ref: string, signedAt?: string): string {
+  const date = signedAt ? new Date(signedAt) : new Date();
+  const params = new URLSearchParams({
+    startTask: "CERTIFICATION_NAME",
+    name: course,
+    organizationName: "Experrt",
+    issueYear: String(date.getFullYear()),
+    issueMonth: String(date.getMonth() + 1),
+    certUrl: verifyUrl(ref),
+    certId: ref,
+  });
+  return `https://www.linkedin.com/profile/add?${params}`;
+}
 
 export function CertificateView({
   slug,
@@ -107,11 +126,31 @@ export function CertificateView({
           : "This preview is stored only in this browser."}
       </p>
       {persist ? (
-        <p className="ex-honest">
-          <Link href={`/verify/${progress.ref}`}>Open the public record</Link>
-          {" · "}
-          <a href={`/api/learn/certificate/${progress.ref}`}>Download the PDF</a>
-        </p>
+        <>
+          <p className="ex-honest">
+            <Link href={`/verify/${progress.ref}`}>Open the public record</Link>
+            {" · "}
+            <a href={`/api/learn/certificate/${progress.ref}`}>Download the PDF</a>
+          </p>
+          <div className="ex-share">
+            <a
+              className="ex-button ex-button-dark"
+              href={linkedInAddUrl(title, progress.ref, progress.signedAt)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Add to your LinkedIn profile
+            </a>
+            <a
+              className="ex-button"
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verifyUrl(progress.ref))}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Share on LinkedIn
+            </a>
+          </div>
+        </>
       ) : null}
       <Link className="ex-back" href="/learn">
         All courses

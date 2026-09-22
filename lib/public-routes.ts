@@ -20,6 +20,8 @@ export function isPublicPath(pathname: string): boolean {
     // Scheduler authentication is checked by the route, without a browser session.
     pathname === "/api/cron/learning-agent-recovery" ||
     pathname === "/api/cron/self-serve-nudges" ||
+    pathname === "/llms.txt" ||
+    pathname === "/llms-full.txt" ||
     pathname === "/ai-labs" ||
     pathname === "/case-studies" ||
     pathname.startsWith("/case-studies/") ||

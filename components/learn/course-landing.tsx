@@ -1,6 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Check } from "lucide-react";
+import { StructuredData } from "@/components/structured-data";
+import {
+  breadcrumbLd,
+  courseFaqs,
+  faqLd,
+  hubForTrack,
+  selfServeCourseLd,
+} from "@/lib/self-serve/seo";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
 import { trackLabel } from "@/lib/self-serve/catalog";
 import { courseArtefact } from "@/lib/self-serve/engine";
@@ -35,8 +43,21 @@ export function CourseLanding({
   const assessmentCheck = course.lessons?.find((lesson) => lesson.check.kind === "scenario")?.check;
   const assessment = assessmentCheck?.kind === "scenario" ? assessmentCheck.questions.length : 0;
 
+  const faqs = courseFaqs(course);
+  const hub = hubForTrack(course.track);
+
   return (
     <>
+      <StructuredData data={selfServeCourseLd(course)} />
+      <StructuredData data={faqLd(faqs)} />
+      <StructuredData
+        data={breadcrumbLd([
+          { name: "Home", path: "/" },
+          { name: "Self-paced courses", path: "/learn" },
+          { name: hub.title, path: `/learn/topics/${hub.slug}` },
+          { name: course.title, path: `/learn/${course.slug}` },
+        ])}
+      />
       <main className="ex-landing">
         <section className="ex-product">
           <div className="ex-wide ex-product-grid">
@@ -44,7 +65,7 @@ export function CourseLanding({
               <p className="ex-product-crumb">
                 <Link href="/learn">All courses</Link>
                 <span aria-hidden="true"> / </span>
-                {trackLabel(course.track)}
+                <Link href={`/learn/topics/${hub.slug}`}>{trackLabel(course.track)}</Link>
               </p>
               <p className="ex-eyebrow">
                 <span />
@@ -52,7 +73,35 @@ export function CourseLanding({
               </p>
               <h1>{course.title}</h1>
               <p className="ex-lede">{landing.outcome}</p>
-              <p className="ex-product-hook">{landing.hook}</p>
+              <section className="ex-product-about" aria-labelledby="about-heading">
+                <h2 id="about-heading">About this course</h2>
+                {landing.overview.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </section>
+              {landing.takeaways.length > 0 ? (
+                <section className="ex-product-takeaways" aria-labelledby="takeaways-heading">
+                  <h2 id="takeaways-heading">What you will take away</h2>
+                  <ul>
+                    {landing.takeaways.map((item) => (
+                      <li key={item}>
+                        <Check size={18} aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {landing.audience.length > 0 ? (
+                <section className="ex-product-audience" aria-labelledby="audience-heading">
+                  <h2 id="audience-heading">Who this course is for</h2>
+                  <ul>
+                    {landing.audience.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
               <h2>What you will do</h2>
               <p className="ex-product-note">
                 Each lesson teaches one part of the method, works through a realistic example, and ends with a check on a case you have not seen. The course closes with an assessment and then the piece of work you sign.
@@ -84,6 +133,7 @@ export function CourseLanding({
                     <div>
                       <p className="ex-curriculum-tag">{KIND_LABEL[item.kind]}</p>
                       <h3>{item.title}</h3>
+                      {item.summary ? <p className="ex-curriculum-summary">{item.summary}</p> : null}
                       {item.covers.length > 0 ? (
                         <ul className="ex-curriculum-covers" aria-label="Topics covered">
                           {item.covers.map((topic) => (
@@ -236,6 +286,28 @@ export function CourseLanding({
             </div>
           </section>
         ) : null}
+
+        <section className="ex-land-faq" aria-labelledby="faq-heading">
+          <div className="ex-wide">
+            <p className="ex-eyebrow">
+              <span />
+              QUESTIONS
+            </p>
+            <h2 id="faq-heading">Questions about {course.title}</h2>
+            <dl>
+              {faqs.map((faq) => (
+                <div key={faq.question}>
+                  <dt>{faq.question}</dt>
+                  <dd>{faq.answer}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="ex-land-faq-more">
+              More {trackLabel(course.track).toLowerCase()} courses are listed on the{" "}
+              <Link href={`/learn/topics/${hubForTrack(course.track).slug}`}>{hubForTrack(course.track).title.toLowerCase()}</Link> page.
+            </p>
+          </div>
+        </section>
 
         <section className="ex-land-close">
           <div className="ex-wide">

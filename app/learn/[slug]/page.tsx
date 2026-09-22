@@ -7,6 +7,7 @@ import { LessonRoom } from "@/components/learn/lesson-room";
 import { findEntitledPurchase } from "@/lib/self-serve/access";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
 import { loadProgress } from "@/lib/self-serve/records";
+import { courseMetaDescription, courseMetaTitle } from "@/lib/self-serve/seo";
 import { withSiteShareImages } from "@/lib/social-image";
 
 export async function generateMetadata({
@@ -16,10 +17,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const course = getSelfServeCourse(slug);
+  if (!course) return { title: "Course not found", robots: { index: false, follow: false } };
+  const title = courseMetaTitle(course);
+  const description = courseMetaDescription(course);
   return withSiteShareImages({
-    title: course?.title ?? "Course",
-    description: course?.promise,
-    robots: { index: false, follow: false },
+    title,
+    description,
+    alternates: { canonical: `/learn/${course.slug}` },
+    openGraph: { type: "website", title, description, url: `/learn/${course.slug}` },
+    twitter: { title, description },
+    robots: course.playable ? { index: true, follow: true } : { index: false, follow: true },
   });
 }
 

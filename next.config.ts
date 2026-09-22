@@ -67,6 +67,14 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // One host for search engines. API routes are left alone so webhooks
+      // registered against the apex keep receiving POSTs.
+      {
+        source: "/:path((?!api/).*)",
+        has: [{ type: "host", value: "experrt.com" }],
+        destination: "https://www.experrt.com/:path",
+        permanent: true,
+      },
       {
         source: "/blog",
         destination: "/insights",

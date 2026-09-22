@@ -1,5 +1,6 @@
 import { courseArtefact } from "./engine.ts";
 import { COURSE_MARKET, MARKET_STATS } from "./market-stats.ts";
+import { COURSE_SALES } from "./sales-copy.ts";
 import type { SelfServeCourse, SelfServeLesson, SelfServeTrack } from "./types.ts";
 
 export type MarketStat = {
@@ -27,6 +28,9 @@ export type CourseReview = {
 export type LandingCopy = {
   hook: string;
   outcome: string;
+  overview: string[];
+  audience: string[];
+  takeaways: string[];
   benefits: { title: string; body: string }[];
   stats: MarketStat[];
   jobs: MarketJob[];
@@ -174,9 +178,11 @@ function defaultBenefits(course: SelfServeCourse, artefactTitle: string | null):
       body: "When you finish, you sign a record that names you, the course, and the work you produced. A manager or client can open it online and download it as a PDF.",
     },
   ];
+  const sales = COURSE_SALES[course.slug];
+  const own = sales?.benefits.length ? sales.benefits : benefits;
   const market = COURSE_MARKET[course.slug];
   if (market) {
-    benefits.push(market.benefit);
+    return [...own, market.benefit];
   } else if (course.track === "ai") {
     benefits.push({
       title: "A skill the market already rewards",
@@ -209,9 +215,13 @@ function uniqueSources(stats: MarketStat[], extra: { label: string; href: string
 export function getCourseLanding(course: SelfServeCourse): LandingCopy {
   const ai = course.track === "ai";
   const stats = courseStats(course);
+  const sales = COURSE_SALES[course.slug];
   return {
     hook: TRACK_HOOK[course.track],
     outcome: course.promise,
+    overview: sales?.overview ?? [TRACK_HOOK[course.track]],
+    audience: sales?.audience ?? [],
+    takeaways: sales?.takeaways ?? [],
     benefits: defaultBenefits(course, courseArtefact(course)?.title ?? null),
     stats,
     jobs: ai ? AI_JOBS : [],
@@ -224,6 +234,7 @@ export type CurriculumItem = {
   id: string;
   kind: "lesson" | "assessment" | "final";
   title: string;
+  summary: string;
   covers: string[];
   task: string;
 };
@@ -257,11 +268,13 @@ export function courseCurriculum(course: SelfServeCourse): CurriculumItem[] {
       id: `module-${index}`,
       kind: "lesson",
       title,
+      summary: "",
       covers: [],
       task: "",
     }));
   }
   const artefact = courseArtefact(course);
+  const summaries = COURSE_SALES[course.slug]?.lessons ?? {};
   return lessons.map((lesson) => ({
     id: lesson.id,
     kind:
@@ -271,6 +284,7 @@ export function courseCurriculum(course: SelfServeCourse): CurriculumItem[] {
           ? "final"
           : "lesson",
     title: lesson.title,
+    summary: summaries[lesson.id] ?? "",
     covers: lesson.sections.map((section) => section.heading),
     task: taskFor(lesson, artefact?.title ?? null),
   }));

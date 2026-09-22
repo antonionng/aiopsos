@@ -63,7 +63,7 @@ export function SelfServeHomePitch() {
         <SelfServeCourseCards courses={courses} />
 
         <div className="ex-autumn-foot">
-          <Link className="ex-text-link" href={track === "all" ? "/learn" : `/learn?track=${track}`}>
+          <Link className="ex-text-link" href={track === "all" ? "/learn" : `/learn/topics/${track}-courses`}>
             Browse the full catalogue <ArrowRight size={16} />
           </Link>
         </div>
@@ -141,7 +141,7 @@ export function SelfServeAcademyCatalogue({
 
       <SelfServeCourseCards courses={previewCourses(track ?? "all")} />
       <p className="academy-self-more">
-        <Link href={track ? `/learn?track=${track}` : "/learn"}>Browse all self-paced courses</Link>
+        <Link href={track ? `/learn/topics/${track}-courses` : "/learn"}>Browse all self-paced courses</Link>
       </p>
     </section>
   );

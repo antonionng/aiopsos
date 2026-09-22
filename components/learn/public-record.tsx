@@ -50,8 +50,19 @@ export function SelfServePublicRecord({ record }: { record: SignedRecord }) {
       <p className="ex-honest">
         <a href={`/api/learn/certificate/${record.ref}`}>Download the PDF</a>
       </p>
-      <Link className="ex-back" href="/">
-        Experrt home
+      <aside className="ex-record-cta">
+        <p>
+          {record.title} is a self-paced online course from Experrt. It ends with an assessment and a piece of signed work like the one above.
+        </p>
+        <Link
+          className="ex-button ex-button-dark"
+          href={`/learn/${record.slug}?utm_source=verify&utm_medium=referral&utm_campaign=record`}
+        >
+          See the course
+        </Link>
+      </aside>
+      <Link className="ex-back" href="/learn">
+        All self-paced courses
       </Link>
     </div>
   );

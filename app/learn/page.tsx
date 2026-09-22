@@ -2,14 +2,23 @@ import type { Metadata } from "next";
 import { CourseCatalog } from "@/components/learn/course-catalog";
 import { LearnMarket } from "@/components/learn/learn-shell";
 import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog";
+import { redirect } from "next/navigation";
+import { StructuredData } from "@/components/structured-data";
+import { allSelfServeCourses, courseListLd, hubForTrack } from "@/lib/self-serve/seo";
 import { withSiteShareImages } from "@/lib/social-image";
 import type { SelfServeTrack } from "@/lib/self-serve/types";
 
+const TITLE = "Self-Paced Online Courses in AI, Technology, Robotics and HR";
+const DESCRIPTION =
+  "Forty self-paced online courses for UK professionals in applied AI, technology decisions, robotics and automation, and AI in HR. Each ends with signed work an employer can verify.";
+
 export const metadata: Metadata = withSiteShareImages({
-  title: "Self-paced courses",
-  description:
-    "Self-paced online courses in AI, technology, robotics, and HR transformation. Each course teaches one professional skill through realistic practice and a final assessment, and ends with signed work an employer can verify.",
-  robots: { index: false, follow: false },
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/learn" },
+  openGraph: { type: "website", title: TITLE, description: DESCRIPTION, url: "/learn" },
+  twitter: { title: TITLE, description: DESCRIPTION },
+  robots: { index: true, follow: true },
 });
 
 export default async function LearnIndexPage({
@@ -21,9 +30,11 @@ export default async function LearnIndexPage({
   const active = SELF_SERVE_TRACKS.includes(track as SelfServeTrack)
     ? (track as SelfServeTrack)
     : null;
+  if (active) redirect(`/learn/topics/${hubForTrack(active).slug}`);
   return (
     <LearnMarket>
-      <CourseCatalog track={active} />
+      <StructuredData data={courseListLd(allSelfServeCourses(), "Self-paced courses", "/learn")} />
+      <CourseCatalog track={null} />
     </LearnMarket>
   );
 }
