@@ -9,12 +9,17 @@ import {
   playablePaidCourse,
   SELF_SERVE_PURPOSE,
 } from "../self-serve/commerce.ts";
+import { SELF_SERVE_COURSES } from "../self-serve/catalog.ts";
 
-test("the playable course is one pound in pence", () => {
+test("the pilot is one pound in pence, and a course in preparation cannot be bought", () => {
   const course = playablePaidCourse("prompt-engineering-for-professional-work");
   assert.ok(course);
   assert.equal(courseAmountPence(course.priceGbp), 100);
-  assert.equal(playablePaidCourse("robotics-for-non-engineers"), undefined);
+  const preparing = SELF_SERVE_COURSES.find((item) => !item.lessons?.length);
+  if (preparing) assert.equal(playablePaidCourse(preparing.slug), undefined);
+  for (const open of SELF_SERVE_COURSES.filter((item) => item.lessons?.length)) {
+    assert.ok(playablePaidCourse(open.slug), open.slug);
+  }
 });
 
 test("a public record reference is twelve characters a third party can type", () => {
