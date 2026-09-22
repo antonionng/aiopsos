@@ -37,7 +37,7 @@ export function CertificateView({ slug, title }: { slug: string; title: string }
   if (!progress.ref || !progress.signedName) {
     return (
       <main className="ex-outline ex-measure">
-        <p className="ex-lede">The record is issued after you sign the card.</p>
+        <p className="ex-lede">The record is issued after you sign your name at the end of the course.</p>
         <Link className="ex-record-link" href={`/learn/${slug}`}>
           Back to the course
         </Link>
@@ -87,13 +87,13 @@ export function CertificateView({ slug, title }: { slug: string; title: string }
           </div>
         ) : null}
         <p className="ex-disclaimer">
-          Signed artefact: a prompt card. This record says the course was completed and the card was signed. It does not certify compliance with the EU AI Act or any other regulation.
+          This record confirms that the named person completed the course and signed the prompt card above. It does not certify compliance with the EU AI Act or any other regulation.
         </p>
         <p className="ex-ref">{progress.ref}</p>
         <p className="ex-disclaimer">{LITERACY_DISCLAIMER}</p>
       </article>
       <p className="ex-honest">
-        This preview stays in this browser. Nothing was charged. A public record waits until checkout is connected.
+        This preview is stored only in this browser. You have not been charged. A public record will be available once checkout is connected.
       </p>
       <Link className="ex-back" href="/learn">
         All courses

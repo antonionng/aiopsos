@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Emphasis, LearnBar } from "@/components/learn/learn-bar";
+import { LearnBar } from "@/components/learn/learn-bar";
 import {
   SELF_SERVE_COURSES,
   SELF_SERVE_TRACKS,
@@ -24,13 +24,11 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
           <span />
           THE NEXT CHAPTER OF LEARNING
         </div>
-        <h1>
-          Forty courses.
-          <br />
-          One you can <Emphasis text="start" word="start" />.
+        <h1 className="ex-plain-title">
+          Browse the courses your people can take in their own time.
         </h1>
         <p className="ex-lede">
-          Text and practice, in a quiet room. You leave with a piece of work you would otherwise pay a person to produce. One course is open. The other thirty-nine are listed so you can see the shape, and they are not for sale yet.
+          Prompt Engineering for Professional Work can be taken now. You will work through four lessons and sign the prompt card you produce. The other courses are listed so you can see what they will cover, and they are not available to purchase yet.
         </p>
         <nav className="ex-filters" aria-label="Tracks">
           <Link href="/learn" className={track ? undefined : "is-on"}>
@@ -64,7 +62,7 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
                 Start the course <ArrowRight size={18} />
               </Link>
               <p className="ex-note">
-                £{pilot.priceGbp} when checkout is connected. This preview does not charge you.
+                This preview does not take payment. The course is listed at £{pilot.priceGbp} for when checkout is connected.
               </p>
             </div>
           </article>
@@ -84,7 +82,7 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
                   <h3>{course.title}</h3>
                   <p>{course.promise}</p>
                   <span className="ex-meta">
-                    {course.hours} hrs · £{course.priceGbp} · Not for sale yet
+                    {course.hours} hours, listed at £{course.priceGbp}. This course is not available to purchase yet.
                   </span>
                 </Link>
               ))}
@@ -93,7 +91,7 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
         })}
 
         <p className="ex-catalog-foot">
-          Live facilitated training stays on the <Link href="/courses">Academy</Link>.
+          If you want a trainer in the room, the facilitated programmes remain on the <Link href="/courses">Academy</Link>.
         </p>
       </main>
     </>

@@ -5,7 +5,8 @@ export const PROMPT_ENGINEERING_LESSONS: SelfServeLesson[] = [
     id: "brief-the-model",
     title: "Brief the model",
     emphasis: "model",
-    decision: "A weak answer is usually a weak brief.",
+    decision:
+      "When a model writes something you cannot stand behind, the brief usually failed to give it the facts a colleague would have needed.",
     paragraphs: [
       "A model continues the pattern you gave it. Where the brief is silent, it fills the gap with something that sounds finished. That fill is not a fact you supplied. It is a guess, written in a confident voice.",
       "The mechanism is simple. The prompt is the only evidence the model has about this client, this discount, and this deadline. If those are missing, it will still often write as if it knows them. The failure is not that the sentence looks wrong. The failure is that the sentence adds a commitment nobody made.",
@@ -44,7 +45,8 @@ export const PROMPT_ENGINEERING_LESSONS: SelfServeLesson[] = [
     id: "four-parts",
     title: "Four parts of a brief",
     emphasis: "brief",
-    decision: "A colleague should be able to run your prompt without you in the room.",
+    decision:
+      "A brief is ready for professional use when a colleague can run it without asking you what you meant.",
     paragraphs: [
       "A usable brief has four parts. Role: who the model is speaking as. Context: the facts that are actually true. Constraints: what it must not add, promise, or change. Output: the shape of the thing you want back.",
       "Leave one out and the model supplies it. Leave out the constraint and you get the discount. Leave out the output shape and you get a memo when you needed three lines.",
@@ -67,7 +69,8 @@ export const PROMPT_ENGINEERING_LESSONS: SelfServeLesson[] = [
     id: "iterate",
     title: "Fix the miss",
     emphasis: "miss",
-    decision: "Do not start again. Name the constraint that was missing.",
+    decision:
+      "When the output is wrong, name the constraint that was missing and add it to the same brief, rather than starting again.",
     paragraphs: [
       "When the output is wrong, the useful move is to point at the miss and add the constraint that would have prevented it. Starting from a blank prompt throws away the parts that were already right.",
       "Order matters. If you add a new instruction before you have said what failed, you are guessing at the fix. Read the miss first.",
@@ -91,7 +94,8 @@ export const PROMPT_ENGINEERING_LESSONS: SelfServeLesson[] = [
     id: "prompt-card",
     title: "The prompt card",
     emphasis: "card",
-    decision: "Leave with a card a colleague can run on a real task.",
+    decision:
+      "You will leave this course with a prompt card written for a real task, so a colleague can run it without you in the room.",
     paragraphs: [
       "The card is the artefact. It is not a slogan. It is four lines about a task you actually have this week: the role, the true context, the constraints, and the output you want.",
       "Write it so that a person who was not in this lesson could paste it into the tool and would not need to ask you what you meant.",

@@ -114,13 +114,13 @@
 
 .academy-self { margin-top: 56px; padding-top: 8px; scroll-margin-top: 88px; }
 .academy-self-head { display: flex; justify-content: space-between; gap: 32px; align-items: end; }
-.academy-self-head h2 { font-size: clamp(34px, 4vw, 52px); letter-spacing: -2px; line-height: 1.05; }
+.academy-self-head h2 { max-width: 16em; font-size: clamp(28px, 3vw, 40px); letter-spacing: -1px; line-height: 1.25; font-weight: 500; }
 .academy-self-head > p { max-width: 340px; color: var(--muted-foreground); font-size: 14px; line-height: 1.7; }
 .academy-self-filters { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 28px; }
 .academy-self-filters a { font-size: 14px; font-weight: 600; color: var(--muted-foreground); }
 .academy-self-filters a[aria-current="page"] { color: var(--foreground); }
 .academy-self-open { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 28px; padding: 28px; background: #efeafa; border-radius: 16px; }
-.academy-self-tag { display: inline-block; margin-bottom: 10px; padding: 6px 9px; background: #e4f477; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; }
+.academy-self-tag { display: inline-block; margin-bottom: 10px; padding: 6px 9px; background: #e4f477; border-radius: 4px; font-size: 12px; font-weight: 600; }
 .academy-self-open h3 { font-size: 28px; letter-spacing: -1px; line-height: 1.15; }
 .academy-self-open p { max-width: 36rem; margin-top: 8px; color: var(--muted-foreground); font-size: 14px; line-height: 1.6; }
 .academy-self-track { margin-top: 36px; }

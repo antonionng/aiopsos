@@ -23,10 +23,10 @@ export function CourseOutline({ course }: { course: SelfServeCourse }) {
           ))}
         </ol>
         <p className="ex-lede">
-          Not for sale yet. The outline is here so you can see the shape of the course. The lesson room opens when the checks and the artefact are written. Nothing on this page takes payment.
+          This course is listed so you can see what it will cover. The lessons, the checks, and the signed record are not open yet, and the course is not available to purchase. Nothing on this page takes payment.
         </p>
         <p className="ex-meta">
-          Listed at £{course.priceGbp} · {course.hours} hrs
+          Listed at £{course.priceGbp} for a {course.hours} hour course.
         </p>
       </main>
     </>

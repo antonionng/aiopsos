@@ -191,21 +191,20 @@ export function LessonRoom({ course }: { course: SelfServeCourse }) {
             </p>
             <p className="ex-decision">{lesson.decision}</p>
             <div className="ex-read">
-              <p className="ex-frame-label">READ</p>
               {lesson.paragraphs.map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
             </div>
             <figure className="ex-example">
-              <figcaption className="ex-stamp">{lesson.exampleTitle.toUpperCase()}</figcaption>
+              <figcaption className="ex-stamp">{lesson.exampleTitle}</figcaption>
               <p>{lesson.example}</p>
             </figure>
             <CheckFrame lesson={lesson} answer={answer} feedback={feedback} onChange={setDraft} onCommit={commit} />
             {done ? (
               <section className="ex-sign" aria-labelledby="sign-heading">
-                <h2 id="sign-heading">Sign the card</h2>
+                <h2 id="sign-heading">Sign the record</h2>
                 <p className="ex-lede">
-                  The record is issued when you sign. It says you completed the course and signed the artefact. It does not say you are compliant with any regulation.
+                  When you sign, this browser keeps a record that you completed the course and signed the prompt card. The record does not say that you are compliant with any regulation.
                 </p>
                 <label htmlFor="signer">YOUR NAME</label>
                 <input
@@ -221,7 +220,7 @@ export function LessonRoom({ course }: { course: SelfServeCourse }) {
                   disabled={!canSign(lessons, progress, name)}
                   onClick={sign}
                 >
-                  Sign the card
+                  Sign the record
                   <ArrowRight size={18} />
                 </button>
                 {progress.ref ? (
@@ -255,7 +254,7 @@ function CheckFrame({
   const chooseReady = check.kind === "choose" && (answer === "left" || answer === "right");
   return (
     <section className="ex-work" aria-labelledby="check-prompt">
-      <p className="ex-frame-label">DO THE WORK</p>
+      <p className="ex-frame-intro">Complete the check below. You will stay on this lesson until it is right.</p>
       <h2 id="check-prompt">{check.prompt}</h2>
       {check.kind === "mark" ? (
         <MarkCheck

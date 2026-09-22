@@ -110,6 +110,12 @@
   border-radius: 50%;
   background: var(--ex-violet);
 }
+.ex-catalog h1.ex-plain-title {
+  max-width: 16em;
+  font-size: clamp(32px, 4vw, 44px);
+  letter-spacing: -1.4px;
+  line-height: 1.2;
+}
 .ex-catalog h1,
 .ex-room h1 {
   margin-top: 22px;
@@ -314,11 +320,13 @@
 .ex-read p + p {
   margin-top: 18px;
 }
-.ex-frame-label {
+.ex-frame-label,
+.ex-frame-intro {
   margin-bottom: 16px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1.7px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.6;
 }
 .ex-example {
   margin-top: 56px;
@@ -333,9 +341,9 @@
   padding: 7px 10px;
   background: var(--ex-citrus);
   border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.3px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 .ex-example p {
   font-family: var(--font-space-grotesk), sans-serif;
