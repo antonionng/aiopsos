@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, List } from "lucide-react";
 import { Emphasis, LearnBar } from "@/components/learn/learn-bar";
 import {
   courseArtefact,
@@ -143,6 +143,8 @@ export function LessonRoom({
 
   const lessonPassedNow = lesson ? progress.lessons[lesson.id]?.passed === true : false;
   const hasNext = index < lessons.length - 1;
+  const hasPrev = index > 0;
+  const nextOpen = hasNext && canOpenLesson(lessons, progress, index + 1);
 
   function restart() {
     setProgress(emptyProgress());
@@ -202,12 +204,16 @@ export function LessonRoom({
                 <li key={item.id}>
                   <button
                     type="button"
-                    className="ex-lesson-link"
+                    className={itemIndex === index ? "ex-lesson-link is-now" : "ex-lesson-link"}
                     disabled={!open}
+                    aria-current={itemIndex === index ? "step" : undefined}
                     onClick={() => openLesson(itemIndex)}
                   >
+                    <b>{String(itemIndex + 1).padStart(2, "0")}</b>
                     <strong>{item.title}</strong>
-                    <span>{passed ? "Done" : open ? "Open" : "Locked"}</span>
+                    <span>
+                      {itemIndex === index ? "You are here" : passed ? "Done" : open ? "Open" : "Locked"}
+                    </span>
                   </button>
                 </li>
               );
@@ -231,13 +237,48 @@ export function LessonRoom({
             <h1>
               <Emphasis text={lesson.title} word={lesson.emphasis} />
             </h1>
-            <div className="ex-ticks" aria-hidden="true">
-              {lessons.map((item, itemIndex) => {
-                const passed = progress.lessons[item.id]?.passed;
-                const now = itemIndex === index;
-                return <span key={item.id} className={passed ? "is-done" : now ? "is-now" : undefined} />;
-              })}
-            </div>
+            <nav className="ex-lesson-nav" aria-label="Lessons in this course">
+              <button
+                type="button"
+                className="ex-step-button"
+                disabled={!hasPrev}
+                onClick={() => openLesson(index - 1)}
+                aria-label="Previous lesson"
+              >
+                <ArrowLeft size={16} />
+                <span>Previous</span>
+              </button>
+              <ol className="ex-ticks">
+                {lessons.map((item, itemIndex) => {
+                  const passed = progress.lessons[item.id]?.passed;
+                  const now = itemIndex === index;
+                  const open = canOpenLesson(lessons, progress, itemIndex);
+                  return (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        className={passed ? "is-done" : now ? "is-now" : undefined}
+                        disabled={!open || now}
+                        aria-current={now ? "step" : undefined}
+                        aria-label={`Lesson ${itemIndex + 1}: ${item.title}${passed ? ", done" : open ? "" : ", locked"}`}
+                        title={item.title}
+                        onClick={() => openLesson(itemIndex)}
+                      />
+                    </li>
+                  );
+                })}
+              </ol>
+              <button
+                type="button"
+                className="ex-step-button"
+                disabled={!nextOpen}
+                onClick={() => openLesson(index + 1)}
+                aria-label="Next lesson"
+              >
+                <span>Next</span>
+                <ArrowRight size={16} />
+              </button>
+            </nav>
             <p className="sr-only">
               Lesson {index + 1} of {lessons.length}
             </p>
@@ -277,8 +318,33 @@ export function LessonRoom({
               changed={draft !== null}
               onChange={setDraft}
               onCommit={commit}
-              onNext={hasNext ? () => openLesson(index + 1) : undefined}
             />
+            <nav className="ex-pager" aria-label="Move between lessons">
+              {hasPrev ? (
+                <button type="button" onClick={() => openLesson(index - 1)}>
+                  <span>
+                    <ArrowLeft size={14} /> Previous lesson
+                  </span>
+                  <strong>{lessons[index - 1].title}</strong>
+                </button>
+              ) : (
+                <span />
+              )}
+              {hasNext ? (
+                <button
+                  type="button"
+                  className={nextOpen ? "is-next is-ready" : "is-next"}
+                  disabled={!nextOpen}
+                  onClick={() => openLesson(index + 1)}
+                >
+                  <span>
+                    Next lesson <ArrowRight size={14} />
+                  </span>
+                  <strong>{lessons[index + 1].title}</strong>
+                  {!nextOpen ? <em>Opens when you pass this lesson&apos;s check.</em> : null}
+                </button>
+              ) : null}
+            </nav>
             {done ? (
               <section className="ex-sign" aria-labelledby="sign-heading">
                 <h2 id="sign-heading">Sign the record</h2>
@@ -312,6 +378,34 @@ export function LessonRoom({
           </div>
         )}
       </main>
+      {ready && lesson ? (
+        <nav className="ex-dock" aria-label="Lesson controls">
+          <button type="button" disabled={!hasPrev} onClick={() => openLesson(index - 1)}>
+            <ArrowLeft size={18} />
+            <span>Back</span>
+          </button>
+          <button
+            type="button"
+            className="ex-dock-index"
+            onClick={() => setIndexOpen((open) => !open)}
+            aria-expanded={indexOpen}
+          >
+            <List size={16} />
+            <span>
+              Lesson {index + 1} of {lessons.length}
+            </span>
+          </button>
+          <button
+            type="button"
+            className="is-next"
+            disabled={!nextOpen}
+            onClick={() => openLesson(index + 1)}
+          >
+            <span>Next</span>
+            <ArrowRight size={18} />
+          </button>
+        </nav>
+      ) : null}
     </>
   );
 }
@@ -404,7 +498,6 @@ function CheckFrame({
   changed,
   onChange,
   onCommit,
-  onNext,
 }: {
   slug: string;
   coach: boolean;
@@ -415,7 +508,6 @@ function CheckFrame({
   changed: boolean;
   onChange: (answer: LessonAnswer) => void;
   onCommit: (answer: LessonAnswer) => void;
-  onNext?: () => void;
 }) {
   const check = lesson.check;
   const value = submittable(check, answer);
@@ -460,12 +552,6 @@ function CheckFrame({
       {settled ? (
         <div className="ex-next">
           <p className="ex-bridge">{lesson.bridge}</p>
-          {onNext ? (
-            <button type="button" className="ex-button ex-button-dark" onClick={onNext}>
-              Next lesson
-              <ArrowRight size={18} />
-            </button>
-          ) : null}
         </div>
       ) : null}
     </section>
