@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
 import {
   coursesByTrack,
+  getSelfServeCourse,
   SELF_SERVE_TRACKS,
   trackLabel,
 } from "@/lib/self-serve/catalog";
@@ -10,7 +11,34 @@ import type { SelfServeTrack } from "@/lib/self-serve/types";
 
 const OPEN_SLUG = "prompt-engineering-for-professional-work";
 
+const FEATURED_COURSES: { slug: string; benefit: string }[] = [
+  {
+    slug: OPEN_SLUG,
+    benefit: "Write a brief a model can follow, then leave with a prompt card a colleague can run.",
+  },
+  {
+    slug: "getting-value-from-the-technology-you-already-pay-for",
+    benefit: "Find three jobs that belong in the software your organisation already pays for.",
+  },
+  {
+    slug: "robotics-for-non-engineers",
+    benefit: "Decide whether a robot belongs in one process before you commit to buying one.",
+  },
+  {
+    slug: "ai-for-hr-and-people-teams",
+    benefit: "Draft people work with a model, and keep a clear line around what you never paste.",
+  },
+];
+
 export function SelfServeHomePitch() {
+  const featured = FEATURED_COURSES.map((item) => {
+    const course = getSelfServeCourse(item.slug);
+    if (!course) {
+      throw new Error(`Missing homepage course ${item.slug}`);
+    }
+    return { ...item, course };
+  });
+
   return (
     <section className="ex-autumn" aria-labelledby="self-serve-home-title">
       <div className="ex-container">
@@ -23,45 +51,41 @@ export function SelfServeHomePitch() {
           <div>
             <p className="ex-eyebrow">
               <span />
-              AUTUMN START
+              THIS AUTUMN
             </p>
-            <h2 id="self-serve-home-title">One course is open. The whole path is listed.</h2>
+            <h2 id="self-serve-home-title">Brief AI the way you would brief a colleague.</h2>
             <p>
-              Prompt Engineering for Professional Work is the course you can buy this autumn for £99. You brief a model the way you would brief a colleague, and you leave with a prompt card someone else can run. Every other course is below, with its price. Those lessons are not open yet.
+              Prompt Engineering for Professional Work shows you how to write a brief a model can follow, check what comes back, and leave a prompt card a colleague can run. The course is £99, and you can start as soon as you pay.
             </p>
           </div>
           <div className="ex-autumn-buy">
             <p>
               <b>£99</b>
-              <span>Open now. This is the amount charged.</span>
+              <span>Start as soon as you pay.</span>
             </p>
             <BuyCourseButton slug={OPEN_SLUG} label="Buy this course for £99" />
           </div>
         </article>
 
-        <div className="ex-autumn-path">
-          {SELF_SERVE_TRACKS.map((track) => (
-            <section key={track} aria-labelledby={`home-track-${track}`}>
-              <h3 id={`home-track-${track}`}>{trackLabel(track)}</h3>
-              <ul>
-                {coursesByTrack(track).map((course) => (
-                  <li key={course.slug}>
-                    <Link href={`/learn/${course.slug}`}>
-                      <strong>{course.title}</strong>
-                      <em>£{course.priceGbp}</em>
-                      {course.playable ? <span>Open</span> : null}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
+        <ul className="ex-autumn-list">
+          {featured.map(({ course, benefit }) => (
+            <li key={course.slug}>
+              <Link href={`/learn/${course.slug}`}>
+                <strong>
+                  <small>{trackLabel(course.track)}</small>
+                  {course.title}
+                  {course.playable ? <span>Available now</span> : null}
+                </strong>
+                <p>{benefit}</p>
+                <em>£{course.priceGbp}</em>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <div className="ex-autumn-foot">
-          <p>All forty courses live on one page, with the open course at the top.</p>
-          <Link className="ex-button ex-button-dark" href="/learn">
-            Explore courses <ArrowRight size={18} />
+          <Link className="ex-text-link" href="/learn">
+            View more <ArrowRight size={16} />
           </Link>
         </div>
       </div>

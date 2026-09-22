@@ -285,7 +285,7 @@ export default function Home() {
               .
             </h1>
             <p>
-              Experrt teaches courses you can buy and start on your own, and programmes you take with a facilitator. Prompt Engineering for Professional Work is open now for £99.
+              Experrt teaches courses you can buy and start on your own, and programmes you take with a facilitator. This autumn, learn to brief AI the way you would brief a colleague.
             </p>
             <div className="ex-hero-actions">
               <Link className="ex-button ex-button-dark" href="/learn">
