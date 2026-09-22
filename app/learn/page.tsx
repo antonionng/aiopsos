@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CourseCatalog } from "@/components/learn/course-catalog";
+import { LearnMarket } from "@/components/learn/learn-shell";
 import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog";
 import { withSiteShareImages } from "@/lib/social-image";
 import type { SelfServeTrack } from "@/lib/self-serve/types";
@@ -20,5 +21,9 @@ export default async function LearnIndexPage({
   const active = SELF_SERVE_TRACKS.includes(track as SelfServeTrack)
     ? (track as SelfServeTrack)
     : null;
-  return <CourseCatalog track={active} />;
+  return (
+    <LearnMarket>
+      <CourseCatalog track={active} />
+    </LearnMarket>
+  );
 }

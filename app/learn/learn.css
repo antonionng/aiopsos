@@ -56,7 +56,7 @@
 }
 .ex-learn-bar {
   position: sticky;
-  top: 56px;
+  top: 0;
   z-index: 40;
   display: flex;
   align-items: center;

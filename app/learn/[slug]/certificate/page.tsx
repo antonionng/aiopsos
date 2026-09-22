@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { CertificateView } from "@/components/learn/certificate-view";
+import { LearnMarket } from "@/components/learn/learn-shell";
 import { ACCESS_COOKIE } from "@/lib/self-serve/commerce";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
 import { findPaidPurchase, loadProgress } from "@/lib/self-serve/records";
@@ -39,11 +40,13 @@ export default async function CertificatePage({
     console.error("[self-serve] certificate", error);
   }
   return (
-    <CertificateView
-      slug={course.slug}
-      title={course.title}
-      progress={progress}
-      persist={!!purchase}
-    />
+    <LearnMarket>
+      <CertificateView
+        slug={course.slug}
+        title={course.title}
+        progress={progress}
+        persist={!!purchase}
+      />
+    </LearnMarket>
   );
 }

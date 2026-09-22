@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { CourseGate } from "@/components/learn/course-gate";
 import { CourseOutline } from "@/components/learn/course-outline";
+import { LearnMarket, LearnPlayer } from "@/components/learn/learn-shell";
 import { LessonRoom } from "@/components/learn/lesson-room";
 import { ACCESS_COOKIE } from "@/lib/self-serve/commerce";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
@@ -46,18 +47,34 @@ export default async function LearnCoursePage({
     const token = (await cookies()).get(ACCESS_COOKIE)?.value ?? "";
     try {
       const purchase = await findPaidPurchase(token, course.slug);
-      if (!purchase) return <CourseGate course={course} retry={query.pay === "retry"} />;
+      if (!purchase) {
+        return (
+          <LearnMarket>
+            <CourseGate course={course} retry={query.pay === "retry"} />
+          </LearnMarket>
+        );
+      }
       return (
-        <LessonRoom
-          course={course}
-          persist
-          initialProgress={await loadProgress(purchase.id)}
-        />
+        <LearnPlayer>
+          <LessonRoom
+            course={course}
+            persist
+            initialProgress={await loadProgress(purchase.id)}
+          />
+        </LearnPlayer>
       );
     } catch (error) {
       console.error("[self-serve] access", error);
-      return <CourseGate course={course} retry={query.pay === "retry"} />;
+      return (
+        <LearnMarket>
+          <CourseGate course={course} retry={query.pay === "retry"} />
+        </LearnMarket>
+      );
     }
   }
-  return <CourseOutline course={course} />;
+  return (
+    <LearnMarket>
+      <CourseOutline course={course} />
+    </LearnMarket>
+  );
 }
