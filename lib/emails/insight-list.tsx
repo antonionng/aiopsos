@@ -9,15 +9,10 @@ import { EmailShell, emailStyles } from "./academy-shell";
  * opens with a pitch is the fastest way to train people to unsubscribe.
  */
 
-const linkStyle: React.CSSProperties = {
-  color: "#cccccc",
-  textDecoration: "underline",
-};
-
 const unsubscribeStyle: React.CSSProperties = {
   fontSize: "12px",
   lineHeight: 1.6,
-  color: "#555555",
+  color: "#66616e",
   margin: "24px 0 0",
 };
 
@@ -72,7 +67,7 @@ export function InsightNewArticleEmail({
 
       <p style={unsubscribeStyle}>
         You are getting this because you confirmed the Experrt insights list.{" "}
-        <a href={unsubscribeUrl} style={linkStyle}>
+        <a href={unsubscribeUrl} style={emailStyles.link}>
           Unsubscribe
         </a>
         .

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendContactAlert } from "@/lib/email";
+import { sendContactAlert, sendContactReceivedEmail } from "@/lib/email";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/rate-limit";
 import { assessSubmission, HONEYPOT_FIELD, FORM_TIMESTAMP_FIELD } from "@/lib/spam-defence";
 
@@ -60,12 +60,17 @@ export async function POST(req: NextRequest) {
 
     // React templates escape content themselves, so the hand-rolled HTML
     // escaping the old inline version needed is gone with it.
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
     await sendContactAlert({
-      name: name.trim(),
-      email: email.trim(),
+      name: trimmedName,
+      email: trimmedEmail,
       organisation,
       message: message.trim(),
     });
+
+    await sendContactReceivedEmail(trimmedEmail, trimmedName);
 
     return NextResponse.json({ success: true });
   } catch (error) {

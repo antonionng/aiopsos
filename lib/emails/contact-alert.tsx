@@ -41,3 +41,19 @@ export function ContactAlertEmail({
     </EmailShell>
   );
 }
+
+/** Acknowledgement to the person who wrote in. */
+export function ContactReceivedEmail({ name }: { name: string }) {
+  const greeting = name?.split(" ")[0] || "Hi";
+
+  return (
+    <EmailShell heading={`${greeting}, we have your message.`}>
+      <p style={emailStyles.paragraph}>
+        Thanks for writing. A real person reads these and will come back to you.
+      </p>
+      <p style={emailStyles.lastParagraph}>
+        If it is easier to add something, just reply to this email.
+      </p>
+    </EmailShell>
+  );
+}

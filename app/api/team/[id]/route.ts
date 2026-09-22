@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { sendMemberRemovedEmail, sendRoleChangedEmail } from "@/lib/email";
 
 async function getCallerProfile(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
@@ -31,7 +32,7 @@ export async function PATCH(
 
   const { data: target } = await supabaseAdmin
     .from("user_profiles")
-    .select("id, org_id, role")
+    .select("id, org_id, role, email, name")
     .eq("id", id)
     .maybeSingle();
 
@@ -77,6 +78,20 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  if (typeof updates.role === "string" && updates.role !== target.role && target.email) {
+    const { data: org } = await supabaseAdmin
+      .from("organisations")
+      .select("name")
+      .eq("id", caller.org_id)
+      .maybeSingle();
+    await sendRoleChangedEmail(
+      target.email,
+      target.name || "",
+      org?.name || "your organisation",
+      updates.role
+    );
+  }
+
   return NextResponse.json({ success: true });
 }
 
@@ -100,7 +115,7 @@ export async function DELETE(
 
   const { data: target } = await supabaseAdmin
     .from("user_profiles")
-    .select("id, org_id, role")
+    .select("id, org_id, role, email, name")
     .eq("id", id)
     .maybeSingle();
 
@@ -115,6 +130,15 @@ export async function DELETE(
   const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  if (target.email) {
+    const { data: org } = await supabaseAdmin
+      .from("organisations")
+      .select("name")
+      .eq("id", caller.org_id)
+      .maybeSingle();
+    await sendMemberRemovedEmail(target.email, target.name || "", org?.name || "your organisation");
   }
 
   return NextResponse.json({ success: true });

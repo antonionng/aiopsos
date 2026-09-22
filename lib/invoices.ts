@@ -1,6 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { logAudit, AUDIT_ACTIONS } from "@/lib/audit";
-import { sendInvoiceEmail, getOrgAdminEmails } from "@/lib/email";
+import { sendInvoiceEmail, sendInvoiceStatusEmail, getOrgAdminEmails } from "@/lib/email";
 
 /**
  * Invoice lifecycle for contract customers (billing_method = 'invoice').
@@ -283,7 +283,7 @@ export async function markInvoicePaid(invoiceId: string, byUser: string): Promis
     })
     .eq("id", invoiceId)
     .in("status", ["sent", "overdue"])
-    .select("id, org_id, invoice_number");
+    .select("id, org_id, invoice_number, total_amount, currency");
   if (error) throw new Error(`Could not mark invoice paid: ${error.message}`);
   const invoice = rows?.[0];
   if (!invoice) throw new Error("Invoice is not in a payable state");
@@ -324,6 +324,8 @@ export async function markInvoicePaid(invoiceId: string, byUser: string): Promis
     action: AUDIT_ACTIONS.INVOICE_MARKED_PAID,
     metadata: { invoice_id: invoiceId, invoice_number: invoice.invoice_number },
   });
+
+  await notifyInvoiceStatus(invoice, "paid");
 }
 
 export async function voidInvoice(invoiceId: string, byUser: string): Promise<void> {
@@ -332,7 +334,7 @@ export async function voidInvoice(invoiceId: string, byUser: string): Promise<vo
     .update({ status: "void" })
     .eq("id", invoiceId)
     .in("status", ["draft", "sent", "overdue"])
-    .select("id, org_id, invoice_number");
+    .select("id, org_id, invoice_number, total_amount, currency");
   if (error) throw new Error(`Could not void invoice: ${error.message}`);
   const invoice = rows?.[0];
   if (!invoice) throw new Error("Invoice cannot be voided");
@@ -343,4 +345,36 @@ export async function voidInvoice(invoiceId: string, byUser: string): Promise<vo
     action: AUDIT_ACTIONS.INVOICE_VOIDED,
     metadata: { invoice_id: invoiceId, invoice_number: invoice.invoice_number },
   });
+
+  await notifyInvoiceStatus(invoice, "voided");
+}
+
+async function notifyInvoiceStatus(
+  invoice: {
+    org_id: string;
+    invoice_number: string;
+    total_amount: number;
+    currency: string;
+  },
+  kind: "paid" | "voided"
+) {
+  try {
+    const { data: org } = await supabaseAdmin
+      .from("organisations")
+      .select("name, invoice_billing_email")
+      .eq("id", invoice.org_id)
+      .maybeSingle();
+    const recipients = org?.invoice_billing_email
+      ? [{ email: org.invoice_billing_email, name: org.name }]
+      : await getOrgAdminEmails(invoice.org_id);
+    await sendInvoiceStatusEmail(recipients, {
+      orgName: org?.name ?? "your organisation",
+      invoiceNumber: invoice.invoice_number,
+      totalAmount: invoice.total_amount,
+      currency: invoice.currency,
+      kind,
+    });
+  } catch (err) {
+    console.error("Invoice status email failed:", err);
+  }
 }

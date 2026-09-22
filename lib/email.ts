@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { Resend } from "resend";
 import { supabaseAdmin } from "./supabase/admin";
 import { WelcomeEmail } from "./emails/welcome";
@@ -21,7 +22,24 @@ import {
 } from "./emails/insight-list";
 import { InvoiceEmail } from "./emails/invoice-email";
 import type { InvoicePayload } from "./invoices";
-import { ContactAlertEmail } from "./emails/contact-alert";
+import { ContactAlertEmail, ContactReceivedEmail } from "./emails/contact-alert";
+import {
+  CreditsAddedEmail,
+  CreditsAdjustedEmail,
+  CreditsRefundedEmail,
+  CohortPaidEmail,
+  InvoicePaidEmail,
+  InvoiceVoidedEmail,
+  PaymentFailedEmail,
+  TrialEndingEmail,
+} from "./emails/billing-notices";
+import {
+  CertificateRevokedEmail,
+  CohortCancelledEmail,
+  MemberRemovedEmail,
+  RoleChangedEmail,
+  roleLabel,
+} from "./emails/membership-notices";
 import { ConfirmWelcomeEmail, ResetPasswordEmail } from "./emails/confirm-welcome";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
@@ -696,6 +714,22 @@ export async function sendContactAlert(details: {
   }
 }
 
+/** Acknowledgement to the person who used the contact form. Best-effort. */
+export async function sendContactReceivedEmail(to: string, name: string) {
+  try {
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) return;
+    await getResend().emails.send({
+      from,
+      to,
+      subject: "We have your message",
+      react: ContactReceivedEmail({ name }),
+    });
+  } catch (error) {
+    console.error("Failed to send contact acknowledgement:", error);
+  }
+}
+
 export async function sendEnquiryEmails(details: {
   name: string;
   email: string;
@@ -810,4 +844,293 @@ export async function sendInsightArticleEmail(
       unsubscribeUrl,
     }),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Notices added after the brand audit. Each is best-effort: a mail failure
+// must not undo the action the person already took.
+// ---------------------------------------------------------------------------
+
+async function fanOutToAdmins(
+  orgId: string,
+  subject: string,
+  react: ReactElement
+) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) return;
+  const admins = await getOrgAdminEmails(orgId);
+  if (admins.length === 0) return;
+  await Promise.allSettled(
+    admins.map((admin) =>
+      getResend().emails.send({ from, to: admin.email, subject, react })
+    )
+  );
+}
+
+export async function sendInvoiceStatusEmail(
+  recipients: { email: string; name: string }[],
+  details: {
+    orgName: string;
+    invoiceNumber: string;
+    totalAmount: number;
+    currency: string;
+    kind: "paid" | "voided";
+  }
+) {
+  try {
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) return;
+    const to = recipients.map((r) => r.email).filter(Boolean);
+    if (to.length === 0) return;
+    const billingUrl = `${BASE_URL}/dashboard/billing`;
+    await getResend().emails.send({
+      from,
+      to,
+      subject:
+        details.kind === "paid"
+          ? `Payment received: invoice ${details.invoiceNumber}`
+          : `Invoice ${details.invoiceNumber} has been voided`,
+      react:
+        details.kind === "paid"
+          ? InvoicePaidEmail({ ...details, billingUrl })
+          : InvoiceVoidedEmail(details),
+    });
+  } catch (error) {
+    console.error("Failed to send invoice status email:", error);
+  }
+}
+
+export async function sendCreditsAddedEmail(
+  orgId: string,
+  credits: number,
+  description: string,
+  balance: number | null
+) {
+  try {
+    await fanOutToAdmins(
+      orgId,
+      `${credits.toLocaleString()} AI credits added`,
+      CreditsAddedEmail({
+        credits,
+        description,
+        balance,
+        billingUrl: `${BASE_URL}/dashboard/billing`,
+      })
+    );
+  } catch (error) {
+    console.error("Failed to send credits-added email:", error);
+  }
+}
+
+export async function sendCreditsAdjustedEmail(
+  orgId: string,
+  credits: number,
+  description: string,
+  balance: number | null
+) {
+  try {
+    await fanOutToAdmins(
+      orgId,
+      credits > 0 ? "Your AI credit balance was increased" : "Your AI credit balance was reduced",
+      CreditsAdjustedEmail({
+        credits,
+        description,
+        balance,
+        billingUrl: `${BASE_URL}/dashboard/billing`,
+      })
+    );
+  } catch (error) {
+    console.error("Failed to send credits-adjusted email:", error);
+  }
+}
+
+export async function sendCohortPaidEmail(orgId: string, cohortTitle: string) {
+  try {
+    await fanOutToAdmins(
+      orgId,
+      `Payment received: ${cohortTitle}`,
+      CohortPaidEmail({
+        cohortTitle,
+        billingUrl: `${BASE_URL}/dashboard/billing`,
+      })
+    );
+  } catch (error) {
+    console.error("Failed to send cohort-paid email:", error);
+  }
+}
+
+export async function sendPaymentFailedEmail(orgId: string, purposeLabel: string) {
+  try {
+    await fanOutToAdmins(
+      orgId,
+      `Payment failed: ${purposeLabel}`,
+      PaymentFailedEmail({
+        purposeLabel,
+        billingUrl: `${BASE_URL}/dashboard/billing`,
+      })
+    );
+  } catch (error) {
+    console.error("Failed to send payment-failed email:", error);
+  }
+}
+
+export async function sendCreditsRefundedEmail(
+  orgId: string,
+  credits: number,
+  description: string
+) {
+  try {
+    await fanOutToAdmins(
+      orgId,
+      "A credit purchase was refunded",
+      CreditsRefundedEmail({
+        credits,
+        description,
+        billingUrl: `${BASE_URL}/dashboard/billing`,
+      })
+    );
+  } catch (error) {
+    console.error("Failed to send credits-refunded email:", error);
+  }
+}
+
+export async function sendTrialEndingEmail(
+  to: string,
+  orgName: string,
+  endsOn: string,
+  ended: boolean
+) {
+  try {
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) return;
+    await getResend().emails.send({
+      from,
+      to,
+      subject: ended
+        ? `Your Experrt trial for ${orgName} has ended`
+        : `Your Experrt trial for ${orgName} is ending`,
+      react: TrialEndingEmail({
+        orgName,
+        endsOn,
+        ended,
+        billingUrl: `${BASE_URL}/dashboard/billing`,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send trial email:", error);
+  }
+}
+
+export async function sendRoleChangedEmail(
+  to: string,
+  name: string,
+  orgName: string,
+  role: string
+) {
+  try {
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) return;
+    await getResend().emails.send({
+      from,
+      to,
+      subject: `Your role in ${orgName} is now ${roleLabel(role)}`,
+      react: RoleChangedEmail({
+        name,
+        orgName,
+        role,
+        dashboardUrl: `${BASE_URL}/dashboard`,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send role-changed email:", error);
+  }
+}
+
+export async function sendMemberRemovedEmail(to: string, name: string, orgName: string) {
+  try {
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) return;
+    await getResend().emails.send({
+      from,
+      to,
+      subject: `Your access to ${orgName} on Experrt has ended`,
+      react: MemberRemovedEmail({ name, orgName }),
+    });
+  } catch (error) {
+    console.error("Failed to send member-removed email:", error);
+  }
+}
+
+export async function cohortLearnerRecipients(
+  cohortId: string
+): Promise<{ email: string; name: string }[]> {
+  const { data } = await supabaseAdmin
+    .from("enrolments")
+    .select("status, user_profiles(name, email)")
+    .eq("cohort_id", cohortId)
+    .neq("status", "withdrawn");
+
+  return (data ?? []).flatMap((row) => {
+    const profile = row.user_profiles as unknown as {
+      name: string;
+      email: string;
+    } | null;
+    if (!profile?.email) return [];
+    return [{ email: profile.email, name: profile.name ?? "" }];
+  });
+}
+
+export async function sendCohortCancelledEmails(
+  cohortId: string,
+  cohortTitle: string,
+  recipients?: { email: string; name: string }[]
+) {
+  try {
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey) return;
+    const people = recipients ?? (await cohortLearnerRecipients(cohortId));
+    const learningUrl = `${BASE_URL}/dashboard/my-learning`;
+    await Promise.allSettled(
+      people.map((profile) =>
+        getResend().emails.send({
+          from,
+          to: profile.email,
+          subject: `${cohortTitle} has been cancelled`,
+          react: CohortCancelledEmail({
+            recipientName: profile.name,
+            cohortTitle,
+            learningUrl,
+          }),
+        })
+      )
+    );
+  } catch (error) {
+    console.error("Failed to send cohort-cancelled emails:", error);
+  }
+}
+
+export async function sendCertificateRevokedEmail(details: {
+  to: string;
+  recipientName: string;
+  courseTitle: string;
+  publicRef: string;
+  reason?: string;
+}) {
+  try {
+    const { apiKey, from } = getEmailConfig();
+    if (!apiKey || !details.to) return;
+    await getResend().emails.send({
+      from,
+      to: details.to,
+      subject: `Certificate withdrawn: ${details.courseTitle}`,
+      react: CertificateRevokedEmail({
+        recipientName: details.recipientName,
+        courseTitle: details.courseTitle,
+        verifyUrl: `${BASE_URL}/verify/${details.publicRef}`,
+        reason: details.reason,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to send certificate-revoked email:", error);
+  }
 }

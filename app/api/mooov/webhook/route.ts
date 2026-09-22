@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { verifyMooovWebhook, getMooovWebhookSecret } from "@/lib/mooov";
+import {
+  sendCohortPaidEmail,
+  sendCreditsAddedEmail,
+  sendCreditsRefundedEmail,
+  sendPaymentFailedEmail,
+} from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -102,11 +108,7 @@ async function processEvent(event: MooovEvent) {
       break;
 
     case "payment.failed":
-      await supabaseAdmin
-        .from("mooov_payments")
-        .update({ status: "failed" })
-        .eq("payment_id", paymentId)
-        .eq("status", "pending");
+      await handleFailed(paymentId);
       break;
 
     case "payment.refunded":
@@ -158,15 +160,68 @@ async function handleCaptured(paymentId: string) {
       .single();
     if (packError || !pack) throw new Error("credit pack not found for captured payment");
 
-    const { error: creditError } = await supabaseAdmin.rpc("academy_apply_credit_delta", {
-      p_org: payment.org_id,
-      p_delta: pack.credits,
-      p_reason: "purchase",
-      p_payment: payment.id,
-      p_description: `${pack.name} pack purchase`,
-    });
+    const { data: balance, error: creditError } = await supabaseAdmin.rpc(
+      "academy_apply_credit_delta",
+      {
+        p_org: payment.org_id,
+        p_delta: pack.credits,
+        p_reason: "purchase",
+        p_payment: payment.id,
+        p_description: `${pack.name} pack purchase`,
+      }
+    );
     if (creditError) throw new Error(`credit apply failed: ${creditError.message}`);
+
+    await sendCreditsAddedEmail(
+      payment.org_id,
+      pack.credits,
+      `${pack.name} pack purchase`,
+      typeof balance === "number" ? balance : null
+    );
   }
+
+  if (payment.purpose === "cohort" && payment.cohort_id) {
+    const { data: cohort } = await supabaseAdmin
+      .from("cohorts")
+      .select("title")
+      .eq("id", payment.cohort_id)
+      .maybeSingle();
+    if (cohort?.title) {
+      await sendCohortPaidEmail(payment.org_id, cohort.title);
+    }
+  }
+}
+
+async function handleFailed(paymentId: string) {
+  const { data: rows, error } = await supabaseAdmin
+    .from("mooov_payments")
+    .update({ status: "failed" })
+    .eq("payment_id", paymentId)
+    .eq("status", "pending")
+    .select("org_id, purpose, pack_id, cohort_id");
+
+  if (error) throw new Error(`payment update failed: ${error.message}`);
+  const payment = rows?.[0];
+  if (!payment) return;
+
+  let purposeLabel = "your Experrt payment";
+  if (payment.purpose === "credit_pack" && payment.pack_id) {
+    const { data: pack } = await supabaseAdmin
+      .from("credit_packs")
+      .select("name")
+      .eq("id", payment.pack_id)
+      .maybeSingle();
+    purposeLabel = pack?.name ? `${pack.name} credits` : "a credit pack";
+  } else if (payment.purpose === "cohort" && payment.cohort_id) {
+    const { data: cohort } = await supabaseAdmin
+      .from("cohorts")
+      .select("title")
+      .eq("id", payment.cohort_id)
+      .maybeSingle();
+    purposeLabel = cohort?.title ?? "a cohort";
+  }
+
+  await sendPaymentFailedEmail(payment.org_id, purposeLabel);
 }
 
 async function handleRefunded(paymentId: string) {
@@ -198,6 +253,11 @@ async function handleRefunded(paymentId: string) {
         p_description: `${pack.name} pack refund`,
       });
       if (creditError) throw new Error(`credit clawback failed: ${creditError.message}`);
+      await sendCreditsRefundedEmail(
+        payment.org_id,
+        pack.credits,
+        `${pack.name} pack refund`
+      );
     }
   }
 }
