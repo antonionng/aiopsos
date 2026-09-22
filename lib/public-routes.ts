@@ -28,6 +28,10 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/verify/") ||
     pathname === "/courses" ||
     pathname.startsWith("/courses/") ||
+    // Self-serve is public so a disabled flag 404s inside the page, rather
+    // than the middleware sending an unknown path to /login.
+    pathname === "/learn" ||
+    pathname.startsWith("/learn/") ||
     pathname.startsWith("/assess/") ||
     pathname.startsWith("/assessment/") ||
     pathname.startsWith("/api/public/") ||
