@@ -19,6 +19,18 @@ Experrt sells to organisations. Every line must read like it was written by a se
 - Do not address the learner with hype. No "you've got this", no "amazing". Respect their time and experience.
 - A sentence earns its place by teaching, showing, or instructing. Cut anything that only sounds impressive.
 
+### Sales copy, course cards, and course pages
+
+The owner has rejected clipped marketing lines more than once. Every piece of copy that sells or describes a course follows these rules.
+
+- Write in full sentences, in the voice of an enterprise learning provider speaking to a professional and to the manager who pays for the seat.
+- Lead with what the course is and what it changes. Say what the learner will be able to do, what their organisation gains, and what they finish with. Benefits first, mechanics after.
+- Never sell on volume. Do not count lessons, questions, hours, or pages as the reason to buy. Duration and price belong in the metadata line, not in the pitch.
+- No short declarative fragments or slogans, such as "A decision, not an introduction.", "Start as soon as you pay.", "One course is open.", or "Good work." as a sentence in body copy. If a line would not survive being read aloud to a client, rewrite it.
+- A course description (the `promise` in `catalog.ts`) is exactly two full sentences, 35 to 55 words: what the course teaches and for whom, then what the learner and organisation gain, including the finished piece of work.
+- Practical details such as checkout, access, and records are explained in one or two complete sentences each, for example "Access begins as soon as payment is confirmed, and your progress is saved to your account."
+- A course that is not yet ready is described as in preparation, with a sentence explaining that it opens when it meets the standard. Do not write "Not for sale yet" or "Nothing here takes payment".
+
 ## 1. The promise
 
 Write these before anything else. If you cannot write them in plain sentences, the course is not ready to write.
@@ -171,3 +183,5 @@ Every answer must be yes.
 8. Can a returning learner sign in and land on the lesson they left?
 9. Does the record show the artefact and avoid any claim of regulatory compliance?
 10. Would a manager pay for a seat after reading the promise and the first lesson?
+11. Does the course end with a scenario assessment with a pass mark, and then the artefact?
+12. Does a search of the file find none of the banned words in section 0, and no em dashes?

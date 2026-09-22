@@ -45,10 +45,10 @@ export function CourseLanding({
               <h1>{course.title}</h1>
               <p className="ex-lede">{landing.outcome}</p>
               <p className="ex-product-hook">{landing.hook}</p>
-              <h2>What you will do</h2>
-              {course.playable ? (
-                <p className="ex-product-note">You cannot continue until the check on each lesson is right.</p>
-              ) : null}
+              <h2>What the course covers</h2>
+              <p className="ex-product-note">
+                Each lesson teaches one part of the skill, works through a realistic example, and ends with a check on a new case. The course closes with an assessment and a piece of work you sign.
+              </p>
               <ol className="ex-product-lessons">
                 {course.modules.map((module, index) => (
                   <li key={module}>
@@ -70,13 +70,17 @@ export function CourseLanding({
               </figure>
               <p>
                 <b>£{course.priceGbp}</b>
-                <span>{course.playable ? "Start as soon as you pay." : "Listed price. This course is not for sale yet."}</span>
+                <span>
+                  {course.playable
+                    ? "Access begins as soon as payment is confirmed, and your progress is saved to your account."
+                    : "This course is in preparation, and the outline shows what it will cover."}
+                </span>
               </p>
               {course.playable ? (
                 <BuyCourseButton slug={course.slug} label={`Buy this course for £${course.priceGbp}`} />
               ) : (
                 <p className="ex-land-soon">
-                  This page shows the work the course will cover. Nothing here takes payment.
+                  Purchase opens when every lesson, assessment, and record has been completed to our standard.
                 </p>
               )}
               {retry ? (
@@ -107,7 +111,7 @@ export function CourseLanding({
               <span className="ex-land-sticker">
                 GOOD WORK.
                 <br />
-                A BRIEF YOU CAN HAND OVER.
+                WORK YOUR TEAM CAN USE.
               </span>
             </figure>
             <div>
@@ -115,7 +119,7 @@ export function CourseLanding({
                 <span />
                 WHAT CHANGES
               </p>
-              <h2 id="benefits-heading">Salary, the next role, and work you can use on Monday.</h2>
+              <h2 id="benefits-heading">What the course changes for you and your organisation.</h2>
               <ol className="ex-land-benefits">
                 {landing.benefits.map((benefit, index) => (
                   <li key={benefit.title}>
@@ -140,7 +144,7 @@ export function CourseLanding({
                   <span />
                   ROLES THIS SKILL SHOWS UP IN
                 </p>
-                <h2 id="jobs-heading">Jobs that already pay for people who can brief a model.</h2>
+                <h2 id="jobs-heading">Roles where these skills are already valued and paid for.</h2>
               </div>
               <figure className="ex-land-photo ex-land-photo-side">
                 <Image
@@ -202,12 +206,12 @@ export function CourseLanding({
             {course.playable ? (
               <>
                 <h2>
-                  Start with a card payment of £{course.priceGbp}.
+                  Start today, and finish with
                   <br />
-                  <span>Leave with {artefactName} you can put to work.</span>
+                  <span>{artefactName} your organisation can use.</span>
                 </h2>
                 <p>
-                  Checkout asks only for an email address and a card. You then open lesson one. The signed record names you and {artefactName}. It does not say that you are compliant with any regulation.
+                  Checkout takes an email address and a card, and access begins as soon as payment is confirmed. When you finish, you sign a record that names you and {artefactName}, which anyone you choose can verify online. The record confirms what you completed and does not claim compliance with any regulation.
                 </p>
                 <BuyCourseButton
                   slug={course.slug}
@@ -218,12 +222,12 @@ export function CourseLanding({
             ) : (
               <>
                 <h2>
-                  Listed at £{course.priceGbp}.
+                  This course is in preparation.
                   <br />
-                  <span>The lessons are not open yet.</span>
+                  <span>It opens when it meets our standard.</span>
                 </h2>
                 <p>
-                  This page shows the work a {formatCourseHours(course.hours)} course will cover. Nothing here takes payment.
+                  The outline above shows what the course will cover. It will open for purchase once every lesson, assessment, and record has been written, tested, and reviewed.
                 </p>
               </>
             )}

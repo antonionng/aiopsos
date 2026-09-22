@@ -32,13 +32,13 @@ export function SelfServeHomePitch() {
             </p>
             <h2 id="self-serve-home-title">Brief AI the way you would brief a colleague.</h2>
             <p>
-              Prompt Engineering for Professional Work shows you how to write a brief a model can follow, check what comes back, and leave a prompt card a colleague can run. The course is £{price}, and you can start as soon as you pay.
+              Prompt Engineering for Professional Work teaches your people to give AI tools clear, complete instructions and to check every reply before it reaches a client or colleague. Teams finish with a shared standard for AI-assisted work, fewer drafts that need rewriting, and a signed prompt card that anyone on the team can reuse.
             </p>
           </div>
           <div className="ex-autumn-buy">
             <p>
               <b>£{price}</b>
-              <span>Start as soon as you pay.</span>
+              <span>Access begins as soon as payment is confirmed, and progress is saved to your account.</span>
             </p>
             <BuyCourseButton slug={OPEN_SLUG} label={`Buy this course for £${price}`} />
           </div>
@@ -64,7 +64,7 @@ export function SelfServeHomePitch() {
 
         <div className="ex-autumn-foot">
           <Link className="ex-text-link" href={track === "all" ? "/learn" : `/learn?track=${track}`}>
-            View more <ArrowRight size={16} />
+            Browse the full catalogue <ArrowRight size={16} />
           </Link>
         </div>
       </div>
@@ -104,7 +104,7 @@ export function SelfServeAcademyCatalogue({
           Take a course in your own time, and leave with work your organisation can <em>use.</em>
         </h2>
         <p>
-          These courses sit beside the facilitated programmes. Prompt Engineering for Professional Work is £{getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 1}, and you can start as soon as you pay. Choose a subject to see four courses. The rest of the catalogue is on the course list.
+          Self-serve courses complement our facilitated programmes. Each one teaches a single professional skill in depth through worked examples, practice on realistic material, and a final assessment, and it ends with a piece of work the learner signs and an employer can verify.
         </p>
       </div>
       <nav className="ss-filters academy-self-filters" aria-label="Self-serve tracks">
@@ -125,10 +125,10 @@ export function SelfServeAcademyCatalogue({
       {showOpen ? (
         <article className="academy-self-open">
           <div>
-            <span className="academy-self-tag">Available to buy</span>
+            <span className="academy-self-tag">Available now</span>
             <h3>Prompt Engineering for Professional Work</h3>
             <p>
-              You work through seven lessons, including a course assessment, check each one, and sign the prompt card you produce. Checkout asks only for an email address and a card. The price is £{getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 1}.
+              This course teaches professionals to brief an AI tool precisely, to recognise when a reply has invented a commitment, and to repair the instruction before anything is sent. Learners finish with a signed prompt card that their team can reuse and that a manager can verify online.
             </p>
           </div>
           <BuyCourseButton
@@ -141,7 +141,7 @@ export function SelfServeAcademyCatalogue({
 
       <SelfServeCourseCards courses={previewCourses(track ?? "all")} />
       <p className="academy-self-more">
-        <Link href={track ? `/learn?track=${track}` : "/learn"}>View the full course list</Link>
+        <Link href={track ? `/learn?track=${track}` : "/learn"}>Browse the full self-serve catalogue</Link>
       </p>
     </section>
   );

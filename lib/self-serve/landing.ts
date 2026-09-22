@@ -1,3 +1,4 @@
+import { courseArtefact } from "./engine.ts";
 import type { SelfServeCourse, SelfServeTrack } from "./types.ts";
 
 export type MarketStat = {
@@ -139,30 +140,37 @@ const PILOT_REVIEWS: CourseReview[] = [
 ];
 
 const TRACK_HOOK: Record<SelfServeTrack, string> = {
-  ai: "The market is already paying more for people who can brief a model and stand behind the output.",
-  technology: "The skill is not another login. It is getting value from the tools the organisation already pays for.",
-  robotics: "The hiring need is not a lecture on robots. It is a person who can judge a process and write the brief.",
-  hr: "People teams are being asked for AI literacy they can evidence, and for work a manager can use the next week.",
+  ai: "Employers increasingly expect professionals to use AI tools well and to stand behind what those tools produce. This course builds that capability on realistic work, so the skill carries directly into your role.",
+  technology: "Most organisations already pay for more software than they use well. This course helps you make sound decisions about the tools you have, so the money and time already spent begin to return value.",
+  robotics: "Automation projects succeed or fail on the judgement of the people who specify, run, and supervise them. This course builds that judgement for professionals who are not engineers but whose decisions shape the outcome.",
+  hr: "People teams are being asked to lead the responsible use of AI and to show evidence of the learning behind it. This course gives you methods and documents you can use with managers and employees straight away.",
 };
 
-function defaultBenefits(course: SelfServeCourse): LandingCopy["benefits"] {
-  return [
+function defaultBenefits(course: SelfServeCourse, artefactTitle: string | null): LandingCopy["benefits"] {
+  const artefact = artefactTitle
+    ? `${artefactTitle.charAt(0).toLowerCase()}${artefactTitle.slice(1)}`
+    : "a finished piece of work";
+  const benefits: LandingCopy["benefits"] = [
     {
-      title: "A skill the market prices",
-      body: "PwC's 2026 AI Jobs Barometer found specialist AI skills carried a 34.2% UK wage premium in 2025. This course is built around the work those postings describe: a brief, a check, and an artefact someone else can run.",
+      title: "Work your organisation can use",
+      body: `The course ends with ${artefact} built from your own work, so the time you spend learning produces something your team can use the following week.`,
     },
     {
-      title: "Roles this work shows up in",
-      body:
-        course.track === "ai"
-          ? `${course.title} is the kind of applied skill now listed on operations, customer, people, and product roles, as well as titled prompt engineering seats. The page below uses published salary bands, not a promise that one course moves you into the top of the range.`
-          : `${course.title} is the kind of applied judgement now asked of operations, people, and product roles. Published figures on this page describe the market, not a promise that one course changes your pay.`,
+      title: "Judgement you can explain",
+      body: "Each lesson teaches a clear standard and then tests it on a case you have not seen, so you finish able to explain why a piece of work is ready, rather than relying on instinct.",
     },
     {
-      title: "Work you would otherwise buy",
-      body: "You leave with a named artefact from your own week. That is the difference between a course that feels busy and a course that changes what you can charge for or hire for.",
+      title: "Evidence an employer can check",
+      body: "When you finish, you sign a record that names you, the course, and the work you produced. A manager or client can open it online and download it as a PDF.",
     },
   ];
+  if (course.track === "ai") {
+    benefits.push({
+      title: "A skill the market already rewards",
+      body: "PwC's 2026 AI Jobs Barometer found that specialist AI skills carried a 34.2 per cent wage premium in the UK in 2025. The figure describes the market and is not a promise about your own pay.",
+    });
+  }
+  return benefits;
 }
 
 export function getCourseLanding(course: SelfServeCourse): LandingCopy {
@@ -170,7 +178,7 @@ export function getCourseLanding(course: SelfServeCourse): LandingCopy {
   return {
     hook: TRACK_HOOK[course.track],
     outcome: course.promise,
-    benefits: defaultBenefits(course),
+    benefits: defaultBenefits(course, courseArtefact(course)?.title ?? null),
     stats: ai ? AI_STATS : AI_STATS.slice(0, 2),
     jobs: ai ? AI_JOBS : [],
     reviews: course.slug === "prompt-engineering-for-professional-work" ? PILOT_REVIEWS : [],

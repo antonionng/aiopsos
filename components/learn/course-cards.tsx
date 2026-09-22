@@ -26,7 +26,7 @@ export function SelfServeCourseCards({ courses }: { courses: SelfServeCourse[] }
             <p>{course.promise}</p>
             <span className="ss-cards-meta">
               {course.hours} hours · £{course.priceGbp}
-              {course.playable ? "" : " · Not for sale yet"}
+              {course.playable ? "" : " · Opening soon"}
             </span>
           </Link>
         </li>

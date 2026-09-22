@@ -4,17 +4,12 @@ import {
   SELF_SERVE_COURSES,
   SELF_SERVE_TRACKS,
   coursesByTrack,
-  getSelfServeCourse,
   trackLabel,
 } from "@/lib/self-serve/catalog";
 import type { SelfServeTrack } from "@/lib/self-serve/types";
 
-const PILOT_SLUG = "prompt-engineering-for-professional-work";
-
 export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
-  const pilot = getSelfServeCourse(PILOT_SLUG);
   const courses = track ? coursesByTrack(track) : SELF_SERVE_COURSES;
-  const price = pilot?.priceGbp ?? 1;
 
   return (
     <main className="ex-catalog">
@@ -22,9 +17,9 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
         <span />
         SELF-SERVE COURSES
       </div>
-      <h1 className="ex-plain-title">All courses.</h1>
+      <h1 className="ex-plain-title">Self-serve courses</h1>
       <p className="ex-lede">
-        This is the full self-serve catalogue, in the same cards as the Academy. Prompt Engineering for Professional Work is £{price}, and you can start as soon as you pay. The other courses describe the work they will cover, and they are not for sale yet. Facilitated programmes stay on the Academy.
+        Every self-serve course teaches one professional skill in depth, using realistic workplace material, practice with immediate feedback, and a final assessment. Learners finish with a piece of work they have signed, which an employer can verify online. Courses marked Available now can be bought today, and the remaining courses open as each one is completed to the same standard.
       </p>
       <nav className="ss-filters" aria-label="Tracks">
         <Link href="/learn" aria-current={track ? undefined : "page"}>
@@ -38,7 +33,7 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
       </nav>
       <SelfServeCourseCards courses={courses} />
       <p className="ex-catalog-foot">
-        If you want a trainer in the room, the facilitated programmes remain on the <Link href="/courses">Academy</Link>.
+        If your team would benefit from a trainer in the room, our facilitated programmes are listed on the <Link href="/courses">Academy</Link>.
       </p>
     </main>
   );

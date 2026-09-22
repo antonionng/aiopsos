@@ -69,6 +69,10 @@ Write the way a good teacher talks to a colleague.
 5. Check. A new case, the same move. The question is a full sentence and says what to do.
 6. Bridge. One sentence on what the next lesson adds.
 
+### Sales copy
+
+Copy that sells or describes a course is written in full sentences, in an enterprise voice, and leads with what the course is and the benefit to the learner and their organisation. It never sells on the number of lessons, and it never uses short slogan fragments. The detailed rules are in section 0 of `experrt-course-author`.
+
 ## UX
 
 - Buy, then save the sign-in on that email, then open lesson one. The person who just paid is not sent to a blank account form with no course on it.
