@@ -788,151 +788,282 @@
   }
 }
 .ex-wide {
-  width: min(1280px, calc(100% - 48px));
+  width: min(1280px, calc(100% - 96px));
   margin-inline: auto;
 }
 .ex-landing {
   padding-bottom: 0;
 }
-.ex-land-hero {
-  padding: 72px 0 28px;
-  background:
-    linear-gradient(180deg, #f4f0ff 0%, var(--ex-paper) 42%),
-    var(--ex-paper);
-  border-bottom: 1px solid var(--ex-line);
-}
-.ex-land-hero-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 48px;
-  align-items: end;
-}
-.ex-land-photo {
-  position: relative;
-  min-height: 460px;
-  margin: 0;
-  overflow: hidden;
-  border-radius: 18px;
-  background: #efeafa;
-}
-.ex-land-photo img {
-  object-fit: cover;
-}
 .ex-learn .ex-landing img {
   filter: none;
 }
-.ex-land-photo figcaption {
-  position: absolute;
-  left: 16px;
-  bottom: 16px;
-  max-width: 16rem;
-  padding: 10px 12px;
+.ex-learn .ex-button-citrus {
   background: var(--ex-citrus);
-  border-radius: 8px;
   color: var(--ex-ink);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
 }
-.ex-land-split {
+.ex-land-hero {
+  padding: 76px 0 72px;
+}
+.ex-land-hero-grid {
   display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
+  grid-template-columns: 1.08fr 0.92fr;
   gap: 48px;
   align-items: center;
-  margin-top: 28px;
-}
-.ex-land-photo-wide {
-  min-height: 520px;
-}
-.ex-land-split .ex-land-benefits {
-  grid-template-columns: 1fr;
-  margin-top: 24px;
-}
-.ex-land-photo-banner {
-  min-height: 280px;
-  margin: 22px 0 8px;
 }
 .ex-land-hero h1 {
-  max-width: 16em;
+  max-width: 11em;
   margin-top: 22px;
-  font-size: clamp(48px, 7vw, 92px);
-  letter-spacing: -3.6px;
-  line-height: 0.96;
+  font-size: clamp(48px, 5.2vw, 76px);
+  font-weight: 600;
+  letter-spacing: -3.4px;
+  line-height: 1.02;
 }
 .ex-land-hook {
-  max-width: 22em;
+  max-width: 28rem;
   margin-top: 28px;
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(22px, 3vw, 34px);
-  font-weight: 500;
-  letter-spacing: -1px;
-  line-height: 1.25;
+  color: #66616e;
+  font-size: 17px;
+  line-height: 1.75;
 }
 .ex-land-hero .ex-lede {
-  max-width: 40rem;
+  max-width: 32rem;
+  margin-top: 14px;
 }
 .ex-land-cta {
-  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
 }
-.ex-land-soon {
+.ex-land-soon,
+.ex-land-cta .ex-hint {
   max-width: 36rem;
   color: var(--ex-mute);
   font-size: 16px;
   line-height: 1.65;
 }
-.ex-land-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-  margin: 64px 0 8px;
+.ex-land-foot {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 36px;
+  color: #6d6875;
+  font-size: 13px;
+  line-height: 1.45;
 }
-.ex-land-stats div {
-  padding-top: 22px;
-  border-top: 1px solid var(--ex-line);
-}
-.ex-land-stats dt {
-  font-family: var(--font-space-grotesk), sans-serif;
-  font-size: clamp(40px, 5vw, 64px);
-  font-weight: 600;
-  letter-spacing: -2.4px;
-  line-height: 1;
-  color: var(--ex-violet);
-}
-.ex-land-stats dd {
-  margin-top: 14px;
+.ex-land-foot strong {
   color: var(--ex-ink);
-  font-size: 15px;
-  line-height: 1.55;
+  font-weight: 600;
 }
-.ex-land-stats cite {
-  display: block;
-  margin-top: 10px;
-  color: var(--ex-mute);
+.ex-land-pips {
+  display: flex;
+  padding-left: 6px;
+}
+.ex-land-pips span {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-left: -6px;
+  border: 2px solid var(--ex-paper);
+  border-radius: 50%;
+  background: #d5c7ff;
+  color: #382565;
   font-size: 12px;
+  font-weight: 700;
+}
+.ex-land-pips span:nth-child(2) {
+  background: var(--ex-citrus);
+  color: var(--ex-ink);
+}
+.ex-land-pips span:nth-child(3) {
+  background: #ff997b;
+  font-size: 18px;
+}
+.ex-land-art,
+.ex-land-photo {
+  position: relative;
+  margin: 0;
+  background: #efeafa;
+}
+.ex-land-art {
+  height: 520px;
+  isolation: isolate;
+}
+.ex-land-art-image,
+.ex-land-photo img {
+  object-fit: cover;
+}
+.ex-land-art-image {
+  border-radius: 150px 16px 16px 16px;
+}
+.ex-land-art-label {
+  position: absolute;
+  top: 88px;
+  left: 72px;
+  z-index: 1;
+  padding: 12px 14px;
+  background: var(--ex-citrus);
+  border-radius: 8px;
+  color: var(--ex-ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 1.4;
+}
+.ex-land-art figcaption {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1;
+  max-width: 12rem;
+  padding: 10px 12px;
+  background: var(--ex-citrus);
+  border-radius: 8px;
+  color: var(--ex-ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.ex-land-float {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 280px;
+  padding: 16px;
+  background: #fffefa;
+  border: 1px solid #201c2912;
+  border-radius: 11px;
+  box-shadow: 0 12px 35px #221d3920;
+  animation: ex-land-float 6s ease-in-out infinite;
+}
+.ex-land-float strong {
+  display: block;
+  font-size: 14px;
+  letter-spacing: -0.3px;
+}
+.ex-land-float span {
+  color: #6e6875;
+  font-size: 12px;
+}
+.ex-land-float-top {
+  top: 78px;
+  right: -18px;
+}
+.ex-land-float-bottom {
+  bottom: 52px;
+  left: -28px;
+  animation-delay: -3s;
+}
+.ex-land-float-bottom > div > span {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.ex-land-float-mark,
+.ex-land-float-glyph {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 39px;
+  height: 39px;
+  border-radius: 50%;
+  background: #eaf1db;
+  color: #436037 !important;
+  font-size: 18px;
+}
+.ex-land-float-glyph {
+  border-radius: 6px;
+  background: #efe9fd;
+  color: var(--ex-violet) !important;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 28px;
+}
+.ex-land-ribbon {
+  background: var(--ex-citrus);
+  padding: 22px 0;
+}
+.ex-land-ribbon .ex-wide {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 28px;
+}
+.ex-land-ribbon span {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 28rem;
+}
+.ex-land-ribbon b {
+  flex: none;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 600;
+  letter-spacing: -1.4px;
+  line-height: 1;
+}
+.ex-land-ribbon em {
+  color: #3d3844;
+  font-size: 13px;
   font-style: normal;
+  line-height: 1.35;
+}
+.ex-land-ribbon svg {
+  flex: none;
+  width: 16px;
 }
 .ex-land-band,
 .ex-land-jobs,
 .ex-land-reviews,
 .ex-land-modules {
-  padding: 88px 0;
+  padding: 96px 0;
 }
-.ex-land-jobs,
-.ex-land-modules {
-  background: white;
+.ex-land-split,
+.ex-land-jobs-head {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 64px;
+  align-items: center;
 }
-.ex-land-reviews {
-  background: #201c29;
-  color: #fffefa;
+.ex-land-jobs-head {
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: end;
 }
-.ex-land-reviews .ex-eyebrow,
-.ex-land-reviews h2 {
-  color: #fffefa;
+.ex-land-photo {
+  height: 480px;
+}
+.ex-land-photo img {
+  border-radius: 10px 110px 10px 10px;
+}
+.ex-land-photo-side {
+  height: 280px;
+}
+.ex-land-photo-side img {
+  border-radius: 110px 16px 16px 16px;
+}
+.ex-land-sticker {
+  position: absolute;
+  bottom: 28px;
+  left: -8px;
+  padding: 16px 18px;
+  background: var(--ex-citrus);
+  color: var(--ex-ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  line-height: 1.4;
+  transform: rotate(-6deg);
 }
 .ex-landing h2 {
-  max-width: 16em;
+  max-width: 14em;
   margin-top: 16px;
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: clamp(34px, 3.4vw, 48px);
+  font-weight: 500;
   letter-spacing: -1.8px;
   line-height: 1.12;
 }
@@ -941,66 +1072,102 @@
 .ex-land-review-grid,
 .ex-land-module-grid {
   display: grid;
-  gap: 22px;
-  margin: 40px 0 0;
+  gap: 0;
+  margin: 28px 0 0;
   padding: 0;
   list-style: none;
 }
-.ex-land-benefits {
-  grid-template-columns: repeat(3, 1fr);
+.ex-land-benefits li {
+  display: flex;
+  gap: 16px;
+  padding: 22px 0;
+  border-top: 1px solid var(--ex-line);
 }
-.ex-land-benefits li,
-.ex-land-job-grid li,
-.ex-land-review-grid li,
-.ex-land-module-grid li {
-  padding: 28px 26px;
-  background: var(--ex-paper);
-  border-radius: 18px;
+.ex-land-benefits li:last-child {
+  border-bottom: 1px solid var(--ex-line);
 }
 .ex-land-benefits b,
 .ex-land-module-grid b {
-  display: block;
-  margin-bottom: 16px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ex-line);
+  border-radius: 50%;
   color: var(--ex-violet);
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 18px;
+  font-size: 12px;
   font-weight: 600;
 }
 .ex-land-benefits h3,
-.ex-land-job-grid h3 {
-  font-size: 24px;
-  letter-spacing: -0.7px;
-  line-height: 1.2;
+.ex-land-job-grid h3,
+.ex-land-module-grid span {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
 }
 .ex-land-benefits p,
-.ex-land-job-grid p {
-  margin-top: 12px;
-  color: var(--ex-mute);
+.ex-land-job-grid p,
+.ex-land-jobs .ex-lede {
+  margin-top: 8px;
+  color: #6d6875;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
-.ex-land-job-grid {
+.ex-land-jobs {
+  background: white;
+  border-top: 1px solid var(--ex-line);
+}
+.ex-land-job-grid,
+.ex-land-review-grid,
+.ex-land-module-grid {
+  gap: 18px;
+  margin-top: 36px;
+}
+.ex-land-job-grid,
+.ex-land-review-grid {
   grid-template-columns: repeat(3, 1fr);
 }
+.ex-land-job-grid li,
+.ex-land-review-grid li,
+.ex-land-module-grid li {
+  padding: 24px;
+  background: var(--ex-paper);
+  border: 1px solid var(--ex-line);
+  border-radius: 12px;
+}
+.ex-land-job-grid li {
+  background: white;
+}
 .ex-land-pay {
-  margin-top: 10px !important;
   display: inline-block;
+  margin-top: 12px !important;
   padding: 6px 9px;
   background: var(--ex-citrus);
   border-radius: 4px;
   color: var(--ex-ink) !important;
   font-size: 13px !important;
   font-weight: 700;
+  line-height: 1.35;
 }
-.ex-land-review-grid {
-  grid-template-columns: repeat(3, 1fr);
+.ex-land-reviews {
+  background:
+    linear-gradient(180deg, #f6f3ff 0%, var(--ex-paper) 180px);
 }
-.ex-land-review-grid li {
-  background: #2a2634;
+.ex-land-quote {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ex-violet);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 42px;
+  font-weight: 500;
+  line-height: 0.8;
 }
 .ex-land-review-grid p {
   font-family: var(--font-space-grotesk), sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   letter-spacing: -0.4px;
   line-height: 1.4;
@@ -1010,45 +1177,74 @@
   margin-top: 22px;
   font-size: 15px;
 }
-.ex-land-review-grid span {
+.ex-land-review-grid li > span:last-child {
   display: block;
   margin-top: 4px;
-  color: #beb3d0;
+  color: #6d6875;
   font-size: 13px;
+}
+.ex-land-modules {
+  border-top: 1px solid var(--ex-line);
 }
 .ex-land-module-grid {
   grid-template-columns: repeat(4, 1fr);
 }
+.ex-land-module-grid li {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 180px;
+  background: white;
+}
 .ex-land-module-grid span {
-  font-family: var(--font-space-grotesk), sans-serif;
   font-size: 22px;
   font-weight: 500;
-  letter-spacing: -0.5px;
-  line-height: 1.25;
 }
-.ex-land-buyagain {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-  margin-top: 48px;
-  padding: 32px;
-  background: #f4f0ff;
-  border-radius: 18px;
+.ex-land-close {
+  position: relative;
+  overflow: hidden;
+  padding: 84px 0;
+  background: var(--ex-violet);
+  color: #fffefa;
 }
-.ex-land-buyagain h3 {
-  font-size: 28px;
-  letter-spacing: -1px;
+.ex-land-close .ex-eyebrow,
+.ex-land-close h2,
+.ex-land-close p {
+  color: #fffefa;
 }
-.ex-land-buyagain p {
+.ex-land-close .ex-eyebrow > span {
+  background: var(--ex-citrus);
+}
+.ex-land-close h2 {
+  max-width: 14em;
+  margin: 18px 0 18px;
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 500;
+  letter-spacing: -2.4px;
+  line-height: 1.05;
+}
+.ex-land-close h2 span {
+  color: var(--ex-citrus);
+}
+.ex-land-close p {
   max-width: 36rem;
-  margin-top: 10px;
-  color: var(--ex-mute);
-  font-size: 15px;
-  line-height: 1.6;
+  margin-bottom: 28px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.ex-land-close-mark {
+  position: absolute;
+  top: 18px;
+  right: 8%;
+  color: #c4a9ff;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 220px;
+  line-height: 1;
+  transform: rotate(8deg);
+  pointer-events: none;
 }
 .ex-land-sources {
-  padding: 28px 0 80px;
+  padding: 28px 0 72px;
   color: var(--ex-mute);
   font-size: 13px;
   line-height: 1.65;
@@ -1072,19 +1268,32 @@
   gap: 8px;
   text-decoration: none;
 }
-@media (max-width: 980px) {
-  .ex-land-stats,
-  .ex-land-benefits,
+@keyframes ex-land-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(0);
+  }
+}
+@media (max-width: 1100px) {
+  .ex-wide {
+    width: calc(100% - 56px);
+  }
   .ex-land-job-grid,
   .ex-land-review-grid,
   .ex-land-module-grid {
     grid-template-columns: 1fr 1fr;
   }
-}
-@media (max-width: 720px) {
-  .ex-wide {
-    width: calc(100% - 40px);
+  .ex-land-float-top {
+    right: 12px;
   }
+  .ex-land-float-bottom {
+    left: 12px;
+  }
+}
+@media (max-width: 800px) {
   .ex-land-hero,
   .ex-land-band,
   .ex-land-jobs,
@@ -1092,40 +1301,47 @@
   .ex-land-modules {
     padding-block: 56px;
   }
-  .ex-land-hero h1 {
-    font-size: clamp(40px, 12vw, 58px);
-    letter-spacing: -2px;
+  .ex-land-hero h1,
+  .ex-land-close h2 {
+    font-size: clamp(40px, 11vw, 56px);
+    letter-spacing: -1.8px;
   }
-  .ex-land-stats,
-  .ex-land-benefits,
+  .ex-land-hero-grid,
+  .ex-land-split,
+  .ex-land-jobs-head,
   .ex-land-job-grid,
   .ex-land-review-grid,
   .ex-land-module-grid {
     grid-template-columns: 1fr;
   }
-  .ex-land-buyagain,
+  .ex-land-art,
+  .ex-land-photo,
+  .ex-land-photo-side {
+    height: 320px;
+  }
+  .ex-land-cta > div,
+  .ex-land-close .ex-wide > div:has(.ex-button) {
+    width: 100%;
+  }
+  .ex-land-cta .ex-button,
+  .ex-land-close .ex-button {
+    width: 100%;
+  }
   .ex-land-sources .ex-wide {
     flex-direction: column;
     align-items: stretch;
   }
-  .ex-land-buyagain .ex-button,
-  .ex-land-cta .ex-button {
-    width: 100%;
+  .ex-land-close-mark {
+    font-size: 120px;
+    right: 12px;
   }
-  .ex-land-hero-grid,
-  .ex-land-split {
-    grid-template-columns: 1fr;
-  }
-  .ex-land-photo,
-  .ex-land-photo-wide {
-    min-height: 240px;
-  }
-  .ex-land-photo-banner {
-    min-height: 200px;
+  .ex-land-ribbon span {
+    max-width: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ex-room-body {
+  .ex-room-body,
+  .ex-land-float {
     animation: none;
   }
   .ex-button,
