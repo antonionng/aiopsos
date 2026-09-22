@@ -157,7 +157,7 @@ export default function RevenueDashboardPage() {
         </div>
         <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <DollarSign className="h-3.5 w-3.5" /> Self-serve courses (MTD)
+            <DollarSign className="h-3.5 w-3.5" /> Self-paced courses (MTD)
           </div>
           <p className="mt-2 text-2xl font-bold">
             {formatCurrency(data.self_serve_sales ?? 0, data.currency)}

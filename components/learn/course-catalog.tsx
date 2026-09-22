@@ -15,11 +15,11 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
     <main className="ex-catalog">
       <div className="ex-eyebrow">
         <span />
-        SELF-SERVE COURSES
+        SELF-PACED COURSES
       </div>
-      <h1 className="ex-plain-title">Self-serve courses</h1>
+      <h1 className="ex-plain-title">Self-paced courses</h1>
       <p className="ex-lede">
-        Every self-serve course teaches one professional skill in depth, using realistic workplace material, practice with immediate feedback, and a final assessment. Learners finish with a piece of work they have signed, which an employer can verify online. Courses marked Available now can be bought today, and the remaining courses open as each one is completed to the same standard.
+        Every self-paced course teaches one professional skill in depth, using realistic workplace material, practice with immediate feedback, and a final assessment. Learners finish with a piece of work they have signed, which an employer can verify online. Courses marked Available now can be bought today, and the remaining courses open as each one is completed to the same standard.
       </p>
       <nav className="ss-filters" aria-label="Tracks">
         <Link href="/learn" aria-current={track ? undefined : "page"}>
@@ -33,7 +33,7 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
       </nav>
       <SelfServeCourseCards courses={courses} />
       <p className="ex-catalog-foot">
-        If your team would benefit from a trainer in the room, our facilitated programmes are listed on the <Link href="/courses">Academy</Link>.
+        If your team would benefit from a trainer in the room, our trainer-led courses are listed on the <Link href="/courses#trainer-led">Academy</Link>.
       </p>
     </main>
   );

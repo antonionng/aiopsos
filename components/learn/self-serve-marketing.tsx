@@ -82,7 +82,7 @@ function catalogueHref(
   if (category) params.set("category", category);
   if (self) params.set("self", self);
   const query = params.toString();
-  return `/courses${query ? `?${query}` : ""}#self-serve`;
+  return `/courses${query ? `?${query}` : ""}#self-paced`;
 }
 
 export function SelfServeAcademyCatalogue({
@@ -97,17 +97,17 @@ export function SelfServeAcademyCatalogue({
   const showOpen = !track || track === "ai";
 
   return (
-    <section className="academy-self" id="self-serve" aria-labelledby="self-serve-academy-title">
-      <p className="academy-eyebrow">SELF-SERVE COURSES</p>
+    <section className="academy-self" id="self-paced" aria-labelledby="self-paced-academy-title">
+      <p className="academy-eyebrow">SELF-PACED COURSES</p>
       <div className="academy-self-head">
-        <h2 id="self-serve-academy-title">
-          Take a course in your own time, and leave with work your organisation can <em>use.</em>
+        <h2 id="self-paced-academy-title">
+          Learn online in your own time, and finish with work your organisation can <em>use.</em>
         </h2>
         <p>
-          Self-serve courses complement our facilitated programmes. Each one teaches a single professional skill in depth through worked examples, practice on realistic material, and a final assessment, and it ends with a piece of work the learner signs and an employer can verify.
+          Each self-paced course teaches one professional skill in depth through worked examples, practice on realistic material, feedback on written work, and a final assessment. It ends with a piece of work the learner signs, which an employer can verify online.
         </p>
       </div>
-      <nav className="ss-filters academy-self-filters" aria-label="Self-serve tracks">
+      <nav className="ss-filters academy-self-filters" aria-label="Self-paced subjects">
         <Link href={catalogueHref(null, level, category)} aria-current={track ? undefined : "page"}>
           All tracks
         </Link>
@@ -141,7 +141,7 @@ export function SelfServeAcademyCatalogue({
 
       <SelfServeCourseCards courses={previewCourses(track ?? "all")} />
       <p className="academy-self-more">
-        <Link href={track ? `/learn?track=${track}` : "/learn"}>Browse the full self-serve catalogue</Link>
+        <Link href={track ? `/learn?track=${track}` : "/learn"}>Browse all self-paced courses</Link>
       </p>
     </section>
   );

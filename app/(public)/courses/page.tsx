@@ -22,6 +22,7 @@ import { coursesIndexMetadata } from "@/lib/public-share-metadata";
 import { isSelfServeEnabled } from "@/lib/self-serve/flag";
 import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog";
 import { SelfServeAcademyCatalogue } from "@/components/learn/self-serve-marketing";
+import { AcademyFormats } from "@/components/courses/academy-formats";
 import type { SelfServeTrack } from "@/lib/self-serve/types";
 
 export const metadata: Metadata = coursesIndexMetadata();
@@ -64,12 +65,12 @@ export default async function CoursesPage({
         <div>
           <p className="academy-eyebrow">EXPERRT ACADEMY / YOUR NEXT CHAPTER</p>
           <h1>Big curiosity.<br />Practical skills.<br /><em>New possibilities.</em></h1>
-          <p className="academy-intro">Discover what you and your team could do next. Explore live, hands-on courses in AI, technology, robotics and HR transformation, built around the work that matters to you.</p>
+          <p className="academy-intro">Experrt Academy offers two ways to build practical skills in AI, technology, robotics and HR transformation. Self-paced courses let each person learn online in their own time, and trainer-led courses bring a group together with an Experrt trainer, in person or online.</p>
           <div className="academy-actions">
-            <a href="#catalogue" className="academy-button">Find your course <ArrowRight size={18} /></a>
-            <a href="#enquire" className="academy-text-link">Let’s talk learning <ArrowRight size={18} /></a>
+            <a href="#self-paced" className="academy-button">Browse self-paced courses <ArrowRight size={18} /></a>
+            <a href="#trainer-led" className="academy-text-link">Browse trainer-led courses <ArrowRight size={18} /></a>
           </div>
-          <p className="academy-hero-note">Real trainers. Your questions. Skills to put to work.</p>
+          <p className="academy-hero-note">Both formats are assessed on realistic work, and both end with a record your organisation can verify.</p>
         </div>
         <div className="academy-hero-visual">
           <Image src="/images/learning/together.webp" alt="An illustrative workshop scene of professionals exploring ideas together" fill priority sizes="(max-width: 760px) 100vw, 50vw" />
@@ -77,11 +78,7 @@ export default async function CoursesPage({
           <div className="academy-visual-note"><span>YOUR NEXT STEP</span><strong>Learn it.<br />Try it.<br />Make it yours.</strong></div>
         </div>
       </header>
-      <div className="academy-promise-strip">
-        <span><b>01</b> Learn with a live facilitator</span>
-        <span><b>02</b> Practise on real work</span>
-        <span><b>03</b> Build your team’s confidence</span>
-      </div>
+      <AcademyFormats selfPacedOn={isSelfServeEnabled()} />
       {isSelfServeEnabled() ? (
         <SelfServeAcademyCatalogue
           track={activeSelf}
@@ -89,13 +86,20 @@ export default async function CoursesPage({
           category={activeCategory}
         />
       ) : null}
+      <section id="trainer-led" className="academy-format-head" aria-labelledby="trainer-led-title">
+        <p className="academy-eyebrow">TRAINER-LED COURSES</p>
+        <h2 id="trainer-led-title">Learn with an Experrt trainer and colleagues from your organisation.</h2>
+        <p>
+          Trainer-led courses are delivered live, in person or online, to a group from your organisation. The trainer works through your own examples, attendance and assessed work are recorded, and each learner who meets the standard receives a certificate that names the course, the dates, and the trainer.
+        </p>
+      </section>
       <section className="academy-hr-discovery" aria-label="HR academy">
         <div><h2>HR, AI &amp; People Ops Academy</h2><p>Make people work better. Explore AI for HR, connected people systems and practical transformation, from everyday operations to leadership strategy.</p></div>
         <Link href="/courses?category=hr#catalogue" className="academy-text-link">Explore HR courses <ArrowRight size={18} /></Link>
       </section>
       <section id="catalogue" className="academy-catalogue-heading">
-        <div><p className="academy-eyebrow">FOLLOW YOUR CURIOSITY</p><h2>What will you learn next?</h2></div>
-        <p>Start with a subject. Find your level.<br />We’ll help you make it your own.</p>
+        <div><p className="academy-eyebrow">TRAINER-LED CATALOGUE</p><h2>Choose a subject and a level.</h2></div>
+        <p>Filter the trainer-led catalogue by subject and level. Every course can be adapted to your sector, and we will help you choose the right starting point for your team.</p>
       </section>
 
       <CatalogueFilters
@@ -114,8 +118,8 @@ export default async function CoursesPage({
       )}
 
       <p className="mb-8 text-xs text-muted-foreground">
-        {courses.length} course{courses.length === 1 ? "" : "s"} ·{" "}
-        {totalHours} facilitated hours
+        {courses.length} trainer-led course{courses.length === 1 ? "" : "s"} ·{" "}
+        {totalHours} hours with a trainer
       </p>
 
       {courses.length === 0 ? (
@@ -167,7 +171,7 @@ export default async function CoursesPage({
         <div>
           <p className="academy-eyebrow">LET’S MAKE A START</p>
           <h2>Your next chapter<br />starts with<br /><em>a conversation.</em></h2>
-          <p>One course or a learning journey for your whole team. Tell us what you have in mind and we’ll help you explore the right fit, dates and pricing.</p>
+          <p>Whether you need one trainer-led course or a programme for your whole team, tell us what you have in mind. We will recommend the right format, confirm dates, and send a price for your group.</p>
           <p className="academy-enquiry-note">Not sure where to start? That’s a good place to begin, too.</p>
           <Link href="/assessment/start" className="academy-text-link">Find your starting point with a learning check <ArrowRight size={18} /></Link>
         </div>

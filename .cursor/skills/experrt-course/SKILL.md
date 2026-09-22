@@ -69,6 +69,15 @@ Write the way a good teacher talks to a colleague.
 5. Check. A new case, the same move. The question is a full sentence and says what to do.
 6. Bridge. One sentence on what the next lesson adds.
 
+### The two formats and their names
+
+The Academy offers two formats, and every page names them the same way.
+
+- **Self-paced courses**: online, taken by each person in their own time, bought with a card, assessed in the lesson player, ending in a signed record. These are the courses in `lib/self-serve/`.
+- **Trainer-led courses**: delivered live by an Experrt trainer to a group, in person or online, booked through an enquiry, ending in a certificate that names the trainer, attendance, and grade.
+
+Never write "self-serve", "self learn", or "facilitated programmes" in anything a learner or buyer can read. Code and file names may keep `self-serve`. The Academy page leads with a choice between the two formats and a comparison table, then gives each format its own section (`#self-paced` and `#trainer-led`).
+
 ### Sales copy
 
 Copy that sells or describes a course is written in full sentences, in an enterprise voice, and leads with what the course is and the benefit to the learner and their organisation. It never sells on the number of lessons, and it never uses short slogan fragments. The detailed rules are in section 0 of `experrt-course-author`.

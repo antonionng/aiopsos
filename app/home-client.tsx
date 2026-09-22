@@ -485,7 +485,7 @@ export default function Home() {
                       <p>{course.detail}</p>
                       <div className="ex-course-meta">
                         <span>
-                          <Users size={14} /> Facilitated learning
+                          <Users size={14} /> Trainer-led course
                         </span>
                         <ArrowUpRight size={17} />
                       </div>
@@ -690,7 +690,7 @@ export default function Home() {
               <span className="ex-offer-number">02 / ACADEMY</span>
               <h3>Build the skills.</h3>
               <p>
-                Facilitated AI, technology, robotics and HR transformation courses for real work.
+                Self-paced and trainer-led courses in AI, technology, robotics and HR transformation, each assessed on realistic work.
               </p>
               <Link href="/courses" className="ex-text-link">
                 Find a course <ArrowUpRight size={17} />

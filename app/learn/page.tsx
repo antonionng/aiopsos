@@ -6,9 +6,9 @@ import { withSiteShareImages } from "@/lib/social-image";
 import type { SelfServeTrack } from "@/lib/self-serve/types";
 
 export const metadata: Metadata = withSiteShareImages({
-  title: "Self-serve courses",
+  title: "Self-paced courses",
   description:
-    "Courses your people can take in their own time across AI, technology, robotics, and HR. Prompt Engineering for Professional Work can be bought now. The other courses are listed and are not available to purchase yet.",
+    "Self-paced online courses in AI, technology, robotics, and HR transformation. Each course teaches one professional skill through realistic practice and a final assessment, and ends with signed work an employer can verify.",
   robots: { index: false, follow: false },
 });
 
