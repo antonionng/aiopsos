@@ -164,7 +164,7 @@ function evaluateOrder(
   if (!passed) {
     return {
       passed: false,
-      detail: "Not that order yet. Read the miss before you change the brief.",
+      detail: check.wrong ?? "Not that order yet. Read the miss before you change the brief.",
     };
   }
   return { passed: true, detail: check.why };
@@ -213,6 +213,10 @@ export function describesShape(text: string): boolean {
 }
 
 function meetsRule(field: BuildField, value: string): boolean {
+  if (field.any?.length) {
+    const lower = normalise(value).toLowerCase();
+    if (!field.any.some((word) => lower.includes(word.toLowerCase()))) return false;
+  }
   switch (field.rule) {
     case "role":
       return value.split(/\s+/).filter(Boolean).length >= 2;

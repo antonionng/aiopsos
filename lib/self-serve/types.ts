@@ -20,6 +20,8 @@ export type BuildField = {
   hint: string;
   min: number;
   rule?: BuildRule;
+  /** Passes only when the answer mentions at least one of these words or phrases (case-insensitive). */
+  any?: string[];
   /** Full sentence shown when this part is missing or too thin. */
   missing?: string;
 };
@@ -53,6 +55,8 @@ export type LessonCheck =
       /** Step ids in the correct sequence. */
       correct: string[];
       why: string;
+      /** Shown when the order is wrong. */
+      wrong?: string;
     })
   | (CheckBase & {
       kind: "build";
