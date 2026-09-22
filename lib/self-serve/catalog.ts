@@ -118,7 +118,7 @@ const OUTLINES: Outline[] = [
     track: "technology",
     hours: 2.5,
     priceGbp: 99,
-    promise: "No-Code Automation for Everyday Work teaches administrators, coordinators and team leads to build one small automation for a repeating task in a tool they already have. You finish with a tested automation and a failure note that says how you will know it has stopped and how to switch it off.",
+    promise: "No-Code Automation for Everyday Work teaches administrators, coordinators and team leads to build one small automation for a repeating task in a tool they already have. You finish with a tested automation and a signed automation note that records what it does, how you will know it has stopped, and how to switch it off.",
     modules: ["The task", "A no-code path", "Run it", "When it breaks"],
   },
   {

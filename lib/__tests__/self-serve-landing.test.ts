@@ -82,3 +82,21 @@ test("landing copy is written in full sentences without banned words or dashes",
     for (const body of landing.benefits.map((b) => b.body)) assert.match(body.trim(), /\.$/);
   }
 });
+
+test("every course page explains the course, its audience, takeaways, and each lesson", async () => {
+  const { COURSE_SALES } = await import("../self-serve/sales-copy.ts");
+  for (const course of SELF_SERVE_COURSES) {
+    const sales = COURSE_SALES[course.slug];
+    assert.ok(sales, `${course.slug} has no sales copy`);
+    assert.ok(sales.overview.length >= 2, course.slug);
+    assert.ok(sales.audience.length >= 3, course.slug);
+    assert.ok(sales.takeaways.length >= 4, course.slug);
+    assert.equal(sales.benefits.length, 3, course.slug);
+    for (const lesson of course.lessons ?? []) {
+      assert.ok(sales.lessons[lesson.id], `${course.slug} ${lesson.id} has no summary`);
+    }
+    const text = [...sales.overview, ...sales.audience, ...sales.takeaways, ...Object.values(sales.lessons)].join(" ");
+    assert.doesNotMatch(text, /[\u2014\u2013]/, course.slug);
+    for (const sentence of [...sales.audience, ...sales.takeaways]) assert.match(sentence.trim(), /\.$/);
+  }
+});
