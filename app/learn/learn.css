@@ -562,6 +562,9 @@
 .ex-sign .ex-button {
   margin-top: 28px;
 }
+.ex-outline .ex-button {
+  margin-top: 28px;
+}
 .ex-hint {
   margin-top: 8px;
   color: var(--ex-mute);
@@ -770,7 +773,8 @@
   }
   .ex-continue,
   .ex-sign .ex-button,
-  .ex-open .ex-button {
+  .ex-open .ex-button,
+  .ex-outline .ex-button {
     width: 100%;
   }
   .ex-sheet-page {

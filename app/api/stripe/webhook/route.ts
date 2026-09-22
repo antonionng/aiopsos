@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { isSelfServeCheckout } from "@/lib/self-serve/commerce";
+import { fulfillSelfServeSession } from "@/lib/self-serve/records";
 import type Stripe from "stripe";
 
 /**
- * TRANSITIONAL. Payments moved to Mooov (app/api/mooov/webhook); this
- * endpoint remains only so Stripe checkout sessions created before the
- * cutover can still complete (they expire within 24h). Delete this route,
- * lib/stripe.ts and the `stripe` dependency one deploy after cutover.
+ * Stripe webhooks. Self-serve course checkout is fulfilled here.
+ * Org subscription and cohort handlers remain for sessions created before
+ * those flows moved to Mooov.
  */
 
 export async function POST(req: Request) {
@@ -32,6 +33,10 @@ export async function POST(req: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
+      if (isSelfServeCheckout(session.metadata)) {
+        await fulfillSelfServeSession(session);
+        break;
+      }
       const orgId = session.metadata?.org_id;
       const planName = session.metadata?.plan;
       const cohortId = session.metadata?.cohort_id;

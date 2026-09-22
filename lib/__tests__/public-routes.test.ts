@@ -39,6 +39,14 @@ test("the endpoints that create a session are reachable without one", () => {
   assert.equal(isPublicPath("/auth/callback/"), true);
 });
 
+test("self-serve checkout and the Stripe webhook are reachable without a session", () => {
+  assert.equal(isPublicPath("/api/learn/checkout"), true);
+  assert.equal(isPublicPath("/api/learn/claim"), true);
+  assert.equal(isPublicPath("/api/learn/progress"), true);
+  assert.equal(isPublicPath("/api/learn/certificate/EX123"), true);
+  assert.equal(isPublicPath("/api/stripe/webhook"), true);
+});
+
 test("the Mooov webhook is reachable by Mooov's servers", () => {
   // Signature-authenticated, not session-authenticated. A 307 to /login
   // here means payments never confirm.

@@ -14,17 +14,31 @@ const CARD_LINES = [
   ["output", "Output"],
 ] as const;
 
-export function CertificateView({ slug, title }: { slug: string; title: string }) {
-  const [progress, setProgress] = useState<CourseProgress | null>(null);
+export function CertificateView({
+  slug,
+  title,
+  progress: supplied,
+  persist = false,
+}: {
+  slug: string;
+  title: string;
+  progress?: CourseProgress | null;
+  persist?: boolean;
+}) {
+  const [progress, setProgress] = useState<CourseProgress | null>(supplied ?? null);
 
   useEffect(() => {
+    if (supplied?.ref) {
+      setProgress(supplied);
+      return;
+    }
     try {
       const raw = window.localStorage.getItem(progressStorageKey(slug));
-      setProgress(raw ? (JSON.parse(raw) as CourseProgress) : { lessons: {} });
+      setProgress(raw ? (JSON.parse(raw) as CourseProgress) : supplied ?? { lessons: {} });
     } catch {
-      setProgress({ lessons: {} });
+      setProgress(supplied ?? { lessons: {} });
     }
-  }, [slug]);
+  }, [slug, supplied]);
 
   if (!progress) {
     return (
@@ -47,7 +61,7 @@ export function CertificateView({ slug, title }: { slug: string; title: string }
 
   const answer = progress.lessons["prompt-card"]?.answer;
   const card =
-    answer && typeof answer === "object" && !Array.isArray(answer)
+    answer && typeof answer !== "undefined" && typeof answer === "object" && !Array.isArray(answer)
       ? (answer as BuildAnswer)
       : undefined;
   const lines = CARD_LINES.map(([id, label]) => ({
@@ -93,8 +107,17 @@ export function CertificateView({ slug, title }: { slug: string; title: string }
         <p className="ex-disclaimer">{LITERACY_DISCLAIMER}</p>
       </article>
       <p className="ex-honest">
-        This preview is stored only in this browser. You have not been charged. A public record will be available once checkout is connected.
+        {persist
+          ? "Anyone with the reference can open the public record. The page does not claim compliance."
+          : "This preview is stored only in this browser."}
       </p>
+      {persist ? (
+        <p className="ex-honest">
+          <Link href={`/verify/${progress.ref}`}>Open the public record</Link>
+          {" · "}
+          <a href={`/api/learn/certificate/${progress.ref}`}>Download the PDF</a>
+        </p>
+      ) : null}
       <Link className="ex-back" href="/learn">
         All courses
       </Link>

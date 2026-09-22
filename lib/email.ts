@@ -23,6 +23,8 @@ import { InvoiceEmail } from "./emails/invoice-email";
 import type { InvoicePayload } from "./invoices";
 import { ContactAlertEmail } from "./emails/contact-alert";
 import { ConfirmWelcomeEmail, ResetPasswordEmail } from "./emails/confirm-welcome";
+import { SelfServeReceiptEmail } from "./emails/self-serve-receipt";
+import { SelfServePurchaseAlertEmail } from "./emails/self-serve-purchase-alert";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
 import { getPublicSiteUrl } from "./site";
@@ -674,6 +676,46 @@ export async function sendResetPasswordEmail(to: string, resetUrl: string) {
 
 /** The contact-form alert, on the branded shell. Throws on Resend error so
  * the route can tell the sender their message did not go through. */
+export async function sendSelfServeReceipt(details: {
+  email: string;
+  courseTitle: string;
+  amountGbp: number;
+  learnUrl: string;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping self-serve receipt");
+    return;
+  }
+  await sendEmail({
+    from,
+    to: details.email,
+    subject: `Your place on ${details.courseTitle}`,
+    react: SelfServeReceiptEmail(details),
+  });
+}
+
+export async function sendSelfServePurchaseAlert(details: {
+  email: string;
+  courseTitle: string;
+  amountGbp: number;
+  stripeSessionId: string;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping self-serve purchase alert");
+    return;
+  }
+  const notify = getNotifyEmail();
+  await sendEmail({
+    from,
+    to: notify,
+    replyTo: details.email,
+    subject: `Self-serve purchase: ${details.courseTitle}`,
+    react: SelfServePurchaseAlertEmail(details),
+  });
+}
+
 export async function sendContactAlert(details: {
   name: string;
   email: string;

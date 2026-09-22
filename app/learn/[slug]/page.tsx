@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import { CourseGate } from "@/components/learn/course-gate";
 import { CourseOutline } from "@/components/learn/course-outline";
 import { LessonRoom } from "@/components/learn/lesson-room";
+import { ACCESS_COOKIE } from "@/lib/self-serve/commerce";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
+import { findPaidPurchase, loadProgress } from "@/lib/self-serve/records";
 import { withSiteShareImages } from "@/lib/social-image";
 
 export async function generateMetadata({
@@ -21,12 +25,39 @@ export async function generateMetadata({
 
 export default async function LearnCoursePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ session_id?: string; access?: string; pay?: string }>;
 }) {
   const { slug } = await params;
+  const query = await searchParams;
   const course = getSelfServeCourse(slug);
   if (!course) notFound();
-  if (course.playable && course.lessons) return <LessonRoom course={course} />;
+
+  if (query.session_id || query.access) {
+    const claim = new URLSearchParams({ slug });
+    if (query.session_id) claim.set("session_id", query.session_id);
+    if (query.access) claim.set("access", query.access);
+    redirect(`/api/learn/claim?${claim.toString()}`);
+  }
+
+  if (course.playable && course.lessons) {
+    const token = (await cookies()).get(ACCESS_COOKIE)?.value ?? "";
+    try {
+      const purchase = await findPaidPurchase(token, course.slug);
+      if (!purchase) return <CourseGate course={course} retry={query.pay === "retry"} />;
+      return (
+        <LessonRoom
+          course={course}
+          persist
+          initialProgress={await loadProgress(purchase.id)}
+        />
+      );
+    } catch (error) {
+      console.error("[self-serve] access", error);
+      return <CourseGate course={course} retry={query.pay === "retry"} />;
+    }
+  }
   return <CourseOutline course={course} />;
 }

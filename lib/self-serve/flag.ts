@@ -1,20 +1,24 @@
 /**
- * Self-serve courses stay off unless an environment explicitly turns them on.
- * Unset means off, including production. No default that could publish the
- * player onto experrt.com by accident.
+ * Self-serve courses are on unless an environment turns them off.
+ * Set NEXT_PUBLIC_SELF_SERVE_COURSES=false to hide the homepage pitch and
+ * 404 the /learn room. A server-only SELF_SERVE_COURSES=false still 404s
+ * the room without changing the inlined homepage string.
  */
+function readFlag(name: string): boolean | undefined {
+  const value = process.env[name];
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return undefined;
+}
+
 export function isSelfServeEnabled(): boolean {
-  return (
-    process.env.NEXT_PUBLIC_SELF_SERVE_COURSES === "true" ||
-    process.env.SELF_SERVE_COURSES === "true"
-  );
+  return readFlag("NEXT_PUBLIC_SELF_SERVE_COURSES") ?? readFlag("SELF_SERVE_COURSES") ?? true;
 }
 
 /**
- * The homepage link follows only the public env. A server-only flag must not
- * paint "Start a course" onto the live homepage, because that string is
- * inlined into the client bundle.
+ * The homepage link follows only the public env, because that string is
+ * inlined into the client bundle. Unset means on.
  */
 export function showSelfServeOnHomepage(): boolean {
-  return process.env.NEXT_PUBLIC_SELF_SERVE_COURSES === "true";
+  return readFlag("NEXT_PUBLIC_SELF_SERVE_COURSES") ?? true;
 }

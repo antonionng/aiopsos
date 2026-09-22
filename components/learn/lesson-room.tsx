@@ -43,11 +43,19 @@ function reversedIds(check: Extract<LessonCheck, { kind: "order" }>): string[] {
   return [...check.steps].map((step) => step.id).reverse();
 }
 
-export function LessonRoom({ course }: { course: SelfServeCourse }) {
+export function LessonRoom({
+  course,
+  persist = false,
+  initialProgress,
+}: {
+  course: SelfServeCourse;
+  persist?: boolean;
+  initialProgress?: CourseProgress;
+}) {
   const router = useRouter();
   const lessons = course.lessons ?? [];
-  const [progress, setProgress] = useState<CourseProgress>(emptyProgress);
-  const [index, setIndex] = useState(0);
+  const [progress, setProgress] = useState<CourseProgress>(initialProgress ?? emptyProgress());
+  const [index, setIndex] = useState(() => firstOpenIndex(lessons, initialProgress ?? emptyProgress()));
   const [ready, setReady] = useState(false);
   const [indexOpen, setIndexOpen] = useState(false);
   const [draft, setDraft] = useState<LessonAnswer | null>(null);
@@ -55,17 +63,27 @@ export function LessonRoom({ course }: { course: SelfServeCourse }) {
   const [name, setName] = useState("");
 
   useEffect(() => {
-    const stored = readProgress(course.slug);
-    setProgress(stored);
-    setIndex(firstOpenIndex(lessons, stored));
-    setName(stored.signedName ?? "");
+    const stored = initialProgress ?? readProgress(course.slug);
+    const serverEmpty = !initialProgress || Object.keys(initialProgress.lessons).length === 0;
+    const local = readProgress(course.slug);
+    const next =
+      persist && serverEmpty && Object.keys(local.lessons).length > 0 ? local : stored;
+    setProgress(next);
+    setIndex(firstOpenIndex(lessons, next));
+    setName(next.signedName ?? "");
     setReady(true);
-  }, [course.slug, lessons]);
+  }, [course.slug, initialProgress, lessons, persist]);
 
   useEffect(() => {
     if (!ready) return;
     window.localStorage.setItem(progressStorageKey(course.slug), JSON.stringify(progress));
-  }, [course.slug, progress, ready]);
+    if (!persist) return;
+    void fetch("/api/learn/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug: course.slug, progress }),
+    });
+  }, [course.slug, persist, progress, ready]);
 
   const lesson = lessons[index];
 
@@ -118,13 +136,29 @@ export function LessonRoom({ course }: { course: SelfServeCourse }) {
     window.localStorage.removeItem(progressStorageKey(course.slug));
   }
 
-  function sign() {
+  async function sign() {
     if (!canSign(lessons, progress, name)) return;
     const signedAt = new Date().toISOString();
-    const ref = certificateRef(name, signedAt);
-    const next = { ...progress, signedName: name.trim(), signedAt, ref };
+    const next = {
+      ...progress,
+      signedName: name.trim(),
+      signedAt,
+      ref: persist ? progress.ref : progress.ref ?? certificateRef(name, signedAt),
+    };
     setProgress(next);
     window.localStorage.setItem(progressStorageKey(course.slug), JSON.stringify(next));
+    if (persist) {
+      const res = await fetch("/api/learn/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: course.slug, progress: next, sign: true }),
+      });
+      const data = (await res.json()) as { progress?: CourseProgress };
+      if (data.progress?.ref) {
+        window.localStorage.setItem(progressStorageKey(course.slug), JSON.stringify(data.progress));
+        setProgress(data.progress);
+      }
+    }
     router.push(`/learn/${course.slug}/certificate`);
   }
 
@@ -204,7 +238,7 @@ export function LessonRoom({ course }: { course: SelfServeCourse }) {
               <section className="ex-sign" aria-labelledby="sign-heading">
                 <h2 id="sign-heading">Sign the record</h2>
                 <p className="ex-lede">
-                  When you sign, this browser keeps a record that you completed the course and signed the prompt card. The record does not say that you are compliant with any regulation.
+                  When you sign, the record names you and the prompt card you produced. A second person can open the public reference. The record does not say that you are compliant with any regulation.
                 </p>
                 <label htmlFor="signer">YOUR NAME</label>
                 <input
@@ -225,7 +259,7 @@ export function LessonRoom({ course }: { course: SelfServeCourse }) {
                 </button>
                 {progress.ref ? (
                   <Link className="ex-record-link" href={`/learn/${course.slug}/certificate`}>
-                    Open the preview record
+                    Open the record
                   </Link>
                 ) : null}
               </section>

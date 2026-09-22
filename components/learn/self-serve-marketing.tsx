@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { BuyCourseButton } from "@/components/learn/buy-course-button";
 import {
   coursesByTrack,
   SELF_SERVE_TRACKS,
@@ -41,14 +42,14 @@ export function SelfServeHomePitch() {
           </p>
           <div className="ex-hero-actions">
             <Link className="ex-button ex-button-dark" href={`/learn/${OPEN_SLUG}`}>
-              Start a course <ArrowRight size={18} />
+              Buy a course <ArrowRight size={18} />
             </Link>
             <Link className="ex-button ex-button-plain" href="/courses#self-serve">
               View the catalogue <ArrowRight size={18} />
             </Link>
           </div>
           <p className="ex-self-where">
-            Start a course opens the lesson, where you read the brief and complete the check.
+            Buy a course opens checkout for Prompt Engineering for Professional Work, then the first lesson.
           </p>
         </div>
         <ol className="ex-self-benefits">
@@ -63,15 +64,13 @@ export function SelfServeHomePitch() {
       <div className="ex-container">
         <article className="ex-self-open">
           <div>
-            <span className="ex-self-tag">Available to take</span>
+            <span className="ex-self-tag">Available to buy</span>
             <h3>Prompt Engineering for Professional Work</h3>
             <p>
-              You will learn how to brief a model with the same care you would brief a colleague, and you will leave with a prompt card someone else on your team can run. This preview does not take payment. The course is listed at £99 for when checkout is connected.
+              You will learn how to brief a model with the same care you would brief a colleague, and you will leave with a prompt card someone else on your team can run. The course costs £99. Checkout asks only for an email address and a card.
             </p>
           </div>
-          <Link className="ex-button ex-button-dark" href={`/learn/${OPEN_SLUG}`}>
-            Open the course <ArrowRight size={18} />
-          </Link>
+          <BuyCourseButton slug={OPEN_SLUG} label="Buy this course for £99" />
         </article>
       </div>
     </section>
@@ -111,7 +110,7 @@ export function SelfServeAcademyCatalogue({
           Take a course in your own time, and leave with work your organisation can <em>use.</em>
         </h2>
         <p>
-          These courses sit alongside the facilitated programmes. All forty are listed across AI, technology, robotics, and HR. Prompt Engineering for Professional Work is the one you can take now, including the checks and the signed record. The others describe what the course will cover, and they are not available to purchase yet.
+          These courses sit alongside the facilitated programmes. All forty are listed across AI, technology, robotics, and HR. Prompt Engineering for Professional Work is the one you can buy now, including the checks and the signed record. The others describe what the course will cover, and they are not available to purchase yet.
         </p>
       </div>
       <nav className="academy-self-filters" aria-label="Self-serve tracks">
@@ -132,15 +131,17 @@ export function SelfServeAcademyCatalogue({
       {showOpen ? (
         <article className="academy-self-open">
           <div>
-            <span className="academy-self-tag">Available to take</span>
+            <span className="academy-self-tag">Available to buy</span>
             <h3>Prompt Engineering for Professional Work</h3>
             <p>
-              Open the course to work through the four lessons. You will brief a model the way you would brief a colleague, and you will sign the prompt card you produce. This preview does not take payment.
+              Buy the course to work through the four lessons. You will brief a model the way you would brief a colleague, and you will sign the prompt card you produce. The course costs £99. Checkout asks only for an email address and a card.
             </p>
           </div>
-          <Link href={`/learn/${OPEN_SLUG}`} className="academy-button">
-            Open the course <ArrowRight size={18} />
-          </Link>
+          <BuyCourseButton
+            slug={OPEN_SLUG}
+            label="Buy this course for £99"
+            className="academy-button"
+          />
         </article>
       ) : null}
 

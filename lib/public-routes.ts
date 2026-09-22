@@ -32,6 +32,12 @@ export function isPublicPath(pathname: string): boolean {
     // than the middleware sending an unknown path to /login.
     pathname === "/learn" ||
     pathname.startsWith("/learn/") ||
+    pathname === "/api/learn/checkout" ||
+    pathname === "/api/learn/claim" ||
+    pathname === "/api/learn/progress" ||
+    pathname.startsWith("/api/learn/certificate/") ||
+    // Stripe posts here with a signature, not a session.
+    pathname === "/api/stripe/webhook" ||
     pathname.startsWith("/assess/") ||
     pathname.startsWith("/assessment/") ||
     pathname.startsWith("/api/public/") ||

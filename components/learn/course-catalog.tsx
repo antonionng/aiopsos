@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { BuyCourseButton } from "@/components/learn/buy-course-button";
 import { LearnBar } from "@/components/learn/learn-bar";
 import {
   SELF_SERVE_COURSES,
@@ -28,7 +28,7 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
           Browse the courses your people can take in their own time.
         </h1>
         <p className="ex-lede">
-          Prompt Engineering for Professional Work can be taken now. You will work through four lessons and sign the prompt card you produce. The other courses are listed so you can see what they will cover, and they are not available to purchase yet.
+          Prompt Engineering for Professional Work can be bought now. You will work through four lessons and sign the prompt card you produce. The other courses are listed so you can see what they will cover, and they are not available to purchase yet.
         </p>
         <nav className="ex-filters" aria-label="Tracks">
           <Link href="/learn" className={track ? undefined : "is-on"}>
@@ -58,11 +58,12 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
               ))}
             </ol>
             <div className="ex-open-foot">
-              <Link className="ex-button ex-button-dark" href={`/learn/${pilot.slug}`}>
-                Start the course <ArrowRight size={18} />
-              </Link>
+              <BuyCourseButton
+                slug={pilot.slug}
+                label={`Buy this course for £${pilot.priceGbp}`}
+              />
               <p className="ex-note">
-                This preview does not take payment. The course is listed at £{pilot.priceGbp} for when checkout is connected.
+                Checkout asks only for an email address and a card. The price on this page is the amount charged.
               </p>
             </div>
           </article>

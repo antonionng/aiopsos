@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { CertificateView } from "@/components/learn/certificate-view";
+import { ACCESS_COOKIE } from "@/lib/self-serve/commerce";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
+import { findPaidPurchase, loadProgress } from "@/lib/self-serve/records";
 import { withSiteShareImages } from "@/lib/social-image";
 
 export async function generateMetadata({
@@ -26,5 +29,21 @@ export default async function CertificatePage({
   const { slug } = await params;
   const course = getSelfServeCourse(slug);
   if (!course?.playable) notFound();
-  return <CertificateView slug={course.slug} title={course.title} />;
+  const token = (await cookies()).get(ACCESS_COOKIE)?.value ?? "";
+  let purchase = null;
+  let progress = null;
+  try {
+    purchase = token ? await findPaidPurchase(token, course.slug) : null;
+    progress = purchase ? await loadProgress(purchase.id) : null;
+  } catch (error) {
+    console.error("[self-serve] certificate", error);
+  }
+  return (
+    <CertificateView
+      slug={course.slug}
+      title={course.title}
+      progress={progress}
+      persist={!!purchase}
+    />
+  );
 }

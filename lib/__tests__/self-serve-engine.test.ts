@@ -105,20 +105,24 @@ test("the certificate waits until every check has passed and the card is signed"
   assert.match(ref, /^EX[0-9A-Z]{6,8}$/);
 });
 
-test("the flag is off unless an environment turns it on", () => {
+test("the flag is on unless an environment turns it off", () => {
   const prevPublic = process.env.NEXT_PUBLIC_SELF_SERVE_COURSES;
   const prevServer = process.env.SELF_SERVE_COURSES;
   try {
     delete process.env.NEXT_PUBLIC_SELF_SERVE_COURSES;
     delete process.env.SELF_SERVE_COURSES;
+    assert.equal(isSelfServeEnabled(), true);
+    assert.equal(showSelfServeOnHomepage(), true);
+
+    process.env.SELF_SERVE_COURSES = "false";
+    assert.equal(isSelfServeEnabled(), false);
+    assert.equal(showSelfServeOnHomepage(), true);
+
+    delete process.env.SELF_SERVE_COURSES;
+    process.env.NEXT_PUBLIC_SELF_SERVE_COURSES = "false";
     assert.equal(isSelfServeEnabled(), false);
     assert.equal(showSelfServeOnHomepage(), false);
 
-    process.env.SELF_SERVE_COURSES = "true";
-    assert.equal(isSelfServeEnabled(), true);
-    assert.equal(showSelfServeOnHomepage(), false);
-
-    delete process.env.SELF_SERVE_COURSES;
     process.env.NEXT_PUBLIC_SELF_SERVE_COURSES = "true";
     assert.equal(isSelfServeEnabled(), true);
     assert.equal(showSelfServeOnHomepage(), true);

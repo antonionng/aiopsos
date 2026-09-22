@@ -42,7 +42,9 @@
 .academy em { color: #7046eb; font-style: normal; }
 .academy-intro { max-width: 490px; margin-top: 26px; font-size: 17px; line-height: 1.75; color: var(--muted-foreground); }
 .academy-actions { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 28px; }
-.academy-button { display: inline-flex; align-items: center; justify-content: center; gap: 14px; border-radius: 8px; background: #7046eb; color: white; padding: 15px 22px; font-size: 14px; font-weight: 600; transition: background .2s; }
+.academy-button { display: inline-flex; align-items: center; justify-content: center; gap: 14px; border: 0; border-radius: 8px; background: #7046eb; color: white; padding: 15px 22px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s; }
+.academy-button:disabled { opacity: 0.38; cursor: default; }
+.academy-self-open .ex-hint { margin-top: 10px; color: var(--muted-foreground); font-size: 13px; line-height: 1.5; }
 .academy-button:hover { background: #5933c6; }
 .academy-text-link { display: inline-flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; }
 .academy-text-link:hover { text-decoration: underline; text-underline-offset: 5px; }
