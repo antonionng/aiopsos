@@ -787,6 +787,343 @@
     font-size: 28px;
   }
 }
+.ex-wide {
+  width: min(1280px, calc(100% - 48px));
+  margin-inline: auto;
+}
+.ex-landing {
+  padding-bottom: 0;
+}
+.ex-land-hero {
+  padding: 72px 0 28px;
+  background:
+    linear-gradient(180deg, #f4f0ff 0%, var(--ex-paper) 42%),
+    var(--ex-paper);
+  border-bottom: 1px solid var(--ex-line);
+}
+.ex-land-hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 48px;
+  align-items: end;
+}
+.ex-land-photo {
+  position: relative;
+  min-height: 460px;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #efeafa;
+}
+.ex-land-photo img {
+  object-fit: cover;
+}
+.ex-learn .ex-landing img {
+  filter: none;
+}
+.ex-land-photo figcaption {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  max-width: 16rem;
+  padding: 10px 12px;
+  background: var(--ex-citrus);
+  border-radius: 8px;
+  color: var(--ex-ink);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.ex-land-split {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 48px;
+  align-items: center;
+  margin-top: 28px;
+}
+.ex-land-photo-wide {
+  min-height: 520px;
+}
+.ex-land-split .ex-land-benefits {
+  grid-template-columns: 1fr;
+  margin-top: 24px;
+}
+.ex-land-photo-banner {
+  min-height: 280px;
+  margin: 22px 0 8px;
+}
+.ex-land-hero h1 {
+  max-width: 16em;
+  margin-top: 22px;
+  font-size: clamp(48px, 7vw, 92px);
+  letter-spacing: -3.6px;
+  line-height: 0.96;
+}
+.ex-land-hook {
+  max-width: 22em;
+  margin-top: 28px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(22px, 3vw, 34px);
+  font-weight: 500;
+  letter-spacing: -1px;
+  line-height: 1.25;
+}
+.ex-land-hero .ex-lede {
+  max-width: 40rem;
+}
+.ex-land-cta {
+  margin-top: 32px;
+}
+.ex-land-soon {
+  max-width: 36rem;
+  color: var(--ex-mute);
+  font-size: 16px;
+  line-height: 1.65;
+}
+.ex-land-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin: 64px 0 8px;
+}
+.ex-land-stats div {
+  padding-top: 22px;
+  border-top: 1px solid var(--ex-line);
+}
+.ex-land-stats dt {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 600;
+  letter-spacing: -2.4px;
+  line-height: 1;
+  color: var(--ex-violet);
+}
+.ex-land-stats dd {
+  margin-top: 14px;
+  color: var(--ex-ink);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.ex-land-stats cite {
+  display: block;
+  margin-top: 10px;
+  color: var(--ex-mute);
+  font-size: 12px;
+  font-style: normal;
+}
+.ex-land-band,
+.ex-land-jobs,
+.ex-land-reviews,
+.ex-land-modules {
+  padding: 88px 0;
+}
+.ex-land-jobs,
+.ex-land-modules {
+  background: white;
+}
+.ex-land-reviews {
+  background: #201c29;
+  color: #fffefa;
+}
+.ex-land-reviews .ex-eyebrow,
+.ex-land-reviews h2 {
+  color: #fffefa;
+}
+.ex-landing h2 {
+  max-width: 16em;
+  margin-top: 16px;
+  font-size: clamp(32px, 4vw, 52px);
+  letter-spacing: -1.8px;
+  line-height: 1.12;
+}
+.ex-land-benefits,
+.ex-land-job-grid,
+.ex-land-review-grid,
+.ex-land-module-grid {
+  display: grid;
+  gap: 22px;
+  margin: 40px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ex-land-benefits {
+  grid-template-columns: repeat(3, 1fr);
+}
+.ex-land-benefits li,
+.ex-land-job-grid li,
+.ex-land-review-grid li,
+.ex-land-module-grid li {
+  padding: 28px 26px;
+  background: var(--ex-paper);
+  border-radius: 18px;
+}
+.ex-land-benefits b,
+.ex-land-module-grid b {
+  display: block;
+  margin-bottom: 16px;
+  color: var(--ex-violet);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+.ex-land-benefits h3,
+.ex-land-job-grid h3 {
+  font-size: 24px;
+  letter-spacing: -0.7px;
+  line-height: 1.2;
+}
+.ex-land-benefits p,
+.ex-land-job-grid p {
+  margin-top: 12px;
+  color: var(--ex-mute);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.ex-land-job-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+.ex-land-pay {
+  margin-top: 10px !important;
+  display: inline-block;
+  padding: 6px 9px;
+  background: var(--ex-citrus);
+  border-radius: 4px;
+  color: var(--ex-ink) !important;
+  font-size: 13px !important;
+  font-weight: 700;
+}
+.ex-land-review-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+.ex-land-review-grid li {
+  background: #2a2634;
+}
+.ex-land-review-grid p {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+  line-height: 1.4;
+}
+.ex-land-review-grid strong {
+  display: block;
+  margin-top: 22px;
+  font-size: 15px;
+}
+.ex-land-review-grid span {
+  display: block;
+  margin-top: 4px;
+  color: #beb3d0;
+  font-size: 13px;
+}
+.ex-land-module-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+.ex-land-module-grid span {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+}
+.ex-land-buyagain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 48px;
+  padding: 32px;
+  background: #f4f0ff;
+  border-radius: 18px;
+}
+.ex-land-buyagain h3 {
+  font-size: 28px;
+  letter-spacing: -1px;
+}
+.ex-land-buyagain p {
+  max-width: 36rem;
+  margin-top: 10px;
+  color: var(--ex-mute);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.ex-land-sources {
+  padding: 28px 0 80px;
+  color: var(--ex-mute);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.ex-land-sources a {
+  font-weight: 600;
+  color: var(--ex-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ex-land-sources .ex-wide {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+}
+.ex-land-sources .ex-wide a[href="/learn"] {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+@media (max-width: 980px) {
+  .ex-land-stats,
+  .ex-land-benefits,
+  .ex-land-job-grid,
+  .ex-land-review-grid,
+  .ex-land-module-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 720px) {
+  .ex-wide {
+    width: calc(100% - 40px);
+  }
+  .ex-land-hero,
+  .ex-land-band,
+  .ex-land-jobs,
+  .ex-land-reviews,
+  .ex-land-modules {
+    padding-block: 56px;
+  }
+  .ex-land-hero h1 {
+    font-size: clamp(40px, 12vw, 58px);
+    letter-spacing: -2px;
+  }
+  .ex-land-stats,
+  .ex-land-benefits,
+  .ex-land-job-grid,
+  .ex-land-review-grid,
+  .ex-land-module-grid {
+    grid-template-columns: 1fr;
+  }
+  .ex-land-buyagain,
+  .ex-land-sources .ex-wide {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ex-land-buyagain .ex-button,
+  .ex-land-cta .ex-button {
+    width: 100%;
+  }
+  .ex-land-hero-grid,
+  .ex-land-split {
+    grid-template-columns: 1fr;
+  }
+  .ex-land-photo,
+  .ex-land-photo-wide {
+    min-height: 240px;
+  }
+  .ex-land-photo-banner {
+    min-height: 200px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .ex-room-body {
     animation: none;
