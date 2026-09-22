@@ -31,7 +31,11 @@ export function SelfServePurchaseAlertEmail({
     ? new Date(paidAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/London" })
     : "Just now";
   return (
-    <EmailShell heading={`${name?.trim() || email} bought ${courseTitle}.`} footerNote="Sent by Experrt.">
+    <EmailShell
+      eyebrow="Owner alert · New sale"
+      heading={`${name?.trim() || email} bought ${courseTitle}.`}
+      footerNote="Sent to the Experrt owner inbox."
+    >
       {row("Buyer", name?.trim() || "No name given at checkout")}
       {row("Email", email)}
       {row("Course", courseTitle)}

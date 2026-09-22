@@ -82,6 +82,29 @@ test("a finished course that is unsigned gets the sign note", () => {
   );
 });
 
+test("a signed record gets one next-course note three days later", () => {
+  const signedAt = new Date(at(day * 2)).toISOString();
+  const base = {
+    paidAt: paid,
+    lessonIds: lessons,
+    passedIds: lessons,
+    signed: true,
+    signedAt,
+    progressUpdatedAt: signedAt,
+  };
+  const none = { start: false, continue: false, sign: false, next: false };
+  assert.equal(chooseSelfServeNudge({ ...base, now: at(day * 4), sent: none }), null);
+  assert.equal(chooseSelfServeNudge({ ...base, now: at(day * 5), sent: none }), "next");
+  assert.equal(
+    chooseSelfServeNudge({ ...base, now: at(day * 9), sent: { ...none, next: true } }),
+    null
+  );
+  assert.equal(
+    chooseSelfServeNudge({ ...base, now: at(day * 9), optedOut: true, sent: none }),
+    null
+  );
+});
+
 test("a signed record is left alone", () => {
   assert.equal(
     chooseSelfServeNudge({

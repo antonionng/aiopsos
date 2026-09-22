@@ -1,20 +1,38 @@
 import * as React from "react";
 import { EmailShell, emailStyles } from "./academy-shell";
+import { CoursePicks } from "./course-picks";
+import type { CoursePick } from "@/lib/self-serve/upsell";
 
 export function SelfServeWelcomeEmail({
   name,
   email,
   courseTitle,
   accountUrl,
+  picks = [],
+  base,
 }: {
   name?: string | null;
   email: string;
   courseTitle?: string | null;
   accountUrl: string;
+  picks?: CoursePick[];
+  base: string;
 }) {
   const first = name?.trim().split(/\s+/)[0];
   return (
-    <EmailShell heading={first ? `Welcome to Experrt, ${first}.` : "Welcome to Experrt."}>
+    <EmailShell
+      eyebrow="Account created"
+      heading={first ? `Welcome to Experrt, ${first}.` : "Welcome to Experrt."}
+      preheader="Your sign-in is saved. Come back to your courses on any device."
+      after={
+        <CoursePicks
+          picks={picks}
+          base={base}
+          campaign="welcome"
+          heading="When you are ready for the next course"
+        />
+      }
+    >
       <p style={emailStyles.paragraph}>
         Thank you for signing up. Your sign-in is saved on {email}. Use that email address and the
         password you chose to come back on any device.
@@ -43,7 +61,11 @@ export function SelfServeAccountAlertEmail({
   courseTitle?: string | null;
 }) {
   return (
-    <EmailShell heading={`${name?.trim() || email} created a learner account.`} footerNote="Sent by Experrt.">
+    <EmailShell
+      eyebrow="Owner alert"
+      heading={`${name?.trim() || email} created a learner account.`}
+      footerNote="Sent to the Experrt owner inbox."
+    >
       <p style={emailStyles.detailRow}>
         <span style={emailStyles.detailLabel}>Name: </span>
         {name?.trim() || "Not given"}

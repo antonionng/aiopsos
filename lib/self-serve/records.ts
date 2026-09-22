@@ -136,7 +136,7 @@ export async function fulfillSelfServeSession(
   );
 
   if (!purchase.receipt_sent_at && purchase.email && purchase.access_token) {
-    await sendPurchaseMail(purchase, course.title, options.origin);
+    await sendPurchaseMail(purchase, course, options.origin);
   }
 
   return purchase;
@@ -144,41 +144,64 @@ export async function fulfillSelfServeSession(
 
 async function sendPurchaseMail(
   purchase: PurchaseRow,
-  courseTitle: string,
+  course: SelfServeCourse,
   origin?: string
 ) {
   const base = (origin ?? getPublicSiteUrl()).replace(/\/$/, "");
   const learnUrl = `${base}/learn/${purchase.course_slug}?access=${purchase.access_token}`;
   const accountUrl = `${base}/learn/my-courses`;
   const amountGbp = purchase.amount / 100;
-  const hasAccount = Boolean(purchase.user_id) || (await accountExistsForEmail(purchase.email));
-  try {
-    await sendSelfServeReceipt({
-      email: purchase.email as string,
+  const email = purchase.email as string;
+  const hasAccount = Boolean(purchase.user_id) || (await accountExistsForEmail(email));
+  const owned = await ownedCourseSlugs(email);
+
+  const [receipt, alert] = await Promise.allSettled([
+    sendSelfServeReceipt({
+      email,
       name: purchase.buyer_name,
-      courseTitle,
+      courseSlug: course.slug,
+      courseTitle: course.title,
+      artefactTitle: courseArtefact(course)?.title ?? null,
       amountGbp,
+      paidAt: purchase.paid_at,
       learnUrl,
       accountUrl,
       hasAccount,
-    });
-    await sendSelfServePurchaseAlert({
-      email: purchase.email as string,
+      owned,
+      origin: base,
+    }),
+    sendSelfServePurchaseAlert({
+      email,
       name: purchase.buyer_name,
-      courseTitle,
+      courseTitle: course.title,
       amountGbp,
       paidAt: purchase.paid_at,
       hasAccount,
       stripeSessionId: purchase.stripe_session_id,
-    });
-    await supabaseAdmin
-      .from("self_serve_purchases")
-      .update({ receipt_sent_at: new Date().toISOString() })
-      .eq("id", purchase.id)
-      .is("receipt_sent_at", null);
-  } catch (error) {
-    console.error("[self-serve] receipt mail failed", error);
+    }),
+  ]);
+  if (alert.status === "rejected") console.error("[self-serve] purchase alert failed", alert.reason);
+  if (receipt.status === "rejected") {
+    console.error("[self-serve] receipt mail failed", receipt.reason);
+    return;
   }
+  await supabaseAdmin
+    .from("self_serve_purchases")
+    .update({ receipt_sent_at: new Date().toISOString() })
+    .eq("id", purchase.id)
+    .is("receipt_sent_at", null);
+}
+
+/** Every course this address has paid for, so suggestions never offer one of them. */
+export async function ownedCourseSlugs(email: string | null | undefined): Promise<string[]> {
+  const address = normaliseEmail(email);
+  if (!address) return [];
+  const { data } = await supabaseAdmin
+    .from("self_serve_purchases")
+    .select("course_slug")
+    .ilike("email", address.replace(/[\\%_]/g, (c) => `\\${c}`))
+    .eq("status", "paid");
+  return [...new Set(((data as { course_slug: string }[] | null) ?? []).map((row) => row.course_slug))];
 }
 
 export async function findPurchaseBySession(

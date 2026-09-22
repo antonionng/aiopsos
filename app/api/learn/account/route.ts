@@ -9,6 +9,7 @@ import { cookiePurchase, currentLearner } from "@/lib/self-serve/access";
 import {
   findAccountIdForEmail,
   linkPurchasesToUser,
+  ownedCourseSlugs,
 } from "@/lib/self-serve/records";
 
 const MIN_PASSWORD = 8;
@@ -111,7 +112,14 @@ export async function POST(req: Request) {
   if (signInError) console.error("[self-serve] sign in after create", signInError);
 
   try {
-    await sendSelfServeWelcome({ email, name, courseTitle, accountUrl });
+    await sendSelfServeWelcome({
+      email,
+      name,
+      courseSlug: purchase.course_slug,
+      courseTitle,
+      accountUrl,
+      owned: await ownedCourseSlugs(email),
+    });
   } catch (error) {
     console.error("[self-serve] welcome mail", error);
   }

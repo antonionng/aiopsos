@@ -40,6 +40,7 @@ export function isPublicPath(pathname: string): boolean {
     pathname === "/api/learn/progress" ||
     pathname === "/api/learn/account" ||
     pathname === "/api/learn/feedback" ||
+    pathname === "/api/learn/unsubscribe" ||
     pathname.startsWith("/api/learn/certificate/") ||
     // Stripe posts here with a signature, not a session.
     pathname === "/api/stripe/webhook" ||

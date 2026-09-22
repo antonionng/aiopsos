@@ -2,29 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getPublicSiteUrl } from "@/lib/site";
+import { linkedInAddUrl, verifyUrl } from "@/lib/self-serve/share-links";
 import { Wordmark } from "@/components/wordmark";
 import { LITERACY_DISCLAIMER } from "@/lib/constants";
 import { progressStorageKey } from "@/lib/self-serve/engine";
 import type { BuildAnswer, CourseProgress, ResolvedArtefact } from "@/lib/self-serve/types";
-
-function verifyUrl(ref: string): string {
-  return `${getPublicSiteUrl()}/verify/${ref}`;
-}
-
-function linkedInAddUrl(course: string, ref: string, signedAt?: string): string {
-  const date = signedAt ? new Date(signedAt) : new Date();
-  const params = new URLSearchParams({
-    startTask: "CERTIFICATION_NAME",
-    name: course,
-    organizationName: "Experrt",
-    issueYear: String(date.getFullYear()),
-    issueMonth: String(date.getMonth() + 1),
-    certUrl: verifyUrl(ref),
-    certId: ref,
-  });
-  return `https://www.linkedin.com/profile/add?${params}`;
-}
 
 export function CertificateView({
   slug,

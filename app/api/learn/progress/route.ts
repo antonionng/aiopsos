@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { isSelfServeEnabled } from "@/lib/self-serve/flag";
 import { findEntitledPurchase } from "@/lib/self-serve/access";
-import { canSign } from "@/lib/self-serve/engine";
+import { canSign, courseArtefact } from "@/lib/self-serve/engine";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
+import { sendSelfServeCompleted } from "@/lib/email";
 import {
   loadProgress,
+  ownedCourseSlugs,
   saveProgress,
   signProgress,
 } from "@/lib/self-serve/records";
@@ -58,6 +60,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+    const before = await loadProgress(purchase.id);
     const signed = await signProgress(
       purchase.id,
       {
@@ -66,6 +69,22 @@ export async function POST(req: Request) {
       },
       course
     );
+    if (!before.signedAt && signed.signedAt && signed.ref && purchase.email) {
+      try {
+        await sendSelfServeCompleted({
+          email: purchase.email,
+          name: signed.signedName ?? name.trim(),
+          courseSlug: course.slug,
+          courseTitle: course.title,
+          artefactTitle: courseArtefact(course)?.title ?? "final work",
+          certificateRef: signed.ref,
+          signedAt: signed.signedAt,
+          owned: await ownedCourseSlugs(purchase.email),
+        });
+      } catch (error) {
+        console.error("[self-serve] completion mail", error);
+      }
+    }
     return NextResponse.json({ progress: signed });
   }
 
