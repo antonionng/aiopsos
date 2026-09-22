@@ -169,6 +169,16 @@ Tested returning learner: yes / no
 Pass rule tests written:  yes / no
 ```
 
+## 9a. Market figures
+
+Every course page shows three market figures in the price card and one benefit that explains why the skill matters now. These live in `lib/self-serve/market-stats.ts`, keyed by course slug.
+
+1. Each figure must be found in the text of the source page it links to. Never round, infer, or carry a number from secondary coverage when the primary page can be opened.
+2. At least two of the three figures must be about the course's own subject. A robotics course does not show AI salary figures, and a privacy course shows privacy figures.
+3. Prefer UK sources, then European, then global, published within the last three years. Name the scope in the label when a figure is global or comes from a vendor.
+4. The `line` is one sentence of at most 70 characters that reads after the value. Figures describe the market and never promise the learner a pay rise or a job.
+5. `lib/__tests__/self-serve-landing.test.ts` fails if a course has fewer than three figures, a figure has no source, or two courses in a track share the same three.
+
 ## 10. Gates before shipping
 
 Every answer must be yes.
@@ -185,3 +195,4 @@ Every answer must be yes.
 10. Would a manager pay for a seat after reading the promise and the first lesson?
 11. Does the course end with a scenario assessment with a pass mark, and then the artefact?
 12. Does a search of the file find none of the banned words in section 0, and no em dashes?
+13. Does the course have three verified market figures of its own in `market-stats.ts`?

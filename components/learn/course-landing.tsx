@@ -4,15 +4,19 @@ import { ArrowUpRight } from "lucide-react";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
 import { trackLabel } from "@/lib/self-serve/catalog";
 import { courseArtefact } from "@/lib/self-serve/engine";
-import { formatCourseHours, getCourseLanding } from "@/lib/self-serve/landing";
+import {
+  courseCurriculum,
+  formatCourseHours,
+  getCourseLanding,
+  type CurriculumItem,
+} from "@/lib/self-serve/landing";
 import type { SelfServeCourse } from "@/lib/self-serve/types";
 
-function ribbonLine(value: string, label: string): string {
-  if (value === "34.2%") return "UK specialist-AI wage premium in 2025.";
-  if (value === "180,000") return "UK postings that asked for specialist AI skills.";
-  if (value.startsWith("£")) return "Published midpoint for an AI Prompt Engineer.";
-  return label;
-}
+const KIND_LABEL: Record<CurriculumItem["kind"], string> = {
+  lesson: "Lesson",
+  assessment: "Course assessment",
+  final: "Final work and signed record",
+};
 
 export function CourseLanding({
   course,
@@ -26,6 +30,10 @@ export function CourseLanding({
   const artefactName = artefact
     ? `${artefact.title.charAt(0).toLowerCase()}${artefact.title.slice(1)}`
     : "the work you produce";
+  const curriculum = courseCurriculum(course);
+  const teaching = curriculum.filter((item) => item.kind === "lesson").length;
+  const assessmentCheck = course.lessons?.find((lesson) => lesson.check.kind === "scenario")?.check;
+  const assessment = assessmentCheck?.kind === "scenario" ? assessmentCheck.questions.length : 0;
 
   return (
     <>
@@ -45,15 +53,46 @@ export function CourseLanding({
               <h1>{course.title}</h1>
               <p className="ex-lede">{landing.outcome}</p>
               <p className="ex-product-hook">{landing.hook}</p>
-              <h2>What the course covers</h2>
+              <h2>What you will do</h2>
               <p className="ex-product-note">
-                Each lesson teaches one part of the skill, works through a realistic example, and ends with a check on a new case. The course closes with an assessment and a piece of work you sign.
+                Each lesson teaches one part of the method, works through a realistic example, and ends with a check on a case you have not seen. The course closes with an assessment and then the piece of work you sign.
               </p>
-              <ol className="ex-product-lessons">
-                {course.modules.map((module, index) => (
-                  <li key={module}>
-                    <b>{String(index + 1).padStart(2, "0")}</b>
-                    <span>{module}</span>
+              <ul className="ex-product-facts">
+                <li>
+                  <b>{teaching}</b>
+                  <span>{teaching === 1 ? "lesson" : "lessons"} with a worked example and a check</span>
+                </li>
+                {assessment ? (
+                  <li>
+                    <b>{assessment}</b>
+                    <span>scenario questions in the course assessment</span>
+                  </li>
+                ) : null}
+                <li>
+                  <b>Signed</b>
+                  <span>{artefactName}, with a record anyone can verify</span>
+                </li>
+                <li>
+                  <b>{formatCourseHours(course.hours)}</b>
+                  <span>at your own pace, with progress saved</span>
+                </li>
+              </ul>
+              <ol className="ex-curriculum">
+                {curriculum.map((item, index) => (
+                  <li key={item.id} className={`is-${item.kind}`}>
+                    <b className="ex-curriculum-num">{String(index + 1).padStart(2, "0")}</b>
+                    <div>
+                      <p className="ex-curriculum-tag">{KIND_LABEL[item.kind]}</p>
+                      <h3>{item.title}</h3>
+                      {item.covers.length > 0 ? (
+                        <ul className="ex-curriculum-covers" aria-label="Topics covered">
+                          {item.covers.map((topic) => (
+                            <li key={topic}>{topic}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {item.task ? <p className="ex-curriculum-task">{item.task}</p> : null}
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -88,10 +127,11 @@ export function CourseLanding({
                   Payment has not been confirmed yet. If you were charged, open the link in the receipt email. If you were not charged, buy the course again.
                 </p>
               ) : null}
-              <ul>
+              <p className="ex-product-stats-head">Why this skill matters now</p>
+              <ul aria-label="Market figures for this subject">
                 {landing.stats.map((stat) => (
-                  <li key={stat.value}>
-                    <b>{stat.value}</b> {ribbonLine(stat.value, stat.label)}
+                  <li key={stat.value + stat.line}>
+                    <b>{stat.value}</b> {stat.line}
                   </li>
                 ))}
               </ul>
@@ -111,7 +151,7 @@ export function CourseLanding({
               <span className="ex-land-sticker">
                 GOOD WORK.
                 <br />
-                WORK YOUR TEAM CAN USE.
+                {artefact ? `${artefact.title.toUpperCase()}, SIGNED.` : "WORK YOUR TEAM CAN USE."}
               </span>
             </figure>
             <div>
@@ -240,7 +280,7 @@ export function CourseLanding({
         <footer className="ex-land-sources">
           <div className="ex-wide">
             <p>
-              Salary and hiring figures are taken from named public sources and are not a forecast of your pay after this course.{" "}
+              The market figures on this page come from the public sources named here. They describe the market for this subject and are not a forecast of your own pay or results.{" "}
               {landing.sources.map((source, index) => (
                 <span key={source.href}>
                   <a href={source.href} rel="noreferrer">

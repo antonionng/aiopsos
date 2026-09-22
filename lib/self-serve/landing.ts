@@ -1,10 +1,14 @@
 import { courseArtefact } from "./engine.ts";
-import type { SelfServeCourse, SelfServeTrack } from "./types.ts";
+import { COURSE_MARKET, MARKET_STATS } from "./market-stats.ts";
+import type { SelfServeCourse, SelfServeLesson, SelfServeTrack } from "./types.ts";
 
 export type MarketStat = {
   value: string;
+  /** Reads after the value in the price card. */
+  line: string;
   label: string;
   source: string;
+  href: string;
 };
 
 export type MarketJob = {
@@ -46,18 +50,24 @@ const ROBERT_HALF_LONDON = {
 const AI_STATS: MarketStat[] = [
   {
     value: "34.2%",
+    line: "UK wage premium for specialist AI skills in 2025.",
     label: "Average UK wage premium for specialist AI skills in 2025, up from 11% the year before.",
     source: PWC.label,
+    href: PWC.href,
   },
   {
     value: "180,000",
+    line: "UK job postings asked for specialist AI skills in 2025.",
     label: "UK job postings that asked for specialist AI skills in 2025, up from 112,000 in 2024.",
     source: PWC.label,
+    href: PWC.href,
   },
   {
     value: "£92,500",
+    line: "Published UK midpoint salary for an AI Prompt Engineer.",
     label: "Midpoint UK salary Robert Half publishes for an AI Prompt Engineer in 2026.",
     source: ROBERT_HALF.label,
+    href: ROBERT_HALF.href,
   },
 ];
 
@@ -164,7 +174,10 @@ function defaultBenefits(course: SelfServeCourse, artefactTitle: string | null):
       body: "When you finish, you sign a record that names you, the course, and the work you produced. A manager or client can open it online and download it as a PDF.",
     },
   ];
-  if (course.track === "ai") {
+  const market = COURSE_MARKET[course.slug];
+  if (market) {
+    benefits.push(market.benefit);
+  } else if (course.track === "ai") {
     benefits.push({
       title: "A skill the market already rewards",
       body: "PwC's 2026 AI Jobs Barometer found that specialist AI skills carried a 34.2 per cent wage premium in the UK in 2025. The figure describes the market and is not a promise about your own pay.",
@@ -173,19 +186,94 @@ function defaultBenefits(course: SelfServeCourse, artefactTitle: string | null):
   return benefits;
 }
 
+export function courseStats(course: SelfServeCourse): MarketStat[] {
+  const market = COURSE_MARKET[course.slug];
+  if (market) {
+    const stats = market.stats.map((id) => MARKET_STATS[id]).filter((stat): stat is MarketStat => !!stat);
+    if (stats.length > 0) return stats;
+  }
+  return course.track === "ai" ? AI_STATS : [];
+}
+
+function uniqueSources(stats: MarketStat[], extra: { label: string; href: string }[]) {
+  const seen = new Set<string>();
+  const sources: { label: string; href: string }[] = [];
+  for (const source of [...stats.map((stat) => ({ label: stat.source, href: stat.href })), ...extra]) {
+    if (seen.has(source.href)) continue;
+    seen.add(source.href);
+    sources.push(source);
+  }
+  return sources;
+}
+
 export function getCourseLanding(course: SelfServeCourse): LandingCopy {
   const ai = course.track === "ai";
+  const stats = courseStats(course);
   return {
     hook: TRACK_HOOK[course.track],
     outcome: course.promise,
     benefits: defaultBenefits(course, courseArtefact(course)?.title ?? null),
-    stats: ai ? AI_STATS : AI_STATS.slice(0, 2),
+    stats,
     jobs: ai ? AI_JOBS : [],
     reviews: course.slug === "prompt-engineering-for-professional-work" ? PILOT_REVIEWS : [],
-    sources: ai
-      ? [PWC, ROBERT_HALF, ROBERT_HALF_LONDON]
-      : [PWC],
+    sources: uniqueSources(stats, ai ? [PWC, ROBERT_HALF, ROBERT_HALF_LONDON] : []),
   };
+}
+
+export type CurriculumItem = {
+  id: string;
+  kind: "lesson" | "assessment" | "final";
+  title: string;
+  covers: string[];
+  task: string;
+};
+
+function taskFor(lesson: SelfServeLesson, artefactTitle: string | null): string {
+  const check = lesson.check;
+  switch (check.kind) {
+    case "mark":
+      return `You mark ${check.sentences.length} statements from a realistic case and receive an explanation for each one.`;
+    case "choose":
+      return "You compare two versions of the same piece of work, choose the stronger one, and see the reasoning behind the answer.";
+    case "order":
+      return `You put ${check.steps.length} steps in the order that holds up in practice, with feedback on the sequence.`;
+    case "edit":
+      return "You repair a flawed draft so it meets the standard the lesson sets, and your revision is checked against it.";
+    case "build":
+      return artefactTitle
+        ? `You write ${artefactTitle.charAt(0).toLowerCase()}${artefactTitle.slice(1)} for your own work, part by part, and sign it as your record.`
+        : "You write the finished piece for your own work, part by part, and sign it as your record.";
+    case "scenario": {
+      const needed = Math.min(check.passMark ?? check.questions.length, check.questions.length);
+      return `You judge ${check.questions.length} new workplace situations, with feedback on every option, and need ${needed} correct to pass.`;
+    }
+  }
+}
+
+export function courseCurriculum(course: SelfServeCourse): CurriculumItem[] {
+  const lessons = course.lessons ?? [];
+  if (lessons.length === 0) {
+    return course.modules.map((title, index) => ({
+      id: `module-${index}`,
+      kind: "lesson",
+      title,
+      covers: [],
+      task: "",
+    }));
+  }
+  const artefact = courseArtefact(course);
+  return lessons.map((lesson) => ({
+    id: lesson.id,
+    kind:
+      lesson.check.kind === "scenario"
+        ? "assessment"
+        : artefact?.lessonId === lesson.id
+          ? "final"
+          : "lesson",
+    title: lesson.title,
+    covers: lesson.sections.map((section) => section.heading),
+    task: taskFor(lesson, artefact?.title ?? null),
+  }));
 }
 
 export function formatCourseHours(hours: number): string {

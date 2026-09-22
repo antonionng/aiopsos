@@ -1,42 +1,84 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { getSelfServeCourse } from "../self-serve/catalog.ts";
-import { getCourseLanding } from "../self-serve/landing.ts";
+import { SELF_SERVE_COURSES, getSelfServeCourse } from "../self-serve/catalog.ts";
+import { courseCurriculum, getCourseLanding } from "../self-serve/landing.ts";
 
-test("the playable course landing cites published salary and hiring figures", () => {
+const AI_ONLY = /34\.2%|£92,500/;
+
+test("the Prompt Engineering landing cites salary figures, AI roles, and reviews", () => {
   const course = getSelfServeCourse("prompt-engineering-for-professional-work");
   assert.ok(course);
   const landing = getCourseLanding(course);
-  const values = landing.stats.map((stat) => stat.value).join(" ");
-  assert.match(values, /34\.2%/);
-  assert.match(values, /180,000/);
-  assert.match(values, /£92,500/);
+  assert.equal(landing.stats.length, 3);
   assert.equal(landing.reviews.length, 6);
   assert.ok(landing.jobs.some((job) => job.title === "AI Prompt Engineer"));
-  assert.ok(landing.sources.some((source) => source.href.includes("pwc.co.uk")));
   assert.ok(landing.sources.some((source) => source.href.includes("roberthalf.com")));
 });
 
-test("a course outside the AI track shows its own benefits, and no reviews or AI salary bands", () => {
-  const course = getSelfServeCourse("robotics-for-non-engineers");
-  assert.ok(course);
-  const landing = getCourseLanding(course);
-  assert.ok(landing.stats.length >= 2);
-  assert.match(landing.hook, /judgement/i);
-  assert.equal(landing.reviews.length, 0);
-  assert.equal(landing.jobs.length, 0);
-  assert.equal(landing.benefits.length, 3);
+test("every course shows three sourced market figures of its own", () => {
+  for (const course of SELF_SERVE_COURSES) {
+    const landing = getCourseLanding(course);
+    assert.equal(landing.stats.length, 3, `${course.slug} needs three figures`);
+    for (const stat of landing.stats) {
+      assert.match(stat.href, /^https:\/\//, `${course.slug} ${stat.value} needs a source link`);
+      assert.ok(stat.line.length <= 80, `${course.slug} ${stat.value} line is too long`);
+      assert.match(stat.line.trim(), /\.$/);
+      assert.ok(
+        landing.sources.some((source) => source.href === stat.href),
+        `${course.slug} must list the source for ${stat.value}`
+      );
+    }
+    if (course.track !== "ai") {
+      assert.doesNotMatch(
+        landing.stats.map((stat) => stat.value).join(" "),
+        AI_ONLY,
+        `${course.slug} should not show AI salary figures`
+      );
+      assert.equal(landing.jobs.length, 0);
+    }
+  }
+});
+
+test("no two courses in a track share the same three figures", () => {
+  const seen = new Map<string, string>();
+  for (const course of SELF_SERVE_COURSES) {
+    const key = `${course.track}:${getCourseLanding(course)
+      .stats.map((stat) => stat.value + stat.line)
+      .sort()
+      .join("|")}`;
+    assert.ok(!seen.has(key), `${course.slug} repeats the figures of ${seen.get(key)}`);
+    seen.set(key, course.slug);
+  }
+});
+
+test("the curriculum names every lesson, the assessment, and the final work", () => {
+  for (const course of SELF_SERVE_COURSES) {
+    const items = courseCurriculum(course);
+    assert.equal(items.length, course.lessons?.length);
+    assert.equal(items.filter((item) => item.kind === "final").length, 1, `${course.slug} final work`);
+    assert.ok(items.some((item) => item.kind === "assessment"), `${course.slug} assessment`);
+    for (const item of items) {
+      assert.ok(item.covers.length > 0, `${course.slug} ${item.title} covers nothing`);
+      assert.match(item.task, /^You .+\.$/);
+    }
+  }
 });
 
 test("landing copy is written in full sentences without banned words or dashes", () => {
-  for (const slug of ["prompt-engineering-for-professional-work", "robotics-for-non-engineers"]) {
-    const course = getSelfServeCourse(slug);
-    assert.ok(course);
+  for (const course of SELF_SERVE_COURSES) {
     const landing = getCourseLanding(course);
-    const text = [landing.hook, ...landing.benefits.flatMap((b) => [b.body])].join(" ");
-    assert.doesNotMatch(text, /[\u2014\u2013]/);
-    assert.doesNotMatch(text, /\b(delve|unlock|empower|leverage|seamless|robust|landscape|journey)\b/i);
+    const text = [
+      landing.hook,
+      ...landing.benefits.flatMap((b) => [b.title, b.body]),
+      ...landing.stats.flatMap((s) => [s.line, s.label]),
+    ].join(" ");
+    assert.doesNotMatch(text, /[\u2014\u2013]/, course.slug);
+    assert.doesNotMatch(
+      text,
+      /\b(delve|unlock|unleash|elevate|empower|supercharge|leverage|seamless|robust|landscape|journey|harness|revolutionise|transformative)\b/i,
+      course.slug
+    );
     for (const body of landing.benefits.map((b) => b.body)) assert.match(body.trim(), /\.$/);
   }
 });

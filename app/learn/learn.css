@@ -1242,6 +1242,16 @@
   color: var(--ex-violet);
   font-size: 13px;
 }
+.ex-product-stats-head {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  color: var(--ex-violet);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-top: 1px solid var(--ex-line);
+}
 .ex-product-facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1377,9 +1387,8 @@
   justify-content: center;
 }
 .ex-product-buy ul {
-  margin: 16px 0 0;
-  padding: 12px 0 0;
-  border-top: 1px solid var(--ex-line);
+  margin: 4px 0 0;
+  padding: 0;
   list-style: none;
 }
 .ex-product-buy li {
