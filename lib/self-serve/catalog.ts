@@ -350,12 +350,12 @@ const PILOT: SelfServeCourse = {
   slug: "prompt-engineering-for-professional-work",
   title: "Prompt Engineering for Professional Work",
   track: "ai",
-  hours: 2.5,
+  hours: 3,
   priceGbp: 1,
   playable: true,
   promise:
     "Instruct a model the way you would brief a colleague. Leave with a prompt card someone else can run.",
-  modules: ["Brief the model", "Four parts of a brief", "Fix the miss", "The prompt card"],
+  modules: PROMPT_ENGINEERING_LESSONS.map((lesson) => lesson.title),
   lessons: PROMPT_ENGINEERING_LESSONS,
 };
 

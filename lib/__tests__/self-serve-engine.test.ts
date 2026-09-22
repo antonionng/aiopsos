@@ -3,12 +3,16 @@ import assert from "node:assert/strict";
 
 import { PROMPT_ENGINEERING_LESSONS } from "../self-serve/prompt-engineering.ts";
 import {
+  answerComplete,
   canOpenLesson,
   canSign,
   certificateRef,
   checksPassed,
+  describesShape,
   evaluateCheck,
   emptyProgress,
+  hasConcreteFact,
+  setsLimit,
 } from "../self-serve/engine.ts";
 import { isSelfServeEnabled, showSelfServeOnHomepage } from "../self-serve/flag.ts";
 import { SELF_SERVE_COURSES } from "../self-serve/catalog.ts";
@@ -37,45 +41,154 @@ test("a later lesson stays locked until the previous check passes", () => {
   assert.equal(canOpenLesson(lessons, progress, 2), false);
 });
 
-test("marking rejects an invented commitment that was waved through", () => {
-  const check = lessons[0].check;
+function lessonById(id: string) {
+  const lesson = lessons.find((item) => item.id === id);
+  assert.ok(lesson, `missing lesson ${id}`);
+  return lesson;
+}
+
+test("the course is the six lessons in the standard, ending on the prompt card", () => {
+  assert.deepEqual(
+    lessons.map((lesson) => lesson.id),
+    [
+      "what-a-prompt-is",
+      "when-the-prompt-is-silent",
+      "parts-of-a-prompt",
+      "read-a-reply",
+      "repair-the-prompt",
+      "prompt-card",
+    ]
+  );
+  const card = lessonById("prompt-card").check;
+  assert.equal(card.kind, "build");
+  if (card.kind !== "build") return;
+  assert.deepEqual(
+    card.fields.map((field) => field.id),
+    ["role", "context", "constraints", "output"]
+  );
+});
+
+test("every lesson teaches before it tests", () => {
+  for (const lesson of lessons) {
+    assert.ok(lesson.place.length > 40, `${lesson.id} has a place sentence`);
+    const paragraphs = lesson.sections.flatMap((section) => section.paragraphs);
+    assert.ok(paragraphs.length >= 4, `${lesson.id} has at least four paragraphs`);
+    assert.ok(lesson.workedExample.prompt && lesson.workedExample.output, `${lesson.id} has a worked example`);
+    assert.ok(lesson.workedExample.reading.length >= 2, `${lesson.id} reads its worked example`);
+    assert.ok(lesson.practice.check.prompt.length > 20, `${lesson.id} has a practice`);
+    assert.ok(lesson.bridge.length > 40, `${lesson.id} has a bridge`);
+    assert.notEqual(lesson.practice.check.prompt, lesson.check.prompt, `${lesson.id} checks a new case`);
+  }
+  const all = JSON.stringify(lessons);
+  assert.doesNotMatch(all, /[\u2014\u2013]/, "no em or en dashes");
+  assert.doesNotMatch(all, /\b(Holds|Invented)\b/, "no labels the lesson never taught");
+});
+
+test("the reading labels are defined in lesson two before lesson four uses them", () => {
+  const taught = JSON.stringify(lessonById("when-the-prompt-is-silent").sections);
+  const check = lessonById("read-a-reply").check;
   assert.equal(check.kind, "mark");
   if (check.kind !== "mark") return;
-  const wrong = evaluateCheck(check, {
-    thanks: "pass",
-    weeks: "pass",
-    discount: "fail",
-  });
-  assert.equal(wrong.passed, false);
-  assert.match(wrong.detail, /invented/i);
-
-  const right = evaluateCheck(check, {
-    thanks: "pass",
-    weeks: "fail",
-    discount: "fail",
-  });
-  assert.equal(right.passed, true);
+  assert.ok(taught.includes(check.passLabel), `lesson two defines ${check.passLabel}`);
+  assert.ok(taught.includes(check.failLabel), `lesson two defines ${check.failLabel}`);
+  assert.ok(taught.includes("only thanks them"));
 });
 
-test("the thin brief is not the one a colleague can run", () => {
-  const check = lessons[1].check;
-  const missed = evaluateCheck(check, "left");
+test("reading a reply rejects a promise that was waved through, and names it", () => {
+  const check = lessonById("read-a-reply").check;
+  assert.equal(check.kind, "mark");
+  if (check.kind !== "mark") return;
+  const right = Object.fromEntries(
+    check.sentences.map((sentence) => [sentence.id, sentence.fail ? "fail" : "pass"])
+  ) as Record<string, "pass" | "fail">;
+
+  assert.equal(answerComplete(check, { thanks: "pass" }), false);
+  assert.equal(answerComplete(check, right), true);
+
+  const wrong = evaluateCheck(check, { ...right, month: "pass" });
+  assert.equal(wrong.passed, false);
+  assert.match(wrong.detail, /free month/);
+  assert.match(wrong.detail, /Look again at/);
+
+  const passed = evaluateCheck(check, right);
+  assert.equal(passed.passed, true);
+  assert.match(passed.detail, /safe to send/);
+});
+
+test("lesson one checks where each sentence came from", () => {
+  const check = lessonById("what-a-prompt-is").check;
+  assert.equal(check.kind, "mark");
+  if (check.kind !== "mark") return;
+  assert.equal(
+    evaluateCheck(check, { interest: "pass", confirm: "pass", panel: "fail", passport: "fail" }).passed,
+    true
+  );
+  const missed = evaluateCheck(check, { interest: "pass", confirm: "pass", panel: "pass", passport: "fail" });
   assert.equal(missed.passed, false);
-  const chosen = evaluateCheck(check, "right");
-  assert.equal(chosen.passed, true);
+  assert.match(missed.detail, /Leeds/);
 });
 
-test("the repair has to be read, named, added, then checked", () => {
-  const check = lessons[2].check;
-  const wrong = evaluateCheck(check, ["add", "read", "name", "check"]);
-  const right = evaluateCheck(check, ["read", "name", "add", "check"]);
-  assert.equal(wrong.passed, false);
-  assert.equal(right.passed, true);
-  assert.notEqual(wrong.detail, right.detail);
+test("the safe reply and the complete prompt are the ones a colleague can send", () => {
+  for (const id of ["when-the-prompt-is-silent", "parts-of-a-prompt"]) {
+    const check = lessonById(id).check;
+    assert.equal(check.kind, "choose");
+    if (check.kind !== "choose") continue;
+    assert.equal(answerComplete(check, null), false);
+    const missed = evaluateCheck(check, check.correct === "left" ? "right" : "left");
+    assert.equal(missed.passed, false);
+    assert.notEqual(missed.detail, check.why);
+    assert.equal(evaluateCheck(check, check.correct).passed, true);
+  }
 });
 
-test("a prompt card with empty lines does not pass", () => {
-  const check = lessons[3].check;
+test("repairing the prompt needs a limit on money and on dates, and keeps the rest", () => {
+  const check = lessonById("repair-the-prompt").check;
+  assert.equal(check.kind, "edit");
+  if (check.kind !== "edit") return;
+
+  assert.equal(answerComplete(check, { edited: check.start }), false);
+  const untouched = evaluateCheck(check, { edited: check.start });
+  assert.equal(untouched.passed, false);
+  assert.match(untouched.detail, /not changed the prompt/);
+
+  const vague = evaluateCheck(check, { edited: `${check.start} Be careful with what you say.` });
+  assert.equal(vague.passed, false);
+  assert.match(vague.detail, /money/);
+  assert.match(vague.detail, /dates/);
+
+  const moneyOnly = evaluateCheck(check, {
+    edited: `${check.start} Do not promise a price for next year, a discount, or a free month.`,
+  });
+  assert.equal(moneyOnly.passed, false);
+  assert.doesNotMatch(moneyOnly.detail, /money/);
+  assert.match(moneyOnly.detail, /dates/);
+
+  const repaired = evaluateCheck(check, {
+    edited: `${check.start} Do not promise a price for next year, a discount, or a free month. Do not give any date or deadline that is not in the facts above.`,
+  });
+  assert.equal(repaired.passed, true);
+
+  const startedAgain = evaluateCheck(check, {
+    edited: "Do not promise a discount. Do not give a deadline.",
+  });
+  assert.equal(startedAgain.passed, false);
+  assert.match(startedAgain.detail, /who is speaking/);
+  assert.match(startedAgain.detail, /facts that are true/);
+});
+
+test("a prompt card passes only when each part does its job", () => {
+  const check = lessonById("prompt-card").check;
+  assert.equal(check.kind, "build");
+  if (check.kind !== "build") return;
+  const full = {
+    role: "Account manager for this client",
+    context: "The pilot ends Friday and no extension has been agreed.",
+    constraints: "Do not invent a price, a date, or a prior promise.",
+    output: "Four lines: thanks, status, ask, next step.",
+  };
+  assert.equal(answerComplete(check, { ...full, output: " " }), false);
+  assert.equal(answerComplete(check, full), true);
+
   const thin = evaluateCheck(check, {
     role: "manager",
     context: "the pilot",
@@ -83,13 +196,41 @@ test("a prompt card with empty lines does not pass", () => {
     output: "a reply",
   });
   assert.equal(thin.passed, false);
-  const full = evaluateCheck(check, {
-    role: "Account manager for this client",
-    context: "The pilot ends Friday and no extension has been agreed.",
-    constraints: "Do not invent a price, a date, or a prior promise.",
-    output: "Four lines: thanks, status, ask, next step.",
+
+  const passed = evaluateCheck(check, full);
+  assert.equal(passed.passed, true);
+
+  const noLimit = evaluateCheck(check, {
+    ...full,
+    constraints: "Please be careful and professional about money.",
   });
-  assert.equal(full.passed, true);
+  assert.equal(noLimit.passed, false);
+  assert.match(noLimit.detail, /does not yet set a limit/);
+  assert.doesNotMatch(noLimit.detail, /concrete fact/);
+
+  const noFact = evaluateCheck(check, {
+    ...full,
+    context: "the client wants an update about how things are going",
+  });
+  assert.equal(noFact.passed, false);
+  assert.match(noFact.detail, /concrete fact/);
+
+  const noShape = evaluateCheck(check, { ...full, output: "make it good and clear" });
+  assert.equal(noShape.passed, false);
+  assert.match(noShape.detail, /shape of the answer/);
+});
+
+test("part detectors recognise limits, facts, and shapes", () => {
+  assert.equal(setsLimit("Never mention a refund."), true);
+  assert.equal(setsLimit("Don\u2019t offer a discount."), true);
+  assert.equal(setsLimit("Be nice."), false);
+  assert.equal(hasConcreteFact("the invoice is for 400 pounds"), true);
+  assert.equal(hasConcreteFact("the move is on saturday"), true);
+  assert.equal(hasConcreteFact("the client is Harper Foods"), true);
+  assert.equal(hasConcreteFact("no discount has been discussed"), true);
+  assert.equal(hasConcreteFact("things are going well overall"), false);
+  assert.equal(describesShape("three short sentences"), true);
+  assert.equal(describesShape("make it good"), false);
 });
 
 test("the certificate waits until every check has passed and the card is signed", () => {

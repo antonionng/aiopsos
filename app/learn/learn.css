@@ -737,6 +737,154 @@
   font-size: 14px;
   font-weight: 600;
 }
+.ex-read section + section {
+  margin-top: 44px;
+}
+.ex-read h2 {
+  margin-bottom: 14px;
+  font-size: 26px;
+  letter-spacing: -0.6px;
+  line-height: 1.25;
+}
+.ex-before-after {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 22px;
+}
+.ex-before-after > div {
+  padding: 18px;
+  background: white;
+  border: 1px solid var(--ex-line);
+  border-radius: 12px;
+}
+.ex-before-after > div:nth-child(2) {
+  border-color: var(--ex-ink);
+}
+.ex-before-after span,
+.ex-example .ex-example-label,
+.ex-material figcaption,
+.ex-edit label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+.ex-before-after > div p {
+  margin-top: 8px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.ex-read .ex-before-after-reading {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  color: var(--ex-mute);
+  font-size: 15px;
+}
+.ex-example .ex-example-label {
+  margin-top: 22px;
+  font-family: var(--font-inter), sans-serif;
+}
+.ex-example p.ex-quote {
+  margin-top: 8px;
+  padding-left: 14px;
+  border-left: 3px solid var(--ex-violet);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+.ex-example .ex-reading p {
+  margin-top: 10px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.7;
+}
+.ex-practice {
+  margin-top: 56px;
+  padding: 28px;
+  border: 1px dashed var(--ex-line);
+  border-radius: 16px;
+}
+.ex-practice h2 {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+.ex-material {
+  margin: 18px 0 0;
+  padding: 18px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px #201c290c;
+}
+.ex-material p {
+  margin-top: 8px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.ex-learn .ex-choice {
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
+}
+.ex-button-line {
+  border: 1px solid var(--ex-ink);
+}
+.ex-edit {
+  margin-top: 18px;
+}
+.ex-edit textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 16px;
+  border: 1px solid var(--ex-ink);
+  border-radius: 12px;
+  background: white;
+  font-size: 16px;
+  line-height: 1.6;
+  resize: vertical;
+}
+.ex-edit-reset {
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ex-mute);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.ex-learn .ex-work > .ex-stamp,
+.ex-learn .ex-practice > .ex-stamp {
+  margin-bottom: 16px;
+}
+.ex-learn .ex-work .ex-feedback,
+.ex-learn .ex-practice .ex-feedback {
+  margin-top: 22px;
+}
+.ex-learn .ex-work .ex-hint {
+  margin-top: 10px;
+}
+.ex-next {
+  margin-top: 28px;
+}
+.ex-learn .ex-bridge {
+  margin-bottom: 20px;
+  font-size: 16px;
+  line-height: 1.65;
+}
 .ex-room-body {
   animation: ex-rise 0.45s ease;
 }
@@ -770,8 +918,18 @@
     padding: 24px 20px;
   }
   .ex-modules,
-  .ex-briefs {
+  .ex-briefs,
+  .ex-before-after {
     grid-template-columns: 1fr;
+  }
+  .ex-practice {
+    padding: 20px 16px;
+  }
+  .ex-choices .ex-choice {
+    flex: 1 1 100%;
+  }
+  .ex-next .ex-button {
+    width: 100%;
   }
   .ex-example p,
   .ex-sentence p {
