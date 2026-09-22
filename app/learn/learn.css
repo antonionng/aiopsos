@@ -529,7 +529,36 @@
   line-height: 1.6;
 }
 .ex-feedback.is-pass {
-  border-left-color: var(--ex-ink);
+  padding: 16px 18px;
+  background: var(--ex-citrus);
+  border-left: 0;
+  border-radius: 12px;
+  color: var(--ex-ink);
+  animation: ex-pass-in 0.5s ease;
+}
+.ex-feedback:not(.is-pass) {
+  padding: 14px 16px;
+  background: #fff;
+  border-left: 3px solid var(--ex-violet);
+  border-radius: 0 12px 12px 0;
+}
+@keyframes ex-pass-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  60% {
+    transform: translateY(0) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ex-feedback.is-pass {
+    animation: none;
+  }
 }
 .ex-sign {
   margin-top: 88px;
