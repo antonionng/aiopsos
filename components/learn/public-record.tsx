@@ -3,23 +3,15 @@ import { Wordmark } from "@/components/wordmark";
 import type { SignedRecord } from "@/lib/self-serve/records";
 import "@/app/learn/learn.css";
 
-const CARD_LINES = [
-  ["role", "Role"],
-  ["context", "Context"],
-  ["constraints", "Constraints"],
-  ["output", "Output"],
-] as const;
-
 export function SelfServePublicRecord({ record }: { record: SignedRecord }) {
   const signed = new Date(record.signedAt).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
-  const lines = CARD_LINES.map(([id, label]) => ({
-    label,
-    value: (record.artefact?.[id] ?? "").trim(),
-  })).filter((line) => line.value);
+  const lines = record.artefactFields
+    .map((field) => ({ label: field.label, value: (record.artefact?.[field.id] ?? "").trim() }))
+    .filter((line) => line.value);
 
   return (
     <div className="ex-learn">
@@ -32,9 +24,10 @@ export function SelfServePublicRecord({ record }: { record: SignedRecord }) {
         <h1>{record.title}</h1>
         <p className="ex-signed">{record.signedName}</p>
         <p className="ex-date">{signed}</p>
+        <p className="ex-record-line">{record.recordLine}</p>
         {lines.length > 0 ? (
           <div className="ex-artefact">
-            <h2>The prompt card</h2>
+            <h2>{record.artefactTitle}</h2>
             <dl>
               {lines.map((line) => (
                 <div key={line.label}>
@@ -46,7 +39,7 @@ export function SelfServePublicRecord({ record }: { record: SignedRecord }) {
           </div>
         ) : null}
         <p className="ex-disclaimer">
-          This record confirms that the named person completed the course and signed the prompt card above. It does not certify compliance with the EU AI Act or any other regulation.
+          This record confirms that the named person completed the course and signed the work above. It does not certify compliance with the EU AI Act or any other regulation.
         </p>
         <p className="ex-ref">{record.ref}</p>
         <p className="ex-disclaimer">{record.disclaimer}</p>

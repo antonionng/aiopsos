@@ -7,11 +7,42 @@ import type {
   LessonAnswer,
   LessonCheck,
   MarkAnswer,
+  ResolvedArtefact,
+  SelfServeCourse,
   SelfServeLesson,
 } from "./types.ts";
 
 export function emptyProgress(): CourseProgress {
   return { lessons: {} };
+}
+
+/**
+ * The work the learner signs: the build check in the lesson the course names,
+ * or the last lesson with a build check when the course names none.
+ */
+export function courseArtefact(course: SelfServeCourse): ResolvedArtefact | null {
+  const lessons = course.lessons ?? [];
+  const named = course.artefact
+    ? lessons.find((lesson) => lesson.id === course.artefact?.lessonId)
+    : [...lessons].reverse().find((lesson) => lesson.check.kind === "build");
+  if (!named || named.check.kind !== "build") return null;
+  return {
+    lessonId: named.id,
+    title: course.artefact?.title ?? named.title,
+    recordLine:
+      course.artefact?.recordLine ?? `Completed ${course.title} and signed the work below.`,
+    fields: named.check.fields.map((field) => ({ id: field.id, label: field.label })),
+  };
+}
+
+export function artefactAnswer(
+  progress: CourseProgress,
+  artefact: ResolvedArtefact | null
+): BuildAnswer | null {
+  if (!artefact) return null;
+  const answer = progress.lessons[artefact.lessonId]?.answer;
+  if (!answer || typeof answer !== "object" || Array.isArray(answer)) return null;
+  return answer as BuildAnswer;
 }
 
 export function progressStorageKey(slug: string): string {
@@ -242,14 +273,21 @@ function evaluateEdit(
   if (edited === null || edited.trim() === check.start.trim()) {
     return {
       passed: false,
-      detail: "You have not changed the prompt yet. Add a sentence that says what the reply must not add or promise.",
+      detail:
+        check.unchanged ??
+        "You have not changed the prompt yet. Add a sentence that says what the reply must not add or promise.",
     };
   }
   const limitSentences = sentencesOf(edited).filter(setsLimit);
   const whole = normalise(edited);
+  const needsLimitWording = check.limitWording !== false;
   const notes = [
     ...check.keep.filter((group) => !mentionsAny(whole, group)),
-    ...check.limits.filter((group) => !limitSentences.some((sentence) => mentionsAny(sentence, group))),
+    ...check.limits.filter((group) =>
+      needsLimitWording
+        ? !limitSentences.some((sentence) => mentionsAny(sentence, group))
+        : !mentionsAny(whole, group)
+    ),
   ].map((group) => group.missing);
   if (notes.length === 0) return { passed: true, detail: check.why };
   return { passed: false, detail: notes.join(" ") };

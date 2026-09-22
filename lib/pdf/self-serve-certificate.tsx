@@ -9,13 +9,6 @@ import {
 } from "@react-pdf/renderer";
 import type { SignedRecord } from "@/lib/self-serve/records";
 
-const CARD_LINES = [
-  ["role", "Role"],
-  ["context", "Context"],
-  ["constraints", "Constraints"],
-  ["output", "Output"],
-] as const;
-
 const styles = StyleSheet.create({
   page: {
     paddingTop: 56,
@@ -51,10 +44,9 @@ export function SelfServeCertificateDocument({ record }: { record: SignedRecord 
     month: "long",
     year: "numeric",
   });
-  const lines = CARD_LINES.map(([id, label]) => ({
-    label,
-    value: (record.artefact?.[id] ?? "").trim(),
-  })).filter((line) => line.value);
+  const lines = record.artefactFields
+    .map((field) => ({ label: field.label, value: (record.artefact?.[field.id] ?? "").trim() }))
+    .filter((line) => line.value);
 
   return (
     <Document>
@@ -64,9 +56,10 @@ export function SelfServeCertificateDocument({ record }: { record: SignedRecord 
         <Text style={styles.title}>{record.title}</Text>
         <Text style={styles.name}>{record.signedName}</Text>
         <Text style={styles.date}>{signed}</Text>
+        <Text style={styles.value}>{record.recordLine}</Text>
         {lines.length > 0 ? (
-          <View style={styles.artefact}>
-            <Text style={styles.artefactTitle}>The prompt card</Text>
+          <View style={[styles.artefact, { marginTop: 18 }]}>
+            <Text style={styles.artefactTitle}>{record.artefactTitle}</Text>
             {lines.map((line) => (
               <View key={line.label}>
                 <Text style={styles.label}>{line.label.toUpperCase()}</Text>
@@ -77,7 +70,7 @@ export function SelfServeCertificateDocument({ record }: { record: SignedRecord 
         ) : null}
         <Text style={styles.disclaimer}>
           This record confirms that the named person completed the course and signed the
-          prompt card above. It does not certify compliance with the EU AI Act or any other
+          work above. It does not certify compliance with the EU AI Act or any other
           regulation.
         </Text>
         <Text style={styles.ref}>{record.ref}</Text>

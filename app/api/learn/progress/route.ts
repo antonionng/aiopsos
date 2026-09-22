@@ -58,10 +58,14 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    const signed = await signProgress(purchase.id, {
-      ...incoming,
-      signedName: name.trim(),
-    });
+    const signed = await signProgress(
+      purchase.id,
+      {
+        ...incoming,
+        signedName: name.trim(),
+      },
+      course
+    );
     return NextResponse.json({ progress: signed });
   }
 
@@ -72,5 +76,5 @@ export async function POST(req: Request) {
     signedAt: current.signedAt,
     ref: current.ref,
   };
-  return NextResponse.json({ progress: await saveProgress(purchase.id, next) });
+  return NextResponse.json({ progress: await saveProgress(purchase.id, next, course) });
 }

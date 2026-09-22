@@ -8,6 +8,7 @@ import {
   canSign,
   certificateRef,
   checksPassed,
+  courseArtefact,
   describesShape,
   evaluateCheck,
   emptyProgress,
@@ -16,20 +17,33 @@ import {
 } from "../self-serve/engine.ts";
 import { isSelfServeEnabled, showSelfServeOnHomepage } from "../self-serve/flag.ts";
 import { SELF_SERVE_COURSES } from "../self-serve/catalog.ts";
+import { COURSE_CONTENT } from "../self-serve/courses/index.ts";
 import type { CourseProgress } from "../self-serve/types.ts";
 
 const lessons = PROMPT_ENGINEERING_LESSONS;
 
-test("the catalogue has forty courses and one playable pilot", () => {
+test("the catalogue has forty courses, and a course is playable only with full lessons", () => {
   assert.equal(SELF_SERVE_COURSES.length, 40);
   assert.equal(new Set(SELF_SERVE_COURSES.map((course) => course.slug)).size, 40);
   for (const track of ["ai", "technology", "robotics", "hr"] as const) {
     assert.equal(SELF_SERVE_COURSES.filter((course) => course.track === track).length, 10);
   }
-  assert.equal(
-    SELF_SERVE_COURSES.filter((course) => course.playable).map((course) => course.slug).join(","),
-    "prompt-engineering-for-professional-work"
-  );
+  assert.ok(SELF_SERVE_COURSES.find((course) => course.slug === "prompt-engineering-for-professional-work")?.playable);
+  for (const course of SELF_SERVE_COURSES) {
+    assert.equal(course.playable, Boolean(course.lessons?.length), course.slug);
+  }
+});
+
+test("every registered course matches an outline slug and names a real artefact lesson", () => {
+  const slugs = new Set(SELF_SERVE_COURSES.map((course) => course.slug));
+  for (const content of COURSE_CONTENT) {
+    assert.ok(slugs.has(content.slug), `${content.slug} has no outline`);
+    const course = SELF_SERVE_COURSES.find((item) => item.slug === content.slug);
+    const artefact = course ? courseArtefact(course) : null;
+    assert.ok(artefact, `${content.slug} artefact lesson must be a build check`);
+    assert.ok(artefact.fields.length >= 2, `${content.slug} artefact needs parts`);
+    assert.equal(new Set(content.lessons.map((lesson) => lesson.id)).size, content.lessons.length);
+  }
 });
 
 test("a later lesson stays locked until the previous check passes", () => {

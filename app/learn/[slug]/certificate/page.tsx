@@ -4,6 +4,7 @@ import { CertificateView } from "@/components/learn/certificate-view";
 import { LearnMarket } from "@/components/learn/learn-shell";
 import { findEntitledPurchase } from "@/lib/self-serve/access";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
+import { courseArtefact } from "@/lib/self-serve/engine";
 import { loadProgress } from "@/lib/self-serve/records";
 import { withSiteShareImages } from "@/lib/social-image";
 
@@ -42,6 +43,7 @@ export default async function CertificatePage({
       <CertificateView
         slug={course.slug}
         title={course.title}
+        artefact={courseArtefact(course)}
         progress={progress}
         persist={!!purchase}
       />

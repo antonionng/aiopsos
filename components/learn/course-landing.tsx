@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
 import { trackLabel } from "@/lib/self-serve/catalog";
+import { courseArtefact } from "@/lib/self-serve/engine";
 import { formatCourseHours, getCourseLanding } from "@/lib/self-serve/landing";
 import type { SelfServeCourse } from "@/lib/self-serve/types";
 
@@ -21,6 +22,10 @@ export function CourseLanding({
   retry?: boolean;
 }) {
   const landing = getCourseLanding(course);
+  const artefact = courseArtefact(course);
+  const artefactName = artefact
+    ? `${artefact.title.charAt(0).toLowerCase()}${artefact.title.slice(1)}`
+    : "the work you produce";
 
   return (
     <>
@@ -126,6 +131,7 @@ export function CourseLanding({
           </div>
         </section>
 
+        {landing.jobs.length > 0 ? (
         <section className="ex-land-jobs" aria-labelledby="jobs-heading">
           <div className="ex-wide">
             <div className="ex-land-jobs-head">
@@ -159,8 +165,9 @@ export function CourseLanding({
             </ul>
           </div>
         </section>
+        ) : null}
 
-        {course.playable ? (
+        {landing.reviews.length > 0 ? (
           <section className="ex-land-reviews" aria-labelledby="reviews-heading">
             <div className="ex-wide">
               <p className="ex-eyebrow">
@@ -197,10 +204,10 @@ export function CourseLanding({
                 <h2>
                   Start with a card payment of £{course.priceGbp}.
                   <br />
-                  <span>Leave with a brief you can hand over.</span>
+                  <span>Leave with {artefactName} you can put to work.</span>
                 </h2>
                 <p>
-                  Checkout asks only for an email address and a card. You then open lesson one. The signed record names you and the prompt card. It does not say that you are compliant with any regulation.
+                  Checkout asks only for an email address and a card. You then open lesson one. The signed record names you and {artefactName}. It does not say that you are compliant with any regulation.
                 </p>
                 <BuyCourseButton
                   slug={course.slug}

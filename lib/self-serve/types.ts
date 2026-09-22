@@ -61,10 +61,18 @@ export type LessonCheck =
     })
   | (CheckBase & {
       kind: "edit";
-      /** The prompt the learner starts from. */
+      /** The text the learner starts from. */
       start: string;
-      /** Each group must appear in a sentence that sets a limit (do not, must not, never, only). */
+      /** Label above the text box. Defaults to "The prompt you are repairing". */
+      label?: string;
+      /** Shown when the text has not been changed. */
+      unchanged?: string;
+      /**
+       * Each group must appear in a sentence that sets a limit (do not, must not, never, only).
+       * With `limitWording: false` the group only has to appear somewhere in the edit.
+       */
       limits: KeywordGroup[];
+      limitWording?: boolean;
       /** Each group must still appear somewhere in the edited prompt. */
       keep: KeywordGroup[];
       why: string;
@@ -82,9 +90,15 @@ export type LessonSection = {
 
 export type WorkedExample = {
   title: string;
+  /** The material the learner starts from, such as a prompt, a brief, or a spreadsheet. */
   prompt: string;
+  /** What was produced from it. */
   output: string;
   reading: string[];
+  /** Defaults to "The prompt". */
+  inputLabel?: string;
+  /** Defaults to "What the model wrote". */
+  outputLabel?: string;
 };
 
 export type LessonPractice = {
@@ -117,6 +131,20 @@ export type SelfServeCourse = {
   playable: boolean;
   modules: string[];
   lessons?: SelfServeLesson[];
+  artefact?: CourseArtefact;
+};
+
+/** The work the learner signs. It is the answer to the build check in `lessonId`. */
+export type CourseArtefact = {
+  lessonId: string;
+  /** For example "The prompt card". */
+  title: string;
+  /** One sentence the record uses to say what was done. */
+  recordLine: string;
+};
+
+export type ResolvedArtefact = CourseArtefact & {
+  fields: { id: string; label: string }[];
 };
 
 export type MarkAnswer = Record<string, "pass" | "fail">;

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Emphasis, LearnBar } from "@/components/learn/learn-bar";
 import {
+  courseArtefact,
   answerComplete,
   canOpenLesson,
   canSign,
@@ -58,6 +59,10 @@ export function LessonRoom({
 }) {
   const router = useRouter();
   const lessons = course.lessons ?? [];
+  const artefact = courseArtefact(course);
+  const artefactPhrase = artefact
+    ? `${artefact.title.charAt(0).toLowerCase()}${artefact.title.slice(1)} you produced`
+    : "the work you produced";
   const [progress, setProgress] = useState<CourseProgress>(initialProgress ?? emptyProgress());
   const [index, setIndex] = useState(() => firstOpenIndex(lessons, initialProgress ?? emptyProgress()));
   const [ready, setReady] = useState(false);
@@ -267,7 +272,7 @@ export function LessonRoom({
               <section className="ex-sign" aria-labelledby="sign-heading">
                 <h2 id="sign-heading">Sign the record</h2>
                 <p className="ex-lede">
-                  When you sign, the record names you and the prompt card you produced. A second person can open the public reference. The record does not say that you are compliant with any regulation.
+                  When you sign, the record names you and {artefactPhrase}. A second person can open the public reference. The record does not say that you are compliant with any regulation.
                 </p>
                 <label htmlFor="signer">YOUR NAME</label>
                 <input
@@ -304,9 +309,9 @@ function Worked({ example }: { example: WorkedExample }) {
   return (
     <figure className="ex-example">
       <figcaption className="ex-stamp">{example.title}</figcaption>
-      <p className="ex-example-label">THE PROMPT</p>
+      <p className="ex-example-label">{(example.inputLabel ?? "The prompt").toUpperCase()}</p>
       <p className="ex-quote">{example.prompt}</p>
-      <p className="ex-example-label">WHAT THE MODEL WROTE</p>
+      <p className="ex-example-label">{(example.outputLabel ?? "What the model wrote").toUpperCase()}</p>
       <p className="ex-quote">{example.output}</p>
       <p className="ex-example-label">READING IT</p>
       <div className="ex-reading">
@@ -513,7 +518,7 @@ function EditCheck({
 }) {
   return (
     <div className="ex-edit">
-      <label htmlFor="edit-prompt">THE PROMPT YOU ARE REPAIRING</label>
+      <label htmlFor="edit-prompt">{(check.label ?? "The prompt you are repairing").toUpperCase()}</label>
       <textarea
         id="edit-prompt"
         value={value}
@@ -521,7 +526,7 @@ function EditCheck({
         onChange={(event) => onChange({ edited: event.target.value })}
       />
       <button type="button" className="ex-edit-reset" onClick={() => onChange({ edited: check.start })}>
-        Put back the original prompt
+        Put back the original text
       </button>
     </div>
   );

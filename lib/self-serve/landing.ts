@@ -153,7 +153,10 @@ function defaultBenefits(course: SelfServeCourse): LandingCopy["benefits"] {
     },
     {
       title: "Roles this work shows up in",
-      body: `${course.title} is the kind of applied skill now listed on operations, customer, people, and product roles, as well as titled prompt engineering seats. The page below uses published salary bands, not a promise that one course moves you into the top of the range.`,
+      body:
+        course.track === "ai"
+          ? `${course.title} is the kind of applied skill now listed on operations, customer, people, and product roles, as well as titled prompt engineering seats. The page below uses published salary bands, not a promise that one course moves you into the top of the range.`
+          : `${course.title} is the kind of applied judgement now asked of operations, people, and product roles. Published figures on this page describe the market, not a promise that one course changes your pay.`,
     },
     {
       title: "Work you would otherwise buy",
@@ -169,8 +172,8 @@ export function getCourseLanding(course: SelfServeCourse): LandingCopy {
     outcome: course.promise,
     benefits: defaultBenefits(course),
     stats: ai ? AI_STATS : AI_STATS.slice(0, 2),
-    jobs: AI_JOBS,
-    reviews: course.playable ? PILOT_REVIEWS : PILOT_REVIEWS.slice(0, 3),
+    jobs: ai ? AI_JOBS : [],
+    reviews: course.slug === "prompt-engineering-for-professional-work" ? PILOT_REVIEWS : [],
     sources: ai
       ? [PWC, ROBERT_HALF, ROBERT_HALF_LONDON]
       : [PWC],

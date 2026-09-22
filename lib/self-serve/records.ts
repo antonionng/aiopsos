@@ -5,8 +5,8 @@ import { getPublicSiteUrl } from "@/lib/site";
 import { sendSelfServePurchaseAlert, sendSelfServeReceipt } from "@/lib/email";
 import { getSelfServeCourse } from "./catalog.ts";
 import { isSelfServeCheckout, newAccessToken, newCertificateRef } from "./commerce.ts";
-import { emptyProgress } from "./engine.ts";
-import type { BuildAnswer, CourseProgress } from "./types.ts";
+import { artefactAnswer, courseArtefact, emptyProgress } from "./engine.ts";
+import type { BuildAnswer, CourseProgress, SelfServeCourse } from "./types.ts";
 
 export type PurchaseRow = {
   id: string;
@@ -33,6 +33,9 @@ export type SignedRecord = {
   signedAt: string;
   ref: string;
   artefact: BuildAnswer | null;
+  artefactTitle: string;
+  artefactFields: { id: string; label: string }[];
+  recordLine: string;
   disclaimer: string;
 };
 
@@ -333,9 +336,10 @@ export async function loadProgress(purchaseId: string): Promise<CourseProgress> 
 
 export async function saveProgress(
   purchaseId: string,
-  progress: CourseProgress
+  progress: CourseProgress,
+  course?: SelfServeCourse
 ): Promise<CourseProgress> {
-  const artefact = artefactFromProgress(progress);
+  const artefact = course ? artefactAnswer(progress, courseArtefact(course)) : null;
   const { error } = await supabaseAdmin.from("self_serve_progress").upsert({
     purchase_id: purchaseId,
     lessons: progress.lessons,
@@ -351,7 +355,8 @@ export async function saveProgress(
 
 export async function signProgress(
   purchaseId: string,
-  progress: CourseProgress
+  progress: CourseProgress,
+  course?: SelfServeCourse
 ): Promise<CourseProgress> {
   const next = {
     ...progress,
@@ -359,13 +364,7 @@ export async function signProgress(
     signedAt: progress.signedAt ?? new Date().toISOString(),
     ref: progress.ref ?? newCertificateRef(),
   };
-  return saveProgress(purchaseId, next);
-}
-
-function artefactFromProgress(progress: CourseProgress): BuildAnswer | null {
-  const answer = progress.lessons["prompt-card"]?.answer;
-  if (!answer || typeof answer !== "object" || Array.isArray(answer)) return null;
-  return answer as BuildAnswer;
+  return saveProgress(purchaseId, next, course);
 }
 
 export async function findSignedRecord(ref: string): Promise<SignedRecord | null> {
@@ -386,6 +385,7 @@ export async function findSignedRecord(ref: string): Promise<SignedRecord | null
   const course = purchase?.course_slug ? getSelfServeCourse(purchase.course_slug) : undefined;
   if (!course) return null;
 
+  const resolved = courseArtefact(course);
   return {
     slug: course.slug,
     title: course.title,
@@ -393,6 +393,9 @@ export async function findSignedRecord(ref: string): Promise<SignedRecord | null
     signedAt: data.signed_at,
     ref: data.certificate_ref,
     artefact: (data.artefact as BuildAnswer | null) ?? null,
+    artefactTitle: resolved?.title ?? "The signed work",
+    artefactFields: resolved?.fields ?? [],
+    recordLine: resolved?.recordLine ?? `Completed ${course.title}.`,
     disclaimer: LITERACY_DISCLAIMER,
   };
 }

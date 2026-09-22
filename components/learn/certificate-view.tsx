@@ -5,23 +5,18 @@ import Link from "next/link";
 import { Wordmark } from "@/components/wordmark";
 import { LITERACY_DISCLAIMER } from "@/lib/constants";
 import { progressStorageKey } from "@/lib/self-serve/engine";
-import type { BuildAnswer, CourseProgress } from "@/lib/self-serve/types";
-
-const CARD_LINES = [
-  ["role", "Role"],
-  ["context", "Context"],
-  ["constraints", "Constraints"],
-  ["output", "Output"],
-] as const;
+import type { BuildAnswer, CourseProgress, ResolvedArtefact } from "@/lib/self-serve/types";
 
 export function CertificateView({
   slug,
   title,
+  artefact,
   progress: supplied,
   persist = false,
 }: {
   slug: string;
   title: string;
+  artefact: ResolvedArtefact | null;
   progress?: CourseProgress | null;
   persist?: boolean;
 }) {
@@ -59,15 +54,14 @@ export function CertificateView({
     );
   }
 
-  const answer = progress.lessons["prompt-card"]?.answer;
+  const answer = artefact ? progress.lessons[artefact.lessonId]?.answer : undefined;
   const card =
-    answer && typeof answer !== "undefined" && typeof answer === "object" && !Array.isArray(answer)
+    answer && typeof answer === "object" && !Array.isArray(answer)
       ? (answer as BuildAnswer)
       : undefined;
-  const lines = CARD_LINES.map(([id, label]) => ({
-    label,
-    value: (card?.[id] ?? "").trim(),
-  })).filter((line) => line.value);
+  const lines = (artefact?.fields ?? [])
+    .map((field) => ({ label: field.label, value: (card?.[field.id] ?? "").trim() }))
+    .filter((line) => line.value);
   const signed = progress.signedAt
     ? new Date(progress.signedAt).toLocaleDateString("en-GB", {
         day: "numeric",
@@ -87,9 +81,10 @@ export function CertificateView({
         <h1>{title}</h1>
         <p className="ex-signed">{progress.signedName}</p>
         {signed ? <p className="ex-date">{signed}</p> : null}
+        {artefact ? <p className="ex-record-line">{artefact.recordLine}</p> : null}
         {lines.length > 0 ? (
           <div className="ex-artefact">
-            <h2>The prompt card</h2>
+            <h2>{artefact?.title}</h2>
             <dl>
               {lines.map((line) => (
                 <div key={line.label}>
@@ -101,7 +96,7 @@ export function CertificateView({
           </div>
         ) : null}
         <p className="ex-disclaimer">
-          This record confirms that the named person completed the course and signed the prompt card above. It does not certify compliance with the EU AI Act or any other regulation.
+          This record confirms that the named person completed the course and signed the work above. It does not certify compliance with the EU AI Act or any other regulation.
         </p>
         <p className="ex-ref">{progress.ref}</p>
         <p className="ex-disclaimer">{LITERACY_DISCLAIMER}</p>

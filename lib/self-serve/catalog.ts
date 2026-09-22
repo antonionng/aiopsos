@@ -1,4 +1,5 @@
 import { PROMPT_ENGINEERING_LESSONS } from "./prompt-engineering.ts";
+import { COURSE_CONTENT } from "./courses/index.ts";
 import type { SelfServeCourse, SelfServeTrack } from "./types.ts";
 
 const TRACK_LABEL: Record<SelfServeTrack, string> = {
@@ -357,20 +358,43 @@ const PILOT: SelfServeCourse = {
     "Instruct a model the way you would brief a colleague. Leave with a prompt card someone else can run.",
   modules: PROMPT_ENGINEERING_LESSONS.map((lesson) => lesson.title),
   lessons: PROMPT_ENGINEERING_LESSONS,
+  artefact: {
+    lessonId: "prompt-card",
+    title: "The prompt card",
+    recordLine: "Wrote and signed a prompt a colleague can run without asking what was meant.",
+  },
 };
 
 export const SELF_SERVE_COURSES: SelfServeCourse[] = [
   PILOT,
-  ...OUTLINES.map((course) => ({
-    slug: slugify(course.title),
-    title: course.title,
-    track: course.track,
-    promise: course.promise,
-    hours: course.hours,
-    priceGbp: course.priceGbp,
-    playable: false,
-    modules: course.modules,
-  })),
+  ...OUTLINES.map((course): SelfServeCourse => {
+    const slug = slugify(course.title);
+    const content = COURSE_CONTENT.find((item) => item.slug === slug);
+    if (!content) {
+      return {
+        slug,
+        title: course.title,
+        track: course.track,
+        promise: course.promise,
+        hours: course.hours,
+        priceGbp: course.priceGbp,
+        playable: false,
+        modules: course.modules,
+      };
+    }
+    return {
+      slug,
+      title: course.title,
+      track: course.track,
+      promise: course.promise,
+      hours: content.hours,
+      priceGbp: course.priceGbp,
+      playable: true,
+      modules: content.lessons.map((lesson) => lesson.title),
+      lessons: content.lessons,
+      artefact: content.artefact,
+    };
+  }),
 ];
 
 export function getSelfServeCourse(slug: string): SelfServeCourse | undefined {
