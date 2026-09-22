@@ -19,6 +19,10 @@ import {
   type CourseLevel,
 } from "@/lib/constants";
 import { coursesIndexMetadata } from "@/lib/public-share-metadata";
+import { isSelfServeEnabled } from "@/lib/self-serve/flag";
+import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog";
+import { SelfServeAcademyCatalogue } from "@/components/learn/self-serve-marketing";
+import type { SelfServeTrack } from "@/lib/self-serve/types";
 
 export const metadata: Metadata = coursesIndexMetadata();
 
@@ -35,11 +39,14 @@ function isCourseCategory(value: string | undefined): value is CourseCategory {
 export default async function CoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ level?: string; category?: string }>;
+  searchParams: Promise<{ level?: string; category?: string; self?: string }>;
 }) {
-  const { level, category } = await searchParams;
+  const { level, category, self } = await searchParams;
   const activeLevel = isCourseLevel(level) ? level : null;
   const activeCategory = isCourseCategory(category) ? category : null;
+  const activeSelf = SELF_SERVE_TRACKS.includes(self as SelfServeTrack)
+    ? (self as SelfServeTrack)
+    : null;
 
   const allCourses = await fetchPublishedCourses();
   const courses = allCourses.filter(
@@ -75,6 +82,13 @@ export default async function CoursesPage({
         <span><b>02</b> Practise on real work</span>
         <span><b>03</b> Build your team’s confidence</span>
       </div>
+      {isSelfServeEnabled() ? (
+        <SelfServeAcademyCatalogue
+          track={activeSelf}
+          level={activeLevel}
+          category={activeCategory}
+        />
+      ) : null}
       <section className="academy-hr-discovery" aria-label="HR academy">
         <div><h2>HR, AI &amp; People Ops Academy</h2><p>Make people work better. Explore AI for HR, connected people systems and practical transformation, from everyday operations to leadership strategy.</p></div>
         <Link href="/courses?category=hr#catalogue" className="academy-text-link">Explore HR courses <ArrowRight size={18} /></Link>

@@ -23,6 +23,8 @@ import { Wordmark } from "@/components/wordmark";
 import { SiteNav } from "@/components/site-nav";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { COURSE_TITLES } from "@/lib/published-course-slugs";
+import { SelfServeHomePitch } from "@/components/learn/self-serve-marketing";
+import { showSelfServeOnHomepage } from "@/lib/self-serve/flag";
 import "./learning-home.css";
 
 const courses = [
@@ -358,6 +360,8 @@ export default function Home() {
             </span>
           </div>
         </div>
+
+        {showSelfServeOnHomepage() ? <SelfServeHomePitch /> : null}
 
         <PlatformFeatures />
 

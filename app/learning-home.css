@@ -395,6 +395,91 @@
 .ex-section-copy > .ex-text-link {
   margin-top: 28px;
 }
+.ex-self-serve {
+  border-top: 1px solid var(--ex-line);
+  background: var(--ex-paper);
+}
+.ex-self-serve-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 72px;
+  align-items: start;
+}
+.ex-self-serve-grid > div > p {
+  max-width: 34rem;
+  margin-top: 22px;
+  color: #66616e;
+  font-size: 17px;
+  line-height: 1.75;
+}
+.ex-self-benefits {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ex-self-benefits li {
+  padding: 22px 0;
+  border-top: 1px solid var(--ex-line);
+}
+.ex-self-benefits li:last-child {
+  border-bottom: 1px solid var(--ex-line);
+}
+.ex-self-benefits b {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+}
+.ex-self-benefits h3 {
+  font-size: 22px;
+  letter-spacing: -0.6px;
+}
+.ex-self-benefits p {
+  margin-top: 8px;
+  color: #66616e;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.ex-self-open {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin-top: 48px;
+  padding: 28px 32px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px #201c290c;
+}
+.ex-self-tag {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 7px 10px;
+  background: var(--ex-citrus);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+}
+.ex-self-open h3 {
+  font-size: 28px;
+  letter-spacing: -1px;
+  line-height: 1.15;
+}
+.ex-self-open p {
+  max-width: 40rem;
+  margin-top: 10px;
+  color: #66616e;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.ex-self-price {
+  font-size: 13px;
+}
+.ex-self-open .ex-button {
+  flex: none;
+}
 .ex-preview-shell {
   background: #ece6fa;
   border-radius: 24px;
@@ -1248,6 +1333,18 @@
   .ex-platform {
     grid-template-columns: 1fr;
     gap: 40px;
+  }
+  .ex-self-serve-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .ex-self-open {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 22px;
+  }
+  .ex-self-open .ex-button {
+    width: 100%;
   }
   .ex-preview-shell {
     max-width: 550px;

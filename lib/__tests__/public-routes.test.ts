@@ -16,6 +16,13 @@ test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/blog/anything"), true);
 });
 
+test("self-serve learn routes stay public so a disabled flag 404s, not a login wall", () => {
+  assert.equal(isPublicPath("/learn"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work/certificate"), true);
+  assert.equal(isPublicPath("/learning-agent"), true);
+});
+
 test("use cases are public marketing pages", () => {
   assert.equal(isPublicPath("/use-cases"), true);
   assert.equal(isPublicPath("/use-cases/enterprise"), true);
