@@ -193,7 +193,7 @@ export function EmailShell({
         <p style={{ ...styles.footer, marginBottom: "12px" }}>
           {FOOTER_LINKS.map((link, index) => (
             <React.Fragment key={link.href}>
-              {index > 0 ? <span style={{ color: "#5E5670" }}>{"  ·  "}</span> : null}
+              {index > 0 ? <span style={{ color: "#BEB3D0", padding: "0 8px" }}>·</span> : null}
               <a href={link.href} style={{ color: "#FFFEFA", textDecoration: "none" }}>
                 {link.label}
               </a>
