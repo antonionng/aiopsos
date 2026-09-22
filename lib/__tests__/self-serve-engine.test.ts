@@ -288,3 +288,50 @@ test("the flag is on unless an environment turns it off", () => {
     else process.env.SELF_SERVE_COURSES = prevServer;
   }
 });
+
+test("a scenario assessment needs every answer, then passes only at its pass mark", () => {
+  const check = {
+    kind: "scenario" as const,
+    prompt: "Answer each question.",
+    why: "Each choice keeps the commitment inside what was agreed.",
+    passMark: 2,
+    questions: [
+      {
+        id: "q1",
+        situation: "A client asks for a discount nobody agreed.",
+        question: "What do you send?",
+        options: [
+          { id: "a", text: "A reply that offers ten per cent.", feedback: "Nobody agreed a discount." },
+          { id: "b", text: "A reply that says pricing is unchanged.", correct: true, feedback: "It stays inside the facts." },
+        ],
+      },
+      {
+        id: "q2",
+        situation: "The deadline has not been set.",
+        question: "What does the reply say about timing?",
+        options: [
+          { id: "a", text: "Friday.", feedback: "Friday was never agreed." },
+          { id: "b", text: "That a date will follow.", correct: true, feedback: "It promises nothing new." },
+        ],
+      },
+      {
+        id: "q3",
+        situation: "The client thanks you.",
+        question: "Can the reply thank them back?",
+        options: [
+          { id: "a", text: "Yes.", correct: true, feedback: "Courtesy adds no commitment." },
+          { id: "b", text: "No.", feedback: "A thank-you is safe to send." },
+        ],
+      },
+    ],
+  };
+  assert.equal(answerComplete(check, { q1: "b" }), false);
+  assert.equal(evaluateCheck(check, { q1: "b" }).passed, false);
+  const miss = evaluateCheck(check, { q1: "a", q2: "a", q3: "a" });
+  assert.equal(miss.passed, false);
+  assert.match(miss.detail, /1 of 3/);
+  assert.match(miss.detail, /Question 1: Nobody agreed a discount\./);
+  const pass = evaluateCheck(check, { q1: "b", q2: "a", q3: "a" });
+  assert.equal(pass.passed, true);
+  assert.match(pass.detail, /2 of 3/);
+});

@@ -92,7 +92,48 @@ export function evaluateCheck(check: LessonCheck, answer: LessonAnswer): CheckOu
       return evaluateBuild(check, answer);
     case "edit":
       return evaluateEdit(check, answer);
+    case "scenario":
+      return evaluateScenario(check, answer);
   }
+}
+
+export function scenarioScore(
+  check: Extract<LessonCheck, { kind: "scenario" }>,
+  answer: LessonAnswer | null | undefined
+): { correct: number; total: number; needed: number } {
+  const picks = (isRecord(answer) ? answer : {}) as Record<string, string>;
+  const correct = check.questions.filter((question) =>
+    question.options.some((option) => option.correct && option.id === picks[question.id])
+  ).length;
+  const total = check.questions.length;
+  return { correct, total, needed: Math.min(check.passMark ?? total, total) };
+}
+
+function evaluateScenario(
+  check: Extract<LessonCheck, { kind: "scenario" }>,
+  answer: LessonAnswer
+): CheckOutcome {
+  const picks = (isRecord(answer) ? answer : {}) as Record<string, string>;
+  if (check.questions.some((question) => !picks[question.id])) {
+    return { passed: false, detail: "Answer every question before you continue." };
+  }
+  const { correct, total, needed } = scenarioScore(check, answer);
+  if (correct >= needed) {
+    return {
+      passed: true,
+      detail: `You answered ${correct} of ${total} correctly. ${check.why}`,
+    };
+  }
+  const misses = check.questions
+    .map((question, index) => {
+      const chosen = question.options.find((option) => option.id === picks[question.id]);
+      return chosen && !chosen.correct ? `Question ${index + 1}: ${chosen.feedback}` : null;
+    })
+    .filter(Boolean);
+  return {
+    passed: false,
+    detail: `You answered ${correct} of ${total} correctly, and this assessment needs ${needed}. ${misses.join(" ")}`,
+  };
 }
 
 /** True when every part of the task has an answer, so Continue can be pressed. */
@@ -115,6 +156,11 @@ export function answerComplete(check: LessonCheck, answer: LessonAnswer | null |
     case "edit": {
       const edited = editedText(answer);
       return edited !== null && edited.trim().length > 0 && edited.trim() !== check.start.trim();
+    }
+    case "scenario": {
+      if (!isRecord(answer)) return false;
+      const picks = answer as Record<string, string>;
+      return check.questions.every((question) => Boolean(picks[question.id]));
     }
   }
 }

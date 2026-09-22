@@ -257,8 +257,10 @@ export function LessonRoom({
               ))}
             </div>
             <Worked example={lesson.workedExample} />
-            <PracticeFrame lesson={lesson} />
+            <PracticeFrame lesson={lesson} slug={course.slug} coach={persist} />
             <CheckFrame
+              slug={course.slug}
+              coach={persist}
               lesson={lesson}
               answer={answer}
               feedback={feedback}
@@ -341,7 +343,7 @@ function submittable(check: LessonCheck, answer: LessonAnswer | null): LessonAns
   return isRecord(answer) ? answer : {};
 }
 
-function PracticeFrame({ lesson }: { lesson: SelfServeLesson }) {
+function PracticeFrame({ lesson, slug, coach }: { lesson: SelfServeLesson; slug: string; coach: boolean }) {
   const check = lesson.practice.check;
   const [answer, setAnswer] = useState<LessonAnswer | null>(null);
   const [result, setResult] = useState<{ detail: string; passed: boolean } | null>(null);
@@ -376,11 +378,16 @@ function PracticeFrame({ lesson }: { lesson: SelfServeLesson }) {
           {result.detail}
         </p>
       ) : null}
+      {coach && writtenWork(check) && value !== null && ready ? (
+        <Coach slug={slug} lessonId={lesson.id} part="practice" answer={value} />
+      ) : null}
     </section>
   );
 }
 
 function CheckFrame({
+  slug,
+  coach,
   lesson,
   answer,
   feedback,
@@ -390,6 +397,8 @@ function CheckFrame({
   onCommit,
   onNext,
 }: {
+  slug: string;
+  coach: boolean;
   lesson: SelfServeLesson;
   answer: LessonAnswer | null;
   feedback: { detail: string; passed: boolean } | null;
@@ -409,7 +418,7 @@ function CheckFrame({
       <p className="ex-frame-intro">This is a new case. You will stay on this lesson until the check is right.</p>
       <h2 id="check-prompt">{check.prompt}</h2>
       <Material material={check.material} />
-      <CheckControls check={check} answer={answer} onChange={onChange} />
+      <CheckControls check={check} answer={answer} onChange={onChange} reviewed={feedback !== null} />
       {settled ? null : (
         <>
           <button
@@ -431,6 +440,9 @@ function CheckFrame({
           {feedback.detail}
         </p>
       ) : null}
+      {coach && writtenWork(check) && value !== null && ready ? (
+        <Coach slug={slug} lessonId={lesson.id} part="check" answer={value} />
+      ) : null}
       {settled && check.kind === "edit" && check.result ? (
         <div className="ex-result">
           <Material material={check.result} />
@@ -451,6 +463,62 @@ function CheckFrame({
   );
 }
 
+function writtenWork(check: LessonCheck): boolean {
+  return check.kind === "build" || check.kind === "edit";
+}
+
+function Coach({
+  slug,
+  lessonId,
+  part,
+  answer,
+}: {
+  slug: string;
+  lessonId: string;
+  part: "practice" | "check";
+  answer: LessonAnswer;
+}) {
+  const [state, setState] = useState<{ pending: boolean; text: string; error: string }>({
+    pending: false,
+    text: "",
+    error: "",
+  });
+  async function ask() {
+    setState({ pending: true, text: "", error: "" });
+    try {
+      const res = await fetch("/api/learn/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, lessonId, part, answer }),
+      });
+      const data = (await res.json()) as { feedback?: string; detail?: string };
+      if (data.feedback) setState({ pending: false, text: data.feedback, error: "" });
+      else setState({ pending: false, text: "", error: data.detail ?? "Coaching could not be generated. Try again in a moment." });
+    } catch {
+      setState({ pending: false, text: "", error: "Coaching could not be generated. Try again in a moment." });
+    }
+  }
+  return (
+    <div className="ex-coach">
+      <button type="button" className="ex-button ex-button-line" onClick={ask} disabled={state.pending}>
+        {state.pending ? "Reading your draft" : state.text ? "Get fresh feedback on this draft" : "Get feedback on my draft"}
+      </button>
+      <p className="ex-coach-note">
+        A tutor model reads your draft against this lesson and suggests improvements. The course check still decides whether you pass.
+      </p>
+      {state.text ? (
+        <div className="ex-coach-text" role="status">
+          <p className="ex-coach-label">FEEDBACK ON YOUR DRAFT</p>
+          {state.text.split(/\n+/).filter(Boolean).map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      ) : null}
+      {state.error ? <p className="ex-hint">{state.error}</p> : null}
+    </div>
+  );
+}
+
 function waitingNote(check: LessonCheck): string {
   switch (check.kind) {
     case "mark":
@@ -460,7 +528,9 @@ function waitingNote(check: LessonCheck): string {
     case "build":
       return "Write something in every part of the card to continue.";
     case "edit":
-      return "Edit the prompt to continue.";
+      return "Edit the text to continue.";
+    case "scenario":
+      return "Answer every question to continue.";
     default:
       return "";
   }
@@ -470,12 +540,23 @@ function CheckControls({
   check,
   answer,
   onChange,
+  reviewed = false,
 }: {
   check: LessonCheck;
   answer: LessonAnswer | null;
   onChange: (answer: LessonAnswer) => void;
+  reviewed?: boolean;
 }) {
   switch (check.kind) {
+    case "scenario":
+      return (
+        <ScenarioCheck
+          check={check}
+          answer={isRecord(answer) ? (answer as Record<string, string>) : {}}
+          onChange={onChange}
+          reviewed={reviewed}
+        />
+      );
     case "mark":
       return <MarkCheck check={check} answer={isRecord(answer) ? (answer as MarkAnswer) : {}} onChange={onChange} />;
     case "choose":
@@ -505,6 +586,67 @@ function CheckControls({
 
 function isRecord(answer: LessonAnswer | null): answer is MarkAnswer | BuildAnswer | EditAnswer {
   return !!answer && typeof answer === "object" && !Array.isArray(answer);
+}
+
+function ScenarioCheck({
+  check,
+  answer,
+  onChange,
+  reviewed,
+}: {
+  check: Extract<LessonCheck, { kind: "scenario" }>;
+  answer: Record<string, string>;
+  onChange: (answer: LessonAnswer) => void;
+  reviewed: boolean;
+}) {
+  const total = check.questions.length;
+  const answered = check.questions.filter((question) => answer[question.id]).length;
+  const needed = Math.min(check.passMark ?? total, total);
+  return (
+    <div className="ex-scenario">
+      <p className="ex-scenario-meta">
+        {answered} of {total} answered.{" "}
+        {needed === total ? "Every answer must be right to pass." : `${needed} of ${total} must be right to pass.`}
+      </p>
+      <ol>
+        {check.questions.map((question, index) => {
+          const chosen = question.options.find((option) => option.id === answer[question.id]);
+          const state = reviewed && chosen ? (chosen.correct ? "is-right" : "is-wrong") : "";
+          return (
+            <li key={question.id} className={`ex-scenario-q ${state}`}>
+              <p className="ex-scenario-num">
+                Question {index + 1} of {total}
+              </p>
+              <p className="ex-scenario-situation">{question.situation}</p>
+              <h3>{question.question}</h3>
+              <div className="ex-scenario-options" role="radiogroup" aria-label={question.question}>
+                {question.options.map((option) => {
+                  const on = answer[question.id] === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      className={on ? "ex-scenario-option is-on" : "ex-scenario-option"}
+                      onClick={() => onChange({ ...answer, [question.id]: option.id })}
+                    >
+                      {option.text}
+                    </button>
+                  );
+                })}
+              </div>
+              {reviewed && chosen ? (
+                <p className="ex-scenario-feedback">
+                  <strong>{chosen.correct ? "Right." : "Not quite."}</strong> {chosen.feedback}
+                </p>
+              ) : null}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
 }
 
 function EditCheck({

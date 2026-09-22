@@ -64,6 +64,14 @@ export type LessonCheck =
       why?: string;
     })
   | (CheckBase & {
+      /** Several realistic situations, each with one right option. */
+      kind: "scenario";
+      questions: ScenarioQuestion[];
+      /** Correct answers needed to pass. Defaults to every question. */
+      passMark?: number;
+      why: string;
+    })
+  | (CheckBase & {
       kind: "edit";
       /** The text the learner starts from. */
       start: string;
@@ -83,6 +91,22 @@ export type LessonCheck =
       /** The reply the repaired prompt produces, shown after a pass. */
       result?: CheckMaterial;
     });
+
+export type ScenarioOption = {
+  id: string;
+  text: string;
+  correct?: boolean;
+  /** Why this option is right or wrong, written to the person who chose it. */
+  feedback: string;
+};
+
+export type ScenarioQuestion = {
+  id: string;
+  /** The workplace situation, in full sentences. */
+  situation: string;
+  question: string;
+  options: ScenarioOption[];
+};
 
 export type BeforeAfter = { before: string; after: string; reading: string };
 

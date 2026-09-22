@@ -1680,3 +1680,118 @@
   font-size: 16px;
   line-height: 1.55;
 }
+.ex-scenario {
+  margin-top: 18px;
+}
+.ex-scenario-meta {
+  color: var(--ex-mute);
+  font-size: 14px;
+}
+.ex-scenario ol {
+  display: grid;
+  gap: 18px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ex-scenario-q {
+  padding: 22px;
+  background: #fff;
+  border: 1px solid var(--ex-line);
+  border-radius: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ex-scenario-q.is-right {
+  border-color: #9fb62a;
+  box-shadow: 0 0 0 3px #e4f47766;
+}
+.ex-scenario-q.is-wrong {
+  border-color: var(--ex-violet);
+  box-shadow: 0 0 0 3px #7046eb1f;
+}
+.ex-scenario-num {
+  color: var(--ex-violet);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.ex-scenario-situation {
+  margin-top: 10px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.ex-scenario-q h3 {
+  margin-top: 12px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  line-height: 1.35;
+}
+.ex-scenario-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+.ex-learn .ex-scenario-option {
+  min-height: 48px;
+  padding: 12px 16px;
+  background: var(--ex-paper);
+  border: 1px solid var(--ex-line);
+  border-radius: 10px;
+  color: var(--ex-ink);
+  font-size: 15px;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+.ex-learn .ex-scenario-option.is-on {
+  background: var(--ex-ink);
+  border-color: var(--ex-ink);
+  color: #fffefa;
+}
+.ex-scenario-feedback {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.ex-scenario-q.is-right .ex-scenario-feedback strong {
+  padding: 2px 6px;
+  background: var(--ex-citrus);
+  border-radius: 4px;
+}
+.ex-scenario-q.is-wrong .ex-scenario-feedback strong {
+  color: var(--ex-violet);
+}
+.ex-coach {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--ex-line);
+}
+.ex-coach-note {
+  margin-top: 8px;
+  color: var(--ex-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ex-coach-text {
+  margin-top: 14px;
+  padding: 18px 20px;
+  background: #efeafa;
+  border-radius: 14px;
+  animation: ex-pass-in 0.4s ease;
+}
+.ex-coach-text p + p {
+  margin-top: 10px;
+}
+.ex-coach-text p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.ex-coach-label {
+  color: var(--ex-violet);
+  font-size: 12px !important;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
