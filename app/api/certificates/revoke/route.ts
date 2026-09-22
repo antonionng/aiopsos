@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { getActor } from "@/lib/cohorts";
 import { logAudit, AUDIT_ACTIONS } from "@/lib/audit";
+import { sendCertificateRevokedEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +56,41 @@ export async function POST(req: NextRequest) {
   if (error) {
     const status = error.code === "42501" ? 403 : 500;
     return NextResponse.json({ error: error.message }, { status });
+  }
+
+  if (enrolment) {
+    const [{ data: profile }, { data: cohort }] = await Promise.all([
+      supabaseAdmin
+        .from("enrolments")
+        .select("user_id, user_profiles(name, email)")
+        .eq("id", certificate.enrolment_id)
+        .maybeSingle(),
+      enrolment.cohort_id
+        ? supabaseAdmin
+            .from("cohorts")
+            .select("title, courses:course_id(title)")
+            .eq("id", enrolment.cohort_id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    const member = profile?.user_profiles as unknown as {
+      name: string;
+      email: string;
+    } | null;
+    const course = cohort?.courses as unknown as { title: string } | { title: string }[] | null;
+    const courseTitle = Array.isArray(course)
+      ? course[0]?.title
+      : course?.title;
+    if (member?.email) {
+      await sendCertificateRevokedEmail({
+        to: member.email,
+        recipientName: member.name ?? "",
+        courseTitle: courseTitle || cohort?.title || "your course",
+        publicRef: certificate.public_ref,
+        reason,
+      });
+    }
   }
 
   if (enrolment?.org_id) {

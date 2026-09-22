@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { logAudit, AUDIT_ACTIONS } from "@/lib/audit";
+import { sendCreditsAdjustedEmail } from "@/lib/email";
 
 async function requireSuperAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
@@ -145,6 +146,13 @@ export async function POST(
     action: AUDIT_ACTIONS.CREDITS_ADJUSTED,
     metadata: { credits, description, balance_after: balance },
   });
+
+  await sendCreditsAdjustedEmail(
+    id,
+    credits,
+    description,
+    typeof balance === "number" ? balance : null
+  );
 
   return NextResponse.json({ ok: true, balance });
 }

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActor } from "@/lib/cohorts";
 import { logAudit, diffForAudit, AUDIT_ACTIONS } from "@/lib/audit";
 import { cohortUpdateSchema, validateBody } from "@/lib/validations";
+import { cohortLearnerRecipients, sendCohortCancelledEmails } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -135,14 +136,13 @@ export async function PATCH(
     after as Record<string, unknown>
   );
 
+  const cancelled = after.status === "cancelled" && before.status !== "cancelled";
+
   if (diff.changed.length > 0 && after.org_id) {
     await logAudit({
       orgId: after.org_id,
       userId: actor.userId,
-      action:
-        after.status === "cancelled" && before.status !== "cancelled"
-          ? AUDIT_ACTIONS.COHORT_CANCELLED
-          : AUDIT_ACTIONS.COHORT_UPDATED,
+      action: cancelled ? AUDIT_ACTIONS.COHORT_CANCELLED : AUDIT_ACTIONS.COHORT_UPDATED,
       metadata: {
         cohort_id: id,
         changed: diff.changed,
@@ -150,6 +150,10 @@ export async function PATCH(
         next: diff.next,
       },
     });
+  }
+
+  if (cancelled) {
+    await sendCohortCancelledEmails(id, after.title);
   }
 
   return NextResponse.json({ cohort: after });
@@ -195,11 +199,15 @@ export async function DELETE(
     );
   }
 
+  const learners = await cohortLearnerRecipients(id);
+
   const { error } = await supabase.from("cohorts").delete().eq("id", id);
   if (error) {
     const status = error.code === "42501" ? 403 : 500;
     return NextResponse.json({ error: error.message }, { status });
   }
+
+  await sendCohortCancelledEmails(id, cohort.title, learners);
 
   if (cohort.org_id) {
     await logAudit({
