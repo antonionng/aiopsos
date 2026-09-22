@@ -282,11 +282,28 @@ function evaluateBuild(
   answer: LessonAnswer
 ): CheckOutcome {
   const fields: BuildAnswer = isRecord(answer) ? (answer as BuildAnswer) : {};
+  const notes: string[] = [];
   const missing = check.fields.filter((field) => {
     const value = (fields[field.id] ?? "").trim();
-    return value.length < field.min || !meetsRule(field, value);
+    if (value.length < field.min || !meetsRule(field, value)) return true;
+    const lower = normalise(value).toLowerCase();
+    const unmet = (field.groups ?? []).find(
+      (group) => !group.any.some((word) => lower.includes(word.toLowerCase()))
+    );
+    if (unmet) {
+      notes.push(unmet.missing);
+      return false;
+    }
+    const banned = (field.none ?? []).find((group) =>
+      group.any.some((word) => lower.includes(word.toLowerCase()))
+    );
+    if (banned) {
+      notes.push(banned.missing);
+      return false;
+    }
+    return false;
   });
-  if (missing.length === 0) {
+  if (missing.length === 0 && notes.length === 0) {
     return {
       passed: true,
       detail: check.why ?? "The card has every part a colleague needs to run it.",
@@ -294,12 +311,14 @@ function evaluateBuild(
   }
   return {
     passed: false,
-    detail: missing
-      .map(
+    detail: [
+      ...missing.map(
         (field) =>
           field.missing ??
           `${field.label} is still too thin. Write enough that a colleague could run it without asking you what you meant.`
-      )
+      ),
+      ...notes,
+    ]
       .join(" "),
   };
 }
@@ -332,6 +351,7 @@ function evaluateEdit(
   const whole = normalise(edited);
   const needsLimitWording = check.limitWording !== false;
   const notes = [
+    ...(check.remove ?? []).filter((group) => mentionsAny(whole, group)),
     ...check.keep.filter((group) => !mentionsAny(whole, group)),
     ...check.limits.filter((group) =>
       needsLimitWording

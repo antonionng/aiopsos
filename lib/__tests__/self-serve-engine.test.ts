@@ -430,3 +430,41 @@ test("a scenario assessment needs every answer, then passes only at its pass mar
   assert.equal(pass.passed, true);
   assert.match(pass.detail, /2 of 3/);
 });
+
+test("a built part can require two separate things and forbid an invented promise", () => {
+  const check = {
+    kind: "build" as const,
+    prompt: "Write the escalation line.",
+    fields: [
+      {
+        id: "escalate",
+        label: "Escalate",
+        hint: "Who, and by when.",
+        min: 10,
+        groups: [
+          { id: "who", any: ["manager", "lead"], missing: "Name the role you escalate to." },
+          { id: "when", any: ["today", "within", "by"], missing: "Say by when it is escalated." },
+        ],
+        none: [{ id: "promise", any: ["refund", "voucher"], missing: "Take out the refund; nobody agreed one." }],
+      },
+    ],
+  };
+  assert.equal(evaluateCheck(check, { escalate: "Tell the shift lead today." }).passed, true);
+  assert.match(evaluateCheck(check, { escalate: "Tell the shift lead eventually." }).detail, /by when/);
+  assert.match(evaluateCheck(check, { escalate: "Tell the lead today and offer a refund." }).detail, /refund/);
+});
+
+test("an edit fails while a removed claim is still in the text", () => {
+  const check = {
+    kind: "edit" as const,
+    prompt: "Repair the reply.",
+    start: "We will refund you in full and send a replacement tomorrow.",
+    limitWording: false,
+    limits: [],
+    keep: [{ id: "replace", any: ["replacement"], missing: "Keep the replacement." }],
+    remove: [{ id: "refund", any: ["refund"], missing: "Take out the refund; it was never agreed." }],
+    why: "The reply now promises only what was agreed.",
+  };
+  assert.match(evaluateCheck(check, { edited: "We will refund you and send a replacement tomorrow, sorry." }).detail, /refund/);
+  assert.equal(evaluateCheck(check, { edited: "We will send a replacement tomorrow." }).passed, true);
+});

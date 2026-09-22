@@ -22,6 +22,10 @@ export type BuildField = {
   rule?: BuildRule;
   /** Passes only when the answer mentions at least one of these words or phrases (case-insensitive). */
   any?: string[];
+  /** Every group must be satisfied: use when one part must contain two separate things. */
+  groups?: KeywordGroup[];
+  /** Fails when the answer contains any word from a group, for example an invented promise. */
+  none?: KeywordGroup[];
   /** Full sentence shown when this part is missing or too thin. */
   missing?: string;
 };
@@ -87,6 +91,8 @@ export type LessonCheck =
       limitWording?: boolean;
       /** Each group must still appear somewhere in the edited prompt. */
       keep: KeywordGroup[];
+      /** Each group must no longer appear, for example a refund nobody agreed. */
+      remove?: KeywordGroup[];
       why: string;
       /** The reply the repaired prompt produces, shown after a pass. */
       result?: CheckMaterial;
