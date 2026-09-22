@@ -9,7 +9,7 @@ This skill is the standard for every self-serve course. Prompt Engineering for P
 
 A course is worth paying for when a professional can finish it, do the work on Monday, and say why. The first prompt course failed that test. It was four short captions, a check labelled Holds and Invented, two headers on the phone, and a purchase that opened the lesson with no account to return to.
 
-Read this before writing a lesson, a check, a certificate, or a sign-in path.
+Read this before writing a lesson, a check, a certificate, or a sign-in path. For each individual course, work through `.cursor/skills/experrt-course-author/SKILL.md`, which turns this standard into a build sheet with quality gates. The plans for all forty courses are in `plans/` beside this file.
 
 ## Who uses a course
 
@@ -37,6 +37,15 @@ One email is one Experrt account. A person can hold more than one of these roles
 - Sign in is how a second device opens the same course. Progress and the signed card live on the purchase, attached to the user.
 - The receipt still thanks them and links them back. The alert still goes to ag@experrt.com.
 - A manager's view and a learner's view are different pages of the same account. Signing in as a manager does not drop them inside someone else's lesson.
+
+### What is built
+
+- After payment, `/api/learn/claim` sets the access cookie and sends a buyer with no account to `/learn/welcome`. That page shows the checkout email, asks for their name and a password, and offers to open lesson one without saving.
+- `/api/learn/account` creates the Supabase user on the purchase email, signs them in, and attaches every paid purchase on that email to the user (`self_serve_purchases.user_id`). If an account already exists on that email, it asks them to sign in instead.
+- `/learn/my-courses` is the learner profile. Signed out, it is the sign-in form. Signed in, it lists each course with progress, the date and price paid, a Carry on button, and the signed record.
+- A course opens from the cookie or from the signed-in account (`lib/self-serve/access.ts`). A purchase made while signed in carries the user id in the Stripe metadata.
+- A signed-in learner with no organisation who opens `/dashboard` is sent to My courses.
+- Emails: the receipt thanks the buyer by name and says how to sign back in. The welcome email thanks them for signing up. ag@experrt.com receives a purchase alert naming the buyer, their email, the course, the amount, the time, and whether they have an account, and a second alert when a learner account is created.
 
 ## Content
 
@@ -128,12 +137,12 @@ Outcome: the learner can explain what a prompt is, tell a sentence that only tha
 
 ## Order of the work
 
-1. This skill is the standard. Courses are written from it.
-2. The lesson player has one header.
-3. Individual learners can save a sign-in on the purchase email and open the course again. Team learners and managers come after that account exists. Facilitator preview and provider delivery come after the first course is something a person would pay for.
+1. This skill is the standard. Each course is written from its plan in `plans/` and the build sheet in `experrt-course-author`.
+2. The lesson player has one header. Done.
+3. Individual learners save a sign-in on the purchase email and open the course from My courses. Done. Team learners and managers come next, on the same account. Facilitator preview and provider delivery come after the first course is something a person would pay for.
 4. Rewrite Prompt Engineering to the six lessons, with checks that match this skill, and a record that shows the card they wrote.
-5. The next course is commissioned only when it can be written at this depth. The other outlines stay outlines.
+5. The next course is built only when it passes every gate in `experrt-course-author`. The other outlines stay outlines until then.
 
 ## Leave alone
 
-Do not write lessons for the other thirty-nine courses in a batch. Do not add points, streaks, or a second visual system. Do not turn on Stripe Tax. Do not claim a regulation on a record. Do not put the marketing header back on the lesson player.
+Do not write lessons for the other thirty-nine courses in a batch. Do not add points, streaks, scores that hide a failed check, or a second visual system. Progress ticks and a finish moment are welcome, as described in `experrt-course-author`. Do not turn on Stripe Tax. Do not claim a regulation on a record. Do not put the marketing header back on the lesson player.

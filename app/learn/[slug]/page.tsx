@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { CourseGate } from "@/components/learn/course-gate";
 import { CourseOutline } from "@/components/learn/course-outline";
 import { LearnMarket, LearnPlayer } from "@/components/learn/learn-shell";
 import { LessonRoom } from "@/components/learn/lesson-room";
-import { ACCESS_COOKIE } from "@/lib/self-serve/commerce";
+import { findEntitledPurchase } from "@/lib/self-serve/access";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
-import { findPaidPurchase, loadProgress } from "@/lib/self-serve/records";
+import { loadProgress } from "@/lib/self-serve/records";
 import { withSiteShareImages } from "@/lib/social-image";
 
 export async function generateMetadata({
@@ -44,9 +43,8 @@ export default async function LearnCoursePage({
   }
 
   if (course.playable && course.lessons) {
-    const token = (await cookies()).get(ACCESS_COOKIE)?.value ?? "";
     try {
-      const purchase = await findPaidPurchase(token, course.slug);
+      const purchase = await findEntitledPurchase(course.slug);
       if (!purchase) {
         return (
           <LearnMarket>

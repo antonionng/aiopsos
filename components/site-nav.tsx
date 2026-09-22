@@ -82,6 +82,10 @@ function isActive(href: string, pathname: string) {
 export function SiteNav() {
   const pathname = usePathname() ?? "/";
   const onHome = pathname === "/";
+  const inCourses = pathname === "/learn" || pathname.startsWith("/learn/");
+  const signIn = inCourses
+    ? { href: "/learn/my-courses", label: "My courses" }
+    : { href: "/login", label: "Sign in" };
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -121,17 +125,22 @@ export function SiteNav() {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/login"
-            className="hidden h-9 items-center justify-center px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground xl:inline-flex"
+            href={signIn.href}
+            className={cn(
+              "h-9 items-center justify-center px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+              inCourses ? "inline-flex" : "hidden xl:inline-flex",
+            )}
           >
-            Sign in
+            {signIn.label}
           </Link>
-          <Link
-            href="/register"
-            className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
-          >
-            Get Started
-          </Link>
+          {inCourses ? null : (
+            <Link
+              href="/register"
+              className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+            >
+              Get Started
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => setOpen((value) => !value)}
@@ -172,11 +181,11 @@ export function SiteNav() {
               );
             })}
             <Link
-              href="/login"
+              href={signIn.href}
               onClick={close}
               className="py-3 text-sm font-medium text-foreground"
             >
-              Sign in
+              {signIn.label}
             </Link>
           </div>
         </div>

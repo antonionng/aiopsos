@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/wordmark";
+import "./learn-bar.css";
 
 export function LearnBar({
-  homeHref = "/learn",
-  homeLabel = "All courses",
+  homeHref = "/learn/my-courses",
+  homeLabel = "My courses",
   action,
 }: {
   homeHref?: string;
@@ -15,7 +16,10 @@ export function LearnBar({
       <Link href={homeHref} aria-label={homeLabel}>
         <Wordmark size="sm" />
       </Link>
-      {action}
+      <span className="ex-learn-bar-actions">
+        <Link href={homeHref}>{homeLabel}</Link>
+        {action}
+      </span>
     </header>
   );
 }

@@ -1,11 +1,9 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { isSelfServeEnabled } from "@/lib/self-serve/flag";
-import { ACCESS_COOKIE } from "@/lib/self-serve/commerce";
+import { findEntitledPurchase } from "@/lib/self-serve/access";
 import { canSign } from "@/lib/self-serve/engine";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
 import {
-  findPaidPurchase,
   loadProgress,
   saveProgress,
   signProgress,
@@ -13,8 +11,7 @@ import {
 import type { CourseProgress } from "@/lib/self-serve/types";
 
 async function entitled(slug: string) {
-  const token = (await cookies()).get(ACCESS_COOKIE)?.value ?? "";
-  return findPaidPurchase(token, slug);
+  return findEntitledPurchase(slug);
 }
 
 export async function GET(req: Request) {

@@ -20,7 +20,11 @@ export type PurchaseRow = {
   access_token: string | null;
   receipt_sent_at: string | null;
   paid_at: string | null;
+  user_id: string | null;
 };
+
+const PURCHASE_COLUMNS =
+  "id, course_slug, email, buyer_name, amount, currency, stripe_session_id, status, access_token, receipt_sent_at, paid_at, user_id";
 
 export type SignedRecord = {
   slug: string;
@@ -87,6 +91,8 @@ export async function fulfillSelfServeSession(
   const existing = await findPurchaseBySession(session.id);
   const accessToken = existing?.access_token ?? newAccessToken();
   const paidAt = existing?.paid_at ?? new Date().toISOString();
+  const signedInUser = session.metadata?.user_id || null;
+  const userId = existing?.user_id ?? signedInUser;
 
   const { data, error } = await supabaseAdmin
     .from("self_serve_purchases")
@@ -104,12 +110,16 @@ export async function fulfillSelfServeSession(
         status: "paid",
         access_token: accessToken,
         paid_at: paidAt,
+        ...(userId
+          ? {
+              user_id: userId,
+              account_linked_at: new Date().toISOString(),
+            }
+          : {}),
       },
       { onConflict: "stripe_session_id" }
     )
-    .select(
-      "id, course_slug, email, buyer_name, amount, currency, stripe_session_id, status, access_token, receipt_sent_at, paid_at"
-    )
+    .select(PURCHASE_COLUMNS)
     .single();
 
   if (error || !data) {
@@ -136,18 +146,26 @@ async function sendPurchaseMail(
 ) {
   const base = (origin ?? getPublicSiteUrl()).replace(/\/$/, "");
   const learnUrl = `${base}/learn/${purchase.course_slug}?access=${purchase.access_token}`;
+  const accountUrl = `${base}/learn/my-courses`;
   const amountGbp = purchase.amount / 100;
+  const hasAccount = Boolean(purchase.user_id) || (await accountExistsForEmail(purchase.email));
   try {
     await sendSelfServeReceipt({
       email: purchase.email as string,
+      name: purchase.buyer_name,
       courseTitle,
       amountGbp,
       learnUrl,
+      accountUrl,
+      hasAccount,
     });
     await sendSelfServePurchaseAlert({
       email: purchase.email as string,
+      name: purchase.buyer_name,
       courseTitle,
       amountGbp,
+      paidAt: purchase.paid_at,
+      hasAccount,
       stripeSessionId: purchase.stripe_session_id,
     });
     await supabaseAdmin
@@ -165,9 +183,7 @@ export async function findPurchaseBySession(
 ): Promise<PurchaseRow | null> {
   const { data } = await supabaseAdmin
     .from("self_serve_purchases")
-    .select(
-      "id, course_slug, email, buyer_name, amount, currency, stripe_session_id, status, access_token, receipt_sent_at, paid_at"
-    )
+    .select(PURCHASE_COLUMNS)
     .eq("stripe_session_id", sessionId)
     .maybeSingle();
   return (data as PurchaseRow | null) ?? null;
@@ -180,14 +196,120 @@ export async function findPaidPurchase(
   if (!token) return null;
   const { data } = await supabaseAdmin
     .from("self_serve_purchases")
-    .select(
-      "id, course_slug, email, buyer_name, amount, currency, stripe_session_id, status, access_token, receipt_sent_at, paid_at"
-    )
+    .select(PURCHASE_COLUMNS)
     .eq("access_token", token)
     .eq("course_slug", slug)
     .eq("status", "paid")
     .maybeSingle();
   return (data as PurchaseRow | null) ?? null;
+}
+
+export async function findPaidPurchaseByToken(token: string): Promise<PurchaseRow | null> {
+  if (!token) return null;
+  const { data } = await supabaseAdmin
+    .from("self_serve_purchases")
+    .select(PURCHASE_COLUMNS)
+    .eq("access_token", token)
+    .eq("status", "paid")
+    .maybeSingle();
+  return (data as PurchaseRow | null) ?? null;
+}
+
+function normaliseEmail(email: string | null | undefined): string {
+  return (email ?? "").trim().toLowerCase();
+}
+
+/** Purchases made while signed in carry the user id; guest purchases match on the account email. */
+export async function purchasesForUser(
+  userId: string,
+  email: string | null | undefined
+): Promise<PurchaseRow[]> {
+  const byUser = await supabaseAdmin
+    .from("self_serve_purchases")
+    .select(PURCHASE_COLUMNS)
+    .eq("user_id", userId)
+    .eq("status", "paid");
+  const rows = new Map<string, PurchaseRow>();
+  for (const row of (byUser.data as PurchaseRow[] | null) ?? []) rows.set(row.id, row);
+
+  const address = normaliseEmail(email);
+  if (address) {
+    const byEmail = await supabaseAdmin
+      .from("self_serve_purchases")
+      .select(PURCHASE_COLUMNS)
+      .ilike("email", address.replace(/[\\%_]/g, (c) => `\\${c}`))
+      .is("user_id", null)
+      .eq("status", "paid");
+    for (const row of (byEmail.data as PurchaseRow[] | null) ?? []) rows.set(row.id, row);
+  }
+  return [...rows.values()].sort((a, b) => (b.paid_at ?? "").localeCompare(a.paid_at ?? ""));
+}
+
+export async function findUserPurchase(
+  userId: string,
+  email: string | null | undefined,
+  slug: string
+): Promise<PurchaseRow | null> {
+  const rows = await purchasesForUser(userId, email);
+  return rows.find((row) => row.course_slug === slug) ?? null;
+}
+
+export async function linkPurchasesToUser(
+  userId: string,
+  email: string | null | undefined
+): Promise<number> {
+  const rows = await purchasesForUser(userId, email);
+  const unlinked = rows.filter((row) => !row.user_id).map((row) => row.id);
+  if (unlinked.length === 0) return 0;
+  const { error } = await supabaseAdmin
+    .from("self_serve_purchases")
+    .update({ user_id: userId, account_linked_at: new Date().toISOString() })
+    .in("id", unlinked)
+    .is("user_id", null);
+  if (error) throw new Error(error.message);
+  return unlinked.length;
+}
+
+export async function accountExistsForEmail(email: string | null | undefined): Promise<boolean> {
+  const address = normaliseEmail(email);
+  if (!address) return false;
+  const { data } = await supabaseAdmin
+    .from("user_profiles")
+    .select("id")
+    .ilike("email", address.replace(/[\\%_]/g, (c) => `\\${c}`))
+    .limit(1);
+  return (data?.length ?? 0) > 0;
+}
+
+export async function findAccountIdForEmail(email: string | null | undefined): Promise<string | null> {
+  const address = normaliseEmail(email);
+  if (!address) return null;
+  const { data } = await supabaseAdmin
+    .from("user_profiles")
+    .select("id")
+    .ilike("email", address.replace(/[\\%_]/g, (c) => `\\${c}`))
+    .limit(1);
+  return (data?.[0]?.id as string | undefined) ?? null;
+}
+
+export async function progressForPurchases(
+  purchaseIds: string[]
+): Promise<Map<string, CourseProgress>> {
+  const out = new Map<string, CourseProgress>();
+  if (purchaseIds.length === 0) return out;
+  const { data } = await supabaseAdmin
+    .from("self_serve_progress")
+    .select("purchase_id, lessons, signed_name, signed_at, certificate_ref")
+    .in("purchase_id", purchaseIds);
+  for (const row of (data as ProgressRow[] | null) ?? []) {
+    out.set(row.purchase_id, {
+      lessons: row.lessons ?? {},
+      signedName: row.signed_name ?? undefined,
+      signedAt: row.signed_at ?? undefined,
+      ref: row.certificate_ref ?? undefined,
+    });
+  }
+  return out;
 }
 
 export async function loadProgress(purchaseId: string): Promise<CourseProgress> {

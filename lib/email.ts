@@ -26,6 +26,7 @@ import { ConfirmWelcomeEmail, ResetPasswordEmail } from "./emails/confirm-welcom
 import { SelfServeReceiptEmail } from "./emails/self-serve-receipt";
 import { SelfServePurchaseAlertEmail } from "./emails/self-serve-purchase-alert";
 import { SelfServeNudgeEmail } from "./emails/self-serve-nudge";
+import { SelfServeAccountAlertEmail, SelfServeWelcomeEmail } from "./emails/self-serve-welcome";
 import type { SelfServeNudgeKind } from "./self-serve/nudges";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
@@ -680,9 +681,12 @@ export async function sendResetPasswordEmail(to: string, resetUrl: string) {
  * the route can tell the sender their message did not go through. */
 export async function sendSelfServeReceipt(details: {
   email: string;
+  name?: string | null;
   courseTitle: string;
   amountGbp: number;
   learnUrl: string;
+  accountUrl: string;
+  hasAccount: boolean;
 }) {
   const { apiKey, from } = getEmailConfig();
   if (!apiKey) {
@@ -699,8 +703,11 @@ export async function sendSelfServeReceipt(details: {
 
 export async function sendSelfServePurchaseAlert(details: {
   email: string;
+  name?: string | null;
   courseTitle: string;
   amountGbp: number;
+  paidAt?: string | null;
+  hasAccount: boolean;
   stripeSessionId: string;
 }) {
   const { apiKey, from } = getEmailConfig();
@@ -709,12 +716,52 @@ export async function sendSelfServePurchaseAlert(details: {
     return;
   }
   const notify = getNotifyEmail();
+  const who = details.name?.trim() ? `${details.name.trim()} (${details.email})` : details.email;
   await sendEmail({
     from,
     to: notify,
     replyTo: details.email,
-    subject: `Self-serve purchase: ${details.courseTitle}`,
+    subject: `Course purchase: ${details.courseTitle}, bought by ${who}`,
     react: SelfServePurchaseAlertEmail(details),
+  });
+}
+
+export async function sendSelfServeWelcome(details: {
+  email: string;
+  name?: string | null;
+  courseTitle?: string | null;
+  accountUrl: string;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping learner welcome");
+    return;
+  }
+  await sendEmail({
+    from,
+    to: details.email,
+    subject: "Thank you for signing up to Experrt",
+    react: SelfServeWelcomeEmail(details),
+  });
+}
+
+export async function sendSelfServeAccountAlert(details: {
+  email: string;
+  name?: string | null;
+  courseTitle?: string | null;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping learner account alert");
+    return;
+  }
+  const who = details.name?.trim() ? `${details.name.trim()} (${details.email})` : details.email;
+  await sendEmail({
+    from,
+    to: getNotifyEmail(),
+    replyTo: details.email,
+    subject: `New learner account: ${who}`,
+    react: SelfServeAccountAlertEmail(details),
   });
 }
 

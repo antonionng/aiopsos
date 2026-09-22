@@ -29,6 +29,12 @@ export default async function DashboardLayout({
     .maybeSingle();
 
   if (!profile?.org_id) {
+    const { count } = await supabaseAdmin
+      .from("self_serve_purchases")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("status", "paid");
+    if ((count ?? 0) > 0) redirect("/learn/my-courses");
     return <OrgOnboarding email={user.email ?? ""} />;
   }
 

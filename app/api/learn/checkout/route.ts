@@ -8,6 +8,7 @@ import {
   SELF_SERVE_PURPOSE,
 } from "@/lib/self-serve/commerce";
 import { insertPendingPurchase } from "@/lib/self-serve/records";
+import { currentLearner } from "@/lib/self-serve/access";
 
 export async function POST(req: Request) {
   if (!isSelfServeEnabled()) {
@@ -40,11 +41,13 @@ export async function POST(req: Request) {
   const origin = checkoutOrigin(req);
   const amount = courseAmountPence(course.priceGbp);
   const stripe = getStripe();
+  const learner = await currentLearner();
 
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_creation: "always",
+      ...(learner?.email ? { customer_email: learner.email } : {}),
       billing_address_collection: "auto",
       success_url: `${origin}/api/learn/claim?slug=${encodeURIComponent(course.slug)}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/learn/${course.slug}`,
@@ -64,6 +67,7 @@ export async function POST(req: Request) {
       metadata: {
         purpose: SELF_SERVE_PURPOSE,
         course_slug: course.slug,
+        ...(learner ? { user_id: learner.id } : {}),
       },
     });
 

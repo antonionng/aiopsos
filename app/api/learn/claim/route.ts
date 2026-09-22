@@ -5,7 +5,16 @@ import { ACCESS_COOKIE, checkoutOrigin, cookieOptions } from "@/lib/self-serve/c
 import {
   findPaidPurchase,
   fulfillSelfServeSession,
+  type PurchaseRow,
 } from "@/lib/self-serve/records";
+
+/** A buyer with no saved sign-in is asked for one before lesson one. */
+function nextUrl(purchase: PurchaseRow, origin: string): URL {
+  if (purchase.user_id) return new URL(`/learn/${purchase.course_slug}`, origin);
+  const url = new URL("/learn/welcome", origin);
+  url.searchParams.set("course", purchase.course_slug);
+  return url;
+}
 
 export async function GET(req: Request) {
   if (!isSelfServeEnabled()) {
@@ -24,7 +33,7 @@ export async function GET(req: Request) {
       const session = await getStripe().checkout.sessions.retrieve(sessionId);
       const purchase = await fulfillSelfServeSession(session, { origin });
       if (purchase?.access_token && purchase.status === "paid") {
-        const response = NextResponse.redirect(courseUrl);
+        const response = NextResponse.redirect(nextUrl(purchase, origin));
         response.cookies.set(ACCESS_COOKIE, purchase.access_token, cookieOptions());
         return response;
       }
@@ -33,7 +42,7 @@ export async function GET(req: Request) {
     if (access && slug) {
       const purchase = await findPaidPurchase(access, slug);
       if (purchase?.access_token) {
-        const response = NextResponse.redirect(courseUrl);
+        const response = NextResponse.redirect(nextUrl(purchase, origin));
         response.cookies.set(ACCESS_COOKIE, purchase.access_token, cookieOptions());
         return response;
       }
