@@ -12,12 +12,12 @@ export function SelfServeReceiptEmail({
 }) {
   return (
     <EmailShell
-      heading={`Your place on ${courseTitle}`}
+      heading={`Thank you. Your place on ${courseTitle} is open.`}
       footerNote="This receipt confirms payment for the course. It does not certify compliance with the EU AI Act or any other regulation."
     >
       <p style={emailStyles.paragraph}>
-        Payment of <strong style={emailStyles.strong}>£{amountGbp.toFixed(2)}</strong> is
-        confirmed. The price on the page is the amount charged. Open the course from the
+        Thank you. Payment of <strong style={emailStyles.strong}>£{amountGbp.toFixed(2)}</strong>{" "}
+        is confirmed. The price on the page is the amount charged. Open the course from the
         button below. The link is for you. Keep it.
       </p>
       <p style={emailStyles.lastParagraph}>

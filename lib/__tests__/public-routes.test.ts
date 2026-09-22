@@ -45,6 +45,7 @@ test("self-serve checkout and the Stripe webhook are reachable without a session
   assert.equal(isPublicPath("/api/learn/progress"), true);
   assert.equal(isPublicPath("/api/learn/certificate/EX123"), true);
   assert.equal(isPublicPath("/api/stripe/webhook"), true);
+  assert.equal(isPublicPath("/api/cron/self-serve-nudges"), true);
 });
 
 test("the Mooov webhook is reachable by Mooov's servers", () => {

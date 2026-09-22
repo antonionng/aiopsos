@@ -25,6 +25,8 @@ import { ContactAlertEmail } from "./emails/contact-alert";
 import { ConfirmWelcomeEmail, ResetPasswordEmail } from "./emails/confirm-welcome";
 import { SelfServeReceiptEmail } from "./emails/self-serve-receipt";
 import { SelfServePurchaseAlertEmail } from "./emails/self-serve-purchase-alert";
+import { SelfServeNudgeEmail } from "./emails/self-serve-nudge";
+import type { SelfServeNudgeKind } from "./self-serve/nudges";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
 import { getPublicSiteUrl } from "./site";
@@ -690,7 +692,7 @@ export async function sendSelfServeReceipt(details: {
   await sendEmail({
     from,
     to: details.email,
-    subject: `Your place on ${details.courseTitle}`,
+    subject: `Thank you. Your place on ${details.courseTitle}`,
     react: SelfServeReceiptEmail(details),
   });
 }
@@ -714,6 +716,34 @@ export async function sendSelfServePurchaseAlert(details: {
     subject: `Self-serve purchase: ${details.courseTitle}`,
     react: SelfServePurchaseAlertEmail(details),
   });
+}
+
+const NUDGE_SUBJECT: Record<SelfServeNudgeKind, (title: string) => string> = {
+  start: (title) => `Lesson one is open on ${title}`,
+  continue: (title) => `You are part of the way through ${title}`,
+  sign: (title) => `Sign the prompt card for ${title}`,
+};
+
+export async function sendSelfServeNudge(details: {
+  email: string;
+  kind: SelfServeNudgeKind;
+  courseTitle: string;
+  learnUrl: string;
+  passed: number;
+  total: number;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping self-serve nudge");
+    return false;
+  }
+  await sendEmail({
+    from,
+    to: details.email,
+    subject: NUDGE_SUBJECT[details.kind](details.courseTitle),
+    react: SelfServeNudgeEmail(details),
+  });
+  return true;
 }
 
 export async function sendContactAlert(details: {
