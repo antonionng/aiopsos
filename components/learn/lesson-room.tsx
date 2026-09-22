@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
@@ -70,6 +70,7 @@ export function LessonRoom({
   const [draft, setDraft] = useState<LessonAnswer | null>(null);
   const [feedback, setFeedback] = useState<{ detail: string; passed: boolean } | null>(null);
   const [name, setName] = useState("");
+  const shouldScroll = useRef(false);
 
   useEffect(() => {
     const stored = initialProgress ?? readProgress(course.slug);
@@ -115,8 +116,16 @@ export function LessonRoom({
     if (!canOpenLesson(lessons, progress, next)) return;
     setIndex(next);
     setIndexOpen(false);
-    window.scrollTo({ top: 0 });
+    shouldScroll.current = true;
   }
+
+  useLayoutEffect(() => {
+    if (!shouldScroll.current) return;
+    shouldScroll.current = false;
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }));
+  }, [index]);
 
   function commit(nextAnswer: LessonAnswer) {
     if (!lesson) return;
