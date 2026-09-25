@@ -1,38 +1,44 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LearnMarket } from "@/components/learn/learn-shell";
+import { BuyCourseButton } from "@/components/learn/buy-course-button";
+import { SelfServeCourseCards } from "@/components/learn/course-cards";
 import { SignInForm, SignOutButton } from "@/components/learn/learner-account";
+import { TeamSessionForm } from "@/components/learn/team-session-form";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { cookiePurchase, currentLearner } from "@/lib/self-serve/access";
 import { getSelfServeCourse, trackLabel } from "@/lib/self-serve/catalog";
+import { courseArtefact } from "@/lib/self-serve/engine";
+import { onePerCourse, type CourseHolding } from "@/lib/self-serve/entitlement";
 import {
   linkPurchasesToUser,
   progressForPurchases,
   purchasesForUser,
   type PurchaseRow,
 } from "@/lib/self-serve/records";
+import { linkedInAddUrl } from "@/lib/self-serve/share-links";
+import { recommendCourses } from "@/lib/self-serve/upsell";
 import type { CourseProgress, SelfServeCourse } from "@/lib/self-serve/types";
 import { withSiteShareImages } from "@/lib/social-image";
 
 export const metadata: Metadata = withSiteShareImages({
-  title: "My courses",
+  title: "My learning",
   robots: { index: false, follow: false },
 });
 
-function formatDate(iso: string | null | undefined): string {
+function formatDate(iso: string | Date | null | undefined): string {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
 function CourseRow({
-  purchase,
+  holding,
   course,
-  progress,
 }: {
-  purchase: PurchaseRow;
+  holding: CourseHolding<PurchaseRow>;
   course: SelfServeCourse;
-  progress: CourseProgress | undefined;
 }) {
+  const { progress } = holding;
   const lessons = course.lessons ?? [];
   const passed = lessons.filter((lesson) => progress?.lessons[lesson.id]?.passed).length;
   const total = lessons.length;
@@ -54,13 +60,29 @@ function CourseRow({
       <div className="la-bar" role="img" aria-label={`${passed} of ${total} lessons passed`}>
         <span style={{ width: `${pct}%` }} />
       </div>
-      <p>
-        Bought on {formatDate(purchase.paid_at)} for £{(purchase.amount / 100).toFixed(2)}.
-      </p>
+      {holding.active ? (
+        <p className="la-course-status">
+          {holding.accessEndsAt
+            ? `Your access is open until ${formatDate(holding.accessEndsAt)}.`
+            : "Your access is open."}
+        </p>
+      ) : (
+        <p className="la-course-status is-ended">
+          Your 12 months of access ended on {formatDate(holding.accessEndsAt)}. Your signed record stays public.
+        </p>
+      )}
       <div className="la-course-actions">
-        <Link className="la-button" href={`/learn/${course.slug}`}>
-          {signed ? "Open the course" : passed === 0 ? "Start lesson one" : "Carry on"}
-        </Link>
+        {holding.active ? (
+          <Link className="la-button" href={`/learn/${course.slug}`}>
+            {signed ? "Open the course" : passed === 0 ? "Start lesson one" : "Carry on"}
+          </Link>
+        ) : (
+          <BuyCourseButton
+            slug={course.slug}
+            label={`Buy 12 more months for £${course.priceGbp}`}
+            className="la-button"
+          />
+        )}
         {signed ? (
           <>
             <Link href={`/learn/${course.slug}/certificate`}>Your record</Link>
@@ -69,6 +91,34 @@ function CourseRow({
         ) : null}
       </div>
     </li>
+  );
+}
+
+type SignedWork = { course: SelfServeCourse; progress: CourseProgress & { ref: string } };
+
+function LearnedList({ records }: { records: SignedWork[] }) {
+  return (
+    <ul className="la-courses">
+      {records.map(({ course, progress }) => {
+        const artefact = courseArtefact(course);
+        return (
+          <li className="la-course" key={progress.ref}>
+            <span className="la-course-track">{trackLabel(course.track)}</span>
+            <h2>{course.title}</h2>
+            <p>
+              Signed by {progress.signedName} on {formatDate(progress.signedAt)}. Record {progress.ref}.
+            </p>
+            {artefact?.recordLine ? <p>{artefact.recordLine}</p> : null}
+            <div className="la-course-actions">
+              <Link href={`/verify/${progress.ref}`}>Public record</Link>
+              <a href={linkedInAddUrl(course.title, progress.ref, progress.signedAt)} target="_blank" rel="noreferrer">
+                Add to LinkedIn
+              </a>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -133,32 +183,48 @@ export default async function MyCoursesPage() {
     .eq("id", user.id)
     .maybeSingle();
   const name = (profile?.name as string | undefined)?.trim() || (user.user_metadata?.name as string | undefined) || "";
-  const rows = purchases
-    .map((purchase) => ({ purchase, course: getSelfServeCourse(purchase.course_slug) }))
-    .filter((row): row is { purchase: PurchaseRow; course: SelfServeCourse } => Boolean(row.course));
-  const finished = rows.filter((row) => progress.get(row.purchase.id)?.ref).length;
+
+  const rows = onePerCourse(purchases, progress)
+    .map((holding) => ({ holding, course: getSelfServeCourse(holding.purchase.course_slug) }))
+    .filter((row): row is { holding: CourseHolding<PurchaseRow>; course: SelfServeCourse } => Boolean(row.course));
+
+  const records: SignedWork[] = [];
+  const seenRefs = new Set<string>();
+  for (const purchase of purchases) {
+    const entry = progress.get(purchase.id);
+    const course = getSelfServeCourse(purchase.course_slug);
+    if (!course || !entry?.ref || !entry.signedName || seenRefs.has(entry.ref)) continue;
+    seenRefs.add(entry.ref);
+    records.push({ course, progress: entry as SignedWork["progress"] });
+  }
+  records.sort((a, b) => (b.progress.signedAt ?? "").localeCompare(a.progress.signedAt ?? ""));
+
+  const ownedSlugs = rows.map((row) => row.course.slug);
+  const picks = recommendCourses(rows[0]?.course.slug, ownedSlugs, 3)
+    .map((pick) => getSelfServeCourse(pick.slug))
+    .filter((course): course is SelfServeCourse => Boolean(course));
+  const sessionCourses = [...rows.map((row) => row.course), ...picks].map((course) => ({
+    slug: course.slug,
+    title: course.title,
+  }));
+  const active = rows.filter((row) => row.holding.active);
 
   return (
     <LearnMarket>
       <main className="la-page">
         <p className="ex-eyebrow">
           <span />
-          MY COURSES
+          MY LEARNING
         </p>
         <h1>{name ? `Welcome back, ${name.split(/\s+/)[0]}.` : "Welcome back."}</h1>
         <p className="la-lede">
-          Here are the courses on your account. Each one opens at the lesson you stopped at, and a finished course links to your signed record.
+          Pick up where you stopped, see what you have finished, and find the next course. Each course opens at the lesson you stopped at, and access lasts 12 months from payment.
         </p>
         <div className="la-grid">
           {rows.length > 0 ? (
-            <ul className="la-courses">
+            <ul className="la-courses" aria-label="Your courses">
               {rows.map((row) => (
-                <CourseRow
-                  key={row.purchase.id}
-                  purchase={row.purchase}
-                  course={row.course}
-                  progress={progress.get(row.purchase.id)}
-                />
+                <CourseRow key={row.course.slug} holding={row.holding} course={row.course} />
               ))}
             </ul>
           ) : (
@@ -171,12 +237,12 @@ export default async function MyCoursesPage() {
             <span>{user.email}</span>
             <dl>
               <div>
-                <dt>Courses</dt>
-                <dd>{rows.length}</dd>
+                <dt>Courses open</dt>
+                <dd>{active.length}</dd>
               </div>
               <div>
                 <dt>Finished and signed</dt>
-                <dd>{finished}</dd>
+                <dd>{records.length}</dd>
               </div>
               {profile?.created_at ? (
                 <div>
@@ -185,12 +251,50 @@ export default async function MyCoursesPage() {
                 </div>
               ) : null}
             </dl>
-            <Link className="la-quiet" href="/forgot-password">
-              Change my password
+            <Link className="la-quiet" href="/learn/account">
+              My account and receipts
             </Link>
             <SignOutButton />
           </aside>
         </div>
+
+        {records.length > 0 ? (
+          <section className="la-section" aria-labelledby="learned-title">
+            <h2 id="learned-title">What you have learned</h2>
+            <p>Every finished course has a public record that an employer can check. Add it to your LinkedIn profile in one click.</p>
+            <LearnedList records={records} />
+          </section>
+        ) : null}
+
+        {picks.length > 0 ? (
+          <section className="la-section" aria-labelledby="next-title">
+            <h2 id="next-title">Recommended for you</h2>
+            <p>These follow on from the courses you have taken. None of them repeat what you already own.</p>
+            <SelfServeCourseCards courses={picks} />
+            <div className="la-links">
+              <Link href="/learn">Browse all self-paced courses</Link>
+              <Link href="/courses">See trainer-led courses</Link>
+            </div>
+          </section>
+        ) : null}
+
+        <section className="la-section" aria-labelledby="team-title">
+          <h2 id="team-title">Bring this to your team</h2>
+          <p>
+            Every self-paced course can be run as a trainer-led session for a group, in person at your office or live online. Tell us what you need and the Experrt team will reply with dates and a price.
+          </p>
+          <div className="la-grid">
+            <div className="la-panel">
+              <TeamSessionForm name={name} courses={sessionCourses} />
+            </div>
+            <aside className="la-profile">
+              <strong>Prefer to talk?</strong>
+              <span>
+                Email <a href="mailto:hello@experrt.com">hello@experrt.com</a> and mention the courses you have taken.
+              </span>
+            </aside>
+          </div>
+        </section>
       </main>
     </LearnMarket>
   );
