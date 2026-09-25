@@ -11,10 +11,10 @@ import {
 } from "../self-serve/commerce.ts";
 import { SELF_SERVE_COURSES } from "../self-serve/catalog.ts";
 
-test("the pilot is one pound in pence, and a course in preparation cannot be bought", () => {
+test("the pilot is ninety-nine pounds in pence, and a course in preparation cannot be bought", () => {
   const course = playablePaidCourse("prompt-engineering-for-professional-work");
   assert.ok(course);
-  assert.equal(courseAmountPence(course.priceGbp), 100);
+  assert.equal(courseAmountPence(course.priceGbp), 9900);
   const preparing = SELF_SERVE_COURSES.find((item) => !item.lessons?.length);
   if (preparing) assert.equal(playablePaidCourse(preparing.slug), undefined);
   for (const open of SELF_SERVE_COURSES.filter((item) => item.lessons?.length)) {

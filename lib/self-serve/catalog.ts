@@ -352,7 +352,7 @@ const PILOT: SelfServeCourse = {
   title: "Prompt Engineering for Professional Work",
   track: "ai",
   hours: 3,
-  priceGbp: 1,
+  priceGbp: 99,
   playable: true,
   promise:
     "Prompt Engineering for Professional Work teaches professionals to give AI tools clear, complete instructions and to check every reply before it is used. You finish with a signed prompt card your team can reuse, and fewer drafts that need rewriting or promise things nobody agreed.",

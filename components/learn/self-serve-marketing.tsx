@@ -12,7 +12,7 @@ const OPEN_SLUG = "prompt-engineering-for-professional-work";
 
 export function SelfServeHomePitch() {
   const course = getSelfServeCourse(OPEN_SLUG);
-  const price = course?.priceGbp ?? 1;
+  const price = course?.priceGbp ?? 99;
   const [track, setTrack] = useState<SelfServeTrack | "all">("all");
   const courses = previewCourses(track);
 
@@ -133,7 +133,7 @@ export function SelfServeAcademyCatalogue({
           </div>
           <BuyCourseButton
             slug={OPEN_SLUG}
-            label={`Buy this course for £${getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 1}`}
+            label={`Buy this course for £${getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 99}`}
             className="academy-button"
           />
         </article>
