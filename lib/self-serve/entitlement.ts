@@ -26,6 +26,31 @@ export function hasActiveAccess(paidAt: string | null | undefined, now: Date = n
   return end === null || end.getTime() > now.getTime();
 }
 
+export type AccessReminder = "month" | "week";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Thirty days and seven days before access ends, a learner who has not signed
+ * their record is reminded once each. A reminder that was missed is not sent
+ * late; once the week reminder is due the month one is skipped.
+ */
+export function accessReminderDue(input: {
+  paidAt: string | null;
+  now: Date;
+  signed: boolean;
+  sent: { month: boolean; week: boolean };
+}): AccessReminder | null {
+  if (input.signed) return null;
+  const end = accessEndsAt(input.paidAt);
+  if (!end) return null;
+  const left = end.getTime() - input.now.getTime();
+  if (left <= 0) return null;
+  if (left <= 7 * DAY_MS) return input.sent.week ? null : "week";
+  if (left <= 30 * DAY_MS) return input.sent.month ? null : "month";
+  return null;
+}
+
 export function progressScore(progress: CourseProgress | undefined): number {
   if (!progress) return 0;
   const passed = Object.values(progress.lessons ?? {}).filter((lesson) => lesson?.passed).length;

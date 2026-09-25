@@ -6,12 +6,12 @@ import { courseCurriculum, getCourseLanding } from "../self-serve/landing.ts";
 
 const AI_ONLY = /34\.2%|£92,500/;
 
-test("the Prompt Engineering landing cites salary figures, AI roles, and reviews", () => {
+test("the Prompt Engineering landing cites salary figures and AI roles", () => {
   const course = getSelfServeCourse("prompt-engineering-for-professional-work");
   assert.ok(course);
   const landing = getCourseLanding(course);
   assert.equal(landing.stats.length, 3);
-  assert.equal(landing.reviews.length, 6);
+  assert.equal("reviews" in landing, false);
   assert.ok(landing.jobs.some((job) => job.title === "AI Prompt Engineer"));
   assert.ok(landing.sources.some((source) => source.href.includes("roberthalf.com")));
 });

@@ -18,13 +18,6 @@ export type MarketJob = {
   why: string;
 };
 
-export type CourseReview = {
-  name: string;
-  role: string;
-  city: string;
-  quote: string;
-};
-
 export type LandingCopy = {
   hook: string;
   outcome: string;
@@ -34,7 +27,6 @@ export type LandingCopy = {
   benefits: { title: string; body: string }[];
   stats: MarketStat[];
   jobs: MarketJob[];
-  reviews: CourseReview[];
   sources: { label: string; href: string }[];
 };
 
@@ -105,51 +97,6 @@ const AI_JOBS: MarketJob[] = [
     title: "Learning, knowledge, or product operations",
     pay: "Listed against the AI-skilled premium",
     why: "These roles now ask for someone who can brief a model, check the output, and leave a reusable instruction. That is the check this course marks.",
-  },
-];
-
-const PILOT_REVIEWS: CourseReview[] = [
-  {
-    name: "Priya Nair",
-    role: "Operations lead",
-    city: "Manchester",
-    quote:
-      "I used to rewrite every model draft because it invented a date. I now have a card my team can run, and I am no longer the only person who can check a reply before it goes out.",
-  },
-  {
-    name: "James Whitaker",
-    role: "Account director",
-    city: "London",
-    quote:
-      "The useful part was not another tip sheet. I had to mark the invented line, then write a brief a colleague could use on Monday. That is the skill my clients now ask for by name.",
-  },
-  {
-    name: "Amara Cole",
-    role: "People partner",
-    city: "Leeds",
-    quote:
-      "I wanted something I could put in front of managers without pretending a two hour course makes anyone compliant. The record names the card I signed. It does not claim the law is satisfied.",
-  },
-  {
-    name: "Daniel Okonkwo",
-    role: "Customer operations",
-    city: "Birmingham",
-    quote:
-      "We were paying for tools and still sending work back. After the checks I can tell, in one sentence, why a draft is unsafe. That is what I now look for when we hire.",
-  },
-  {
-    name: "Sophie Laurent",
-    role: "Programme manager",
-    city: "Edinburgh",
-    quote:
-      "I came for a salary conversation and left with an artefact. The market figures on the page matched what recruiters were already quoting me for AI-skilled operations work.",
-  },
-  {
-    name: "Tom Alvarez",
-    role: "Product operations",
-    city: "Bristol",
-    quote:
-      "Two and a half hours, and I had to get every check right. I would not call that a library. I would call it the first time a course made me produce the thing I would otherwise pay someone to write.",
   },
 ];
 
@@ -225,7 +172,6 @@ export function getCourseLanding(course: SelfServeCourse): LandingCopy {
     benefits: defaultBenefits(course, courseArtefact(course)?.title ?? null),
     stats,
     jobs: ai ? AI_JOBS : [],
-    reviews: course.slug === "prompt-engineering-for-professional-work" ? PILOT_REVIEWS : [],
     sources: uniqueSources(stats, ai ? [PWC, ROBERT_HALF, ROBERT_HALF_LONDON] : []),
   };
 }

@@ -20,6 +20,7 @@ export function isPublicPath(pathname: string): boolean {
     // Scheduler authentication is checked by the route, without a browser session.
     pathname === "/api/cron/learning-agent-recovery" ||
     pathname === "/api/cron/self-serve-nudges" ||
+    pathname === "/api/cron/self-serve-access" ||
     pathname === "/llms.txt" ||
     pathname === "/llms-full.txt" ||
     pathname === "/ai-labs" ||
@@ -45,6 +46,13 @@ export function isPublicPath(pathname: string): boolean {
     pathname === "/api/learn/enquiry" ||
     pathname === "/api/learn/profile" ||
     pathname === "/api/learn/receipt" ||
+    pathname === "/api/learn/review" ||
+    pathname === "/api/learn/review/moderate" ||
+    pathname === "/api/learn/team" ||
+    pathname === "/api/learn/team/join" ||
+    pathname === "/api/learn/team/claim" ||
+    pathname === "/api/learn/team/invite" ||
+    pathname === "/learn/faq" ||
     pathname === "/course-terms" ||
     pathname.startsWith("/api/learn/certificate/") ||
     // Stripe posts here with a signature, not a session.

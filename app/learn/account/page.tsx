@@ -11,6 +11,7 @@ import {
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { currentLearner } from "@/lib/self-serve/access";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
+import { isSeatPurchase } from "@/lib/self-serve/team-rules";
 import { accessEndsAt } from "@/lib/self-serve/entitlement";
 import { purchasesForUser, type PurchaseRow } from "@/lib/self-serve/records";
 import { withSiteShareImages } from "@/lib/social-image";
@@ -90,16 +91,22 @@ export default async function LearnerAccountPage({
             <ul className="la-courses">
               {purchases.map((row) => {
                 const course = getSelfServeCourse(row.course_slug);
+                const seat = isSeatPurchase(row.stripe_session_id);
                 return (
                   <li className="la-course" key={row.id}>
                     <h2>{course?.title ?? row.course_slug}</h2>
                     <p>
-                      Paid £{(row.amount / 100).toFixed(2)} on {formatDate(row.paid_at)}. Access until{" "}
+                      {seat
+                        ? `Team place, accepted on ${formatDate(row.paid_at)}.`
+                        : `Paid £${(row.amount / 100).toFixed(2)} on ${formatDate(row.paid_at)}.`}{" "}
+                      Access until{" "}
                       {formatDate(accessEndsAt(row.paid_at))}.
                     </p>
-                    <div className="la-course-actions">
-                      <a href={`/api/learn/receipt?id=${row.id}`}>View receipt</a>
-                    </div>
+                    {seat ? null : (
+                      <div className="la-course-actions">
+                        <a href={`/api/learn/receipt?id=${row.id}`}>View receipt</a>
+                      </div>
+                    )}
                   </li>
                 );
               })}

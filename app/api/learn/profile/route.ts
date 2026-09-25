@@ -5,6 +5,7 @@ import { currentLearner } from "@/lib/self-serve/access";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
 import { accessEndsAt } from "@/lib/self-serve/entitlement";
 import { progressForPurchases, purchasesForUser } from "@/lib/self-serve/records";
+import { emailPattern } from "@/lib/self-serve/teams";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,12 @@ export async function GET() {
     .select("name, email, created_at")
     .eq("id", user.id)
     .maybeSingle();
+  const { data: reviews } = purchases.length
+    ? await supabaseAdmin
+        .from("self_serve_reviews")
+        .select("course_slug, display_name, role, rating, body, status, created_at, updated_at")
+        .in("purchase_id", purchases.map((row) => row.id))
+    : { data: [] };
 
   const body = {
     exported_at: new Date().toISOString(),
@@ -45,6 +52,7 @@ export async function GET() {
       stripe_checkout_session: row.stripe_session_id,
       progress: progress.get(row.id) ?? null,
     })),
+    reviews: reviews ?? [],
   };
   return new NextResponse(JSON.stringify(body, null, 2), {
     headers: {
@@ -112,6 +120,7 @@ export async function DELETE(req: Request) {
 
   const ids = (await purchasesForUser(user.id, user.email)).map((row) => row.id);
   if (ids.length) {
+    await supabaseAdmin.from("self_serve_reviews").delete().in("purchase_id", ids);
     const { error: progressError } = await supabaseAdmin
       .from("self_serve_progress")
       .delete()
@@ -131,6 +140,10 @@ export async function DELETE(req: Request) {
       })
       .in("id", ids);
   }
+  await supabaseAdmin
+    .from("self_serve_teams")
+    .update({ buyer_email: null, buyer_name: null, user_id: null })
+    .or(`user_id.eq.${user.id}${user.email ? `,buyer_email.ilike.${emailPattern(user.email)}` : ""}`);
   await supabaseAdmin.from("user_profiles").delete().eq("id", user.id);
   const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
   if (error) {

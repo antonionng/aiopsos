@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   accessEndsAt,
+  accessReminderDue,
   furthestProgress,
   hasActiveAccess,
   onePerCourse,
@@ -54,4 +55,19 @@ test("a repurchase carries on from the furthest progress", () => {
   ]);
   assert.equal(furthestProgress(["one", "two"], progress), signed);
   assert.equal(furthestProgress(["none"], progress), undefined);
+});
+
+test("unfinished learners are reminded a month and a week before access ends, once each", () => {
+  const paidAt = "2026-01-10T12:00:00.000Z";
+  const none = { month: false, week: false };
+  const at = (iso: string) => new Date(iso);
+  assert.equal(accessReminderDue({ paidAt, now: at("2026-11-01T12:00:00Z"), signed: false, sent: none }), null);
+  assert.equal(accessReminderDue({ paidAt, now: at("2026-12-20T12:00:00Z"), signed: false, sent: none }), "month");
+  assert.equal(
+    accessReminderDue({ paidAt, now: at("2026-12-20T12:00:00Z"), signed: false, sent: { month: true, week: false } }),
+    null
+  );
+  assert.equal(accessReminderDue({ paidAt, now: at("2027-01-05T12:00:00Z"), signed: false, sent: none }), "week");
+  assert.equal(accessReminderDue({ paidAt, now: at("2027-01-05T12:00:00Z"), signed: true, sent: none }), null);
+  assert.equal(accessReminderDue({ paidAt, now: at("2027-01-11T12:00:00Z"), signed: false, sent: none }), null);
 });

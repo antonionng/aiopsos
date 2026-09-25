@@ -3,6 +3,8 @@ import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { isSelfServeCheckout } from "@/lib/self-serve/commerce";
 import { fulfillSelfServeSession } from "@/lib/self-serve/records";
+import { isTeamCheckout } from "@/lib/self-serve/team-rules";
+import { fulfillTeamSession } from "@/lib/self-serve/teams";
 import type Stripe from "stripe";
 
 /**
@@ -35,6 +37,10 @@ export async function POST(req: Request) {
       const session = event.data.object as Stripe.Checkout.Session;
       if (isSelfServeCheckout(session.metadata)) {
         await fulfillSelfServeSession(session);
+        break;
+      }
+      if (isTeamCheckout(session.metadata)) {
+        await fulfillTeamSession(session);
         break;
       }
       const orgId = session.metadata?.org_id;

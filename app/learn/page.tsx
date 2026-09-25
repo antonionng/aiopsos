@@ -24,9 +24,19 @@ export const metadata: Metadata = withSiteShareImages({
 export default async function LearnIndexPage({
   searchParams,
 }: {
-  searchParams: Promise<{ track?: string }>;
+  searchParams: Promise<{ track?: string; place?: string; team?: string }>;
 }) {
-  const { track } = await searchParams;
+  const { track, place, team } = await searchParams;
+  const notice =
+    place === "expired"
+      ? "This invitation has expired. Ask the person who bought the places to contact hello@experrt.com."
+      : place === "missing"
+        ? "We could not find that invitation. It may have been withdrawn. Ask the person who invited you to send it again."
+        : place === "failed"
+          ? "We could not open your place just now. Try the link in your email again in a minute."
+          : team === "retry"
+            ? "Payment for your team has not been confirmed yet. If you were charged, use the link in your receipt email."
+            : null;
   const active = SELF_SERVE_TRACKS.includes(track as SelfServeTrack)
     ? (track as SelfServeTrack)
     : null;
@@ -34,6 +44,11 @@ export default async function LearnIndexPage({
   return (
     <LearnMarket>
       <StructuredData data={courseListLd(allSelfServeCourses(), "Self-paced courses", "/learn")} />
+      {notice ? (
+        <p className="ex-hint ex-measure" role="status" style={{ marginTop: 24 }}>
+          {notice}
+        </p>
+      ) : null}
       <CourseCatalog track={null} />
     </LearnMarket>
   );

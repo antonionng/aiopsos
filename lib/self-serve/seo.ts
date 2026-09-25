@@ -3,6 +3,7 @@ import { courseArtefact } from "./engine.ts";
 import { formatCourseHours } from "./landing.ts";
 import { COURSE_SALES } from "./sales-copy.ts";
 import { getPublicSiteUrl } from "../site.ts";
+import type { ReviewSummary } from "./reviews.ts";
 import type { SelfServeCourse, SelfServeTrack } from "./types.ts";
 
 export type Faq = { question: string; answer: string };
@@ -228,7 +229,7 @@ export function courseFaqs(course: SelfServeCourse): Faq[] {
     {
       question: "Can my organisation train a whole team?",
       answer:
-        "Yes. Individuals can buy any self-paced course online, and organisations can book trainer-led courses for teams, in person or online, through the Experrt Academy.",
+        `Yes. You can buy between 2 and 50 places in one payment from this page, at £${course.priceGbp} a place, then invite each person by email. Everyone gets their own sign-in, progress and signed record, and you can see who has finished. Organisations can also book trainer-led courses for teams, in person or online, through the Experrt Academy.`,
     },
   ];
 }
@@ -259,7 +260,7 @@ export function breadcrumbLd(items: { name: string; path: string }[]) {
   };
 }
 
-export function selfServeCourseLd(course: SelfServeCourse) {
+export function selfServeCourseLd(course: SelfServeCourse, rating?: ReviewSummary) {
   const base = getPublicSiteUrl();
   const url = `${base}/learn/${course.slug}`;
   const artefact = courseArtefact(course);
@@ -309,6 +310,17 @@ export function selfServeCourseLd(course: SelfServeCourse) {
         inLanguage: "en-GB",
       },
     ],
+    ...(rating && rating.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: rating.average,
+            reviewCount: rating.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
   };
 }
 

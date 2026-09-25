@@ -53,6 +53,13 @@ export default function CourseTermsPage() {
         an internet connection and a current web browser. You save a password on the email address you
         use at checkout, and that is how you return to the course.
       </p>
+      <p>
+        <strong>Team places.</strong> You can buy several places on a course at once for other people. Each
+        place is a personal licence for one person. Each person&apos;s 12 months start when they accept
+        their invitation, and a place cannot be moved to someone else once it has been accepted. Places
+        that nobody has accepted expire 12 months after payment. The no-refunds term in section 5 applies to
+        every place, whether or not it is used.
+      </p>
 
       <h2>3. Price and payment</h2>
       <p>
@@ -108,6 +115,13 @@ export default function CourseTermsPage() {
         reference can view it. The record confirms that you completed an Experrt course. It is not an
         accredited qualification, and it does not certify that you or your organisation comply with the EU
         AI Act or any other law or regulation.
+      </p>
+      <p>
+        <strong>Reviews.</strong> Once you have signed your record you may review the course. Reviews must be
+        your own honest experience, must not include links, personal details of others, or anything
+        unlawful, and must not be written in exchange for payment or a discount. We publish reviews as
+        written and do not edit them. We may hide a review that breaks these rules. You can edit or remove
+        your review at any time.
       </p>
 
       <h2>7. Fair use</h2>

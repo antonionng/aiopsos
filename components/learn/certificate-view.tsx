@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { linkedInAddUrl, verifyUrl } from "@/lib/self-serve/share-links";
-import { Wordmark } from "@/components/wordmark";
+import { CertificateArt } from "@/components/learn/certificate-art";
+import { ReviewForm } from "@/components/learn/review-form";
 import { LITERACY_DISCLAIMER } from "@/lib/constants";
 import { progressStorageKey } from "@/lib/self-serve/engine";
 import type { BuildAnswer, CourseProgress, ResolvedArtefact } from "@/lib/self-serve/types";
@@ -22,6 +23,21 @@ export function CertificateView({
   persist?: boolean;
 }) {
   const [progress, setProgress] = useState<CourseProgress | null>(supplied ?? null);
+  const [celebrate, setCelebrate] = useState(false);
+
+  useEffect(() => {
+    const ref = progress?.ref;
+    if (!ref || !persist) return;
+    const key = `experrt:celebrated:${ref}`;
+    try {
+      if (window.localStorage.getItem(key)) return;
+      window.localStorage.setItem(key, "1");
+    } catch {
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => setCelebrate(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, [progress?.ref, persist]);
 
   useEffect(() => {
     if (supplied?.ref) {
@@ -73,16 +89,20 @@ export function CertificateView({
 
   return (
     <>
+      <CertificateArt
+        title={title}
+        name={progress.signedName}
+        signedAt={progress.signedAt ?? null}
+        reference={progress.ref}
+        recordLine={artefact?.recordLine}
+        celebrate={celebrate}
+      />
       <article className="ex-sheet-page">
-        <Wordmark size="sm" />
-        <p className="ex-eyebrow" style={{ marginTop: 48 }}>
+        <p className="ex-eyebrow">
           <span />
-          COMPLETED
+          THE WORK YOU SIGNED
         </p>
-        <h1>{title}</h1>
-        <p className="ex-signed">{progress.signedName}</p>
-        {signed ? <p className="ex-date">{signed}</p> : null}
-        {artefact ? <p className="ex-record-line">{artefact.recordLine}</p> : null}
+        {signed ? <p className="ex-date">Signed {signed}</p> : null}
         {lines.length > 0 ? (
           <div className="ex-artefact">
             <h2>{artefact?.title}</h2>
@@ -132,6 +152,7 @@ export function CertificateView({
               Share on LinkedIn
             </a>
           </div>
+          <ReviewForm slug={slug} title={title} />
         </>
       ) : null}
       <Link className="ex-back" href="/learn">

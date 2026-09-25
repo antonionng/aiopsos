@@ -7,6 +7,7 @@ import { LessonRoom } from "@/components/learn/lesson-room";
 import { findEntitledPurchase } from "@/lib/self-serve/access";
 import { getSelfServeCourse } from "@/lib/self-serve/catalog";
 import { loadProgress } from "@/lib/self-serve/records";
+import { courseReviews } from "@/lib/self-serve/review-store";
 import { courseMetaDescription, courseMetaTitle } from "@/lib/self-serve/seo";
 import { withSiteShareImages } from "@/lib/social-image";
 
@@ -55,7 +56,7 @@ export default async function LearnCoursePage({
       if (!purchase) {
         return (
           <LearnMarket>
-            <CourseGate course={course} retry={query.pay === "retry"} />
+            <CourseGate course={course} retry={query.pay === "retry"} reviews={await courseReviews(course.slug)} />
           </LearnMarket>
         );
       }
@@ -72,7 +73,7 @@ export default async function LearnCoursePage({
       console.error("[self-serve] access", error);
       return (
         <LearnMarket>
-          <CourseGate course={course} retry={query.pay === "retry"} />
+          <CourseGate course={course} retry={query.pay === "retry"} reviews={await courseReviews(course.slug)} />
         </LearnMarket>
       );
     }

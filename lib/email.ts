@@ -22,6 +22,9 @@ import {
 import { InvoiceEmail } from "./emails/invoice-email";
 import type { InvoicePayload } from "./invoices";
 import { ContactAlertEmail } from "./emails/contact-alert";
+import { ReviewAlertEmail } from "./emails/review-alert";
+import { TeamInviteEmail, TeamPurchaseEmail } from "./emails/self-serve-team";
+import { SelfServeAccessEndingEmail } from "./emails/self-serve-access-ending";
 import { ConfirmWelcomeEmail, ResetPasswordEmail } from "./emails/confirm-welcome";
 import { SelfServeReceiptEmail } from "./emails/self-serve-receipt";
 import { SelfServePurchaseAlertEmail } from "./emails/self-serve-purchase-alert";
@@ -919,6 +922,119 @@ export async function sendSignupAlert(details: {
     subject: `New sign-up: ${details.name || details.email}${details.organisationName ? `, ${details.organisationName}` : ""}`,
     react: SignupAlertEmail(details),
   });
+}
+
+export async function sendSelfServeAccessEnding(details: {
+  email: string;
+  name?: string | null;
+  courseTitle: string;
+  endsOn: string;
+  kind: "month" | "week";
+  passed: number;
+  total: number;
+  learnUrl: string;
+  renewUrl: string;
+  priceGbp: number;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) return false;
+  const { error } = await sendEmail({
+    from,
+    to: details.email,
+    subject:
+      details.kind === "week"
+        ? `One week left on ${details.courseTitle}`
+        : `Your access to ${details.courseTitle} ends on ${details.endsOn}`,
+    react: SelfServeAccessEndingEmail(details),
+  });
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+  return true;
+}
+
+export async function sendTeamPurchase(details: {
+  email: string;
+  name?: string | null;
+  courseTitle: string;
+  seats: number;
+  amountGbp: number;
+  paidAt?: string | null;
+  placesExpire: Date | null;
+  manageUrl: string;
+  base: string;
+  stripeSessionId: string;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping team purchase email");
+    return false;
+  }
+  const { error } = await sendEmail({
+    from,
+    to: details.email,
+    subject: `Your ${details.seats} places on ${details.courseTitle}`,
+    react: TeamPurchaseEmail(details),
+  });
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+  const who = details.name?.trim() ? `${details.name.trim()} (${details.email})` : details.email;
+  await sendEmail({
+    from,
+    to: getNotifyEmail(),
+    replyTo: details.email,
+    subject: `Team purchase: ${details.seats} places on ${details.courseTitle}, bought by ${who}`,
+    react: SelfServePurchaseAlertEmail({
+      email: details.email,
+      name: details.name,
+      courseTitle: `${details.courseTitle} (${details.seats} team places)`,
+      amountGbp: details.amountGbp,
+      paidAt: details.paidAt,
+      hasAccount: false,
+      stripeSessionId: details.stripeSessionId,
+    }),
+  }).catch((alertError) => console.error("[email] team alert", alertError));
+  return true;
+}
+
+export async function sendTeamInvite(details: {
+  email: string;
+  inviteeName?: string | null;
+  buyerName?: string | null;
+  replyTo?: string | null;
+  courseTitle: string;
+  promise: string;
+  hours: string;
+  joinUrl: string;
+}) {
+  const { from } = getEmailConfig();
+  const { error } = await sendEmail({
+    from,
+    to: details.email,
+    ...(details.replyTo ? { replyTo: details.replyTo } : {}),
+    subject: `You have a place on ${details.courseTitle}`,
+    react: TeamInviteEmail(details),
+  });
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+}
+
+export async function sendReviewAlert(details: {
+  courseTitle: string;
+  displayName: string;
+  email: string;
+  rating: number;
+  body: string;
+  hideUrl: string | null;
+  pageUrl: string;
+}) {
+  const { from } = getEmailConfig();
+  const { error } = await sendEmail({
+    from,
+    to: getNotifyEmail(),
+    replyTo: details.email,
+    subject: `New ${details.rating}-star review: ${details.courseTitle}`,
+    react: ReviewAlertEmail(details),
+  });
+  if (error) {
+    throw new Error(`Resend error: ${JSON.stringify(error)}`);
+  }
 }
 
 export async function sendContactAlert(details: {

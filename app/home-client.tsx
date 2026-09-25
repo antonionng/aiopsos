@@ -760,6 +760,7 @@ export default function Home() {
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
             <Link href="/course-terms">Course terms</Link>
+            <Link href="/learn/faq">FAQ</Link>
             <Link href="/cookies">Cookies</Link>
           </div>
           <span>Keep learning. Keep moving.</span>

@@ -10,6 +10,7 @@ import {
   selfServeCourseLd,
 } from "@/lib/self-serve/seo";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
+import { TeamBuy } from "@/components/learn/team-buy";
 import { trackLabel } from "@/lib/self-serve/catalog";
 import { courseArtefact } from "@/lib/self-serve/engine";
 import {
@@ -19,6 +20,8 @@ import {
   type CurriculumItem,
 } from "@/lib/self-serve/landing";
 import type { SelfServeCourse } from "@/lib/self-serve/types";
+import type { PublishedReview, ReviewSummary } from "@/lib/self-serve/reviews";
+import { CourseReviews } from "@/components/learn/course-reviews";
 
 const KIND_LABEL: Record<CurriculumItem["kind"], string> = {
   lesson: "Lesson",
@@ -29,9 +32,11 @@ const KIND_LABEL: Record<CurriculumItem["kind"], string> = {
 export function CourseLanding({
   course,
   retry,
+  reviews,
 }: {
   course: SelfServeCourse;
   retry?: boolean;
+  reviews?: { reviews: PublishedReview[]; summary: ReviewSummary };
 }) {
   const landing = getCourseLanding(course);
   const artefact = courseArtefact(course);
@@ -48,7 +53,7 @@ export function CourseLanding({
 
   return (
     <>
-      <StructuredData data={selfServeCourseLd(course)} />
+      <StructuredData data={selfServeCourseLd(course, reviews?.summary)} />
       <StructuredData data={faqLd(faqs)} />
       <StructuredData
         data={breadcrumbLd([
@@ -166,7 +171,10 @@ export function CourseLanding({
                 </span>
               </p>
               {course.playable ? (
-                <BuyCourseButton slug={course.slug} label={`Buy this course for £${course.priceGbp}`} />
+                <>
+                  <BuyCourseButton slug={course.slug} label={`Buy this course for £${course.priceGbp}`} />
+                  <TeamBuy slug={course.slug} priceGbp={course.priceGbp} />
+                </>
               ) : (
                 <p className="ex-land-soon">
                   Purchase opens when every lesson, assessment, and record has been completed to our standard.
@@ -261,31 +269,7 @@ export function CourseLanding({
         </section>
         ) : null}
 
-        {landing.reviews.length > 0 ? (
-          <section className="ex-land-reviews" aria-labelledby="reviews-heading">
-            <div className="ex-wide">
-              <p className="ex-eyebrow">
-                <span />
-                FROM PEOPLE WHO TOOK THE COURSE
-              </p>
-              <h2 id="reviews-heading">They came for the skill. They left with work their team still uses.</h2>
-              <ul className="ex-land-review-grid">
-                {landing.reviews.map((review) => (
-                  <li key={review.name}>
-                    <span className="ex-land-quote" aria-hidden="true">
-                      “
-                    </span>
-                    <p>{review.quote}</p>
-                    <strong>{review.name}</strong>
-                    <span>
-                      {review.role}, {review.city}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        ) : null}
+        {reviews ? <CourseReviews reviews={reviews.reviews} summary={reviews.summary} /> : null}
 
         <section className="ex-land-faq" aria-labelledby="faq-heading">
           <div className="ex-wide">
@@ -305,6 +289,8 @@ export function CourseLanding({
             <p className="ex-land-faq-more">
               More {trackLabel(course.track).toLowerCase()} courses are listed on the{" "}
               <Link href={`/learn/topics/${hubForTrack(course.track).slug}`}>{hubForTrack(course.track).title.toLowerCase()}</Link> page.
+              {" "}Questions about payment, access, certificates or team places are answered in the{" "}
+              <Link href="/learn/faq">course FAQ</Link>.
             </p>
           </div>
         </section>

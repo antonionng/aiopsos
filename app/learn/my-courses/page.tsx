@@ -18,6 +18,7 @@ import {
 } from "@/lib/self-serve/records";
 import { linkedInAddUrl } from "@/lib/self-serve/share-links";
 import { recommendCourses } from "@/lib/self-serve/upsell";
+import { teamsForBuyer } from "@/lib/self-serve/teams";
 import type { CourseProgress, SelfServeCourse } from "@/lib/self-serve/types";
 import { withSiteShareImages } from "@/lib/social-image";
 
@@ -110,6 +111,9 @@ function LearnedList({ records }: { records: SignedWork[] }) {
             </p>
             {artefact?.recordLine ? <p>{artefact.recordLine}</p> : null}
             <div className="la-course-actions">
+              <Link href={`/learn/${course.slug}/certificate`}>Certificate</Link>
+              <a href={`/api/learn/certificate/${progress.ref}`}>PDF</a>
+              <Link href={`/learn/${course.slug}/certificate#review`}>Leave a review</Link>
               <Link href={`/verify/${progress.ref}`}>Public record</Link>
               <a href={linkedInAddUrl(course.title, progress.ref, progress.signedAt)} target="_blank" rel="noreferrer">
                 Add to LinkedIn
@@ -208,6 +212,7 @@ export default async function MyCoursesPage() {
     title: course.title,
   }));
   const active = rows.filter((row) => row.holding.active);
+  const teams = await teamsForBuyer(user.id, user.email).catch(() => []);
 
   return (
     <LearnMarket>
@@ -257,6 +262,27 @@ export default async function MyCoursesPage() {
             <SignOutButton />
           </aside>
         </div>
+
+        {teams.length > 0 ? (
+          <section className="la-section" aria-labelledby="teams-title">
+            <h2 id="teams-title">Teams you manage</h2>
+            <p>Places you bought for other people. Open a team to invite people and see who has finished.</p>
+            <ul className="la-courses">
+              {teams.map(({ team, invited, joined }) => (
+                <li className="la-course" key={team.id}>
+                  <span className="la-course-track">Team places</span>
+                  <h2>{getSelfServeCourse(team.course_slug)?.title ?? team.course_slug}</h2>
+                  <p>
+                    {team.seats} places · {invited} invited · {joined} joined
+                  </p>
+                  <div className="la-course-actions">
+                    <Link href={`/learn/team/${team.id}`}>Manage team</Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         {records.length > 0 ? (
           <section className="la-section" aria-labelledby="learned-title">

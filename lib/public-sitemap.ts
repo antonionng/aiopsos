@@ -45,6 +45,7 @@ export function staticMarketingEntries(
     { path: "/contact", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/docs", priority: 0.5, changeFrequency: "monthly" as const },
     { path: "/terms", priority: 0.2, changeFrequency: "yearly" as const },
+    { path: "/learn/faq", priority: 0.5, changeFrequency: "monthly" as const },
     { path: "/course-terms", priority: 0.2, changeFrequency: "yearly" as const },
     { path: "/privacy", priority: 0.2, changeFrequency: "yearly" as const },
     { path: "/cookies", priority: 0.2, changeFrequency: "yearly" as const },

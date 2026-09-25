@@ -318,3 +318,133 @@
     grid-template-columns: 1fr;
   }
 }
+.la-notice {
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border: 1px solid #2f9e6a55;
+  border-radius: 12px;
+  background: #2f9e6a12;
+  color: #1d6b47;
+  font-size: 15px;
+  font-weight: 600;
+}
+.la-page .la-panel h1 {
+  font-size: clamp(28px, 4vw, 40px);
+}
+.la-team-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 8px 0 0;
+}
+.la-team-stats div {
+  padding: 14px;
+  border: 1px solid #dedce1;
+  border-radius: 12px;
+  background: #fffefa;
+}
+.la-team-stats dt {
+  color: #66616e;
+  font-size: 13px;
+}
+.la-team-stats dd {
+  margin: 2px 0 0;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+}
+.la-seats {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.la-seats li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid #dedce1;
+}
+.la-seats strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.la-seats small {
+  color: #66616e;
+  font-size: 13px;
+}
+.la-seat-state {
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: #f3f2f5;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.la-seat-state.is-joined {
+  background: #7046eb14;
+  color: #3b1fa6;
+}
+.la-seat-state.is-done {
+  background: #2f9e6a14;
+  color: #1d6b47;
+}
+.la-seat-actions {
+  display: flex;
+  gap: 14px;
+  grid-column: 1 / -1;
+}
+.la-team-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 24px;
+}
+.la-team-buy {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px dashed #c9c4d3;
+  border-radius: 12px;
+}
+.la-team-buy-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.la-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #dedce1;
+  border-radius: 10px;
+  background: #fff;
+}
+.la-stepper button {
+  width: 40px;
+  height: 42px;
+  border: 0;
+  background: none;
+  font-size: 20px;
+}
+.la-stepper input {
+  width: 56px;
+  height: 42px;
+  border: 0;
+  text-align: center;
+  font: inherit;
+  font-weight: 700;
+}
+@media (max-width: 800px) {
+  .la-team-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .la-team-grid {
+    grid-template-columns: 1fr;
+  }
+}
