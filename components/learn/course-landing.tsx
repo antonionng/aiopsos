@@ -161,7 +161,7 @@ export function CourseLanding({
                 <b>£{course.priceGbp}</b>
                 <span>
                   {course.playable
-                    ? "Access begins as soon as payment is confirmed, and your progress is saved to your account."
+                    ? "Access begins as soon as payment is confirmed and lasts 12 months. Your progress is saved to your account."
                     : "This course is in preparation, and the outline shows what it will cover."}
                 </span>
               </p>
@@ -323,7 +323,7 @@ export function CourseLanding({
                   <span>{artefactName} your organisation can use.</span>
                 </h2>
                 <p>
-                  Checkout takes an email address and a card, and access begins as soon as payment is confirmed. When you finish, you sign a record that names you and {artefactName}, which anyone you choose can verify online. The record confirms what you completed and does not claim compliance with any regulation.
+                  Checkout takes an email address and a card, and access begins as soon as payment is confirmed and lasts 12 months. All sales are final. When you finish, you sign a record that names you and {artefactName}, which anyone you choose can verify online. The record confirms what you completed and does not claim compliance with any regulation.
                 </p>
                 <BuyCourseButton
                   slug={course.slug}

@@ -759,6 +759,7 @@ export default function Home() {
           <div>
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
+            <Link href="/course-terms">Course terms</Link>
             <Link href="/cookies">Cookies</Link>
           </div>
           <span>Keep learning. Keep moving.</span>

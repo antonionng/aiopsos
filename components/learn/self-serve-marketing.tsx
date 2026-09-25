@@ -38,7 +38,7 @@ export function SelfServeHomePitch() {
           <div className="ex-autumn-buy">
             <p>
               <b>£{price}</b>
-              <span>Access begins as soon as payment is confirmed, and progress is saved to your account.</span>
+              <span>Access begins as soon as payment is confirmed and lasts 12 months. Progress is saved to your account.</span>
             </p>
             <BuyCourseButton slug={OPEN_SLUG} label={`Buy this course for £${price}`} />
           </div>

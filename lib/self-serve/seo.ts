@@ -223,7 +223,7 @@ export function courseFaqs(course: SelfServeCourse): Faq[] {
     },
     {
       question: "How much does it cost, and when can I start?",
-      answer: `The course costs £${course.priceGbp}, paid once by card through Stripe. Access begins as soon as payment is confirmed, and you can save a sign-in to return to the course from any device.`,
+      answer: `The course costs £${course.priceGbp}, paid once by card through Stripe. Access begins as soon as payment is confirmed and lasts 12 months, and you can save a sign-in to return to the course from any device.`,
     },
     {
       question: "Can my organisation train a whole team?",

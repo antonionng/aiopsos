@@ -2,6 +2,7 @@ import * as React from "react";
 import { EmailShell, emailStyles } from "./academy-shell";
 import { CoursePicks } from "./course-picks";
 import { workNoun, type CoursePick } from "@/lib/self-serve/upsell";
+import { accessEndsAt } from "@/lib/self-serve/entitlement";
 
 export function SelfServeReceiptEmail({
   name,
@@ -30,6 +31,10 @@ export function SelfServeReceiptEmail({
   const finalWork = workNoun(artefactTitle);
   const when = paidAt
     ? new Date(paidAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    : null;
+  const ends = accessEndsAt(paidAt);
+  const until = ends
+    ? ends.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
     : null;
   return (
     <EmailShell
@@ -60,11 +65,15 @@ export function SelfServeReceiptEmail({
           <strong style={emailStyles.strong}>£{amountGbp.toFixed(2)}</strong>
         </p>
         {when ? (
-          <p style={{ ...emailStyles.detailRow, margin: 0 }}>
+          <p style={emailStyles.detailRow}>
             <span style={emailStyles.detailLabel}>Date: </span>
             {when}
           </p>
         ) : null}
+        <p style={{ ...emailStyles.detailRow, margin: 0 }}>
+          <span style={emailStyles.detailLabel}>Access: </span>
+          {until ? `12 months, until ${until}` : "12 months from payment"}
+        </p>
       </div>
       <p style={emailStyles.paragraph}>
         {hasAccount
@@ -82,6 +91,14 @@ export function SelfServeReceiptEmail({
       <p style={{ ...emailStyles.paragraph, marginTop: "24px" }}>
         You can also sign in at <a href={accountUrl} style={{ color: "#FFFEFA" }}>{accountUrl}</a>.
         Reply to this email if anything is not working and we will help.
+      </p>
+      <p style={{ ...emailStyles.paragraph, fontSize: "13px" }}>
+        All sales are final and no refunds are given. Your purchase is covered by the course terms of
+        sale at{" "}
+        <a href={`${base}/course-terms`} style={{ color: "#FFFEFA" }}>
+          {base.replace(/^https?:\/\//, "")}/course-terms
+        </a>
+        . Sold by Neural Network AI FZ-LLC, trading as Experrt.
       </p>
     </EmailShell>
   );
