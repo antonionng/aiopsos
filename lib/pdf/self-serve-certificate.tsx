@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   line: { marginTop: 10, fontSize: 10, color: MUTE, textAlign: "center", maxWidth: 480, lineHeight: 1.5 },
   signs: { marginTop: 64, width: "100%", flexDirection: "row", justifyContent: "space-between" },
   sign: { width: 250 },
-  sigText: { fontFamily: "Signature", fontSize: 40, color: DEEP, height: 50 },
+  sigText: { fontFamily: "Signature", fontSize: 40, color: DEEP, height: 50, paddingTop: 4 },
   rule: { height: 1, backgroundColor: INK, marginTop: 2 },
   signName: { marginTop: 6, fontFamily: "Helvetica-Bold", fontSize: 10 },
   signRole: { marginTop: 2, fontSize: 8.5, color: MUTE },
@@ -99,6 +99,8 @@ const styles = StyleSheet.create({
   value: { fontSize: 11, marginTop: 3 },
   disclaimer: { fontSize: 8, color: MUTE, lineHeight: 1.5, marginTop: 14 },
 });
+
+const oneLine = (text: string) => text.trim().replace(/\s+/g, "\u00a0");
 
 function Frame() {
   const rings = Array.from({ length: 9 }, (_, i) => 30 + i * 11);
@@ -154,6 +156,11 @@ export function SelfServeCertificateDocument({
     .map((field) => ({ label: field.label, value: (record.artefact?.[field.id] ?? "").trim() }))
     .filter((line) => line.value);
   const nameSize = record.signedName.length > 26 ? 30 : 40;
+  const sigSize = (text: string) => Math.max(18, Math.min(40, Math.floor(240 / (text.length * 0.34))));
+  const sigStyle = (text: string) => {
+    const size = sigSize(text);
+    return [styles.sigText, { fontSize: size, paddingTop: 4 + (40 - size) * 0.7 }];
+  };
 
   return (
     <Document title={`${record.title} - ${record.signedName}`} author="Experrt">
@@ -174,13 +181,17 @@ export function SelfServeCertificateDocument({
           <Text style={styles.line}>{record.recordLine}</Text>
           <View style={styles.signs}>
             <View style={styles.sign}>
-              <Text style={styles.sigText}>{record.signedName}</Text>
+              <Text style={sigStyle(record.signedName)}>
+                {oneLine(record.signedName)}
+              </Text>
               <View style={styles.rule} />
               <Text style={styles.signName}>{record.signedName}</Text>
               <Text style={styles.signRole}>Learner · signed {signed}</Text>
             </View>
             <View style={styles.sign}>
-              <Text style={styles.sigText}>{COMPANY.manager}</Text>
+              <Text style={sigStyle(COMPANY.manager)}>
+                {oneLine(COMPANY.manager)}
+              </Text>
               <View style={styles.rule} />
               <Text style={styles.signName}>{COMPANY.manager}</Text>
               <Text style={styles.signRole}>General Manager, {COMPANY.tradingName}</Text>
