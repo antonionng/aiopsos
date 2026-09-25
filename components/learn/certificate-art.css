@@ -1,0 +1,491 @@
+/* Certificate of completion. Every animation ends in a still, printable state. */
+.xc {
+  --xc-ink: #201c29;
+  --xc-violet: #7046eb;
+  --xc-violet-deep: #3b1fa6;
+  --xc-citrus: #e4f477;
+  --xc-gold: #c8a64a;
+  --xc-paper: #fffdf6;
+  --xc-mute: #66616e;
+  position: relative;
+  width: min(1040px, calc(100% - 48px));
+  margin: 48px auto 0;
+}
+
+.xc-card {
+  position: relative;
+  overflow: hidden;
+  padding: 14px;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, var(--xc-violet-deep), var(--xc-violet) 38%, #b99cff 52%, var(--xc-violet) 66%, var(--xc-violet-deep));
+  box-shadow:
+    0 30px 80px -30px #3b1fa680,
+    0 12px 30px -12px #201c2940;
+  animation: xc-rise 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.xc-guilloche {
+  position: absolute;
+  inset: 14px;
+  border-radius: 12px;
+  background:
+    repeating-radial-gradient(circle at 0% 0%, transparent 0 9px, #7046eb0f 9px 10px),
+    repeating-radial-gradient(circle at 100% 100%, transparent 0 9px, #7046eb0f 9px 10px),
+    repeating-radial-gradient(circle at 100% 0%, transparent 0 13px, #c8a64a14 13px 14px),
+    var(--xc-paper);
+}
+
+.xc-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, #ffffff00 40%, #ffffffb3 50%, #e4f47733 54%, transparent 62%);
+  transform: translateX(-120%);
+  animation: xc-sheen 1800ms 5.2s ease-in-out both;
+  mix-blend-mode: soft-light;
+  z-index: 2;
+}
+
+.xc-inner {
+  position: relative;
+  z-index: 1;
+  margin: 10px;
+  padding: 44px 56px 30px;
+  border: 1px solid #c8a64a80;
+  border-radius: 8px;
+  outline: 1px solid #c8a64a40;
+  outline-offset: -8px;
+  text-align: center;
+  color: var(--xc-ink);
+}
+
+.xc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.xc-eyebrow {
+  margin-top: 6px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--xc-violet);
+  animation: xc-fade 700ms 200ms both;
+}
+
+.xc-certifies {
+  margin-top: 18px;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--xc-mute);
+  animation: xc-fade 700ms 300ms both;
+}
+
+.xc .xc-name {
+  margin-top: 8px;
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(34px, 5.4vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  background: linear-gradient(90deg, var(--xc-ink), var(--xc-violet-deep) 50%, var(--xc-ink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: xc-fade 800ms 400ms both;
+}
+
+.xc .xc-title {
+  margin: 10px auto 0;
+  max-width: 34ch;
+  font-size: clamp(22px, 2.8vw, 32px);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  animation: xc-fade 800ms 550ms both;
+}
+
+.xc-line {
+  margin: 14px auto 0;
+  max-width: 60ch;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--xc-mute);
+  animation: xc-fade 800ms 650ms both;
+}
+
+.xc-signs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  margin-top: 34px;
+}
+
+.xc-sign {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.xc-sign p {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.xc-sign span:not(.xc-rule) {
+  color: var(--xc-mute);
+  font-size: 12px;
+}
+
+.xc-rule {
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg, var(--xc-ink), #201c2933);
+  transform-origin: left;
+  animation: xc-rule 700ms 700ms both;
+}
+
+.xc-sig {
+  display: block;
+  width: 100%;
+  height: 92px;
+  overflow: visible;
+}
+
+.xc-sig-text {
+  font-family: var(--font-signature), cursive;
+  font-size: 96px;
+  fill: var(--xc-violet-deep);
+  fill-opacity: 0;
+  stroke: var(--xc-violet-deep);
+  stroke-width: 1.2;
+  stroke-dasharray: 2400;
+  stroke-dashoffset: 2400;
+  animation:
+    xc-draw var(--sig-duration) var(--sig-delay) cubic-bezier(0.55, 0.1, 0.35, 1) forwards,
+    xc-ink 600ms calc(var(--sig-delay) + var(--sig-duration) * 0.7) ease-out forwards;
+}
+
+.xc-sig-wipe {
+  transform-box: fill-box;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: xc-wipe var(--sig-duration) var(--sig-delay) cubic-bezier(0.55, 0.1, 0.35, 1) forwards;
+}
+
+.xc-sig-nib {
+  opacity: 0;
+  animation: xc-nib-life var(--sig-duration) var(--sig-delay) linear forwards;
+}
+
+.xc-sig-nib-track {
+  fill: var(--xc-violet);
+  animation:
+    xc-nib-x var(--sig-duration) var(--sig-delay) cubic-bezier(0.55, 0.1, 0.35, 1) forwards,
+    xc-nib-y 260ms var(--sig-delay) ease-in-out infinite alternate;
+}
+
+.xc-sig-nib-glow {
+  fill: var(--xc-citrus);
+  opacity: 0.55;
+  filter: blur(4px);
+}
+
+.xc-seal {
+  width: 112px;
+  height: 112px;
+  margin-top: -12px;
+  margin-right: -12px;
+  animation: xc-stamp 700ms 5.4s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.xc-seal svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.xc-seal-edge {
+  fill: var(--xc-ink);
+}
+
+.xc-seal-core {
+  fill: var(--xc-citrus);
+}
+
+.xc-seal-ring {
+  transform-origin: 100px 100px;
+  animation: xc-spin 24s linear infinite;
+}
+
+.xc-seal-ring text {
+  fill: var(--xc-paper);
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+}
+
+.xc-seal-tick {
+  fill: none;
+  stroke: var(--xc-ink);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 90;
+  stroke-dashoffset: 90;
+  animation: xc-tick 500ms 5.9s ease-out forwards;
+}
+
+.xc-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 30px;
+  padding-top: 14px;
+  border-top: 1px dashed #c8a64a80;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--xc-mute);
+}
+
+.xc-replay {
+  display: block;
+  margin: 18px auto 0;
+  padding: 8px 16px;
+  border: 1px solid var(--xc-violet);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--xc-violet);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.xc-replay:hover {
+  background: #7046eb12;
+}
+
+.xc-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.xc-bit {
+  position: absolute;
+  top: -20px;
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: xc-fall 2600ms ease-in both;
+}
+
+.xc-bit.is-wide {
+  width: 14px;
+  height: 7px;
+}
+
+.xc-bit-0 {
+  background: var(--xc-violet);
+}
+
+.xc-bit-1 {
+  background: var(--xc-citrus);
+}
+
+.xc-bit-2 {
+  background: var(--xc-gold);
+}
+
+@keyframes xc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+}
+
+@keyframes xc-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes xc-rule {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes xc-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes xc-ink {
+  to {
+    fill-opacity: 1;
+    stroke-opacity: 0.4;
+  }
+}
+
+@keyframes xc-wipe {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes xc-nib-life {
+  0%,
+  96% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes xc-nib-x {
+  to {
+    transform: translateX(var(--sig-width));
+  }
+}
+
+@keyframes xc-nib-y {
+  from {
+    translate: 0 -14px;
+  }
+  to {
+    translate: 0 12px;
+  }
+}
+
+@keyframes xc-stamp {
+  from {
+    opacity: 0;
+    transform: scale(1.8) rotate(-24deg);
+  }
+}
+
+@keyframes xc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes xc-tick {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes xc-sheen {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes xc-fall {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0);
+  }
+  100% {
+    opacity: 0.9;
+    transform: translate(var(--drift), 110vh) rotate(var(--spin));
+  }
+}
+
+@media (max-width: 760px) {
+  .xc {
+    width: calc(100% - 24px);
+    margin-top: 28px;
+  }
+  .xc-card {
+    padding: 8px;
+  }
+  .xc-guilloche {
+    inset: 8px;
+  }
+  .xc-inner {
+    margin: 6px;
+    padding: 26px 18px 20px;
+  }
+  .xc-seal {
+    width: 76px;
+    height: 76px;
+    margin: -6px -6px 0 0;
+  }
+  .xc-signs {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .xc-sig {
+    height: 72px;
+  }
+  .xc-foot {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xc *,
+  .xc-card {
+    animation: none !important;
+  }
+  .xc-sig-text {
+    fill-opacity: 1;
+    stroke-dashoffset: 0;
+    stroke-opacity: 0.4;
+  }
+  .xc-sig-wipe {
+    transform: none;
+  }
+  .xc-sig-nib,
+  .xc-sheen,
+  .xc-confetti {
+    display: none;
+  }
+  .xc-seal-tick {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media print {
+  .xc *,
+  .xc-card {
+    animation: none !important;
+  }
+  .xc-sig-text {
+    fill-opacity: 1;
+    stroke-dashoffset: 0;
+  }
+  .xc-sig-wipe {
+    transform: none;
+  }
+  .xc-seal-tick {
+    stroke-dashoffset: 0;
+  }
+  .xc-sig-nib,
+  .xc-sheen,
+  .xc-confetti,
+  .xc-replay {
+    display: none;
+  }
+}

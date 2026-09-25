@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Wordmark } from "@/components/wordmark";
+import { CertificateArt } from "@/components/learn/certificate-art";
 import type { SignedRecord } from "@/lib/self-serve/records";
 import "@/app/learn/learn.css";
 
@@ -15,16 +15,21 @@ export function SelfServePublicRecord({ record }: { record: SignedRecord }) {
 
   return (
     <div className="ex-learn">
+      <p className="ex-verified">
+        <span aria-hidden="true">✓</span> Verified record, issued by Experrt on {signed}
+      </p>
+      <CertificateArt
+        title={record.title}
+        name={record.signedName}
+        signedAt={record.signedAt}
+        reference={record.ref}
+        recordLine={record.recordLine}
+      />
       <article className="ex-sheet-page">
-        <Wordmark size="sm" />
-        <p className="ex-eyebrow" style={{ marginTop: 48 }}>
+        <p className="ex-eyebrow">
           <span />
-          COMPLETED
+          THE SIGNED WORK
         </p>
-        <h1>{record.title}</h1>
-        <p className="ex-signed">{record.signedName}</p>
-        <p className="ex-date">{signed}</p>
-        <p className="ex-record-line">{record.recordLine}</p>
         {lines.length > 0 ? (
           <div className="ex-artefact">
             <h2>{record.artefactTitle}</h2>
