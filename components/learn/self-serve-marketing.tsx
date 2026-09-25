@@ -30,10 +30,17 @@ export function SelfServeHomePitch() {
               <span />
               THIS AUTUMN
             </p>
-            <h2 id="self-serve-home-title">Brief AI the way you would brief a colleague.</h2>
+            <h2 id="self-serve-home-title">
+              <Link className="ex-card-link" href={`/learn/${OPEN_SLUG}`}>
+                Brief AI the way you would brief a colleague.
+              </Link>
+            </h2>
             <p>
               Prompt Engineering for Professional Work teaches your people to give AI tools clear, complete instructions and to check every reply before it reaches a client or colleague. Teams finish with a shared standard for AI-assisted work, fewer drafts that need rewriting, and a signed prompt card that anyone on the team can reuse.
             </p>
+            <span className="ex-autumn-more" aria-hidden="true">
+              See what&apos;s in the course <ArrowRight size={16} />
+            </span>
           </div>
           <div className="ex-autumn-buy">
             <p>
@@ -126,7 +133,11 @@ export function SelfServeAcademyCatalogue({
         <article className="academy-self-open">
           <div>
             <span className="academy-self-tag">Available now</span>
-            <h3>Prompt Engineering for Professional Work</h3>
+            <h3>
+              <Link className="ex-card-link" href={`/learn/${OPEN_SLUG}`}>
+                Prompt Engineering for Professional Work
+              </Link>
+            </h3>
             <p>
               This course teaches professionals to brief an AI tool precisely, to recognise when a reply has invented a commitment, and to repair the instruction before anything is sent. Learners finish with a signed prompt card that their team can reuse and that a manager can verify online.
             </p>
