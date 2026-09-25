@@ -67,7 +67,7 @@
   text-align: left;
 }
 
-.xc-eyebrow {
+.xc .xc-eyebrow {
   margin-top: 6px;
   font-family: var(--font-space-grotesk), sans-serif;
   font-size: 13px;
@@ -78,7 +78,7 @@
   animation: xc-fade 700ms 200ms both;
 }
 
-.xc-certifies {
+.xc .xc-certifies {
   margin-top: 18px;
   font-size: 15px;
   font-style: italic;
@@ -109,7 +109,7 @@
   animation: xc-fade 800ms 550ms both;
 }
 
-.xc-line {
+.xc .xc-line {
   margin: 14px auto 0;
   max-width: 60ch;
   font-size: 14px;
@@ -132,7 +132,7 @@
   text-align: left;
 }
 
-.xc-sign p {
+.xc .xc-sign p {
   display: flex;
   flex-direction: column;
   margin-top: 8px;
