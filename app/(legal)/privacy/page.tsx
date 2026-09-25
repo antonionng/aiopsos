@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { privacyMetadata } from "@/lib/public-share-metadata";
+import { COMPANY, LEGAL_UPDATED } from "@/lib/legal";
 
 export const metadata: Metadata = privacyMetadata();
 
@@ -9,13 +10,22 @@ export default function PrivacyPage() {
   return (
     <article className="prose prose-neutral dark:prose-invert max-w-none">
       <h1 className="text-3xl font-bold tracking-tight">Privacy Policy</h1>
-      <p className="text-sm text-muted-foreground">Last updated: 9 September 2026</p>
+      <p className="text-sm text-muted-foreground">Last updated: {LEGAL_UPDATED}</p>
 
       <p>
         Experrt (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) is committed to protecting your
         privacy. This Privacy Policy explains how we collect, use, disclose, and
         safeguard your personal data when you use the Experrt platform, website,
         and related services (the &quot;Service&quot;).
+      </p>
+
+      <h2>Who is responsible for your data</h2>
+      <p>
+        The controller of your personal data is <strong>{COMPANY.legalName}</strong>, trading as
+        Experrt, a free zone limited liability company in {COMPANY.freeZone}, {COMPANY.country}
+        (Licence No. {COMPANY.licenceNo}, Registration No. {COMPANY.registrationNo}). Contact us about
+        anything in this policy at{" "}
+        <a href={`mailto:${COMPANY.email}`} className="text-foreground underline underline-offset-4">{COMPANY.email}</a>.
       </p>
 
       <h2>1. Information We Collect</h2>
@@ -50,6 +60,13 @@ export default function PrivacyPage() {
           provide through the platform.
         </li>
       </ul>
+
+      <h3>Self-paced courses</h3>
+      <p>When you buy a self-paced course, Stripe collects your card details on our behalf; we never see or store your card number. Stripe sends us your name, email address, the amount paid and payment references, which we keep as the record of your purchase.</p>
+      <p>When you save a sign-in, we create a learner account with your name, email address and password (stored only as a secure hash by our authentication provider). As you work through a course we store your answers, check results, progress and the work you sign at the end.</p>
+      <p>When you sign your final work, we publish a record page showing your name, the course, the date and the work you signed. Anyone with the link or reference can view it. You choose whether to share it.</p>
+      <p>We email you a receipt, a sign-in confirmation, reminders to continue a course you have bought and, once you finish, one suggestion for a next course. You can stop course suggestions at any time from the link in the email or in My account; receipts and account emails are always sent. We also notify our team at {COMPANY.email} of each purchase, new learner account and completed course, and of any team-session enquiry you send from My learning.</p>
+      <p>You can download your learner data or close your learner account yourself from <Link href="/learn/account" className="text-foreground underline underline-offset-4">My account</Link>.</p>
 
       <h3>Public learning check and enquiries</h3>
       <p>When you try the public learning agent, we save your brief, generated materials and task progress in a guest session. An essential cookie lets you return to that session for up to 12 hours. We use usage counters and a hashed network identifier to limit free use. Your brief is processed by our AI provider to create the materials. If you ask us to email your pack, we save your name, email, optional organisation and permission, send the pack to you, and share your details, brief and materials with our team at ag@experrt.com for follow-up about your request. This does not subscribe you to a newsletter.</p>
@@ -106,8 +123,8 @@ export default function PrivacyPage() {
         </li>
       </ul>
 
-      <h2>3. Legal Basis for Processing (GDPR)</h2>
-      <p>If you are in the European Economic Area (EEA), we rely on:</p>
+      <h2>3. Legal Basis for Processing</h2>
+      <p>If you are in the United Kingdom or the European Economic Area (EEA), the UK GDPR or EU GDPR applies to our processing of your data, and we rely on:</p>
       <ul>
         <li>
           <strong>Contract Performance:</strong> processing necessary to provide
@@ -122,7 +139,14 @@ export default function PrivacyPage() {
           communications, which you can withdraw at any time.
         </li>
         <li>
-          <strong>Legal Obligation:</strong> where processing is required by law.
+          <strong>Legal Obligation:</strong> where processing is required by law,
+          such as keeping sales records for tax.
+        </li>
+        <li>
+          <strong>Course purchases and learning:</strong> providing a course you
+          have bought, your progress and your signed record is contract
+          performance. Suggesting a next course to someone who has bought one is
+          based on our legitimate interests, and you can opt out at any time.
         </li>
       </ul>
 
@@ -232,6 +256,12 @@ export default function PrivacyPage() {
           financial regulations (typically 7 years).
         </li>
         <li>
+          <strong>Learner Accounts and Course Progress:</strong> kept while your
+          learner account is open. Closing the account erases your sign-in,
+          progress and signed records straight away. Course purchase records are
+          kept without your name or email for as long as tax law requires.
+        </li>
+        <li>
           <strong>Audit Logs:</strong> retained for up to 12 months for security
           and compliance purposes.
         </li>
@@ -264,7 +294,7 @@ export default function PrivacyPage() {
         regarding your personal data:
       </p>
 
-      <h3>8.1 GDPR Rights (EEA Residents)</h3>
+      <h3>8.1 UK and EU GDPR Rights</h3>
       <ul>
         <li><strong>Access:</strong> request a copy of your personal data.</li>
         <li><strong>Rectification:</strong> correct inaccurate data.</li>
@@ -283,20 +313,30 @@ export default function PrivacyPage() {
         <li>Right to non-discrimination for exercising your privacy rights.</li>
       </ul>
 
+      <h3>8.3 UAE Residents</h3>
       <p>
-        To exercise any of these rights, contact us at{" "}
-        <a href="mailto:privacy@experrt.com" className="text-foreground underline underline-offset-4">
-          privacy@experrt.com
+        If you are in the United Arab Emirates, you have the rights given by the UAE Personal
+        Data Protection Law, including access, correction, erasure and objection.
+      </p>
+
+      <p>
+        Learners can download their data and close their account at any time from{" "}
+        <Link href="/learn/account" className="text-foreground underline underline-offset-4">My account</Link>. To exercise any other right,
+        contact us at{" "}
+        <a href={`mailto:${COMPANY.email}`} className="text-foreground underline underline-offset-4">
+          {COMPANY.email}
         </a>
-        . We will respond within 30 days.
+        . We will respond within one month.
       </p>
 
       <h2>9. International Data Transfers</h2>
       <p>
-        Your data may be transferred to and processed in countries outside your
-        country of residence. Where such transfers occur, we ensure appropriate
-        safeguards are in place, such as Standard Contractual Clauses (SCCs) or
-        equivalent mechanisms.
+        We are based in the United Arab Emirates, and our service providers
+        process data in the European Union, the United Kingdom and the United
+        States. Where your data leaves the UK or the EEA, we rely on appropriate
+        safeguards such as the European Commission&apos;s Standard Contractual
+        Clauses and the UK International Data Transfer Addendum, or on an
+        adequacy decision.
       </p>
 
       <h2>10. Children&apos;s Privacy</h2>
@@ -328,21 +368,20 @@ export default function PrivacyPage() {
       <ul>
         <li>
           Email:{" "}
-          <a href="mailto:privacy@experrt.com" className="text-foreground underline underline-offset-4">
-            privacy@experrt.com
+          <a href={`mailto:${COMPANY.email}`} className="text-foreground underline underline-offset-4">
+            {COMPANY.email}
           </a>
         </li>
         <li>
-          General:{" "}
-          <a href="mailto:support@experrt.com" className="text-foreground underline underline-offset-4">
-            support@experrt.com
-          </a>
+          Post: {COMPANY.legalName}, {COMPANY.freeZone}, {COMPANY.country}
         </li>
       </ul>
       <p>
-        If you are in the EEA and believe we have not adequately addressed your
-        concerns, you have the right to lodge a complaint with your local data
-        protection authority.
+        If you believe we have not handled your data properly, you can complain
+        to a data protection authority: in the UK, the Information
+        Commissioner&apos;s Office (ico.org.uk); in the EEA, the authority where
+        you live or work. We would appreciate the chance to put things right
+        first.
       </p>
     </article>
   );
