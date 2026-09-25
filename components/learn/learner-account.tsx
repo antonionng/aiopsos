@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { forgetLearner } from "@/components/learn/use-learner";
 import "./learner-account.css";
 
 export function SaveSignInForm({
@@ -40,6 +41,7 @@ export function SaveSignInForm({
       });
       const data = (await res.json()) as { ok?: boolean; next?: string; detail?: string; existing?: boolean };
       if (data.ok) {
+        forgetLearner();
         router.push(data.next ?? courseHref);
         router.refresh();
         return;
@@ -138,6 +140,7 @@ export function SignInForm({ defaultEmail = "", next }: { defaultEmail?: string;
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
     }).catch(() => undefined);
+    forgetLearner();
     router.push(next ?? "/learn/my-courses");
     router.refresh();
   }
@@ -188,6 +191,7 @@ export function SignOutButton() {
       className="la-quiet la-signout"
       onClick={async () => {
         await createClient().auth.signOut();
+        forgetLearner();
         router.push("/learn/my-courses");
         router.refresh();
       }}

@@ -8,7 +8,7 @@ import {
   SELF_SERVE_PURPOSE,
 } from "@/lib/self-serve/commerce";
 import { insertPendingPurchase } from "@/lib/self-serve/records";
-import { currentLearner } from "@/lib/self-serve/access";
+import { currentLearner, findEntitledPurchase } from "@/lib/self-serve/access";
 
 export async function POST(req: Request) {
   if (!isSelfServeEnabled()) {
@@ -38,6 +38,11 @@ export async function POST(req: Request) {
     );
   }
 
+  const owned = await findEntitledPurchase(course.slug).catch(() => null);
+  if (owned) {
+    return NextResponse.json({ url: `/learn/${course.slug}`, owned: true });
+  }
+
   const origin = checkoutOrigin(req);
   const amount = courseAmountPence(course.priceGbp);
   const stripe = getStripe();
@@ -49,6 +54,12 @@ export async function POST(req: Request) {
       customer_creation: "always",
       ...(learner?.email ? { customer_email: learner.email } : {}),
       billing_address_collection: "auto",
+      allow_promotion_codes: true,
+      custom_text: {
+        submit: {
+          message: `Includes 12 months of access from the date of payment. All sales are final and no refunds are given. By paying you agree to the course terms of sale at ${origin}/course-terms.`,
+        },
+      },
       success_url: `${origin}/api/learn/claim?slug=${encodeURIComponent(course.slug)}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/learn/${course.slug}`,
       line_items: [

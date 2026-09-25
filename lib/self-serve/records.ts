@@ -6,6 +6,7 @@ import { sendSelfServePurchaseAlert, sendSelfServeReceipt } from "@/lib/email";
 import { getSelfServeCourse } from "./catalog.ts";
 import { isSelfServeCheckout, newAccessToken, newCertificateRef } from "./commerce.ts";
 import { artefactAnswer, courseArtefact, emptyProgress } from "./engine.ts";
+import { furthestProgress, onePerCourse, type CourseHolding } from "./entitlement.ts";
 import type { BuildAnswer, CourseProgress, SelfServeCourse } from "./types.ts";
 
 export type PurchaseRow = {
@@ -130,8 +131,12 @@ export async function fulfillSelfServeSession(
   }
 
   const purchase = data as PurchaseRow;
+  const carried = await earlierProgress(purchase).catch(() => undefined);
   await supabaseAdmin.from("self_serve_progress").upsert(
-    { purchase_id: purchase.id },
+    {
+      purchase_id: purchase.id,
+      ...(carried ? { lessons: carried.lessons } : {}),
+    },
     { onConflict: "purchase_id", ignoreDuplicates: true }
   );
 
@@ -140,6 +145,32 @@ export async function fulfillSelfServeSession(
   }
 
   return purchase;
+}
+
+/**
+ * Buying a course again after access ends picks up the lessons already passed. The signature and
+ * certificate reference stay on the earlier purchase, where the public record already points.
+ */
+async function earlierProgress(purchase: PurchaseRow): Promise<CourseProgress | undefined> {
+  const owners = purchase.user_id
+    ? await purchasesForUser(purchase.user_id, purchase.email)
+    : await ownedPurchases(purchase.email);
+  const earlier = owners
+    .filter((row) => row.course_slug === purchase.course_slug && row.id !== purchase.id)
+    .map((row) => row.id);
+  if (earlier.length === 0) return undefined;
+  return furthestProgress(earlier, await progressForPurchases(earlier));
+}
+
+async function ownedPurchases(email: string | null | undefined): Promise<PurchaseRow[]> {
+  const address = normaliseEmail(email);
+  if (!address) return [];
+  const { data } = await supabaseAdmin
+    .from("self_serve_purchases")
+    .select(PURCHASE_COLUMNS)
+    .ilike("email", address.replace(/[\\%_]/g, (c) => `\\${c}`))
+    .eq("status", "paid");
+  return (data as PurchaseRow[] | null) ?? [];
 }
 
 async function sendPurchaseMail(
@@ -271,13 +302,26 @@ export async function purchasesForUser(
   return [...rows.values()].sort((a, b) => (b.paid_at ?? "").localeCompare(a.paid_at ?? ""));
 }
 
+export async function courseHoldings(
+  userId: string,
+  email: string | null | undefined
+): Promise<CourseHolding<PurchaseRow>[]> {
+  const rows = await purchasesForUser(userId, email);
+  const progress = await progressForPurchases(rows.map((row) => row.id));
+  return onePerCourse(rows, progress);
+}
+
+/** The purchase that currently opens this course for the learner, if their access is still open. */
 export async function findUserPurchase(
   userId: string,
   email: string | null | undefined,
   slug: string
 ): Promise<PurchaseRow | null> {
-  const rows = await purchasesForUser(userId, email);
-  return rows.find((row) => row.course_slug === slug) ?? null;
+  const rows = (await purchasesForUser(userId, email)).filter((row) => row.course_slug === slug);
+  if (rows.length === 0) return null;
+  const progress = await progressForPurchases(rows.map((row) => row.id));
+  const [holding] = onePerCourse(rows, progress);
+  return holding?.active ? holding.purchase : null;
 }
 
 export async function linkPurchasesToUser(

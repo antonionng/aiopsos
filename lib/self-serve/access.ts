@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { ACCESS_COOKIE } from "./commerce.ts";
+import { hasActiveAccess } from "./entitlement.ts";
 import {
   findPaidPurchase,
   findPaidPurchaseByToken,
@@ -32,7 +33,7 @@ export async function accessToken(): Promise<string> {
 export async function findEntitledPurchase(slug: string): Promise<PurchaseRow | null> {
   const token = await accessToken();
   const byCookie = token ? await findPaidPurchase(token, slug) : null;
-  if (byCookie) return byCookie;
+  if (byCookie && hasActiveAccess(byCookie.paid_at)) return byCookie;
   const user = await currentLearner();
   if (!user) return null;
   return findUserPurchase(user.id, user.email, slug);

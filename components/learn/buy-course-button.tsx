@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useLearner } from "@/components/learn/use-learner";
 
 export function BuyCourseButton({
   slug,
@@ -14,6 +16,8 @@ export function BuyCourseButton({
 }) {
   const [pending, setPending] = useState(false);
   const [detail, setDetail] = useState("");
+  const learner = useLearner();
+  const owned = learner?.signedIn === true && learner.owned.includes(slug);
 
   async function buy() {
     setPending(true);
@@ -35,6 +39,17 @@ export function BuyCourseButton({
     } finally {
       setPending(false);
     }
+  }
+
+  if (owned) {
+    return (
+      <div>
+        <Link className={className} href={`/learn/${slug}`}>
+          Go to your course
+          <ArrowRight size={18} />
+        </Link>
+      </div>
+    );
   }
 
   return (

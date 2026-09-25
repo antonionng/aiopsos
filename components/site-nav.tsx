@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Wordmark } from "@/components/wordmark";
+import { forgetLearner, useLearner, type LearnerSession } from "@/components/learn/use-learner";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 /**
@@ -79,10 +81,74 @@ function isActive(href: string, pathname: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function accountLinks(session: Extract<LearnerSession, { signedIn: true }>) {
+  return [
+    { href: "/learn/my-courses", label: "My learning" },
+    { href: "/learn/account", label: "My account" },
+    ...(session.lms ? [{ href: "/dashboard", label: "AI LMS dashboard" }] : []),
+  ];
+}
+
+async function signOut() {
+  await createClient().auth.signOut();
+  forgetLearner();
+  window.location.assign("/");
+}
+
+function AccountMenu({ session }: { session: Extract<LearnerSession, { signedIn: true }> }) {
+  const [open, setOpen] = useState(false);
+  const label = session.name || session.email;
+  const initial = (label.trim()[0] ?? "E").toUpperCase();
+  return (
+    <div className="relative hidden xl:block">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label={`Account menu for ${label}`}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+      >
+        {initial}
+      </button>
+      {open ? (
+        <div
+          role="menu"
+          className="absolute right-0 top-11 w-60 rounded-2xl border border-border bg-background p-2 shadow-lg"
+          onMouseLeave={() => setOpen(false)}
+        >
+          <p className="truncate px-3 pb-2 pt-1 text-xs text-muted-foreground">{session.email}</p>
+          {accountLinks(session).map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="block rounded-xl px-3 py-2 text-sm text-foreground hover:bg-muted"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={signOut}
+            className="block w-full rounded-xl px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted"
+          >
+            Sign out
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function SiteNav() {
   const pathname = usePathname() ?? "/";
   const onHome = pathname === "/";
   const inCourses = pathname === "/learn" || pathname.startsWith("/learn/");
+  const session = useLearner(pathname);
+  const signedIn = session?.signedIn === true ? session : null;
   const signIn = inCourses
     ? { href: "/learn/my-courses", label: "My courses" }
     : { href: "/login", label: "Sign in" };
@@ -124,22 +190,36 @@ export function SiteNav() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href={signIn.href}
-            className={cn(
-              "h-9 items-center justify-center px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-              inCourses ? "inline-flex" : "hidden xl:inline-flex",
-            )}
-          >
-            {signIn.label}
-          </Link>
-          {inCourses ? null : (
-            <Link
-              href="/register"
-              className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
-            >
-              Get Started
-            </Link>
+          {signedIn ? (
+            <>
+              <Link
+                href="/learn/my-courses"
+                className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+              >
+                My learning
+              </Link>
+              <AccountMenu session={signedIn} />
+            </>
+          ) : (
+            <>
+              <Link
+                href={signIn.href}
+                className={cn(
+                  "h-9 items-center justify-center px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                  inCourses ? "inline-flex" : "hidden xl:inline-flex",
+                )}
+              >
+                {signIn.label}
+              </Link>
+              {inCourses ? null : (
+                <Link
+                  href="/register"
+                  className="inline-flex h-9 items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+                >
+                  Get Started
+                </Link>
+              )}
+            </>
           )}
           <button
             type="button"
@@ -180,13 +260,38 @@ export function SiteNav() {
                 </NavLink>
               );
             })}
-            <Link
-              href={signIn.href}
-              onClick={close}
-              className="py-3 text-sm font-medium text-foreground"
-            >
-              {signIn.label}
-            </Link>
+            {signedIn ? (
+              <>
+                <p className="truncate pt-3 text-xs text-muted-foreground">
+                  Signed in as {signedIn.email}
+                </p>
+                {accountLinks(signedIn).map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={close}
+                    className="border-b border-border/40 py-3 text-sm font-medium text-foreground"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="py-3 text-left text-sm text-muted-foreground"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link
+                href={signIn.href}
+                onClick={close}
+                className="py-3 text-sm font-medium text-foreground"
+              >
+                {signIn.label}
+              </Link>
+            )}
           </div>
         </div>
       ) : null}
