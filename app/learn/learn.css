@@ -2113,7 +2113,7 @@
     transform: none;
   }
 }
-.ex-verified {
+.ex-learn .ex-verified {
   display: flex;
   align-items: center;
   gap: 10px;
