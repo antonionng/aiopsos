@@ -120,7 +120,7 @@ function Seal() {
         <circle cx="100" cy="100" r="62" className="xc-seal-core" />
         <g className="xc-seal-ring">
           <text>
-            <textPath href={`#${pathId}`} startOffset="0">
+            <textPath href={`#${pathId}`} startOffset="0" textLength={488} lengthAdjust="spacing">
               {ring}
               {ring}
             </textPath>

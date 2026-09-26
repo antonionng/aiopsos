@@ -492,20 +492,25 @@
 
 .xc-sample {
   position: absolute;
-  top: 26px;
-  left: -46px;
+  top: 3px;
+  left: 50%;
   z-index: 3;
-  width: 170px;
-  padding: 6px 0;
+  padding: 4px 14px;
   background: var(--xc-citrus);
+  border-radius: 999px;
   color: var(--xc-ink);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.24em;
-  text-align: center;
+  letter-spacing: 0.26em;
+  line-height: 1;
   text-transform: uppercase;
-  transform: rotate(-38deg);
-  box-shadow: 0 4px 12px #201c2933;
+  transform: translateX(-50%);
+  box-shadow: 0 3px 10px #201c2933;
+}
+
+.ex-learn .xc .xc-head img,
+.ex-learn .ex-landing .xc .xc-head img {
+  filter: invert(1);
 }
 
 .xc-preview .xc {
@@ -521,11 +526,6 @@
 }
 
 @media (max-width: 760px) {
-  .xc-sample {
-    top: 18px;
-    left: -52px;
-    font-size: 9px;
-  }
   .xc-preview-hold {
     aspect-ratio: 0.8;
   }
