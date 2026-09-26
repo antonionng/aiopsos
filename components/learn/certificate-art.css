@@ -489,3 +489,44 @@
     display: none;
   }
 }
+
+.xc-sample {
+  position: absolute;
+  top: 26px;
+  left: -46px;
+  z-index: 3;
+  width: 170px;
+  padding: 6px 0;
+  background: var(--xc-citrus);
+  color: var(--xc-ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(-38deg);
+  box-shadow: 0 4px 12px #201c2933;
+}
+
+.xc-preview .xc {
+  width: 100%;
+  margin: 0;
+}
+
+.xc-preview-hold {
+  aspect-ratio: 1.45;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #3b1fa6, #7046eb 45%, #b99cff 55%, #7046eb 70%, #3b1fa6);
+  opacity: 0.15;
+}
+
+@media (max-width: 760px) {
+  .xc-sample {
+    top: 18px;
+    left: -52px;
+    font-size: 9px;
+  }
+  .xc-preview-hold {
+    aspect-ratio: 0.8;
+  }
+}

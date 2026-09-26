@@ -28,7 +28,7 @@ export function SelfServeHomePitch() {
           <div>
             <p className="ex-eyebrow">
               <span />
-              THIS AUTUMN
+              THIS AUTUMN · CERTIFICATE INCLUDED
             </p>
             <h2 id="self-serve-home-title">
               <Link className="ex-card-link" href={`/learn/${OPEN_SLUG}`}>
@@ -36,7 +36,7 @@ export function SelfServeHomePitch() {
               </Link>
             </h2>
             <p>
-              Prompt Engineering for Professional Work teaches your people to give AI tools clear, complete instructions and to check every reply before it reaches a client or colleague. Teams finish with a shared standard for AI-assisted work, fewer drafts that need rewriting, and a signed prompt card that anyone on the team can reuse.
+              Prompt Engineering for Professional Work teaches your people to give AI tools clear, complete instructions and to check every reply before it reaches a client or colleague. Everyone who finishes is Experrt certified, with a signed certificate, a QR code anyone can check, and a prompt card the whole team can reuse.
             </p>
             <span className="ex-autumn-more" aria-hidden="true">
               See what&apos;s in the course <ArrowRight size={16} />
@@ -45,7 +45,7 @@ export function SelfServeHomePitch() {
           <div className="ex-autumn-buy">
             <p>
               <b>£{price}</b>
-              <span>Access begins as soon as payment is confirmed and lasts 12 months. Progress is saved to your account.</span>
+              <span>Includes your Experrt certificate. Access begins as soon as payment is confirmed and lasts 12 months.</span>
             </p>
             <BuyCourseButton slug={OPEN_SLUG} label={`Buy this course for £${price}`} />
           </div>
@@ -132,14 +132,14 @@ export function SelfServeAcademyCatalogue({
       {showOpen ? (
         <article className="academy-self-open">
           <div>
-            <span className="academy-self-tag">Available now</span>
+            <span className="academy-self-tag">Available now · Certificate included</span>
             <h3>
               <Link className="ex-card-link" href={`/learn/${OPEN_SLUG}`}>
                 Prompt Engineering for Professional Work
               </Link>
             </h3>
             <p>
-              This course teaches professionals to brief an AI tool precisely, to recognise when a reply has invented a commitment, and to repair the instruction before anything is sent. Learners finish with a signed prompt card that their team can reuse and that a manager can verify online.
+              This course teaches professionals to brief an AI tool precisely, to recognise when a reply has invented a commitment, and to repair the instruction before anything is sent. Learners finish Experrt certified, with a signed certificate and prompt card that a manager can verify online.
             </p>
           </div>
           <BuyCourseButton

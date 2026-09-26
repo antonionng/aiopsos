@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight, Award, Check } from "lucide-react";
 import { StructuredData } from "@/components/structured-data";
 import {
   breadcrumbLd,
@@ -22,11 +22,12 @@ import {
 import type { SelfServeCourse } from "@/lib/self-serve/types";
 import type { PublishedReview, ReviewSummary } from "@/lib/self-serve/reviews";
 import { CourseReviews } from "@/components/learn/course-reviews";
+import { CertificatePreview } from "@/components/learn/certificate-art";
 
 const KIND_LABEL: Record<CurriculumItem["kind"], string> = {
   lesson: "Lesson",
   assessment: "Course assessment",
-  final: "Final work and signed record",
+  final: "Final work and your certificate",
 };
 
 export function CourseLanding({
@@ -74,7 +75,7 @@ export function CourseLanding({
               </p>
               <p className="ex-eyebrow">
                 <span />
-                {trackLabel(course.track).toUpperCase()} · {formatCourseHours(course.hours).toUpperCase()}
+                {trackLabel(course.track).toUpperCase()} · {formatCourseHours(course.hours).toUpperCase()} · CERTIFICATE INCLUDED
               </p>
               <h1>{course.title}</h1>
               <p className="ex-lede">{landing.outcome}</p>
@@ -109,7 +110,7 @@ export function CourseLanding({
               ) : null}
               <h2>What you will do</h2>
               <p className="ex-product-note">
-                Each lesson teaches one part of the method, works through a realistic example, and ends with a check on a case you have not seen. The course closes with an assessment and then the piece of work you sign.
+                Each lesson teaches one part of the method, works through a realistic example, and ends with a check on a case you have not seen. The course closes with an assessment and then the piece of work you sign, which earns your Experrt certificate.
               </p>
               <ul className="ex-product-facts">
                 <li>
@@ -123,8 +124,8 @@ export function CourseLanding({
                   </li>
                 ) : null}
                 <li>
-                  <b>Signed</b>
-                  <span>{artefactName}, with a record anyone can verify</span>
+                  <b>Certified</b>
+                  <span>an Experrt certificate for {artefactName}, verifiable online</span>
                 </li>
                 <li>
                   <b>{formatCourseHours(course.hours)}</b>
@@ -172,6 +173,13 @@ export function CourseLanding({
               </p>
               {course.playable ? (
                 <>
+                  <a className="ex-buy-cert" href="#certificate-heading">
+                    <Award size={22} aria-hidden="true" />
+                    <span>
+                      <b>Certificate included</b>
+                      <span>Signed, verifiable online and ready for LinkedIn</span>
+                    </span>
+                  </a>
                   <BuyCourseButton slug={course.slug} label={`Buy this course for £${course.priceGbp}`} />
                   <TeamBuy slug={course.slug} priceGbp={course.priceGbp} />
                 </>
@@ -194,6 +202,49 @@ export function CourseLanding({
                 ))}
               </ul>
             </aside>
+          </div>
+        </section>
+
+        <section className="ex-land-cert" aria-labelledby="certificate-heading">
+          <div className="ex-wide">
+            <div className="ex-land-cert-head">
+              <div>
+                <p className="ex-eyebrow">
+                  <span />
+                  CERTIFICATE INCLUDED
+                </p>
+                <h2 id="certificate-heading">Finish certified, with proof anyone can check.</h2>
+                <p className="ex-lede">
+                  When you pass every lesson and the assessment, you sign {artefactName} and Experrt issues your certificate on the spot. It carries your name, the course, the date, your signature and ours, and a reference that is yours alone.
+                </p>
+              </div>
+              <ul className="ex-land-cert-list">
+                <li>
+                  <Check size={18} aria-hidden="true" />
+                  <span>Signed by you and countersigned by Experrt</span>
+                </li>
+                <li>
+                  <Check size={18} aria-hidden="true" />
+                  <span>A unique reference and QR code that open your public record</span>
+                </li>
+                <li>
+                  <Check size={18} aria-hidden="true" />
+                  <span>A PDF to print, save or send to your manager</span>
+                </li>
+                <li>
+                  <Check size={18} aria-hidden="true" />
+                  <span>Added to LinkedIn in one click, under Licences &amp; certifications</span>
+                </li>
+                <li>
+                  <Check size={18} aria-hidden="true" />
+                  <span>Yours to keep after your 12 months of access end</span>
+                </li>
+              </ul>
+            </div>
+            <CertificatePreview title={course.title} />
+            <p className="ex-land-cert-note">
+              An Experrt certificate confirms that you completed the course and signed your work. It is not an accredited qualification and does not certify compliance with any regulation.
+            </p>
           </div>
         </section>
 
@@ -304,12 +355,12 @@ export function CourseLanding({
             {course.playable ? (
               <>
                 <h2>
-                  Start today, and finish with
+                  Start today. Finish certified,
                   <br />
-                  <span>{artefactName} your organisation can use.</span>
+                  <span>with {artefactName} your organisation can use.</span>
                 </h2>
                 <p>
-                  Checkout takes an email address and a card, and access begins as soon as payment is confirmed and lasts 12 months. All sales are final. When you finish, you sign a record that names you and {artefactName}, which anyone you choose can verify online. The record confirms what you completed and does not claim compliance with any regulation.
+                  Checkout takes an email address and a card, and access begins as soon as payment is confirmed and lasts 12 months. All sales are final. When you finish, you sign {artefactName} and receive your Experrt certificate, which anyone you choose can verify online. The certificate confirms what you completed and does not claim compliance with any regulation.
                 </p>
                 <BuyCourseButton
                   slug={course.slug}

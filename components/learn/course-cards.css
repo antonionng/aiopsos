@@ -156,3 +156,29 @@
     transform: none;
   }
 }
+.ss-cards-cert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 4px 9px 4px 7px;
+  background: #f1ebff;
+  border: 1px solid #d9ccff;
+  border-radius: 999px;
+  color: #3b1fa6;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.ss-cards-cert::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.2l2.2 2.2 4.8-4.8' fill='none' stroke='%23201c29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat,
+    #e4f477;
+}
+.ex-learn .ss-cards .ss-cards-cert {
+  color: #3b1fa6;
+}

@@ -154,15 +154,17 @@ export function emailSamples(): EmailSample[] {
       id: "completed",
       audience: "Customer",
       trigger: "The learner signs their final work.",
-      subject: `Well done. ${course.title} is complete`,
+      subject: `You're certified: ${course.title}`,
       element: (
         <SelfServeCompletedEmail
           name={buyer.name}
           courseTitle={course.title}
           artefactTitle={artefact}
           certificateRef={ref}
+          signedAt={now}
           verifyUrl={verifyUrl(ref)}
           certificateUrl={`${base}/learn/${course.slug}/certificate`}
+          pdfUrl={`${base}/api/learn/certificate/${ref}`}
           linkedInUrl={linkedInAddUrl(course.title, ref, now)}
           picks={picks}
           base={base}

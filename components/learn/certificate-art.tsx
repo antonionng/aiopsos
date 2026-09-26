@@ -109,7 +109,7 @@ function MotionSignature({
 
 function Seal() {
   const pathId = useId().replace(/:/g, "");
-  const ring = "EXPERRT · SIGNED RECORD · VERIFIABLE ONLINE · ";
+  const ring = "EXPERRT CERTIFIED · VERIFIABLE ONLINE · ";
   return (
     <div className="xc-seal" aria-hidden="true">
       <svg viewBox="0 0 200 200">
@@ -139,6 +139,7 @@ export function CertificateArt({
   reference,
   recordLine,
   celebrate = false,
+  sample = false,
 }: {
   title: string;
   name: string;
@@ -146,6 +147,7 @@ export function CertificateArt({
   reference: string;
   recordLine?: string | null;
   celebrate?: boolean;
+  sample?: boolean;
 }) {
   const [run, setRun] = useState(0);
   const date = signedAt
@@ -157,8 +159,13 @@ export function CertificateArt({
     : "";
 
   return (
-    <section className={`xc ${script.variable}`}>
+    <section className={`xc ${script.variable}${sample ? " is-sample" : ""}`}>
       <div className="xc-card" key={run}>
+        {sample ? (
+          <span className="xc-sample" aria-label="Sample certificate">
+            Sample
+          </span>
+        ) : null}
         <div className="xc-guilloche" aria-hidden="true" />
         <div className="xc-sheen" aria-hidden="true" />
         <div className="xc-inner">
@@ -217,8 +224,54 @@ export function CertificateArt({
         </div>
       ) : null}
       <button type="button" className="xc-replay" onClick={() => setRun((n) => n + 1)}>
-        Replay the signing
+        {sample ? "Watch it sign again" : "Replay the signing"}
       </button>
     </section>
+  );
+}
+
+/**
+ * The sample certificate on course pages. It mounts when it scrolls into
+ * view, because the signing animation runs once on mount and would otherwise
+ * finish before anyone reaches it.
+ */
+export function CertificatePreview({ title }: { title: string }) {
+  const holder = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+
+  useEffect(() => {
+    const node = holder.current;
+    if (!node) return;
+    if (typeof IntersectionObserver === "undefined") {
+      requestAnimationFrame(() => setSeen(true));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setSeen(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={holder} className="xc-preview">
+      {seen ? (
+        <CertificateArt
+          title={title}
+          name="Your Name"
+          signedAt={new Date().toISOString()}
+          reference="EXP-SAMPLE"
+          sample
+        />
+      ) : (
+        <div className="xc-preview-hold" aria-hidden="true" />
+      )}
+    </div>
   );
 }

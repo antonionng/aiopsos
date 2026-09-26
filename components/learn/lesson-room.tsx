@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, List } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, List } from "lucide-react";
 import { Emphasis, LearnBar } from "@/components/learn/learn-bar";
 import {
   courseArtefact,
@@ -111,6 +111,8 @@ export function LessonRoom({
   const savedAnswer = lesson ? progress.lessons[lesson.id]?.answer : undefined;
   const answer = draft ?? savedAnswer ?? null;
   const done = checksPassed(lessons, progress);
+  const passedCount = lessons.filter((item) => progress.lessons[item.id]?.passed).length;
+  const toGo = lessons.length - passedCount;
 
   function openLesson(next: number) {
     if (!canOpenLesson(lessons, progress, next)) return;
@@ -282,6 +284,21 @@ export function LessonRoom({
             <p className="sr-only">
               Lesson {index + 1} of {lessons.length}
             </p>
+            <p className={progress.ref ? "ex-cert-goal is-earned" : "ex-cert-goal"}>
+              <Award size={16} aria-hidden="true" />
+              {progress.ref ? (
+                <span>
+                  You are Experrt certified.{" "}
+                  <Link href={`/learn/${course.slug}/certificate`}>Open your certificate</Link>
+                </span>
+              ) : done ? (
+                <span>Every check passed. Sign your work below to receive your certificate.</span>
+              ) : (
+                <span>
+                  {passedCount} of {lessons.length} passed. {toGo === 1 ? "One more check" : `${toGo} more checks`} to your certificate.
+                </span>
+              )}
+            </p>
             <p className="ex-decision">{lesson.place}</p>
             <div className="ex-read">
               {lesson.sections.map((section) => (
@@ -347,9 +364,9 @@ export function LessonRoom({
             </nav>
             {done ? (
               <section className="ex-sign" aria-labelledby="sign-heading">
-                <h2 id="sign-heading">Sign the record</h2>
+                <h2 id="sign-heading">Sign your work and get certified</h2>
                 <p className="ex-lede">
-                  When you sign, the record names you and {artefactPhrase}. A second person can open the public reference. The record does not say that you are compliant with any regulation.
+                  When you sign, Experrt issues your certificate straight away. It names you and {artefactPhrase}, carries a reference anyone can check online, and can be downloaded or added to LinkedIn. It does not say that you are compliant with any regulation.
                 </p>
                 <label htmlFor="signer">YOUR NAME</label>
                 <input
@@ -365,12 +382,12 @@ export function LessonRoom({
                   disabled={!canSign(lessons, progress, name)}
                   onClick={sign}
                 >
-                  Sign the record
+                  Sign and get my certificate
                   <ArrowRight size={18} />
                 </button>
                 {progress.ref ? (
                   <Link className="ex-record-link" href={`/learn/${course.slug}/certificate`}>
-                    Open the record
+                    Open your certificate
                   </Link>
                 ) : null}
               </section>

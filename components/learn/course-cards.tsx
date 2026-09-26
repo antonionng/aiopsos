@@ -28,6 +28,7 @@ export function SelfServeCourseCards({ courses }: { courses: SelfServeCourse[] }
               {course.hours} hours · £{course.priceGbp}
               {course.playable ? "" : " · Opening soon"}
             </span>
+            <span className="ss-cards-cert">Certificate included</span>
           </Link>
         </li>
       ))}

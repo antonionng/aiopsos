@@ -2515,3 +2515,134 @@
 .ex-faq-group dl {
   margin-top: 18px;
 }
+
+.ex-product-buy .ex-buy-cert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #f3eeff, #fbf8ff);
+  border: 1px solid #d9ccff;
+  border-radius: 12px;
+  color: var(--ex-ink);
+  text-decoration: none;
+}
+.ex-product-buy .ex-buy-cert svg {
+  flex: none;
+  color: var(--ex-violet);
+}
+.ex-product-buy .ex-buy-cert b {
+  display: block;
+  font-size: 15px;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+.ex-product-buy .ex-buy-cert span span {
+  display: block;
+  margin-top: 2px;
+  color: var(--ex-mute);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.ex-product-buy .ex-buy-cert:hover b {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ex-land-cert {
+  padding: 88px 0 72px;
+  background:
+    radial-gradient(circle at 85% 0%, #7046eb1f, transparent 45%),
+    linear-gradient(180deg, #f6f2ff, var(--ex-paper));
+  border-top: 1px solid #e6defc;
+}
+.ex-land-cert-head {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  align-items: end;
+  margin-bottom: 40px;
+}
+.ex-land-cert h2 {
+  max-width: 18ch;
+  margin-top: 12px;
+  font-size: clamp(32px, 4.4vw, 54px);
+  letter-spacing: -1.5px;
+  line-height: 1.04;
+}
+.ex-learn .ex-land-cert .ex-lede {
+  margin-top: 18px;
+  max-width: 38rem;
+}
+.ex-land-cert-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 22px 24px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #e0d6ff;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px -24px #3b1fa640;
+}
+.ex-land-cert-list li {
+  display: flex;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.ex-land-cert-list svg {
+  flex: none;
+  margin-top: 2px;
+  padding: 2px;
+  color: var(--ex-ink);
+  background: var(--ex-citrus);
+  border-radius: 999px;
+}
+.ex-learn .ex-land-cert-note {
+  max-width: 44rem;
+  margin: 22px auto 0;
+  color: var(--ex-mute);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+@media (max-width: 860px) {
+  .ex-land-cert {
+    padding: 60px 0 52px;
+  }
+  .ex-land-cert-head {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+}
+
+.ex-learn .ex-cert-goal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 7px 12px;
+  background: #f3eeff;
+  border: 1px solid #ddd1ff;
+  border-radius: 999px;
+  color: #3b1fa6;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.ex-learn .ex-cert-goal svg {
+  flex: none;
+}
+.ex-learn .ex-cert-goal.is-earned {
+  background: var(--ex-citrus);
+  border-color: #cfe04f;
+  color: var(--ex-ink);
+}
+.ex-learn .ex-cert-goal a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
