@@ -79,6 +79,7 @@ export async function GET() {
   // usage debited at face value versus what the providers billed us.
   const [
     { data: monthPayments },
+    { data: monthSelfServe },
     { data: openInvoices },
     { data: paidInvoices },
     { data: monthDebits },
@@ -89,6 +90,11 @@ export async function GET() {
       .select("amount, purpose")
       .eq("status", "captured")
       .gte("captured_at", monthStart.toISOString()),
+    supabaseAdmin
+      .from("self_serve_purchases")
+      .select("amount")
+      .eq("status", "paid")
+      .gte("paid_at", monthStart.toISOString()),
     supabaseAdmin
       .from("billing_invoices")
       .select("total_amount, status")
@@ -144,6 +150,9 @@ export async function GET() {
     })),
     credit_pack_sales: Number((packSalesPence / 100).toFixed(2)),
     cohort_sales: Number((cohortSalesPence / 100).toFixed(2)),
+    self_serve_sales: Number(
+      ((monthSelfServe ?? []).reduce((sum, row) => sum + row.amount, 0) / 100).toFixed(2)
+    ),
     invoices_outstanding: Number((invoicesOutstandingPence / 100).toFixed(2)),
     invoices_overdue: Number((invoicesOverduePence / 100).toFixed(2)),
     invoices_paid_this_month: Number((invoicesPaidPence / 100).toFixed(2)),

@@ -23,6 +23,9 @@ export default function LegalLayout({
             <Link href="/terms" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
               Terms
             </Link>
+            <Link href="/course-terms" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
+              Course terms
+            </Link>
             <Link href="/privacy" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
               Privacy
             </Link>

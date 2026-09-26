@@ -46,7 +46,11 @@ const nextConfig: NextConfig = {
   // Page metadata imports the image route too. Include assets for both the
   // page and image functions, not just the public CDN upload.
   outputFileTracingIncludes: {
-    "/*": ["./public/experrt-logo.png", "./public/fonts/space-grotesk-bold.ttf"],
+    "/*": [
+      "./public/experrt-logo.png",
+      "./public/fonts/space-grotesk-bold.ttf",
+      "./public/fonts/mrs-saint-delafield.ttf",
+    ],
   },
   serverExternalPackages: ["@react-pdf/renderer"],
   images: {
@@ -67,6 +71,14 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // One host for search engines. API routes are left alone so webhooks
+      // registered against the apex keep receiving POSTs.
+      {
+        source: "/:path((?!api/).*)",
+        has: [{ type: "host", value: "experrt.com" }],
+        destination: "https://www.experrt.com/:path",
+        permanent: true,
+      },
       {
         source: "/blog",
         destination: "/insights",

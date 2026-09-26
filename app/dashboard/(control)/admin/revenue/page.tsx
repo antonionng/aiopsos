@@ -27,6 +27,7 @@ interface RevenueData {
   plan_breakdown: { plan: string; mrr: number; count: number }[];
   credit_pack_sales?: number;
   cohort_sales?: number;
+  self_serve_sales?: number;
   invoices_outstanding?: number;
   invoices_overdue?: number;
   invoices_paid_this_month?: number;
@@ -152,6 +153,14 @@ export default function RevenueDashboardPage() {
           </div>
           <p className="mt-2 text-2xl font-bold">
             {formatCurrency(data.cohort_sales ?? 0, data.currency)}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <DollarSign className="h-3.5 w-3.5" /> Self-paced courses (MTD)
+          </div>
+          <p className="mt-2 text-2xl font-bold">
+            {formatCurrency(data.self_serve_sales ?? 0, data.currency)}
           </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-5">

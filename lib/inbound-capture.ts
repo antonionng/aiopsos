@@ -7,7 +7,7 @@ export type InboundCapture = {
   email: string;
   organisation_name: string;
   message: string;
-  source: "contact" | "learning_check" | "guest_agent";
+  source: "contact" | "learning_check" | "guest_agent" | "dashboard";
   marketing_consent: boolean;
   assessment_data?: Record<string, unknown>;
 };

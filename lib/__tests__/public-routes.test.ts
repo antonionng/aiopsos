@@ -16,6 +16,13 @@ test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/blog/anything"), true);
 });
 
+test("self-serve learn routes stay public so a disabled flag 404s, not a login wall", () => {
+  assert.equal(isPublicPath("/learn"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work/certificate"), true);
+  assert.equal(isPublicPath("/learning-agent"), true);
+});
+
 test("use cases are public marketing pages", () => {
   assert.equal(isPublicPath("/use-cases"), true);
   assert.equal(isPublicPath("/use-cases/enterprise"), true);
@@ -30,6 +37,15 @@ test("the endpoints that create a session are reachable without one", () => {
   assert.equal(isPublicPath("/api/contact"), true);
   assert.equal(isPublicPath("/auth/callback"), true);
   assert.equal(isPublicPath("/auth/callback/"), true);
+});
+
+test("self-serve checkout and the Stripe webhook are reachable without a session", () => {
+  assert.equal(isPublicPath("/api/learn/checkout"), true);
+  assert.equal(isPublicPath("/api/learn/claim"), true);
+  assert.equal(isPublicPath("/api/learn/progress"), true);
+  assert.equal(isPublicPath("/api/learn/certificate/EX123"), true);
+  assert.equal(isPublicPath("/api/stripe/webhook"), true);
+  assert.equal(isPublicPath("/api/cron/self-serve-nudges"), true);
 });
 
 test("the Mooov webhook is reachable by Mooov's servers", () => {

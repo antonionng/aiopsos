@@ -19,6 +19,10 @@ export function isPublicPath(pathname: string): boolean {
     pathname === "/api/auth/accept-invite" ||
     // Scheduler authentication is checked by the route, without a browser session.
     pathname === "/api/cron/learning-agent-recovery" ||
+    pathname === "/api/cron/self-serve-nudges" ||
+    pathname === "/api/cron/self-serve-access" ||
+    pathname === "/llms.txt" ||
+    pathname === "/llms-full.txt" ||
     pathname === "/ai-labs" ||
     pathname === "/case-studies" ||
     pathname.startsWith("/case-studies/") ||
@@ -28,6 +32,31 @@ export function isPublicPath(pathname: string): boolean {
     pathname.startsWith("/verify/") ||
     pathname === "/courses" ||
     pathname.startsWith("/courses/") ||
+    // Self-serve is public so a disabled flag 404s inside the page, rather
+    // than the middleware sending an unknown path to /login.
+    pathname === "/learn" ||
+    pathname.startsWith("/learn/") ||
+    pathname === "/api/learn/checkout" ||
+    pathname === "/api/learn/claim" ||
+    pathname === "/api/learn/progress" ||
+    pathname === "/api/learn/account" ||
+    pathname === "/api/learn/feedback" ||
+    pathname === "/api/learn/unsubscribe" ||
+    pathname === "/api/learn/me" ||
+    pathname === "/api/learn/enquiry" ||
+    pathname === "/api/learn/profile" ||
+    pathname === "/api/learn/receipt" ||
+    pathname === "/api/learn/review" ||
+    pathname === "/api/learn/review/moderate" ||
+    pathname === "/api/learn/team" ||
+    pathname === "/api/learn/team/join" ||
+    pathname === "/api/learn/team/claim" ||
+    pathname === "/api/learn/team/invite" ||
+    pathname === "/learn/faq" ||
+    pathname === "/course-terms" ||
+    pathname.startsWith("/api/learn/certificate/") ||
+    // Stripe posts here with a signature, not a session.
+    pathname === "/api/stripe/webhook" ||
     pathname.startsWith("/assess/") ||
     pathname.startsWith("/assessment/") ||
     pathname.startsWith("/api/public/") ||
