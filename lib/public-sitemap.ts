@@ -1,3 +1,4 @@
+import { missions as wonderlabMissions } from "./wonderlab/catalog.ts";
 import { caseStudies } from "./case-studies.ts";
 import { INSIGHT_TOPIC_PAGES } from "./insights/topics.ts";
 import { COURSE_SECTOR_SLUGS } from "./constants.ts";
@@ -110,6 +111,7 @@ export function buildPublicSitemap(options: {
   const lastModified = options.lastModified ?? new Date();
   const entries = [
     ...staticMarketingEntries(options.baseUrl, lastModified),
+    ...["/wonderlab", "/wonderlab/games", "/wonderlab/kids", "/wonderlab/teens", "/wonderlab/parents", ...wonderlabMissions.map(m => `/wonderlab/missions/${m.slug}`)].map(path => ({url: `${options.baseUrl}${path}`, lastModified, changeFrequency: "monthly" as const, priority: 0.7})),
     ...["/case-studies", ...caseStudies.map(item => `/case-studies/${item.slug}`)].map(path => ({url: `${options.baseUrl}${path}`, lastModified, changeFrequency: "monthly" as const, priority: 0.8})),
     ...courseSitemapEntries(options.baseUrl, options.courseSlugs, lastModified),
     ...sectorSitemapEntries(options.baseUrl, lastModified),

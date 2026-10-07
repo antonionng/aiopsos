@@ -3,6 +3,11 @@ import assert from "node:assert/strict";
 
 import { isAuthPath, isPublicPath } from "../public-routes.ts";
 
+test("Wonderlab routes and narration are public while unrelated audio stays private", () => {
+  for (const path of ["/wonderlab", "/wonderlab/games", "/api/wonderlab/family", "/api/stripe/webhook", "/audio/wonderlab/marin-v1-example.mp3"]) assert.equal(isPublicPath(path), true);
+  for (const path of ["/audio/private.mp3", "/audio/wonderlab/private/export", "/api/audio/generate"]) assert.equal(isPublicPath(path), false);
+});
+
 test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights"), true);
   assert.equal(isPublicPath("/insights/eu-ai-act-article-4-literacy-for-ld"), true);

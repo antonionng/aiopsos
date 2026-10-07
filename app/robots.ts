@@ -14,6 +14,8 @@ export default function robots(): MetadataRoute.Robots {
         // particular name a person; the holder shares the link, a crawler
         // should not surface it.
         disallow: [
+          "/wonderlab/family",
+          "/wonderlab/play",
           "/dashboard/",
           "/api/",
           "/learning-agent/chat",

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
+import { fulfilWonderlabEvent } from "@/lib/wonderlab/payments";
 
 /**
  * TRANSITIONAL. Payments moved to Mooov (app/api/mooov/webhook); this
@@ -27,6 +28,12 @@ export async function POST(req: Request) {
     );
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
+
+  try {
+    if (await fulfilWonderlabEvent(event)) return NextResponse.json({ received: true });
+  } catch {
+    return NextResponse.json({ error: "Payment processing failed. Please retry this event." }, { status: 503 });
   }
 
   switch (event.type) {

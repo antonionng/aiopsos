@@ -15,6 +15,11 @@ export function isAuthPath(pathname: string): boolean {
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/" ||
+    pathname === "/wonderlab" ||
+    pathname.startsWith("/wonderlab/") ||
+    pathname.startsWith("/api/wonderlab/") ||
+    /^\/audio\/wonderlab\/[a-zA-Z0-9-]+\.mp3$/.test(pathname) ||
+    pathname === "/api/stripe/webhook" ||
     pathname === "/accept-invite" ||
     pathname === "/api/auth/accept-invite" ||
     // Scheduler authentication is checked by the route, without a browser session.

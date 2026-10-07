@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { href: "#capabilities", label: "Platform" },
   { href: "/courses", label: "Academy" },
+  { href: "/wonderlab", label: "Kids & Teens" },
   { href: "/learning-agent", label: "Try the agent" },
   { href: "#enterprise", label: "For teams & providers" },
   { href: "/insights", label: "Insights" },

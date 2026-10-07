@@ -1,0 +1,679 @@
+/* Each original atlas contains six complete mission scenes, read across rows. */
+.wg-demonstration {
+  margin: 12px 0 20px;
+  border: 2px solid #c3aedc;
+  border-radius: 20px;
+  background: #fffaf0;
+  overflow: hidden;
+}
+.wg-demo-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  color: #fffaf0;
+  background: #493461;
+}
+.wg-demo-top span {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.wg-demo-animation {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  background: #e5edcf;
+}
+.wg-demonstration.route .wg-demo-animation {
+  background: url("/images/wonderlab/game-worlds.webp") 0 0 / 200% 200%;
+}
+.wg-demo-river {
+  position: absolute;
+  inset: 0 auto 0 40%;
+  width: 20%;
+  background:
+    repeating-radial-gradient(
+      ellipse at 50% 0,
+      #fff4 0 4px,
+      transparent 5px 20px
+    ),
+    #6acbd0;
+  border-inline: 5px solid #e0ce93;
+}
+.wg-demo-bridge {
+  position: absolute;
+  left: 40%;
+  width: 20%;
+  top: 45%;
+  height: 31%;
+  background: repeating-linear-gradient(0deg, #b47e4f 0 9px, #f0c798 10px 14px);
+  border-block: 4px solid #765039;
+}
+.wg-demo-squares {
+  position: absolute;
+  inset: 5% 0 25%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+}
+.wg-demo-squares span {
+  border: 1px dashed #fff9;
+}
+.wg-demo-home {
+  position: absolute;
+  width: 18%;
+  height: 42%;
+  top: 33%;
+  left: 80%;
+}
+.wg-demo-home svg {
+  width: 100%;
+  height: 100%;
+}
+.wg-demo-pip {
+  position: absolute;
+  width: 14%;
+  height: 38%;
+  left: 3%;
+  top: 39%;
+}
+.wg-demo-pip .wl-pip {
+  width: 100%;
+  height: 100%;
+}
+.wg-demo-arrows {
+  position: absolute;
+  bottom: 10px;
+  left: 4%;
+  right: 4%;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.wg-demo-arrows span {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  background: #fffaf0;
+  border: 2px solid #493461;
+  border-radius: 9px;
+  font-size: 24px;
+  box-shadow: 0 3px #493461;
+}
+.wg-demo-arrows b {
+  margin-left: auto;
+  font-size: 9px;
+  padding: 7px;
+  background: #fffcf3ee;
+  border-radius: 10px;
+}
+.wg-demonstration.step-1 .wg-demo-pip {
+  left: 23%;
+  top: 5%;
+}
+.wg-demonstration.step-2 .wg-demo-pip,
+.wg-demonstration.step-3 .wg-demo-pip {
+  left: 83%;
+  top: 39%;
+}
+.wg-demonstration.step-0.playing .wg-demo-arrows span {
+  animation: wg-demo-pop 0.7s both;
+}
+.wg-demonstration.step-1.playing .wg-demo-pip {
+  animation: wg-demo-wrong 4s ease-in-out both;
+}
+.wg-demonstration.step-2.playing .wg-demo-pip {
+  animation: wg-demo-repair 5s ease-in-out both;
+}
+.wg-demonstration.step-3.playing .wg-demo-home {
+  animation: wg-demo-glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes wg-demo-pop {
+  from {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes wg-demo-wrong {
+  0%,
+  20% {
+    left: 3%;
+    top: 39%;
+  }
+  55% {
+    left: 23%;
+    top: 39%;
+  }
+  100% {
+    left: 23%;
+    top: 5%;
+  }
+}
+@keyframes wg-demo-repair {
+  0% {
+    left: 3%;
+  }
+  25% {
+    left: 23%;
+  }
+  50% {
+    left: 43%;
+  }
+  75% {
+    left: 63%;
+  }
+  100% {
+    left: 83%;
+  }
+}
+@keyframes wg-demo-glow {
+  to {
+    filter: drop-shadow(0 0 12px #ffd858);
+  }
+}
+.wg-demo-caption {
+  padding: 17px 20px;
+  margin: 0;
+  min-height: 80px;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.wg-demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 20px 10px;
+}
+.wg-demo-controls button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 13px;
+  border: 1px solid #b6a1cf;
+  border-radius: 12px;
+  background: #f3ebff;
+  color: #38294a;
+  font-weight: 750;
+  cursor: pointer;
+}
+.wg-demo-controls button:first-child {
+  background: #684399;
+  color: white;
+}
+.wg-demonstration > .wg-micro {
+  padding: 0 20px 12px;
+}
+.wg-demonstration.creature .wg-demo-animation {
+  background: url("/images/wonderlab/game-worlds.webp") 100% 0 / 200% 200%;
+}
+.wg-demo-creature {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+.wg-demo-creature .wg-creature {
+  height: 245px;
+  width: 245px;
+}
+.wg-demo-feature {
+  position: absolute;
+  top: 25%;
+  background: #fffaf0;
+  padding: 12px;
+  border: 2px solid #8b6da5;
+  border-radius: 13px;
+  font-size: 13px;
+}
+.wg-demo-feature.one {
+  left: 5%;
+}
+.wg-demo-feature.two {
+  right: 5%;
+  top: 60%;
+}
+.playing .wg-demo-feature.one {
+  animation: wg-fit-left 2s ease-out both;
+}
+.playing .wg-demo-feature.two {
+  animation: wg-fit-right 2s ease-out both;
+}
+@keyframes wg-fit-left {
+  from {
+    transform: translateX(-120px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes wg-fit-right {
+  from {
+    transform: translateX(120px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.wg-demonstration.prompt .wg-demo-animation,
+.wg-demonstration.evidence .wg-demo-animation {
+  background: #29213c;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 15px;
+}
+.wg-demo-source {
+  padding: 15px;
+  background: #ffe8b9;
+  border-radius: 12px;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.wg-demo-source strong {
+  font-size: 14px;
+  display: block;
+}
+.wg-demo-prompt {
+  padding: 15px;
+  border: 2px solid #ab91d1;
+  border-radius: 12px;
+  color: #fffaf0;
+  font-size: 14px;
+}
+.wg-demo-prompt span {
+  display: block;
+  text-align: center;
+  font-size: 24px;
+}
+.wg-demo-draft {
+  grid-column: 1/-1;
+  padding: 15px;
+  background: #ffddd0;
+  border-radius: 12px;
+  text-align: center;
+}
+.wg-demo-draft.correct {
+  background: #c2eed9;
+}
+.playing .wg-demo-draft {
+  animation: wg-demo-output 2s ease-out both;
+}
+@keyframes wg-demo-output {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.wg-demo-poster {
+  padding: 15px;
+  border-radius: 12px;
+  background: #f7dcc0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 13px;
+}
+.wg-demo-poster strong {
+  letter-spacing: 0.12em;
+  color: #704097;
+}
+.wg-demo-poster .fixed {
+  color: #21664d;
+  background: #c5edcf;
+}
+.wg-demo-poster .removed {
+  text-decoration: line-through;
+  opacity: 0.35;
+}
+.playing .wg-demo-poster .fixed,
+.playing .wg-demo-poster .removed {
+  animation: wg-demo-pop 1s ease both;
+}
+@media (max-width: 650px) {
+  .wg-demo-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .wg-demo-animation {
+    height: 205px;
+  }
+  .wg-demo-arrows {
+    gap: 4px;
+  }
+  .wg-demo-arrows span {
+    width: 27px;
+    height: 30px;
+  }
+  .wg-demo-arrows b {
+    max-width: 95px;
+    font-size: 8px;
+  }
+  .wg-demo-feature {
+    font-size: 10px;
+    padding: 7px;
+  }
+  .wg-demo-creature .wg-creature {
+    height: 195px;
+    width: 195px;
+  }
+  .wg-demonstration.prompt .wg-demo-animation,
+  .wg-demonstration.evidence .wg-demo-animation {
+    padding: 10px;
+    gap: 8px;
+    height: auto;
+    min-height: 240px;
+  }
+  .wg-demo-source,
+  .wg-demo-prompt,
+  .wg-demo-poster {
+    padding: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wg-demonstration * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.wg-learning-guide {
+  margin: 22px 0;
+  padding: 22px 25px;
+  background: #f0e9fb;
+  border: 1px solid #c8b6e4;
+  border-radius: 22px;
+}
+.wg-guide-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.wg-guide-heading h2 {
+  font-size: clamp(18px, 2vw, 25px);
+  margin: 6px 0;
+}
+.wg-learning-guide > p {
+  max-width: 850px;
+  line-height: 1.65;
+  font-size: 15px;
+  margin: 10px 0;
+}
+.wg-guide-toggle {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  font-weight: 800;
+  color: #503185;
+  cursor: pointer;
+}
+.wg-picture-instructions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  list-style: none;
+  padding: 0;
+  gap: 14px;
+  margin: 12px 0 18px;
+}
+.wg-picture-instructions li {
+  padding: 15px;
+  border: 1px solid #d8cce6;
+  background: #fffaf0;
+  border-radius: 16px;
+}
+.wg-picture-instructions li > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #644198;
+}
+.wg-picture-instructions b {
+  font-size: 12px;
+  border-radius: 50%;
+  background: #e8dbfa;
+  padding: 5px 9px;
+}
+.wg-picture-instructions p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 10px 0 0;
+}
+.wg-ai-connection {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.wg-ai-connection strong {
+  display: block;
+  margin-bottom: 4px;
+}
+@media (max-width: 650px) {
+  .wg-learning-guide {
+    padding: 17px;
+  }
+  .wg-guide-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .wg-picture-instructions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .wg-picture-instructions li {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 12px;
+  }
+  .wg-picture-instructions li > span {
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .wg-picture-instructions p {
+    margin: 0;
+  }
+}
+.wl-mission-illustration {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  background-size: 200% 300%;
+  background-repeat: no-repeat;
+  background-color: #d9e5cf;
+}
+.wl-mission-art {
+  height: auto;
+  aspect-ratio: 3 / 2;
+}
+.wl-mission-art .wl-mission-illustration {
+  height: 100%;
+}
+.wl-mission-number {
+  z-index: 1;
+  padding: 8px 11px;
+  background: #fffcf2f2;
+  border: 1px solid #29213c25;
+  border-radius: 30px;
+  color: #29213c;
+  box-shadow: 0 2px 8px #29213c12;
+}
+.wl-detail-art {
+  border-radius: 25px;
+  overflow: hidden;
+}
+.wg-mission-panorama {
+  height: 200px;
+  aspect-ratio: auto;
+  border-radius: 22px;
+  margin: 20px 0;
+}
+.wg-game-cards > a {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #29213c;
+}
+.wg-game-cards .wg-card-illustration {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: auto;
+  min-width: 100%;
+  height: 100%;
+  aspect-ratio: 3 / 2;
+  transform: translateX(-50%);
+  z-index: -2;
+}
+.wg-game-cards > a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, #211b32 0%, #211b32dd 28%, #211b3200 85%);
+}
+.wg-island {
+  background-image: url("/images/wonderlab/game-worlds.webp");
+  background-size: 200% 200%;
+  background-position: 0 0;
+  border-color: #6d9570;
+  box-shadow:
+    0 9px 0 #426b50,
+    0 20px 28px #344e3425;
+}
+.wg-tile {
+  border: 1px solid #f7ffd775;
+  box-shadow: inset 0 0 15px #254a2220;
+}
+.wg-tile.grass {
+  background: #d5edaa38;
+}
+.wg-tile.grass:nth-child(odd) {
+  background: #efffc31f;
+}
+.wg-tile.water {
+  background:
+    repeating-radial-gradient(
+      ellipse at 50% 0,
+      #70d3d680 0 7px,
+      transparent 8px 23px
+    ),
+    linear-gradient(90deg, #379fae, #74dcdf 25%, #a7eeee 55%, #37a6bc);
+  border-left: 5px solid #e6d8a8;
+  border-right: 5px solid #e6d8a8;
+  color: #fffaf0;
+  text-shadow: 0 2px #158899;
+}
+.wg-tile.bridge {
+  box-shadow:
+    inset 0 -6px #58372755,
+    0 4px 8px #25493740;
+  z-index: 1;
+}
+.wg-treehouse {
+  width: 96%;
+  max-height: 100%;
+  filter: drop-shadow(0 3px 1px #263e3030);
+}
+.wg-home {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.wg-home small {
+  position: absolute;
+  bottom: 0;
+  background: #fff9eb;
+  border: 1px solid #765f42;
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+.wg-golden-key {
+  width: 75%;
+  height: 90%;
+  filter: drop-shadow(0 2px 3px #fff5ad);
+}
+.wg-moving-pip {
+  filter: drop-shadow(0 4px 0 #29213c30) drop-shadow(0 0 5px #fffbdc);
+}
+.wg-habitat.rainforest,
+.wg-habitat.moon,
+.wg-habitat.desert {
+  background-image: url("/images/wonderlab/game-worlds.webp");
+  background-size: 200% 200%;
+  background-position: 100% 0;
+  min-height: 380px;
+}
+.wg-habitat.moon {
+  background-position: 0 100%;
+}
+.wg-habitat.desert {
+  background-position: 100% 100%;
+}
+.wg-habitat .wg-cloud,
+.wg-habitat .wg-sun {
+  display: none;
+}
+.wg-habitat-label,
+.wg-habitat.moon .wg-habitat-label {
+  background: #fff9eeef;
+  color: #29213c;
+  padding: 7px 10px;
+  border-radius: 20px;
+}
+.wg-habitat .wg-creature {
+  filter: drop-shadow(0 8px 4px #18203140);
+}
+.wg-sort-world {
+  background:
+    linear-gradient(#fffaf0dd, #fffaf0e8),
+    url("/images/wonderlab/explorers-missions.webp") top left / 200% 300%;
+  border-radius: 20px;
+}
+.wg-scene {
+  background-image:
+    linear-gradient(#fff9ee45, #fff9ee45),
+    url("/images/wonderlab/game-worlds.webp");
+  background-size: 200% 200%;
+  background-position: 100% 0;
+}
+.wg-prompt-shop {
+  background:
+    linear-gradient(#f8f3ffea, #f8f3fff5),
+    url("/images/wonderlab/creators-missions.webp") top right / 200% 300%;
+  padding: 18px;
+  border-radius: 20px;
+}
+@media (max-width: 650px) {
+  .wl-mission-art {
+    height: auto;
+  }
+  .wg-mission-panorama {
+    height: 150px;
+  }
+  .wg-habitat.rainforest,
+  .wg-habitat.moon,
+  .wg-habitat.desert {
+    min-height: 300px;
+  }
+  .wg-prompt-shop {
+    padding: 10px;
+  }
+}
