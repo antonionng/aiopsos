@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LearnMarket } from "@/components/learn/learn-shell";
 import { LanderCta, LanderCourseList, LanderParagraph, LanderShell } from "@/components/learn/lander";
+import { StructuredData } from "@/components/structured-data";
+import { getSelfServeCourseMeta } from "@/lib/self-serve/catalog-meta";
 import { ARTICLE4_PAGE } from "@/lib/self-serve/landers";
+import { LITERACY_COMPARE } from "@/lib/self-serve/role-links";
+import { itemListLd } from "@/lib/self-serve/seo";
 import { withSiteShareImages } from "@/lib/social-image";
 
 const page = ARTICLE4_PAGE;
@@ -15,9 +19,21 @@ export const metadata: Metadata = withSiteShareImages({
   twitter: { title: page.seoTitle, description: page.meta },
 });
 
+function article4CourseList() {
+  return ARTICLE4_PAGE.sections.flatMap((section) =>
+    "courses" in section && section.courses
+      ? section.courses.map(([slug]) => {
+          const course = getSelfServeCourseMeta(slug);
+          return { name: course?.title ?? slug, url: `/learn/${slug}` };
+        })
+      : [],
+  );
+}
+
 export default function Article4TrainingPage() {
   return (
     <LearnMarket>
+      <StructuredData data={itemListLd(article4CourseList())} />
       <LanderShell
         crumbs={[
           { name: "Home", path: "/" },
@@ -39,6 +55,9 @@ export default function Article4TrainingPage() {
             ) : null}
           </section>
         ))}
+        <p className="ex-land-faq-more">
+          <Link href={LITERACY_COMPARE.path}>{LITERACY_COMPARE.label}</Link>
+        </p>
         <LanderCta
           href={page.cta.primary[1]}
           label={page.cta.primary[0]}

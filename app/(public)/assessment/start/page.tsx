@@ -363,6 +363,7 @@ export default function Assessment() {
           <Link href="/" aria-label="Experrt home">
             <Wordmark size="md" className="!invert" />
           </Link>
+          <Link href="/learn">Online courses</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/dashboard/learning">Open my learning workspace →</Link>
         </footer>

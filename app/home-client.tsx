@@ -733,6 +733,7 @@ export default function Home() {
           <div>
             <strong>Expertise</strong>
             <Link href="/courses">Academy</Link>
+            <Link href="/learn">Online courses</Link>
             <Link href="/ai-labs">AI Labs · Consulting</Link>
             <Link href="/use-cases">Use cases</Link>
           </div>

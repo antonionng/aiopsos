@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LearnMarket } from "@/components/learn/learn-shell";
 import { LanderCta, LanderCourseList, LanderParagraph, LanderShell } from "@/components/learn/lander";
-import { CHECKED_DATE, COMPARISON_PAGES, comparisonPage } from "@/lib/self-serve/landers";
+import { CHECKED_DATE, COMPARISON_PAGES, EXPERRT_VAT_NOTE, comparisonPage } from "@/lib/self-serve/landers";
 import { withSiteShareImages } from "@/lib/social-image";
 
 export function generateStaticParams() {
@@ -63,15 +63,23 @@ export default async function ComparisonPage({
             <tbody>
               {page.rows.map((row) => (
                 <tr key={`${row[1]}-${row[0]}`}>
-                  {row.map((cell, index) => (
-                    <td key={`${row[0]}-${index}`}>
-                      {index === row.length - 1 ? (
-                        <Link href={cell}>{cell}</Link>
-                      ) : (
-                        cell
-                      )}
-                    </td>
-                  ))}
+                  {row.map((cell, index) => {
+                    const isExperrtPrice = row[1] === "Experrt" && index === 2;
+                    return (
+                      <td key={`${row[0]}-${index}`}>
+                        {index === row.length - 1 ? (
+                          <Link href={cell}>{cell}</Link>
+                        ) : isExperrtPrice ? (
+                          <>
+                            {cell}{" "}
+                            <span className="ex-hint">{EXPERRT_VAT_NOTE}</span>
+                          </>
+                        ) : (
+                          cell
+                        )}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>
@@ -84,7 +92,7 @@ export default async function ComparisonPage({
               ? section.body.map((paragraph) => <LanderParagraph key={paragraph} text={paragraph} />)
               : null}
             {"courses" in section && section.courses ? (
-              <LanderCourseList courses={section.courses} />
+              <LanderCourseList courses={section.courses} priceNote={EXPERRT_VAT_NOTE} />
             ) : null}
           </section>
         ))}

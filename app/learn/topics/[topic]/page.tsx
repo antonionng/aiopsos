@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SelfServeCourseCards } from "@/components/learn/course-cards";
+import { CoursesByRole } from "@/components/learn/role-links";
 import { LearnMarket } from "@/components/learn/learn-shell";
 import { StructuredData } from "@/components/structured-data";
 import { trackLabel } from "@/lib/self-serve/catalog-meta";
@@ -103,6 +104,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
           ))}
         </nav>
         <SelfServeCourseCards courses={courses} />
+        <CoursesByRole showHrCompare={hub.slug === "hr-courses"} />
         <section className="ex-land-faq ex-topic-faq" aria-labelledby="topic-faq">
           <h2 id="topic-faq">Questions about these courses</h2>
           <dl>

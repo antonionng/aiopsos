@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LearnMarket } from "@/components/learn/learn-shell";
 import { LanderCta, LanderCourseList, LanderShell } from "@/components/learn/lander";
+import { OtherRoles } from "@/components/learn/role-links";
 import { ROLE_PAGES, rolePage } from "@/lib/self-serve/landers";
+import { HR_COMPARE } from "@/lib/self-serve/role-links";
 import { withSiteShareImages } from "@/lib/social-image";
 
 export function generateStaticParams() {
@@ -58,7 +61,13 @@ export default async function RoleLanderPage({
           {page.sharedParagraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
+          {page.slug === "hr-teams" ? (
+            <p className="ex-land-faq-more">
+              <Link href={HR_COMPARE.path}>{HR_COMPARE.label}</Link>
+            </p>
+          ) : null}
         </section>
+        <OtherRoles currentSlug={page.slug} />
         <LanderCta href={page.cta[1]} label={page.cta[0]} note="Buying for your team? 2 to 50 places" />
       </LanderShell>
     </LearnMarket>
