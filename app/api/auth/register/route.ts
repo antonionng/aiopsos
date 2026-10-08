@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { sendConfirmWelcomeEmail } from "@/lib/email";
+import { sendConfirmWelcomeEmail, sendSignupAlert } from "@/lib/email";
 import { assessSubmission, HONEYPOT_FIELD, FORM_TIMESTAMP_FIELD } from "@/lib/spam-defence";
 
 export async function POST(req: NextRequest) {
@@ -133,6 +133,12 @@ export async function POST(req: NextRequest) {
         { error: "We could not send your confirmation email. Please try again." },
         { status: 500 }
       );
+    }
+
+    try {
+      await sendSignupAlert({ name, email, organisationName: orgName || null });
+    } catch (alertError) {
+      console.error("Signup alert failed:", alertError);
     }
 
     return NextResponse.json({ success: true, needs_confirmation: true });

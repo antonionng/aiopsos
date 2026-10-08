@@ -81,7 +81,7 @@ export default function BillingPage() {
       .then(setBilling)
       .catch(() => setBilling(null));
 
-    // Back from Mooov hosted checkout. The wallet is credited by the
+    // Back from Stripe Checkout. The wallet is credited by the
     // webhook, which may land a beat after the redirect - hence "shortly".
     if (new URLSearchParams(window.location.search).get("topup") === "success") {
       toast.success("Payment received - your credits will appear shortly.");

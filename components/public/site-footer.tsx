@@ -39,6 +39,8 @@ const COLUMNS = [
     heading: "Legal",
     links: [
       { href: "/terms", label: "Terms" },
+      { href: "/course-terms", label: "Course terms" },
+      { href: "/learn/faq", label: "Course FAQ" },
       { href: "/privacy", label: "Privacy" },
       { href: "/cookies", label: "Cookies" },
     ],

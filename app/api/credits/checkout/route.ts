@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/supabase/admin";
-import { createPaymentIntent, newMooovPaymentId } from "@/lib/mooov";
+import { billingStripeCheckout } from "@/lib/stripe-billing";
 import { getWorkspaceActor as getActor } from "@/lib/cohorts";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +8,8 @@ export const dynamic = "force-dynamic";
 /**
  * Buy a credit pack for the organisation's wallet.
  *
- * Card orgs get a Mooov hosted-checkout redirect; the wallet is credited
- * by the webhook when the payment captures, never here. Invoice orgs get
+ * Card orgs get a Stripe Checkout redirect; the wallet is credited
+ * by the verified webhook after payment, never here. Invoice orgs get
  * an emailed invoice instead, and the wallet is credited when a super
  * admin marks it paid.
  *
@@ -39,14 +38,19 @@ export async function POST(req: NextRequest) {
     .select("id, billing_method, owner_id")
     .eq("id", actor.orgId)
     .single();
-  if (!org) return NextResponse.json({ error: "Organisation not found" }, { status: 404 });
+  if (!org)
+    return NextResponse.json(
+      { error: "Organisation not found" },
+      { status: 404 },
+    );
 
   const isOwner = org.owner_id === actor.userId;
-  const canBuy = isOwner || ["admin", "manager", "super_admin"].includes(actor.role);
+  const canBuy =
+    isOwner || ["admin", "manager", "super_admin"].includes(actor.role);
   if (!canBuy) {
     return NextResponse.json(
       { error: "Only organisation admins or the owner can buy credits" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -56,11 +60,15 @@ export async function POST(req: NextRequest) {
     .eq("id", packId)
     .maybeSingle();
   if (!pack || !pack.active) {
-    return NextResponse.json({ error: "Credit pack not available" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Credit pack not available" },
+      { status: 404 },
+    );
   }
 
   if (org.billing_method === "invoice") {
-    const { createInvoiceForPack, sendInvoice } = await import("@/lib/invoices");
+    const { createInvoiceForPack, sendInvoice } =
+      await import("@/lib/invoices");
     const invoice = await createInvoiceForPack(org.id, pack.id, actor.userId);
     const payload = await sendInvoice(invoice.id);
     return NextResponse.json({
@@ -69,35 +77,29 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const paymentId = newMooovPaymentId();
-
-  const { error: insertError } = await supabaseAdmin.from("mooov_payments").insert({
-    payment_id: paymentId,
-    org_id: org.id,
-    initiated_by: actor.userId,
-    purpose: "credit_pack",
-    pack_id: pack.id,
-    amount: pack.price_amount,
-    currency: pack.currency,
-  });
-  if (insertError) {
-    return NextResponse.json({ error: "Could not start payment" }, { status: 500 });
+  try {
+    const url = await billingStripeCheckout({
+      userId: actor.userId,
+      orgId: org.id,
+      purpose: "credit_pack",
+      itemId: pack.id,
+      title: pack.name + " AI credits",
+      successPath: "/dashboard/billing?topup=success",
+      cancelPath: "/dashboard/billing",
+    });
+    return NextResponse.json(
+      { url },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not open Stripe checkout.",
+      },
+      { status: 503 },
+    );
   }
-
-  const intent = await createPaymentIntent({
-    paymentId,
-    amount: pack.price_amount,
-    currency: pack.currency,
-    successUrl: `${baseUrl}/dashboard/billing?topup=success`,
-  });
-
-  if (intent.hosted_url) {
-    await supabaseAdmin
-      .from("mooov_payments")
-      .update({ hosted_url: intent.hosted_url })
-      .eq("payment_id", paymentId);
-  }
-
-  return NextResponse.json({ url: intent.hosted_url });
 }

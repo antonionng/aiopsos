@@ -29,9 +29,15 @@ function getConfig(): MooovConfig {
   const keyId = process.env.MOOOV_API_KEY_ID;
   const secret = process.env.MOOOV_API_SECRET;
   if (!keyId || !secret) {
-    throw new Error("Mooov is not configured. Set MOOOV_API_KEY_ID and MOOOV_API_SECRET.");
+    throw new Error(
+      "Mooov is not configured. Set MOOOV_API_KEY_ID and MOOOV_API_SECRET.",
+    );
   }
-  return { keyId, secret, baseUrl: process.env.MOOOV_BASE_URL ?? DEFAULT_BASE_URL };
+  return {
+    keyId,
+    secret,
+    baseUrl: process.env.MOOOV_BASE_URL ?? DEFAULT_BASE_URL,
+  };
 }
 
 export function signMooovRequest(
@@ -39,7 +45,7 @@ export function signMooovRequest(
   method: string,
   path: string,
   timestamp: string,
-  rawBody: string
+  rawBody: string,
 ): string {
   const bodyHash = createHash("sha256").update(rawBody, "utf8").digest("hex");
   const payload = `${method.toUpperCase()}\n${path}\n${timestamp}\n${bodyHash}`;
@@ -50,7 +56,7 @@ async function mooovRequest<T>(
   method: string,
   path: string,
   body: unknown,
-  idempotencyKey: string
+  idempotencyKey: string,
 ): Promise<T> {
   const config = getConfig();
   const rawBody = body === undefined ? "" : JSON.stringify(body);
@@ -60,9 +66,15 @@ async function mooovRequest<T>(
     method,
     headers: {
       "Content-Type": "application/json",
-      "Mooov-Key-Id": config.keyId,
-      "Mooov-Timestamp": timestamp,
-      "Mooov-Signature": signMooovRequest(config.secret, method, path, timestamp, rawBody),
+      "X-Mooov-Key-Id": config.keyId,
+      "X-Mooov-Timestamp": timestamp,
+      "X-Mooov-Signature": signMooovRequest(
+        config.secret,
+        method,
+        path,
+        timestamp,
+        rawBody,
+      ),
       "Idempotency-Key": idempotencyKey,
     },
     body: rawBody || undefined,
@@ -75,7 +87,9 @@ async function mooovRequest<T>(
     } catch {
       // response body unreadable; status alone will have to do
     }
-    throw new Error(`Mooov ${method} ${path} failed (${res.status}): ${detail.slice(0, 500)}`);
+    throw new Error(
+      `Mooov ${method} ${path} failed (${res.status}): ${detail.slice(0, 500)}`,
+    );
   }
 
   return (await res.json()) as T;
@@ -83,17 +97,33 @@ async function mooovRequest<T>(
 
 export type MooovPaymentIntent = {
   payment_id: string;
-  status: string;
+  status?: string;
+  state?: string;
   hosted_url?: string;
+  provider?: { hosted_url?: string; status?: string };
 };
+
+export function paymentCheckoutUrl(intent: MooovPaymentIntent): string | null {
+  const value = intent.hosted_url ?? intent.provider?.hosted_url;
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.username || url.password) return null;
+    return url.href;
+  } catch {
+    return null;
+  }
+}
 
 export async function createPaymentIntent(params: {
   paymentId: string;
   amount: number; // minor units
   currency: string;
   successUrl: string;
+  cancelUrl?: string;
+  description?: string;
 }): Promise<MooovPaymentIntent> {
-  return mooovRequest<MooovPaymentIntent>(
+  const intent = await mooovRequest<MooovPaymentIntent>(
     "POST",
     "/v1/payment_intents",
     {
@@ -102,9 +132,12 @@ export async function createPaymentIntent(params: {
       currency: params.currency,
       flow: "redirect",
       success_url: params.successUrl,
+      ...(params.cancelUrl ? { cancel_url: params.cancelUrl } : {}),
+      ...(params.description ? { description: params.description } : {}),
     },
-    params.paymentId
+    params.paymentId,
   );
+  return { ...intent, hosted_url: paymentCheckoutUrl(intent) ?? undefined };
 }
 
 export async function refundPayment(paymentId: string, amount?: number) {
@@ -112,7 +145,7 @@ export async function refundPayment(paymentId: string, amount?: number) {
     "POST",
     `/v1/payment_intents/${paymentId}/refund`,
     amount === undefined ? {} : { amount },
-    `refund_${paymentId}`
+    `refund_${paymentId}`,
   );
 }
 
@@ -124,7 +157,7 @@ export function verifyMooovWebhook(
   rawBody: string,
   signatureHeader: string | null,
   secret: string,
-  nowSeconds: number = Math.floor(Date.now() / 1000)
+  nowSeconds: number = Math.floor(Date.now() / 1000),
 ): boolean {
   if (!signatureHeader) return false;
 
@@ -132,13 +165,14 @@ export function verifyMooovWebhook(
     signatureHeader.split(",").map((part) => {
       const idx = part.indexOf("=");
       return [part.slice(0, idx).trim(), part.slice(idx + 1).trim()] as const;
-    })
+    }),
   );
   const t = parts.get("t");
   const v1 = parts.get("v1");
   if (!t || !v1 || !/^\d+$/.test(t)) return false;
 
-  if (Math.abs(nowSeconds - Number(t)) > WEBHOOK_TOLERANCE_SECONDS) return false;
+  if (Math.abs(nowSeconds - Number(t)) > WEBHOOK_TOLERANCE_SECONDS)
+    return false;
 
   const expected = createHmac("sha256", secret)
     .update(`${t}.${rawBody}`, "utf8")

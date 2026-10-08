@@ -7,7 +7,9 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test \"lib/**/*.test.ts\""
+    "test": "node --experimental-strip-types --test \"lib/**/*.test.ts\"",
+    "courses:export": "node --experimental-strip-types scripts/export-agent-course-packs.mts",
+    "courses:check": "node --experimental-strip-types --test lib/always-on-agents/courses.test.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.30",
@@ -51,6 +53,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

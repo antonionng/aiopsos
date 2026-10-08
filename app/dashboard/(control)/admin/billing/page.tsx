@@ -341,7 +341,7 @@ export default function AdminBillingPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="card">Card (Mooov checkout)</SelectItem>
+                  <SelectItem value="card">Card (Stripe Checkout)</SelectItem>
                   <SelectItem value="invoice">Invoice (bank transfer)</SelectItem>
                 </SelectContent>
               </Select>
