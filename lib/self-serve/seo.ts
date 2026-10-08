@@ -339,6 +339,20 @@ export function selfServeCourseLd(course: SelfServeCourse, rating?: ReviewSummar
   };
 }
 
+export function itemListLd(items: { name: string; url: string }[]) {
+  const base = getPublicSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: item.url.startsWith("http") ? item.url : `${base}${item.url}`,
+    })),
+  };
+}
+
 export function courseListLd(courses: SelfServeCourse[], name: string, path: string) {
   const base = getPublicSiteUrl();
   return {

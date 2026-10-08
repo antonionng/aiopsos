@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SelfServeCourseCards } from "@/components/learn/course-cards";
+import { CoursesByRole } from "@/components/learn/role-links";
 import {
   SELF_SERVE_COURSES,
   SELF_SERVE_TRACKS,
@@ -37,6 +38,7 @@ export function CourseCatalog({ track }: { track: SelfServeTrack | null }) {
         ))}
       </nav>
       <SelfServeCourseCards courses={courses} />
+      <CoursesByRole />
       <p className="ex-catalog-foot">
         If your team would benefit from a trainer in the room, our trainer-led courses are listed on the <Link href="/courses#trainer-led">Academy</Link>.
       </p>

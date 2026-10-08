@@ -19,6 +19,12 @@ export default function ResourcesLayout({
           </p>
           <nav className="flex gap-6">
             <Link
+              href="/learn"
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Online courses
+            </Link>
+            <Link
               href="/insights"
               className="text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
