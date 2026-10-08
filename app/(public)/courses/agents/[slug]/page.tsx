@@ -68,7 +68,7 @@ export default async function AgentCoursePage({
                 Review the complete course <ArrowRight size={17} />
               </Link>
             ) : null}
-            {offer ? <AgentCoursePurchase compact slug={course.slug} termsVersion={offer.terms_version} termsUrl={offer.terms_url} /> : <a href="#course-interest">Enquire about availability <ArrowRight size={17} /></a>}
+            {offer ? <AgentCoursePurchase compact slug={course.slug} termsVersion={offer.terms_version} termsUrl={offer.terms_url} priceGbp={Math.round(offer.amount / 100)} placement="agent_course_hero" /> : <a href="#course-interest">Enquire about availability <ArrowRight size={17} /></a>}
             <a href="#agent-course-outline">Explore the course outline ↓</a>
           </div>
         </div>
@@ -151,6 +151,8 @@ export default async function AgentCoursePage({
               slug={slug}
               termsVersion={offer.terms_version}
               termsUrl={offer.terms_url}
+              priceGbp={Math.round(offer.amount / 100)}
+              placement="agent_course_page"
             />
           ) : (
             <>

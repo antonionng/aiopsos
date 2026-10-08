@@ -4,14 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useLearner } from "@/components/learn/use-learner";
+import { trackBuyClick } from "@/lib/analytics/client";
 
 export function BuyCourseButton({
   slug,
   label,
+  priceGbp,
+  placement,
   className = "ex-button ex-button-dark",
 }: {
   slug: string;
   label: string;
+  priceGbp: number;
+  placement: string;
   className?: string;
 }) {
   const [pending, setPending] = useState(false);
@@ -20,6 +25,7 @@ export function BuyCourseButton({
   const owned = learner?.signedIn === true && learner.owned.includes(slug);
 
   async function buy() {
+    trackBuyClick({ slug, price_gbp: priceGbp, placement });
     setPending(true);
     setDetail("");
     try {

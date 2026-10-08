@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { CookieConsent } from "@/components/cookie-consent";
+import { Analytics } from "@vercel/analytics/next";
 import { getPublicSiteUrl } from "@/lib/site";
 import { siteOgImageUrl, siteShareImage, SITE_TWITTER_CARD } from "@/lib/social-image";
 import "./globals.css";
@@ -97,6 +98,7 @@ export default function RootLayout({
           <TooltipProvider delayDuration={200}>
             {children}
             <Toaster richColors position="top-right" />
+            <Analytics />
             <CookieConsent />
           </TooltipProvider>
         </ThemeProvider>
