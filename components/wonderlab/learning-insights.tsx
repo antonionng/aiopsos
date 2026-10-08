@@ -118,9 +118,11 @@ export function LearningInsightsPanel({
               disabled={busy}
               onClick={() => onStartMission(insights.next!.slug)}
             >
-              {insights.started
+              {insights.next.resume
                 ? "Continue this game"
-                : "Play their first game"}
+                : insights.started
+                  ? "Play this game"
+                  : "Play their first game"}
               <span aria-hidden="true">↗</span>
             </button>
           )}
