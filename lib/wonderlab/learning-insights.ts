@@ -71,6 +71,7 @@ export function learningInsights(
       ? {
           slug: nextMission.slug,
           title: nextMission.title,
+          resume: !!nextWork,
           together: nextMission.project.offline,
           action:
             nextWork?.passed === nextMission.activities.length

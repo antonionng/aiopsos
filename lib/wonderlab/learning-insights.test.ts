@@ -42,6 +42,7 @@ test("new profiles show no invented achievements and recommend an accessible age
   assert.equal(result.recent, null);
   assert.equal(result.skills.length, 6);
   assert.equal(result.next?.slug, mission.slug);
+  assert.equal(result.next?.resume, false);
   assert.equal(
     learningInsights("child-a", "explorers", [], [order]).next,
     null,
@@ -72,6 +73,7 @@ test("insights use saved lesson versions, exclude another child and count checke
   assert.equal(result.activitiesChecked, 1);
   assert.equal(result.creations, 1);
   assert.equal(result.recent?.title, mission.title);
+  assert.equal(result.next?.resume, true);
   assert.match(result.skills[0].status, /1 of 4/);
   assert.equal(
     learningInsights(
