@@ -42,6 +42,18 @@ export async function POST(req: Request) {
     if (ce) throw ce;
     if (!child)
       throw new WonderlabError("Choose one of your child profiles.", 404);
+    const { data: grants, error: grantError } = await db
+      .from("wonderlab_orders")
+      .select("id")
+      .eq("parent_id", user.id)
+      .eq("child_id", child.id)
+      .eq("state", "granted");
+    if (grantError) throw grantError;
+    if (grants?.length)
+      throw new WonderlabError(
+        "This child already has complimentary lifetime access. No subscription is needed.",
+        409,
+      );
     const findMembership = () =>
       db
         .from("wonderlab_memberships")

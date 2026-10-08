@@ -11,6 +11,7 @@ import {
 import { getMissionForVersion } from "@/lib/wonderlab/versions";
 import { bands } from "@/lib/wonderlab/catalog";
 import { launchStatus } from "@/lib/wonderlab/flags";
+import { learningInsights } from "@/lib/wonderlab/learning-insights";
 export async function GET() {
   try {
     const user = await requireParent();
@@ -66,6 +67,17 @@ export async function GET() {
           };
         }),
         progress,
+        insights: Object.fromEntries(
+          (children ?? []).map((child) => [
+            child.id,
+            learningInsights(
+              child.id,
+              child.band,
+              progress ?? [],
+              orders ?? [],
+            ),
+          ]),
+        ),
         launch: launchStatus(),
       },
       { headers: { "Cache-Control": "no-store" } },
@@ -160,7 +172,8 @@ export async function POST(req: Request) {
           throw new WonderlabError("This profile is awaiting deletion.");
         if (
           b.aiEnabled === true &&
-          (!launchStatus().ai || !["creators", "studio"].includes(child.band))
+          ((!launchStatus().ai && !child.ai_enabled) ||
+            !["creators", "studio"].includes(child.band))
         )
           throw new WonderlabError(
             "Guided AI is not available for this profile.",

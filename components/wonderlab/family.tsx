@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { ParentRegistration } from "./register";
 import { PictureTile } from "./art";
 import { downloadWork } from "./player";
+import { isEntitled } from "@/lib/wonderlab/engine";
+import { LearningInsightsPanel, LearningWelcomeArt } from "./learning-insights";
+import type { LearningInsights } from "@/lib/wonderlab/learning-insights";
 import type {
   Band,
   Child,
@@ -14,6 +17,7 @@ import type {
 } from "@/lib/wonderlab/types";
 type Lesson = { slug: string; title: string; band: Band; outcome: string };
 type FamilyData = {
+  insights: Record<string, LearningInsights>;
   children: Child[];
   memberships: {
     id: string;
@@ -220,8 +224,9 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
       )}
       {!data?.launch.commerce && (
         <div className="wl-notice">
-          Paid enrolment is not open yet. Explore the four free activities while
-          the family pilot and launch review are completed.
+          Paid enrolment is not open yet. If your family has complimentary
+          access, open a child’s mission map below. Everyone can try the four
+          free games.
         </div>
       )}
       <div className="wl-family-grid">
@@ -264,7 +269,7 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
                     type="checkbox"
                     disabled={
                       busy ||
-                      !data.launch.ai ||
+                      (!data.launch.ai && !child.ai_enabled) ||
                       !["creators", "studio"].includes(child.band)
                     }
                     checked={child.ai_enabled}
@@ -282,6 +287,13 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
                   />
                   Allow guided AI creation in eligible teen lessons
                 </label>
+                {child.ai_enabled && !data.launch.ai && (
+                  <p className="wl-caption">
+                    Your permission is saved. Guided AI is not available yet;
+                    your child can use the prepared examples and keep playing.
+                    You can withdraw permission using the tick box above.
+                  </p>
+                )}
                 <label className="wl-check">
                   <input
                     type="checkbox"
@@ -303,6 +315,26 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
                 </label>
               </>
             )}
+            {data.insights?.[child.id] && (
+              <LearningInsightsPanel
+                nickname={child.nickname}
+                insights={data.insights[child.id]}
+                busy={busy}
+                onStartMission={
+                  child.deletion_requested_at
+                    ? undefined
+                    : (slug) =>
+                        void action(async () => {
+                          await post("session", {
+                            action: "play",
+                            childId: child.id,
+                          });
+                          router.push(`/wonderlab/play/${slug}`);
+                          router.refresh();
+                        })
+                }
+              />
+            )}
             <details style={{ marginTop: 24 }}>
               <summary>Courses & creations</summary>
               {data.orders.filter((o) => o.child_id === child.id).length ===
@@ -314,17 +346,7 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
               )}
               {data.orders
                 .filter((o) => o.child_id === child.id)
-                .sort(
-                  (a, b) =>
-                    Number(
-                      b.state === "paid" &&
-                        new Date(b.expires_at ?? 0).getTime() > Date.now(),
-                    ) -
-                    Number(
-                      a.state === "paid" &&
-                        new Date(a.expires_at ?? 0).getTime() > Date.now(),
-                    ),
-                )
+                .sort((a, b) => Number(isEntitled(b)) - Number(isEntitled(a)))
                 .filter(
                   (order, index, list) =>
                     list.findIndex(
@@ -343,11 +365,13 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
                       <div>
                         <strong>{lesson?.title ?? order.mission_slug}</strong>
                         <small>
-                          {order.state === "pending"
-                            ? "Awaiting confirmed payment"
-                            : order.state === "refunded"
-                              ? "Refunded"
-                              : `Access until ${new Date(order.expires_at!).toLocaleDateString("en-GB", { timeZone: "Europe/London" })}`}
+                          {order.state === "granted"
+                            ? "Complimentary lifetime access"
+                            : order.state === "pending"
+                              ? "Awaiting confirmed payment"
+                              : order.state === "refunded"
+                                ? "Refunded"
+                                : `Access until ${new Date(order.expires_at!).toLocaleDateString("en-GB", { timeZone: "Europe/London" })}`}
                         </small>
                         <small>
                           {progress?.completed
@@ -374,133 +398,157 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
             </details>
             {!child.deletion_requested_at && (
               <>
-                <div className="wl-membership-panel">
-                  <span className="wl-eyebrow">
-                    ONE MEMBERSHIP. EVERY ADVENTURE.
-                  </span>
-                  <h3>
-                    £20 <small>/ month for {child.nickname}</small>
-                  </h3>
-                  <p>
-                    All {lessons.length} game-based courses, across every age
-                    level. Start with {levels[child.band]} and explore at their
-                    pace.
-                  </p>
-                  {(() => {
-                    const membership = data.memberships.find(
-                      (m) => m.child_id === child.id,
-                    );
-                    const live =
-                      membership &&
-                      !["pending", "canceled", "incomplete_expired"].includes(
-                        membership.state,
-                      );
-                    return live ? (
-                      <>
-                        <p role="status">
-                          <strong>
-                            {membership.cancel_at_period_end
-                              ? "Renewal cancelled"
-                              : membership.state === "past_due" ||
-                                  membership.state === "unpaid"
-                                ? "Payment needs attention"
-                                : "Membership active"}
-                          </strong>
-                          {membership.paid_until
-                            ? ` · Access until ${new Date(membership.paid_until).toLocaleDateString("en-GB", { timeZone: "Europe/London" })}.`
-                            : " · Waiting for confirmed payment."}
-                        </p>
-                        {["past_due", "unpaid"].includes(membership.state) && (
-                          <p className="wl-caption">
-                            <Link href="/contact">Contact Experrt</Link> for
-                            help updating your payment method. Access ends if
-                            the next payment is not confirmed by the end of your
-                            paid month.
-                          </p>
-                        )}
-                        {membership.canCancel &&
-                          !membership.cancel_at_period_end &&
-                          (cancelConfirm === membership.id ? (
-                            <div>
-                              <p>
-                                Stop the next monthly payment? Access continues
-                                until the end of the paid month.
-                              </p>
-                              <div className="wl-actions">
-                                <button
-                                  className="wl-button wl-button-small"
-                                  disabled={busy}
-                                  onClick={() =>
-                                    void action(async () => {
-                                      await post("membership", {
-                                        action: "cancel",
-                                        membershipId: membership.id,
-                                      });
-                                      setCancelConfirm(null);
-                                      await load();
-                                    })
-                                  }
-                                >
-                                  Confirm cancellation
-                                </button>
-                                <button
-                                  className="wl-read"
-                                  onClick={() => setCancelConfirm(null)}
-                                >
-                                  Keep membership
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <button
-                              className="wl-read"
-                              disabled={busy}
-                              onClick={() => setCancelConfirm(membership.id)}
-                            >
-                              Cancel monthly renewal
-                            </button>
-                          ))}
-                      </>
-                    ) : (
-                      <button
-                        style={{ marginTop: 15 }}
-                        className="wl-button wl-button-small"
-                        disabled={
-                          busy ||
-                          !data.launch.commerce ||
-                          !accepted ||
-                          !immediate ||
-                          !uk
-                        }
-                        onClick={() =>
-                          void action(async () => {
-                            const result = await post("checkout", {
-                              childId: child.id,
-                              acceptedTerms: data.launch.terms,
-                              immediateAccess: immediate,
-                              ukResident: uk,
-                            });
-                            window.location.assign(result.url);
-                          })
-                        }
-                      >
-                        Join for {child.nickname} · £20/month
-                      </button>
-                    );
-                  })()}
-                  <p className="wl-caption">
-                    Renews monthly. Cancel any time in this family area; access
-                    continues until the end of the paid month. No separate
-                    lesson charges.
-                  </p>
-                  {["creators", "studio"].includes(child.band) && (
-                    <p className="wl-caption">
-                      When enabled, eligible courses include 30 successful
-                      guided AI generations per course in each paid month. Game
-                      replays are unlimited while membership is active.
+                {data.orders.some(
+                  (o) => o.child_id === child.id && o.state === "granted",
+                ) ? (
+                  <div className="wl-membership-panel">
+                    <h3>Complimentary lifetime access</h3>
+                    <p>
+                      {child.nickname} can explore all 24 courses, save
+                      creations and return to their games. There is no expiry
+                      date, payment or monthly renewal.
                     </p>
-                  )}
-                </div>
+                    {["creators", "studio"].includes(child.band) && (
+                      <p className="wl-caption">
+                        When guided AI is available and you have enabled it,
+                        each eligible course includes 30 successful AI drafts
+                        per calendar month. The allowance renews on the first
+                        day of each month at midnight UTC. Game replays remain
+                        unlimited.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="wl-membership-panel">
+                    <span className="wl-eyebrow">
+                      ONE MEMBERSHIP. EVERY ADVENTURE.
+                    </span>
+                    <h3>
+                      £20 <small>/ month for {child.nickname}</small>
+                    </h3>
+                    <p>
+                      All {lessons.length} game-based courses, across every age
+                      level. Start with {levels[child.band]} and explore at
+                      their pace.
+                    </p>
+                    {(() => {
+                      const membership = data.memberships.find(
+                        (m) => m.child_id === child.id,
+                      );
+                      const live =
+                        membership &&
+                        !["pending", "canceled", "incomplete_expired"].includes(
+                          membership.state,
+                        );
+                      return live ? (
+                        <>
+                          <p role="status">
+                            <strong>
+                              {membership.cancel_at_period_end
+                                ? "Renewal cancelled"
+                                : membership.state === "past_due" ||
+                                    membership.state === "unpaid"
+                                  ? "Payment needs attention"
+                                  : "Membership active"}
+                            </strong>
+                            {membership.paid_until
+                              ? ` · Access until ${new Date(membership.paid_until).toLocaleDateString("en-GB", { timeZone: "Europe/London" })}.`
+                              : " · Waiting for confirmed payment."}
+                          </p>
+                          {["past_due", "unpaid"].includes(
+                            membership.state,
+                          ) && (
+                            <p className="wl-caption">
+                              <Link href="/contact">Contact Experrt</Link> for
+                              help updating your payment method. Access ends if
+                              the next payment is not confirmed by the end of
+                              your paid month.
+                            </p>
+                          )}
+                          {membership.canCancel &&
+                            !membership.cancel_at_period_end &&
+                            (cancelConfirm === membership.id ? (
+                              <div>
+                                <p>
+                                  Stop the next monthly payment? Access
+                                  continues until the end of the paid month.
+                                </p>
+                                <div className="wl-actions">
+                                  <button
+                                    className="wl-button wl-button-small"
+                                    disabled={busy}
+                                    onClick={() =>
+                                      void action(async () => {
+                                        await post("membership", {
+                                          action: "cancel",
+                                          membershipId: membership.id,
+                                        });
+                                        setCancelConfirm(null);
+                                        await load();
+                                      })
+                                    }
+                                  >
+                                    Confirm cancellation
+                                  </button>
+                                  <button
+                                    className="wl-read"
+                                    onClick={() => setCancelConfirm(null)}
+                                  >
+                                    Keep membership
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                className="wl-read"
+                                disabled={busy}
+                                onClick={() => setCancelConfirm(membership.id)}
+                              >
+                                Cancel monthly renewal
+                              </button>
+                            ))}
+                        </>
+                      ) : (
+                        <button
+                          style={{ marginTop: 15 }}
+                          className="wl-button wl-button-small"
+                          disabled={
+                            busy ||
+                            !data.launch.commerce ||
+                            !accepted ||
+                            !immediate ||
+                            !uk
+                          }
+                          onClick={() =>
+                            void action(async () => {
+                              const result = await post("checkout", {
+                                childId: child.id,
+                                acceptedTerms: data.launch.terms,
+                                immediateAccess: immediate,
+                                ukResident: uk,
+                              });
+                              window.location.assign(result.url);
+                            })
+                          }
+                        >
+                          Join for {child.nickname} · £20/month
+                        </button>
+                      );
+                    })()}
+                    <p className="wl-caption">
+                      Renews monthly. Cancel any time in this family area;
+                      access continues until the end of the paid month. No
+                      separate lesson charges.
+                    </p>
+                    {["creators", "studio"].includes(child.band) && (
+                      <p className="wl-caption">
+                        When enabled, eligible courses include 30 successful
+                        guided AI generations per course in each paid month.
+                        Game replays are unlimited while membership is active.
+                      </p>
+                    )}
+                  </div>
+                )}
                 <details style={{ marginTop: 20 }}>
                   <summary>Request profile deletion</summary>
                   <p className="wl-caption">
@@ -551,6 +599,21 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
         ))}
       </div>
       <div className="wl-box">
+        {data?.children.length === 0 && (
+          <div className="wl-family-welcome">
+            <LearningWelcomeArt />
+            <div>
+              <span className="wl-eyebrow">YOUR FAMILY’S FIRST ADVENTURE</span>
+              <h2>Make room for their ideas.</h2>
+              <p>
+                Create a private profile below to give your child their own
+                place to learn. As they play games from their mission map, you
+                can explore their creations and see which AI skills they are
+                practising.
+              </p>
+            </div>
+          </div>
+        )}
         <h2>Create a profile for your child.</h2>
         <p className="wl-caption">
           Use a nickname, not a full name. Choose the child’s current age level.

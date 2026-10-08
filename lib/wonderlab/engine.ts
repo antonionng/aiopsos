@@ -37,9 +37,10 @@ export function isEntitled(
 ) {
   return (
     !!order &&
-    order.state === "paid" &&
-    !!order.expires_at &&
-    Date.parse(order.expires_at) > now
+    ((order.state === "granted" && order.expires_at === null) ||
+      (order.state === "paid" &&
+        !!order.expires_at &&
+        Date.parse(order.expires_at) > now))
   );
 }
 export function normaliseAnswers(
@@ -61,4 +62,25 @@ export function normaliseAnswers(
     result[key] = value;
   }
   return result;
+}
+
+export function generationRemaining(
+  order: {
+    state: string;
+    generations_used: number;
+    generation_period_start?: string | null;
+  },
+  now = new Date(),
+) {
+  const period = order.generation_period_start
+    ? new Date(order.generation_period_start)
+    : null;
+  if (
+    order.state === "granted" &&
+    (!period ||
+      period.getUTCFullYear() !== now.getUTCFullYear() ||
+      period.getUTCMonth() !== now.getUTCMonth())
+  )
+    return 30;
+  return Math.max(0, 30 - order.generations_used);
 }
