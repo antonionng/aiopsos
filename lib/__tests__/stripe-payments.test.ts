@@ -12,6 +12,7 @@ function moduleUnderTest(
 ) {
   const exports: Record<string, (...args: unknown[]) => Promise<unknown>> = {};
   mocks["@/lib/always-on-agents/guest-checkout"] ??= { applyGuestPayment: async () => {} };
+  mocks["@/lib/analytics/server"] ??= { trackPaidCoursePurchase: async () => {} };
   const source = readFileSync(
     new URL("../../" + file, import.meta.url),
     "utf8",
@@ -264,6 +265,48 @@ test("Stripe course payments use the enrolment transaction and reject orders bel
   }
 });
 
+
+test("paid course webhooks emit purchase after fulfilment and ignore analytics failures", async () => {
+  for (const [label, failing, agent] of [
+    ["self-serve", false, false],
+    ["analytics-down", true, false],
+    ["agent-course", false, true],
+  ] as const) {
+    const tracked: unknown[] = [];
+    const mod = moduleUnderTest(
+      "app/api/stripe/webhook/route.ts",
+      {
+        "next/server": { NextResponse: Response },
+        "@/lib/stripe": { stripe: { webhooks: { constructEvent: () => completed } } },
+        "@/lib/supabase/admin": { supabaseAdmin: {} },
+        "@/lib/stripe-fulfilment": { fulfilStripePayment: async () => agent },
+        "@/lib/self-serve/commerce": { isSelfServeCheckout: () => !agent },
+        "@/lib/self-serve/records": { fulfillSelfServeSession: async () => {} },
+        "@/lib/self-serve/team-rules": { isTeamCheckout: () => false },
+        "@/lib/self-serve/teams": { fulfillTeamSession: async () => {} },
+        "@/lib/analytics/server": {
+          trackPaidCoursePurchase: async (session: unknown, type: string) => {
+            if (failing) throw new Error("analytics unavailable");
+            tracked.push([label, session, type]);
+          },
+        },
+      },
+      { STRIPE_SECRET_KEY: "test-key", STRIPE_WEBHOOK_SECRET: "test-secret" },
+    );
+    const response = await mod.POST(
+      new Request("https://experrt.test/api/stripe/webhook", {
+        method: "POST",
+        headers: { "stripe-signature": "fixture" },
+        body: "{}",
+      }),
+    );
+    assert.equal((response as Response).status, 200);
+    if (!failing) {
+      assert.equal(tracked.length, 1, label);
+      assert.equal((tracked[0] as [string, typeof session, string])[2], "checkout.session.completed");
+    }
+  }
+});
 
 test("existing individual and team course checkouts retain their fulfilment handlers", async () => {
   for (const team of [false, true]) {

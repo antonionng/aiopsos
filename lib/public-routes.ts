@@ -15,6 +15,10 @@ export function isAuthPath(pathname: string): boolean {
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/" ||
+    // Vercel Web Analytics script and event endpoints. Without this, unknown
+    // /_vercel/* paths 307 to /login and the insights script never loads.
+    pathname === "/_vercel" ||
+    pathname.startsWith("/_vercel/") ||
     pathname === "/accept-invite" ||
     pathname === "/api/auth/accept-invite" ||
     // Scheduler authentication is checked by the route, without a browser session.

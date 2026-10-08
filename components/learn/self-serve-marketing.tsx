@@ -47,7 +47,7 @@ export function SelfServeHomePitch() {
               <b>£{price}</b>
               <span>Includes your Experrt certificate. Access begins as soon as payment is confirmed and lasts 12 months.</span>
             </p>
-            <BuyCourseButton slug={OPEN_SLUG} label={`Buy this course for £${price}`} />
+            <BuyCourseButton slug={OPEN_SLUG} label={`Buy this course for £${price}`} priceGbp={price} placement="home_card" />
           </div>
         </article>
 
@@ -145,6 +145,8 @@ export function SelfServeAcademyCatalogue({
           <BuyCourseButton
             slug={OPEN_SLUG}
             label={`Buy this course for £${getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 99}`}
+            priceGbp={getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 99}
+            placement="academy_catalogue"
             className="academy-button"
           />
         </article>

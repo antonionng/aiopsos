@@ -1,12 +1,18 @@
 "use client";
 import { useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
-export function AgentCoursePurchase({ slug, termsVersion, termsUrl, compact = false }: { slug: string; termsVersion: string; termsUrl: string; compact?: boolean }) {
+import { trackBuyClick } from "@/lib/analytics/client";
+export function AgentCoursePurchase({ slug, termsVersion, termsUrl, compact = false, priceGbp = 99, placement }: { slug: string; termsVersion: string; termsUrl: string; compact?: boolean; priceGbp?: number; placement?: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const requestKey = useRef<string | null>(null);
   async function buy() {
     if (busy) return;
+    trackBuyClick({
+      slug,
+      price_gbp: priceGbp,
+      placement: placement ?? (compact ? "agent_course_hero" : "agent_course_page"),
+    });
     setBusy(true); setError("");
     requestKey.current ??= crypto.randomUUID();
     try {

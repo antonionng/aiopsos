@@ -1,7 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import { isAuthPath, isPublicPath } from "../public-routes.ts";
+
+function middlewareMatcher(): RegExp {
+  const source = readFileSync(new URL("../../middleware.ts", import.meta.url), "utf8");
+  const match = source.match(/matcher:\s*\[\s*"((?:\\.|[^"\\])*)"/);
+  assert.ok(match, "middleware matcher string");
+  return new RegExp(`^${JSON.parse(`"${match[1]}"`)}$`);
+}
 
 test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights"), true);
@@ -62,6 +70,17 @@ test("social cards are crawlable without a session", () => {
   // Next serves the root card at /opengraph-image plus a build suffix.
   assert.equal(isPublicPath("/opengraph-image"), true);
   assert.equal(isPublicPath("/opengraph-image-abc123"), true);
+});
+
+test("Vercel Web Analytics script and events pass middleware untouched", () => {
+  assert.equal(isPublicPath("/_vercel/insights/script.js"), true);
+  assert.equal(isPublicPath("/_vercel/insights"), true);
+  assert.equal(isPublicPath("/_vercel/insights/event"), true);
+  const matcher = middlewareMatcher();
+  assert.equal(matcher.test("/_vercel/insights/script.js"), false);
+  assert.equal(matcher.test("/_vercel/insights/event"), false);
+  assert.equal(matcher.test("/dashboard"), true);
+  assert.equal(matcher.test("/learn/prompt-engineering-for-professional-work"), true);
 });
 
 test("private app routes stay gated", () => {

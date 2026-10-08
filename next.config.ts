@@ -27,6 +27,8 @@ const securityHeaders = [
   },
   {
     key: "Content-Security-Policy",
+    // Vercel Web Analytics is same-origin (/_vercel/insights/script.js and
+    // /_vercel/insights/event). script-src and connect-src already allow 'self'.
     value: [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",

@@ -81,6 +81,8 @@ function CourseRow({
           <BuyCourseButton
             slug={course.slug}
             label={`Buy 12 more months for £${course.priceGbp}`}
+            priceGbp={course.priceGbp}
+            placement="my_courses"
             className="la-button"
           />
         )}
