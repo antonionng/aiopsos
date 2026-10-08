@@ -33,12 +33,16 @@ export const ORGANISATION_LD = {
   url: BASE_URL,
   logo: `${BASE_URL}/experrt-logo.png`,
   description:
-    "A training academy for applied AI, technology and robotics. Courses are facilitated live by a trainer, in person or online.",
+    "Experrt teaches applied AI, technology, robotics and AI in HR. It offers self-paced professional-skills courses, practical AI agent courses with AI assessment, trainer-led courses for teams, and an AI learning management system for organisations and training providers.",
+  areaServed: "GB",
   knowsAbout: [
     "Applied artificial intelligence",
+    "Prompt engineering",
     "AI literacy for the workforce",
+    "AI agents in business workflows",
     "Technology adoption",
-    "Applied robotics",
+    "Applied robotics and automation",
+    "AI in HR and people teams",
     "EU AI Act Article 4",
   ],
 };

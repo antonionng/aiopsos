@@ -8,3 +8,6 @@ scripts/.lms-demo-manifest.json
 .env*
 
 .deck-build/
+.playwright-mcp/
+.agents/
+supabase/.temp/

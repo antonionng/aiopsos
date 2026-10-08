@@ -1,0 +1,1372 @@
+{
+  "createdAt": "2026-10-03",
+  "provider": "Google Notebook web interface",
+  "accountAlreadyHasPro": true,
+  "paidUpgradeAuthorised": false,
+  "prompt": "docs/course-introductions/video-generation-prompt.md",
+  "courses": [
+    {
+      "slug": "always-on-agent-foundations",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/always-on-agent-foundations.md",
+      "sourceSha256": "ce4123e23fd187ac7da44cfae5a1e1b2944e8c5451b5c370010561aa8402f972",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/d7bd0a23-7ab1-4d37-81a3-ff0f18f01d57",
+      "generationObservedOn": "2026-10-03",
+      "output": "output/course-introductions/always-on-agent-foundations.mp4",
+      "durationLabel": "5:30",
+      "reviewed": false,
+      "issues": [
+        "03:26: project described as proving workplace application; submitted text and simulations do not independently prove this.",
+        "Speech recognition flags A&I and opening title; full listening and caption checking required.",
+        "Partial requested branding; invented module heading at 01:02."
+      ],
+      "transcriptDraft": "output/course-introductions/always-on-agent-foundations.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/always-on-agent-foundations.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/always-on-agent-foundations-scenes.json",
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/always-on-agent-foundations-contact-01.jpg",
+          "output/course-introductions/always-on-agent-foundations-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/always-on-agent-foundations.md",
+        "status": "awaiting-free-allowance"
+      },
+      "outputSha256": "2e4c8525550276993504811ac7f2784c363f4c3631a6bb629a1959ebdc951edb",
+      "bytes": 25069852
+    },
+    {
+      "slug": "working-with-openai-dots",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/working-with-openai-dots.md",
+      "sourceSha256": "41ca4d3da9ffa193b4e32e2d06b00a836d42073d09d8f32871328efff59561d4",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/b10678a8-bf57-49df-9390-bc504defd5d4",
+      "requestedAt": "2026-10-03T17:28:47.729Z",
+      "output": "output/course-introductions/working-with-openai-dots.mp4",
+      "durationSeconds": 263.779,
+      "durationLabel": "4:23",
+      "reviewed": false,
+      "bytes": 18964655,
+      "outputSha256": "59d3ba26479459a7b38761ee1240354af6f04d82a7d11fee390f1648184d2875",
+      "transcriptDraft": "output/course-introductions/working-with-openai-dots.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/working-with-openai-dots.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/working-with-openai-dots-scenes.json",
+      "issues": [
+        "03:46: wording about real, verifiable skills overstates independent verification; change to a practical example of learning.",
+        "Complete listening, pronunciation and speech-to-caption checks remain outstanding.",
+        "03:17: narration unnecessarily contrasts the course with other assessment formats; simplify to the actual project assessment process.",
+        "Opening visual invents module titles such as Task Identification instead of the actual six-module sequence; use the course source names."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/working-with-openai-dots-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/working-with-openai-dots.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "working-with-grok-bot",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/working-with-grok-bot.md",
+      "sourceSha256": "5aab754a9d2d7b69097804039c9022170930178b6d52fd65fb709494319a2a73",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/4f7cd233-c2d9-4f36-bbce-fc0fd8b4bd24",
+      "requestedAt": "2026-10-03T17:29:52.603Z",
+      "durationLabel": "4:12",
+      "generatedTitle": "Working with Grok Bot",
+      "downloadFilename": "experrt-working-with-grok-bot.mp4",
+      "collectedAt": "2026-10-03T17:45:58.309Z",
+      "output": "output/course-introductions/working-with-grok-bot.mp4",
+      "durationSeconds": 252.517,
+      "reviewed": false,
+      "bytes": 16730778,
+      "outputSha256": "364ec7ab702b4b25279822f40fef76779531cb91d7647d016805fa2db086e19a",
+      "transcriptDraft": "output/course-introductions/working-with-grok-bot.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/working-with-grok-bot.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/working-with-grok-bot-scenes.json",
+      "issues": [
+        "Opening visual invents Agent Evaluation Framework and a Comprehensive Evaluation Report project; the actual project is a monitoring/briefing workflow.",
+        "03:53: replace the unsupported claim that these professionals stand out with a specific example of discussing the checked briefing at work.",
+        "Green visual accents depart from the requested purple/cream style."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/working-with-grok-bot-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/working-with-grok-bot.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "working-with-meta-muse",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/working-with-meta-muse.md",
+      "sourceSha256": "43840386c901a48de4cdfb7976bbd3790b355a1ae7685e33360f73d9c84b7d8f",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/89af169e-4b5b-4bcf-b7f8-f40eb1e0ef48",
+      "requestedAt": "2026-10-03T17:30:01.932Z",
+      "durationLabel": "4:39",
+      "generatedTitle": "Working with Meta Muse",
+      "downloadFilename": "experrt-working-with-meta-muse.mp4",
+      "collectedAt": "2026-10-03T17:46:01.413Z",
+      "output": "output/course-introductions/working-with-meta-muse.mp4",
+      "durationSeconds": 279.893,
+      "reviewed": false,
+      "bytes": 21179620,
+      "outputSha256": "c054443aac8843267c7c57cb3f575aeb8bd714e89947b3b5fb546f5dbabbbd4d",
+      "transcriptDraft": "output/course-introductions/working-with-meta-muse.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/working-with-meta-muse.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/working-with-meta-muse-scenes.json",
+      "issues": [
+        "00:34: always asks permission is an unsupported product guarantee; say learners set approval steps and test whether they work.",
+        "01:12 visual labels modules Week 1 to Week 6, implying a fixed six-week schedule; the course is self-paced.",
+        "00:46 visual has dark purple text on a dark background. Use readable contrast.",
+        "00:15: replace completely reshape your week with organise a weekly plan and check changes."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/working-with-meta-muse-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/working-with-meta-muse.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "working-with-claude-cowork",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/working-with-claude-cowork.md",
+      "sourceSha256": "64bc41bf62237f9eb41a74a60c750d5c6e9cb9a3cb5618f7f41f93c11e6955fc",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "generation-failed",
+      "notebookUrl": "https://notebook.google.com/notebook/70311e69-87fc-4c04-a451-8b7e87362bc8",
+      "requestedAt": "2026-10-03T17:30:28.457Z",
+      "issue": "Video Overview generation failed. Try a new one."
+    },
+    {
+      "slug": "business-agents-copilot-studio",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/business-agents-copilot-studio.md",
+      "sourceSha256": "c39b60a1fd916e7d8a08e994afc06dae1dd52537fbddd20b03479686cf83bcde",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/a0029aa8-b97b-4ae7-a722-b9f06bf463ff",
+      "requestedAt": "2026-10-03T17:30:37.771Z",
+      "durationLabel": "3:56",
+      "generatedTitle": "Copilot Studio Agents",
+      "downloadFilename": "experrt-business-agents-copilot-studio.mp4",
+      "collectedAt": "2026-10-03T17:46:41.415Z",
+      "output": "output/course-introductions/business-agents-copilot-studio.mp4",
+      "durationSeconds": 236.983,
+      "reviewed": false,
+      "bytes": 17162520,
+      "outputSha256": "d061f1216678a9cbf3963b60405964d51ef3ba2533bd69abb836e89e04f3b882",
+      "transcriptDraft": "output/course-introductions/business-agents-copilot-studio.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/business-agents-copilot-studio.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/business-agents-copilot-studio-scenes.json",
+      "issues": [
+        "00:00-00:29: will know exactly when to pause overstates agent reliability; explain setting and testing approval steps.",
+        "Orange opening and definition slides depart from the requested purple/cream style."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/business-agents-copilot-studio-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/business-agents-copilot-studio.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "running-your-own-agent-openclaw",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/running-your-own-agent-openclaw.md",
+      "sourceSha256": "3c543638f1a5de0773264675ed9aebc47cddfe76e7107d0578ab2b6771e83bea",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/285bae3e-2f90-4cda-8236-ecbf9e6e224d",
+      "requestedAt": "2026-10-03T17:30:47.038Z",
+      "durationLabel": "5:17",
+      "generatedTitle": "Running Your Own Agent",
+      "downloadFilename": "experrt-running-your-own-agent-openclaw.mp4",
+      "collectedAt": "2026-10-03T17:46:44.318Z",
+      "output": "output/course-introductions/running-your-own-agent-openclaw.mp4",
+      "durationSeconds": 318.02,
+      "reviewed": false,
+      "bytes": 27003245,
+      "outputSha256": "c4677c4ca633aff357841336f89fcbde8a16be1ff8495b60dd6692f7888b50a5",
+      "transcriptDraft": "output/course-introductions/running-your-own-agent-openclaw.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/running-your-own-agent-openclaw.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/running-your-own-agent-openclaw-scenes.json",
+      "issues": [
+        "02:06-02:10: automatic scrubbing of private details and completely secure accounts are invented guarantees. Learners must remove private details before sharing records.",
+        "01:40: remove definitely does not break the bank; teach tracking costs against a budget.",
+        "02:26: a heartbeat does not guarantee detection of every failure; describe a regular check and its limits.",
+        "00:16 and later visuals invent module and project titles. The actual project is a scoped monitoring agent with checks and recovery.",
+        "03:47 visual introduces code optimisation logs not specified by this project."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/running-your-own-agent-openclaw-contact-01.jpg",
+          "output/course-introductions/running-your-own-agent-openclaw-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/running-your-own-agent-openclaw.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "managing-agents-reliably",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/managing-agents-reliably.md",
+      "sourceSha256": "b1e80f10028c8d0f9ec68cc08bcba4c8b2ad1b6013ea5d7b2a34b700709f190c",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/58f6ca4e-2a00-40c9-8829-5fa2c6939c13",
+      "requestedAt": "2026-10-03T17:30:56.329Z",
+      "durationLabel": "4:05",
+      "generatedTitle": "Managing Agents Reliably",
+      "downloadFilename": "experrt-managing-agents-reliably.mp4",
+      "collectedAt": "2026-10-03T17:46:47.402Z",
+      "output": "output/course-introductions/managing-agents-reliably.mp4",
+      "durationSeconds": 245.18,
+      "reviewed": false,
+      "bytes": 19715393,
+      "outputSha256": "9872acf1d688833ea65cbae01fcbdbe883a34eb8c6d6dc6e827e3879ab102b8b",
+      "transcriptDraft": "output/course-introductions/managing-agents-reliably.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/managing-agents-reliably.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/managing-agents-reliably-scenes.json",
+      "issues": [
+        "00:12 visual invents Module 1 Understanding AI Agents and Final Project Safe AI Agent Deployment; replace with the actual course sequence and workflow audit project.",
+        "01:59: distinguish measured practice results from estimated business value; do not imply supplied fictional files establish actual workplace savings.",
+        "Yellow accents depart from the requested purple/cream style."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/managing-agents-reliably-contact-01.jpg",
+          "output/course-introductions/managing-agents-reliably-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/managing-agents-reliably.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "agents-small-business-operations",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/agents-small-business-operations.md",
+      "sourceSha256": "1af6c78ebedaed2a517f8465840690ff231c0d4f4f9d38ee0a5b6c6d6a4b8c74",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/302355c7-e500-4d34-9604-dca2ceba3d3e",
+      "requestedAt": "2026-10-03T17:31:17.636Z",
+      "durationLabel": "4:05",
+      "generatedTitle": "Small Business AI Agents",
+      "downloadFilename": "experrt-agents-small-business-operations.mp4",
+      "collectedAt": "2026-10-03T17:46:50.082Z",
+      "output": "output/course-introductions/agents-small-business-operations.mp4",
+      "durationSeconds": 245.18,
+      "reviewed": false,
+      "bytes": 19083642,
+      "outputSha256": "d418c97ba65889e3fe7f42bb95a90b62fd9dc5286ea87ef4a7e9e6a65c01be89",
+      "transcriptDraft": "output/course-introductions/agents-small-business-operations.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/agents-small-business-operations.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/agents-small-business-operations-scenes.json",
+      "issues": [
+        "02:38 visual invents six skill names and an A AND I ASSESSMENT label. Use the actual rubric names or simply all six required skill areas.",
+        "02:13 visual adds Google Academy as a label. Retain the provider watermark but do not invent a provider partnership or co-branding.",
+        "Simplify 03:02 mastery language to explaining the weekly operations pack and the decisions a person keeps."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/agents-small-business-operations-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/agents-small-business-operations.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "agent-research-market-monitoring",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/agent-research-market-monitoring.md",
+      "sourceSha256": "583df4390d1cda4072e6c58ecfc4dfeb8cd0f28177d39b1b10443203fe1378d0",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/df012832-e6be-4668-8a12-c870a871076b",
+      "requestedAt": "2026-10-03T17:31:26.921Z",
+      "durationLabel": "4:47",
+      "generatedTitle": "Research & Market Monitoring",
+      "downloadFilename": "experrt-agent-research-market-monitoring.mp4",
+      "collectedAt": "2026-10-03T17:47:28.484Z",
+      "output": "output/course-introductions/agent-research-market-monitoring.mp4",
+      "durationSeconds": 287.835,
+      "reviewed": false,
+      "bytes": 22604938,
+      "outputSha256": "4fa1782f4c2da776e4af06a91bab6d5633fa55235ed1b1b5de5d1d8fa94b4ab1",
+      "transcriptDraft": "output/course-introductions/agent-research-market-monitoring.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/agent-research-market-monitoring.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/agent-research-market-monitoring-scenes.json",
+      "issues": [
+        "00:16 visual invents AI Market Monitoring module and Automated Research Pipeline project title; the final work is a monitoring brief.",
+        "02:06: replace proves exactly with explains how you checked the changes.",
+        "Orange slides depart from the requested purple/cream style."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/agent-research-market-monitoring-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/agent-research-market-monitoring.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "content-operations-agents",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/content-operations-agents.md",
+      "sourceSha256": "93038de583e436c27a09ef777c3dc66bd2ac31d9f3186d77155460c4e5e94690",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/5aad7d6b-1e9e-477d-ad99-c91913e7d278",
+      "requestedAt": "2026-10-03T17:31:36.211Z",
+      "durationLabel": "4:22",
+      "generatedTitle": "Content Ops with Agents",
+      "downloadFilename": "experrt-content-operations-agents.mp4",
+      "collectedAt": "2026-10-03T17:47:31.723Z",
+      "output": "output/course-introductions/content-operations-agents.mp4",
+      "durationSeconds": 262.896,
+      "reviewed": false,
+      "bytes": 18170474,
+      "outputSha256": "19c85256f1ac4c51ba6c7d920524b5693932275ead61c14e2909f4e3fc319add",
+      "transcriptDraft": "output/course-introductions/content-operations-agents.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/content-operations-agents.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/content-operations-agents-scenes.json",
+      "issues": [
+        "01:25: bulletproof approval workflow is an unsupported guarantee. Say a clear workflow with named checks and approval steps.",
+        "02:37 visual inserts Human Moderation into the certificate process, although this project is AI assessed.",
+        "04:01 visual invents AI Foundations, Workflow Integration and Content Strategy modules plus Automated Content Plan project.",
+        "02:43 visual spells out Google WATERMARK. Keep the actual watermark without adding a separate production label."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/content-operations-agents-contact-01.jpg",
+          "output/course-introductions/content-operations-agents-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/content-operations-agents.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "agents-for-developers",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/agents-for-developers.md",
+      "sourceSha256": "49cf584f8e3976a315d81e4711c7cc2c86a4cee4e813c3156187ef5998c8017c",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/1e92a750-a5f0-47eb-b7cd-2ad04422bd3c",
+      "requestedAt": "2026-10-03T17:31:45.540Z",
+      "durationLabel": "4:19",
+      "generatedTitle": "Agents for Developers",
+      "downloadFilename": "experrt-agents-for-developers.mp4",
+      "collectedAt": "2026-10-03T17:47:34.516Z",
+      "output": "output/course-introductions/agents-for-developers.mp4",
+      "durationSeconds": 259.808,
+      "reviewed": false,
+      "bytes": 20022701,
+      "outputSha256": "4d0c32c9ca94d166becff0d5bd8f0ba4c7a8539951f6ed7181471a142e694ed9",
+      "transcriptDraft": "output/course-introductions/agents-for-developers.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/agents-for-developers.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/agents-for-developers-scenes.json",
+      "issues": [
+        "Opening and 03:00 visuals invent module titles and an AI Task Delegation Framework project; use the maintenance change, review and recovery project.",
+        "00:43: check actual speech for AI novice agent; the machine transcript is uncertain.",
+        "02:27: clarify the AI assessor checks submitted text and cannot run the repository or independently verify authorship.",
+        "Use calmer language than mindlessly clicking buttons and No way; preserve the actual deployment boundary."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/agents-for-developers-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/agents-for-developers.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "coordinating-multiple-agents",
+      "family": "agent",
+      "courseVersion": "2026.10.2-ai-assessed",
+      "source": "docs/course-introductions/sources/coordinating-multiple-agents.md",
+      "sourceSha256": "f00af237cf95ac91e329565157b7414a98bb4b84d4ed789da1d5bace57e28581",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/6b7a5dcf-d445-4276-8520-dcb95f83bdab",
+      "requestedAt": "2026-10-03T17:32:05.499Z",
+      "durationLabel": "4:34",
+      "generatedTitle": "Coordinating Multiple Agents",
+      "downloadFilename": "experrt-coordinating-multiple-agents.mp4",
+      "collectedAt": "2026-10-03T17:47:37.803Z",
+      "output": "output/course-introductions/coordinating-multiple-agents.mp4",
+      "durationSeconds": 275.04,
+      "reviewed": false,
+      "bytes": 21491595,
+      "outputSha256": "317413cd24810f09b25589a1597aae26bc2b2c0819a1a068a12f4cc5399b9a7d",
+      "transcriptDraft": "output/course-introductions/coordinating-multiple-agents.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/coordinating-multiple-agents.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/coordinating-multiple-agents-scenes.json",
+      "issues": [
+        "04:02: proves you know your stuff overstates independent verification; describe a practical example of task sharing and checked handovers.",
+        "02:07 visual makes the reviewer agent the accountable final owner; the source requires a responsible person overseeing the final result.",
+        "00:59: remove no passing the buck and explain responsibility respectfully."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/coordinating-multiple-agents-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/coordinating-multiple-agents.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "prompt-engineering-for-professional-work",
+      "family": "self-paced",
+      "courseVersion": "d7bdcc3372bc",
+      "source": "docs/course-introductions/sources/prompt-engineering-for-professional-work.md",
+      "sourceSha256": "1fabf94eb604b30382483d982961b64fa7d50dbedd1801687ebbbf59f502b472",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/b8245fcd-e1fb-4e90-8cc6-8ee04089a6fd",
+      "requestedAt": "2026-10-03T17:32:14.819Z",
+      "durationLabel": "4:56",
+      "generatedTitle": "Prompt Engineering",
+      "downloadFilename": "experrt-prompt-engineering-for-professional-work.mp4",
+      "collectedAt": "2026-10-03T17:48:15.249Z",
+      "output": "output/course-introductions/prompt-engineering-for-professional-work.mp4",
+      "durationSeconds": 296.356,
+      "reviewed": false,
+      "bytes": 23857018,
+      "outputSha256": "7bc4eba0f3efacb8ab65f1cbcca18362e310c1b7865fbc298ee2a9171718150b",
+      "transcriptDraft": "output/course-introductions/prompt-engineering-for-professional-work.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/prompt-engineering-for-professional-work.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/prompt-engineering-for-professional-work-scenes.json",
+      "issues": [
+        "User listening check confirmed AI is spoken as A and I. Regenerate with AI pronounced as the two letters ay eye, and check every occurrence before release.",
+        "04:30: no separate accounts or subscriptions required is unsupported; the source says separate accounts and licences are not included in the fee.",
+        "02:14: a prompt does not guarantee the model never guesses; explain including facts and limits, then checking the reply.",
+        "02:56 and 03:41 visuals invent Module 3 Overview and AI Workplace Guardrails instead of the actual lesson titles.",
+        "04:05: do not narrate the production contrast with agent AI assessment; explain this course\u2019s scenario checks and signed prompt card."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/prompt-engineering-for-professional-work-contact-01.jpg",
+          "output/course-introductions/prompt-engineering-for-professional-work-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false,
+        "pronunciation": "failed-user-confirmed"
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/prompt-engineering-for-professional-work.md",
+        "status": "awaiting-free-allowance",
+        "priority": "first-course-replacement"
+      },
+      "attempts": [
+        {
+          "checkedAt": "2026-10-04T06:27:16Z",
+          "format": "Explainer",
+          "prompt": "docs/course-introductions/attempts/prompt-engineering-2026-10-04-request.md",
+          "promptSha256": "5a17036448d9a40792b7aad111fbd823d8cdf7d78e06359869d8ff865eff2cd3",
+          "sourceSha256": "1fabf94eb604b30382483d982961b64fa7d50dbedd1801687ebbbf59f502b472",
+          "accepted": false,
+          "reason": "You have reached your daily Video Overview limit. Come back later.",
+          "evidence": "output/course-introductions/quota-recheck-2026-10-04.png"
+        }
+      ]
+    },
+    {
+      "slug": "ai-output-verification",
+      "family": "self-paced",
+      "courseVersion": "4cb2b9f9c369",
+      "source": "docs/course-introductions/sources/ai-output-verification.md",
+      "sourceSha256": "2151a2fad73189d71c19c850a5a7ab23c943bf8d259bc7550032f6664f0cc458",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "downloaded-awaiting-review",
+      "notebookUrl": "https://notebook.google.com/notebook/0042e395-c03a-44d4-b19e-de3a7e6b2bdd",
+      "requestedAt": "2026-10-03T17:32:24.091Z",
+      "durationLabel": "5:11",
+      "generatedTitle": "AI Output Verification",
+      "downloadFilename": "experrt-ai-output-verification.mp4",
+      "collectedAt": "2026-10-03T17:48:18.665Z",
+      "output": "output/course-introductions/ai-output-verification.mp4",
+      "durationSeconds": 311.194,
+      "reviewed": false,
+      "bytes": 20519729,
+      "outputSha256": "2636308048b4b83b2077053a318dfd45118d13d05b7f336ef03d4d472d00d48c",
+      "transcriptDraft": "output/course-introductions/ai-output-verification.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/ai-output-verification.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/ai-output-verification-scenes.json",
+      "issues": [
+        "Complete machine transcript and all detected scene contact sheets checked against the source; audience, study estimate, final note, 6/7 assessment and fee match.",
+        "Blue accents and stock-style hand/notebook visual depart from the requested illustrated purple/cream style.",
+        "Opening brand is transcribed Experrent; confirm the actual speech before correcting captions."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/ai-output-verification-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/ai-output-verification.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "applying-ai-in-daily-work",
+      "family": "self-paced",
+      "courseVersion": "a365fc2abb71",
+      "source": "docs/course-introductions/sources/applying-ai-in-daily-work.md",
+      "sourceSha256": "5a0ec5c229154841f731866fcb4b7643e61e8b6704f04f6dc4238f6dff1b4ecd",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/89e643e2-e8e0-4397-9c20-58ad5755467c",
+      "requestedAt": "2026-10-03T17:33:25.229Z",
+      "durationLabel": "4:40",
+      "generatedTitle": "Applying AI in Daily Work",
+      "downloadFilename": "experrt-applying-ai-in-daily-work.mp4",
+      "collectedAt": "2026-10-03T17:48:21.661Z",
+      "output": "output/course-introductions/applying-ai-in-daily-work.mp4",
+      "durationSeconds": 280.288,
+      "reviewed": false,
+      "bytes": 19456023,
+      "outputSha256": "17643628f343d518840d711f630f167190e1ee66789c5017cf3c3cbe54be39b8",
+      "transcriptDraft": "output/course-introductions/applying-ai-in-daily-work.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/applying-ai-in-daily-work.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/applying-ai-in-daily-work-scenes.json",
+      "issues": [
+        "02:58 visual invents AI Ethics and Automation modules; use the actual five lessons.",
+        "03:15 visual names AI Integration Final Assessment; retain the actual scenario assessment and signed weekly plan.",
+        "03:00: remove contrast with an agent-based assessor, which is a production constraint.",
+        "03:29 transcript contains a broken transition; listen and correct/regenerate if present in the recording."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/applying-ai-in-daily-work-contact-01.jpg",
+          "output/course-introductions/applying-ai-in-daily-work-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/applying-ai-in-daily-work.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "ai-for-writing-and-communication",
+      "family": "self-paced",
+      "courseVersion": "aa807ffa12a5",
+      "source": "docs/course-introductions/sources/ai-for-writing-and-communication.md",
+      "sourceSha256": "e9a59ddfc03e411be80d377ebe53c523523cd62153569c05dbf90b13b609fcde",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/48b278b7-8818-4823-b242-66c9029702d7",
+      "requestedAt": "2026-10-03T17:33:34.543Z",
+      "durationLabel": "4:13",
+      "generatedTitle": "AI Course Introduction",
+      "downloadFilename": "experrt-ai-for-writing-and-communication.mp4",
+      "collectedAt": "2026-10-03T17:48:30.316Z",
+      "output": "output/course-introductions/ai-for-writing-and-communication.mp4",
+      "durationSeconds": 253.399,
+      "reviewed": false,
+      "bytes": 19658153,
+      "outputSha256": "014e3bf17d956aafafd92a047b0b66263dadafdbd5e9cd0723e70981f6cb2d7f",
+      "transcriptDraft": "output/course-introductions/ai-for-writing-and-communication.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/ai-for-writing-and-communication.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/ai-for-writing-and-communication-scenes.json",
+      "issues": [
+        "Opening visual says AI Course Introduction instead of the course title.",
+        "01:47 and 02:34 visuals invent module labels; use the actual five lessons.",
+        "03:58: no extra accounts or subscriptions required is unsupported; the source states external software access is not included.",
+        "03:50 visual shows PRO SUBSCRIPTION while narration says none required. Remove unsupported subscription claims in either direction."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/ai-for-writing-and-communication-contact-01.jpg",
+          "output/course-introductions/ai-for-writing-and-communication-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/ai-for-writing-and-communication.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "designing-ai-agents-for-business-workflows",
+      "family": "self-paced",
+      "courseVersion": "b104a8ed385c",
+      "source": "docs/course-introductions/sources/designing-ai-agents-for-business-workflows.md",
+      "sourceSha256": "3f8316063942c0023b2d6ef5f047dd0868faba2e013084362b1a4919d2206ee7",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "needs-revision",
+      "notebookUrl": "https://notebook.google.com/notebook/a92b356a-423c-4986-885e-4e3f74c9c5d8",
+      "requestedAt": "2026-10-03T17:33:43.958Z",
+      "durationLabel": "4:26",
+      "generatedTitle": "Designing AI Agents",
+      "downloadFilename": "experrt-designing-ai-agents-for-business-workflows.mp4",
+      "collectedAt": "2026-10-03T17:48:33.164Z",
+      "output": "output/course-introductions/designing-ai-agents-for-business-workflows.mp4",
+      "durationSeconds": 266.403,
+      "reviewed": false,
+      "bytes": 21023253,
+      "outputSha256": "430da2dd08bf637b837254c477310c7daf074c59dfb06c9ed64bfbe92065be45",
+      "transcriptDraft": "output/course-introductions/designing-ai-agents-for-business-workflows.transcript-draft.txt",
+      "captionsDraft": "output/course-introductions/designing-ai-agents-for-business-workflows.captions-draft.vtt",
+      "visualAudit": "output/course-introductions/designing-ai-agents-for-business-workflows-scenes.json",
+      "issues": [
+        "01:48-01:59: reading an email and drafting a reply does not necessarily require an agent. Explain the choice in terms of repeated steps and tools needed, rather than an absolute rule.",
+        "00:18, 02:45 and 03:30 visuals invent numbered modules and project titles. Use the actual lesson names and one-page agent brief.",
+        "03:46: passing the scenario assessment alone does not earn the certificate; completing and signing the brief and lesson checks are also required.",
+        "04:01: no separate accounts or subscriptions needed is not established by the source; explain that external software access is not included."
+      ],
+      "reviewChecks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/designing-ai-agents-for-business-workflows-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      },
+      "nextAttempt": {
+        "prompt": "docs/course-introductions/video-generation-prompt-v3.md",
+        "corrections": "docs/course-introductions/corrections/designing-ai-agents-for-business-workflows.md",
+        "status": "awaiting-free-allowance"
+      }
+    },
+    {
+      "slug": "setting-up-and-supervising-ai-agents",
+      "family": "self-paced",
+      "courseVersion": "3e2c4a4fc813",
+      "source": "docs/course-introductions/sources/setting-up-and-supervising-ai-agents.md",
+      "sourceSha256": "9d1c632fd21a43ecab2086d2b030be822e82d1bb61db5f97c371967b54bc8937",
+      "prompt": "docs/course-introductions/video-generation-prompt-v1.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "no-output-observed",
+      "notebookUrl": "https://notebook.google.com/notebook/e87e47b8-d813-4614-af9f-61fc5953c726",
+      "requestedAt": "2026-10-03T17:33:53.264Z",
+      "issue": "Studio shows no saved output. Reuse the existing notebook and retry standard Explainer after allowance reset."
+    },
+    {
+      "slug": "ai-for-customer-communications",
+      "family": "self-paced",
+      "courseVersion": "f72c296cd577",
+      "source": "docs/course-introductions/sources/ai-for-customer-communications.md",
+      "sourceSha256": "6133e41e26708ba656af4909c4a41b726857f3a14e65dc03a84620f78ced9d02",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "quota-blocked",
+      "notebookUrl": "https://notebook.google.com/notebook/e16a1672-6d25-46a4-b50c-0c69cc7bd980",
+      "blockReason": "Google UI: You have reached your daily Video Overview limit. Come back later."
+    },
+    {
+      "slug": "ai-assisted-analysis-and-reporting",
+      "family": "self-paced",
+      "courseVersion": "f9f3a55297d9",
+      "source": "docs/course-introductions/sources/ai-assisted-analysis-and-reporting.md",
+      "sourceSha256": "0bf4984c083930a41ca7a1a550bf6aa074f1cbabc49cd08519bcfebc74433443",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "secure-use-of-ai-tools-at-work",
+      "family": "self-paced",
+      "courseVersion": "4395991efb39",
+      "source": "docs/course-introductions/sources/secure-use-of-ai-tools-at-work.md",
+      "sourceSha256": "0777320186ff1c271afcff0f862faf552c806a07435b7c87b78b0dcf7173a2ae",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "ai-literacy-under-the-eu-ai-act",
+      "family": "self-paced",
+      "courseVersion": "c0fbe1ad97fe",
+      "source": "docs/course-introductions/sources/ai-literacy-under-the-eu-ai-act.md",
+      "sourceSha256": "380034b2815c2a034a1f74084cc78d5adfe8f84ed9112704c441cd2ec06c20cf",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "getting-value-from-the-technology-you-already-pay-for",
+      "family": "self-paced",
+      "courseVersion": "879ab25ef3ef",
+      "source": "docs/course-introductions/sources/getting-value-from-the-technology-you-already-pay-for.md",
+      "sourceSha256": "9154d723ea5e0957132add3159ef73c9e780a1fcc150701dfaf1a28b9840b982",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "choosing-technology-for-your-team",
+      "family": "self-paced",
+      "courseVersion": "9a5756b8f8c2",
+      "source": "docs/course-introductions/sources/choosing-technology-for-your-team.md",
+      "sourceSha256": "79a3a4ed16f17cdf60af828b2bf729b5d587f82d9988b6975d66f165d659044f",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "no-code-automation-for-everyday-work",
+      "family": "self-paced",
+      "courseVersion": "0dbdd0c52e89",
+      "source": "docs/course-introductions/sources/no-code-automation-for-everyday-work.md",
+      "sourceSha256": "f1a3b9300d98f70e282a1bffbb8f7aa005e1dc673262a37fa33c86094846881e",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "from-spreadsheets-to-simple-systems",
+      "family": "self-paced",
+      "courseVersion": "975ba60b4626",
+      "source": "docs/course-introductions/sources/from-spreadsheets-to-simple-systems.md",
+      "sourceSha256": "66866d61554befb608e693d929c655682948eaafc4666e40ef3c462a5449218c",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "data-skills-for-people-who-are-not-analysts",
+      "family": "self-paced",
+      "courseVersion": "9f58e0f417bc",
+      "source": "docs/course-introductions/sources/data-skills-for-people-who-are-not-analysts.md",
+      "sourceSha256": "ca1daa772c2e38840bc70179bf11094ff1fdd03b223487b029e21361d13f6038",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "security-decisions-for-non-technical-teams",
+      "family": "self-paced",
+      "courseVersion": "85c72599ba51",
+      "source": "docs/course-introductions/sources/security-decisions-for-non-technical-teams.md",
+      "sourceSha256": "dbeac6be3bac2a16b80eb22cca8991fdf3285b0d0808d8d8fdef16b3a177cbda",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "digital-change-for-managers",
+      "family": "self-paced",
+      "courseVersion": "2d40d64906d9",
+      "source": "docs/course-introductions/sources/digital-change-for-managers.md",
+      "sourceSha256": "f5a53523d68d095ed7a9ac2c2b4e6b188bf5a123896452d4f1dbf9133201559c",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "technology-decisions-for-non-technical-leaders",
+      "family": "self-paced",
+      "courseVersion": "af8aa6334a7e",
+      "source": "docs/course-introductions/sources/technology-decisions-for-non-technical-leaders.md",
+      "sourceSha256": "3f95cdbacecfd18d92d9cbd4faf764d5bf32f3968eeaedff3e55c15f160f686a",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "connecting-the-tools-your-team-already-uses",
+      "family": "self-paced",
+      "courseVersion": "7eda40c9afb4",
+      "source": "docs/course-introductions/sources/connecting-the-tools-your-team-already-uses.md",
+      "sourceSha256": "018bb2bad7e83c2cd256f125c82567982b3349afe34cec706df9f090a7803cfa",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "running-a-technology-rollout",
+      "family": "self-paced",
+      "courseVersion": "c94222555dc6",
+      "source": "docs/course-introductions/sources/running-a-technology-rollout.md",
+      "sourceSha256": "f21771237c08087b0fcd6b598fb1382f57c7df8b4429870620401ca554f8d9f3",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "robotics-for-non-engineers",
+      "family": "self-paced",
+      "courseVersion": "80bdc919f95a",
+      "source": "docs/course-introductions/sources/robotics-for-non-engineers.md",
+      "sourceSha256": "46ba3db95f64d09c99fdca7799ac12a1b524154e9b5ca3298dc39d5e271f51d9",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "collaborative-robots-at-work",
+      "family": "self-paced",
+      "courseVersion": "6723af90e66f",
+      "source": "docs/course-introductions/sources/collaborative-robots-at-work.md",
+      "sourceSha256": "3fc2869d2cc843249f71bd4d0e634a23ce8b44dba80689de7d83d25dd8251813",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "where-a-robot-belongs-in-the-process",
+      "family": "self-paced",
+      "courseVersion": "2f45ab94cd53",
+      "source": "docs/course-introductions/sources/where-a-robot-belongs-in-the-process.md",
+      "sourceSha256": "465ff2af7869a23fc33b173e761c49006d117a3a8eaf50de29e2ad50272ad2b8",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "preparing-a-team-for-automation",
+      "family": "self-paced",
+      "courseVersion": "c2072b97561c",
+      "source": "docs/course-introductions/sources/preparing-a-team-for-automation.md",
+      "sourceSha256": "ce94695a6bd31eacd60290692fccc0490bb322346b40d5069f07fc38a229d437",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "warehouse-and-logistics-automation",
+      "family": "self-paced",
+      "courseVersion": "b6b0679ec322",
+      "source": "docs/course-introductions/sources/warehouse-and-logistics-automation.md",
+      "sourceSha256": "064125cd72aeff7b5ab4076a619c631e1042bffdd9c88cd7651870f23ad2c766",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "specifying-a-robotics-project",
+      "family": "self-paced",
+      "courseVersion": "ebaf0f20070c",
+      "source": "docs/course-introductions/sources/specifying-a-robotics-project.md",
+      "sourceSha256": "ceda0827cd8b159bfbf8d299f46701060867026a3dda818010554acb1710eefa",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "robotics-safety-and-risk",
+      "family": "self-paced",
+      "courseVersion": "b38d6cc8f233",
+      "source": "docs/course-introductions/sources/robotics-safety-and-risk.md",
+      "sourceSha256": "508ffb535b28464a606b2da0dd5d901c97ce98c0f223b343228a0773f30e51d2",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "running-a-robotic-cell",
+      "family": "self-paced",
+      "courseVersion": "6aadfce6f076",
+      "source": "docs/course-introductions/sources/running-a-robotic-cell.md",
+      "sourceSha256": "0582b5d7a99ca6d08ae1292796e85bfcdfe31af53a0938960d1588f7087140f6",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "vision-systems-and-automated-inspection",
+      "family": "self-paced",
+      "courseVersion": "ac4bc270b6a4",
+      "source": "docs/course-introductions/sources/vision-systems-and-automated-inspection.md",
+      "sourceSha256": "fbe97c310583e58030a236f7bd2d336e3219ab7e854df7458b5dbaba89df81f1",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "robotics-investment-decisions",
+      "family": "self-paced",
+      "courseVersion": "d5b42c039362",
+      "source": "docs/course-introductions/sources/robotics-investment-decisions.md",
+      "sourceSha256": "580acdbeb611729499c6de100cc9d9ea6e9eb8cab532ebb466c62da86bdab730",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "ai-for-hr-and-people-teams",
+      "family": "self-paced",
+      "courseVersion": "7f529019648f",
+      "source": "docs/course-introductions/sources/ai-for-hr-and-people-teams.md",
+      "sourceSha256": "e29b25c4b5c15bf8786b286d41d6d0f45f55519efae623ef70b6a24decbeed3c",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "eu-ai-act-literacy-for-hr-and-l-and-d",
+      "family": "self-paced",
+      "courseVersion": "fb289d234ad7",
+      "source": "docs/course-introductions/sources/eu-ai-act-literacy-for-hr-and-l-and-d.md",
+      "sourceSha256": "f48ce5376a7b360c9390f5fa319630a0d1b9850182a232cb5e6679488170f55b",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "redesigning-workplace-learning",
+      "family": "self-paced",
+      "courseVersion": "9df6b4d68b7a",
+      "source": "docs/course-introductions/sources/redesigning-workplace-learning.md",
+      "sourceSha256": "a775f6b26c5ce95b32b2a885e4f0f580929df787d5da5f1afe7940a12ddab61f",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "hiring-and-selection-with-ai",
+      "family": "self-paced",
+      "courseVersion": "9ded4d19f55c",
+      "source": "docs/course-introductions/sources/hiring-and-selection-with-ai.md",
+      "sourceSha256": "2f7b1a97846e31eae45b2842e2d9fc731005f1d5cecd1de50402a605403cef94",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "performance-and-feedback-with-ai",
+      "family": "self-paced",
+      "courseVersion": "a1fb6b3bd4cc",
+      "source": "docs/course-introductions/sources/performance-and-feedback-with-ai.md",
+      "sourceSha256": "ceed6336f92501a8660a7fff3b131da28a19881faeab8a7da0a93b2290ef987b",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "ai-adoption-for-line-managers",
+      "family": "self-paced",
+      "courseVersion": "b9ab30c91f34",
+      "source": "docs/course-introductions/sources/ai-adoption-for-line-managers.md",
+      "sourceSha256": "36a490e674c449543cac182f643e25da2151730990cea35135f95a2ad2de499c",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "building-a-workforce-skills-plan",
+      "family": "self-paced",
+      "courseVersion": "9552afeb7a9d",
+      "source": "docs/course-introductions/sources/building-a-workforce-skills-plan.md",
+      "sourceSha256": "806c2ca4dcc326a375951fc1a492585a8495084766e4629575d9e2bd1429e693",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "hr-operations-with-ai",
+      "family": "self-paced",
+      "courseVersion": "bcb045250e6d",
+      "source": "docs/course-introductions/sources/hr-operations-with-ai.md",
+      "sourceSha256": "9072c4a83ebcbc8c2834021ade3978856812ff540041cc1313c33a40e816fec3",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "employee-data-privacy-and-ai",
+      "family": "self-paced",
+      "courseVersion": "09220480ac90",
+      "source": "docs/course-introductions/sources/employee-data-privacy-and-ai.md",
+      "sourceSha256": "778462c9bc6af3d3a58c9e89d32156e591e9411dfa7b267b6382089bba77327a",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    },
+    {
+      "slug": "measuring-whether-training-stuck",
+      "family": "self-paced",
+      "courseVersion": "412cfe2c4fd0",
+      "source": "docs/course-introductions/sources/measuring-whether-training-stuck.md",
+      "sourceSha256": "df1dc0f859f17c5f7483978a3b3f57ec4636bc73bfa69e663fa3eca8dc42893c",
+      "prompt": "docs/course-introductions/video-generation-prompt.md",
+      "targetSeconds": [
+        180,
+        240
+      ],
+      "status": "script-ready"
+    }
+  ],
+  "academy": {
+    "slug": "academy-overview",
+    "source": "docs/course-introductions/academy-overview-source.md",
+    "notebookUrl": "https://notebook.google.com/notebook/4b6955b5-2b39-4096-ba38-fe0508a611b3",
+    "status": "needs-revision",
+    "generationObservedAt": "2026-10-03T17:28:00.505Z",
+    "prompt": "docs/course-introductions/academy-video-prompt-v1.md",
+    "output": "output/course-introductions/academy-overview.mp4",
+    "durationLabel": "3:58",
+    "reviewed": false,
+    "issues": [
+      "01:49-02:19: resubmission wording implies unlimited attempts.",
+      "02:08 visual: team capacity says 2 to 60; actual limit is 2 to 50.",
+      "02:49-03:19: undeniable proof claim overstates AI assessment and learner-signed records.",
+      "Branding drifts to orange; closing language is pushy; full listening and caption checking required."
+    ],
+    "reviewChecks": {
+      "transcriptAgainstSource": "checked-machine-draft",
+      "detectedSceneContactSheets": "checked",
+      "listening": "pending",
+      "captionsAgainstSpeech": "pending",
+      "publicationApproved": false
+    },
+    "nextAttempt": {
+      "prompt": "docs/course-introductions/academy-video-prompt-v3.md",
+      "corrections": "docs/course-introductions/corrections/academy-overview.md",
+      "status": "awaiting-free-allowance"
+    },
+    "sourceSha256": "99003b73027c1f124240f4e12d6f9f95599d998b1308d52bc0b55b25856ffc13",
+    "outputSha256": "2d33f9a8c61524b4a69f115e3f32b315a2364c21faec997840ef755546639798",
+    "bytes": 16160023
+  },
+  "quota": {
+    "observedOn": "2026-10-04",
+    "message": "Google UI: You have reached your daily Video Overview limit. Come back later.",
+    "upgraded": false,
+    "lastCheckedAt": "2026-10-04T06:27:16Z",
+    "evidence": "output/course-introductions/quota-recheck-2026-10-04.png",
+    "attempt": {
+      "slug": "prompt-engineering-for-professional-work",
+      "checkedAt": "2026-10-04T06:27:16Z",
+      "format": "Explainer",
+      "prompt": "docs/course-introductions/attempts/prompt-engineering-2026-10-04-request.md",
+      "promptSha256": "5a17036448d9a40792b7aad111fbd823d8cdf7d78e06359869d8ff865eff2cd3",
+      "sourceSha256": "1fabf94eb604b30382483d982961b64fa7d50dbedd1801687ebbbf59f502b472",
+      "accepted": false,
+      "reason": "You have reached your daily Video Overview limit. Come back later.",
+      "evidence": "output/course-introductions/quota-recheck-2026-10-04.png"
+    }
+  },
+  "release": {
+    "authorisedByUser": true,
+    "instruction": "lets get it all out when done aswell",
+    "authorisedOn": "2026-10-03",
+    "destination": "Experrt production site",
+    "status": "awaiting-completed-media-and-review",
+    "recurringScheduleAuthorised": false
+  },
+  "pronunciationStandard": {
+    "display": "AI",
+    "spoken": "ay eye",
+    "requirement": "Two letter names with no word and between them. Check all occurrences in each finished recording.",
+    "userConfirmedFailure": "prompt-engineering-for-professional-work"
+  }
+}

@@ -1,5 +1,6 @@
 "use client";
 import { ContentEditor } from "@/components/lms/content-editor";
+import { AgentCourseLibrary } from "@/components/courses/agent-course-library";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { lmsCommand, useLearningOverview } from "@/lib/lms/client";
@@ -78,6 +79,36 @@ export default function Editor({
       ),
     });
   }
+  async function importCourse(file: File) {
+    if (id !== "new" || dirty) return;
+    if (file.size > 2_000_000) {
+      setMessage("Choose a course JSON file smaller than 2 MB.");
+      return;
+    }
+    try {
+      const parsed = courseContentSchema.safeParse(
+        JSON.parse(await file.text()),
+      );
+      if (!parsed.success) {
+        setMessage(
+          "The file does not match the course format: " +
+            parsed.error.issues
+              .slice(0, 3)
+              .map((issue) => issue.path.join(" / ") + ": " + issue.message)
+              .join(" "),
+        );
+        return;
+      }
+      update(parsed.data);
+      setMessage(
+        "Course pack loaded for review. Save it as a draft before publishing any version.",
+      );
+    } catch {
+      setMessage(
+        "We could not read that course JSON file. Choose an exported LMS course pack.",
+      );
+    }
+  }
   async function save() {
     const parsed = courseContentSchema.safeParse(content);
     if (!parsed.success) {
@@ -121,10 +152,8 @@ export default function Editor({
   return (
     <Workspace
       data={data}
-      title={
-        id === "new" ? "Create a little possibility." : "Shape the learning."
-      }
-      description="Draft freely. Published versions keep the exact content and checks your learners were assigned."
+      title={id === "new" ? "Create a course" : "Edit your course"}
+      description="Write or import your course, then save a draft for review. When you publish a version, the lessons and assessment checks stay attached to that version for the learners assigned to it."
     >
       {!data ? (
         <LoadingState error={error} retry={refresh} />
@@ -135,6 +164,39 @@ export default function Editor({
           ) : (
             <>
               <Notice message={message} />
+              {id === "new" && !dirty ? (
+                <AgentCourseLibrary
+                  disabled={busy}
+                  onLoad={(pack) => {
+                    update(pack);
+                    setMessage(
+                      "Authored course loaded. Review the lessons and resources, then save your draft.",
+                    );
+                  }}
+                />
+              ) : null}
+              {id === "new" && !dirty ? (
+                <div className="lms-panel" style={{ marginBottom: 24 }}>
+                  <h2>Start from an authored course pack</h2>
+                  <p>
+                    Import an exported LMS JSON pack to load its lessons,
+                    practice activities and resources for review. Importing does
+                    not save or publish the course.
+                  </p>
+                  <label className="lms-form">
+                    Course pack JSON
+                    <input
+                      type="file"
+                      accept="application/json,.json"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) void importCourse(file);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
+              ) : null}
               <div className="lms-row between" style={{ marginBottom: 24 }}>
                 <span className="lms-muted">
                   {dirty

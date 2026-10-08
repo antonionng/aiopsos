@@ -1,0 +1,1832 @@
+/* Wonderlab game worlds. All motion is optional and every action has a button. */
+.wg-age-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 25px 4%;
+  background: #f1eafa;
+  border-bottom: 1px solid #29213c20;
+}
+.wg-age-nav a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 17px 20px;
+  border: 1px solid #c7bdcf;
+  border-radius: 15px;
+  background: #fffaf0;
+  font-size: 14px;
+}
+.wg-age-nav a.active {
+  border: 2px solid #7242d5;
+  padding: 16px 19px;
+}
+.wg-age-nav a span {
+  font-size: 11px;
+  color: #655b73;
+}
+.wg-age-nav a svg {
+  position: absolute;
+  right: 14px;
+  top: 18px;
+}
+.wg-next-worlds > p,
+.wg-featured-games > p {
+  margin: 16px 0 30px;
+  max-width: 660px;
+}
+.wg-next-worlds .wl-world-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.wg-game-lobby {
+  max-width: 1400px;
+  margin: auto;
+}
+.wg-game-lobby > p {
+  margin: 22px 0 35px;
+  font-size: 18px;
+}
+.wg-game-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+.wg-game-cards > a {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 23px;
+  border: 2px solid #29213c;
+  border-radius: 25px;
+  background-position: center;
+  background-size: cover;
+  color: #fffaf0;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
+}
+.wg-game-cards > a:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 0 #d9c8ff;
+}
+.wg-game-cards > a > span {
+  align-self: flex-start;
+  padding: 5px 12px;
+  background: #fffaf0;
+  color: #29213c;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.wg-game-cards h3 {
+  font-size: 25px;
+}
+.wg-game-cards p {
+  font-size: 13px;
+  margin: 12px 0 20px;
+  line-height: 1.6;
+}
+.wg-game-cards strong {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #adf0d9;
+}
+.wg-arcade {
+  max-width: 1250px;
+  margin: auto;
+  padding: 25px 4% 50px;
+}
+.wg-arcade-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 12px;
+}
+.wg-arcade-nav > span {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+.wg-arcade-nav > div {
+  display: flex;
+  gap: 8px;
+}
+.wg-arcade-nav button,
+.wg-narrate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fffaf0;
+  border: 1px solid #c7bdcf;
+  border-radius: 12px;
+  padding: 10px 13px;
+  min-height: 44px;
+  font-size: 12px;
+  color: #29213c;
+}
+.wg-arcade-nav button[aria-pressed="true"] {
+  background: #dff2e8;
+  border-color: #39846a;
+}
+.wg-arcade-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 35px 0 25px;
+}
+.wg-arcade-title h1 {
+  font-size: clamp(32px, 4vw, 58px);
+}
+.wg-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  font-weight: 800;
+  color: #674993;
+}
+.wg-star-meter {
+  display: flex;
+  gap: 9px;
+  white-space: nowrap;
+}
+.wg-star-meter span {
+  font-size: 32px;
+  color: #d4c9dc;
+  -webkit-text-stroke: 1px #9887aa;
+  transition:
+    transform 0.2s,
+    color 0.2s;
+}
+.wg-star-meter span.earned {
+  color: #ffc367;
+  -webkit-text-stroke: 1px #926721;
+  transform: rotate(-8deg) scale(1.15);
+}
+.wg-stage {
+  border: 2px solid #29213c;
+  border-radius: 27px;
+  background: #fffdf8;
+  padding: 30px;
+  box-shadow: 0 7px 0 #d9c8ff;
+  overflow: hidden;
+}
+.wg-stage-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.wg-stage-label {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  color: #655087;
+}
+.wg-stage h2 {
+  font-size: clamp(25px, 3vw, 38px);
+}
+.wg-brief {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin: 20px 0 23px;
+  padding: 16px 20px;
+  background: #f1eafa;
+  border-radius: 18px;
+}
+.wg-brief .wl-pip {
+  width: 48px;
+  height: 62px;
+  flex: none;
+}
+.wg-brief p {
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 800px;
+}
+.wg-launch,
+.wg-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 51px;
+  padding: 13px 24px;
+  border: 2px solid #29213c;
+  border-radius: 14px;
+  background: #7242d5;
+  color: white;
+  font-weight: 750;
+  font-size: 14px;
+  box-shadow: 0 4px 0 #29213c;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+.wg-launch:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #29213c;
+}
+.wg-launch:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #29213c;
+}
+.wg-launch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.wg-secondary {
+  background: #fffaf0;
+  color: #29213c;
+  box-shadow: none;
+}
+.wg-reaction {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 20px;
+  background: #fff0d9;
+  border: 1px solid #e7bd89;
+  border-radius: 16px;
+  margin-top: 24px;
+}
+.wg-reaction > span {
+  font-size: 32px;
+  line-height: 1;
+  flex: none;
+}
+.wg-reaction p {
+  font-size: 14px;
+}
+.wg-reaction.won {
+  background: #dff2e8;
+  border-color: #80b39c;
+}
+.wg-win-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 23px;
+  flex-wrap: wrap;
+}
+.wg-win-actions > span {
+  color: #316b51;
+  font-weight: 800;
+}
+.wg-hint {
+  border: 0;
+  border-bottom: 1px dashed #786b85;
+  background: none;
+  padding: 9px 0;
+  margin-top: 17px;
+  font-size: 13px;
+  color: #655b73;
+  min-height: 44px;
+}
+.wg-micro,
+.wg-game-note {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #655b73;
+  margin-top: 16px !important;
+}
+.wg-game-note {
+  text-align: center;
+  max-width: 760px;
+  margin: 25px auto 0 !important;
+}
+.wg-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.wg-solved {
+  box-shadow: 0 7px 0 #8bcab0;
+}
+.wg-solved .wg-reaction > span {
+  animation: wg-pop 0.4s ease both;
+}
+@keyframes wg-pop {
+  0% {
+    transform: scale(0.5) rotate(-20deg);
+  }
+  70% {
+    transform: scale(1.3) rotate(8deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Programmable island */
+.wg-island {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  max-width: 660px;
+  aspect-ratio: 5/3.5;
+  margin: 0 auto 22px;
+  border: 7px solid #b2dab6;
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 10px 0 #95bb9a;
+}
+.wg-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid #fff5;
+  font-size: 23px;
+  color: #94b691;
+}
+.wg-tile.grass {
+  background: #d3e9b8;
+}
+.wg-tile.grass:nth-child(odd) {
+  background: #c9e2ae;
+}
+.wg-tile.water {
+  background: #7ccfc9;
+  color: #419dba;
+  font-size: 44px;
+}
+.wg-tile.bridge {
+  background: repeating-linear-gradient(
+    0deg,
+    #c39464 0px,
+    #c39464 9px,
+    #926b43 10px,
+    #926b43 13px
+  );
+  border-left: 7px solid #e2bb8b;
+  border-right: 7px solid #e2bb8b;
+}
+.wg-tree {
+  font-size: 60px;
+  color: #4a9661;
+  line-height: 1;
+  text-shadow: 0 3px #356e44;
+}
+.wg-home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.wg-home small {
+  font-size: 9px;
+  color: #29213c;
+  font-weight: 900;
+}
+.wg-home .wl-picture {
+  width: 50px;
+  height: 47px;
+  background: #ffb86b;
+  transform: rotate(-4deg);
+}
+.wg-home .wl-picture svg {
+  width: 35px;
+  height: 35px;
+}
+.wg-tile > .wl-picture {
+  width: 43px;
+  height: 43px;
+  background: #ffdc79;
+}
+.wg-moving-pip {
+  position: absolute;
+  width: 20%;
+  height: 25%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition:
+    top 0.32s ease,
+    left 0.32s ease;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 0 #29213c25);
+}
+.wg-moving-pip .wl-pip {
+  height: 90%;
+  width: auto;
+}
+.wg-moving-pip > span {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 20px;
+}
+.wg-program {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-height: 58px;
+  padding: 10px 14px;
+  background: #29213c;
+  border-radius: 15px;
+  margin-top: 27px;
+}
+.wg-program > span:not(.wg-program-empty) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e4d8fa;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  color: #29213c;
+}
+.wg-program-empty {
+  color: #fffaf0b0;
+  font-size: 13px;
+}
+.wg-controls {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+.wg-controls button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 61px;
+  min-height: 63px;
+  border: 2px solid #29213c;
+  background: #fffaf0;
+  border-radius: 13px;
+  box-shadow: 0 4px 0 #d9c8ff;
+  font-size: 22px;
+}
+.wg-controls button span {
+  font-size: 10px;
+  text-transform: capitalize;
+}
+.wg-controls .wg-go {
+  background: #7242d5;
+  color: white;
+  flex-direction: row;
+  padding: 0 22px;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.wg-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.wg-controls button:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+/* Creature maker and scene builder */
+.wg-habitat,
+.wg-scene {
+  position: relative;
+  min-height: 315px;
+  overflow: hidden;
+  border: 2px solid #29213c;
+  border-radius: 21px;
+  background: linear-gradient(#cce9e5 0 70%, #9cca96 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wg-habitat-label {
+  position: absolute;
+  top: 15px;
+  left: 18px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  z-index: 2;
+}
+.wg-creature {
+  width: 265px;
+  height: 265px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 6px 0 #29213c15);
+}
+.wg-creature.happy {
+  animation: wg-bounce 0.5s ease 2;
+}
+@keyframes wg-bounce {
+  50% {
+    transform: translateY(-12px) rotate(4deg);
+  }
+}
+.wg-sun {
+  position: absolute;
+  right: 11%;
+  top: 12%;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #ffcd77;
+  box-shadow: 0 0 0 13px #ffcd7725;
+}
+.wg-cloud {
+  position: absolute;
+  left: 12%;
+  top: 19%;
+  width: 85px;
+  height: 23px;
+  background: #fffaf0c0;
+  border-radius: 25px;
+}
+.wg-cloud:before,
+.wg-cloud:after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  bottom: 0;
+  left: 13px;
+}
+.wg-cloud:after {
+  width: 45px;
+  height: 45px;
+  left: 34px;
+}
+.wg-cloud.two {
+  left: auto;
+  right: 20%;
+  top: 36%;
+  transform: scale(0.65);
+}
+.wg-habitat.rainforest:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    110deg,
+    transparent 0px,
+    transparent 37px,
+    #fff6 38px,
+    transparent 40px
+  );
+  pointer-events: none;
+  opacity: 0.4;
+}
+.wg-habitat.moon {
+  background:
+    radial-gradient(ellipse at 25% 88%, #888ba6 0 5%, transparent 5.5%),
+    linear-gradient(#30334e 0 70%, #babdcf 70%);
+}
+.wg-habitat.moon .wg-cloud {
+  display: none;
+}
+.wg-habitat.moon .wg-sun {
+  background: #e9ebff;
+  box-shadow: 0 0 0 10px #e9ebff15;
+}
+.wg-habitat.moon .wg-habitat-label {
+  color: #fffaf0;
+}
+.wg-habitat.desert {
+  background: linear-gradient(#f9dbb3 0 70%, #eeb971 70%);
+}
+.wg-feature-slots {
+  position: absolute;
+  bottom: 13px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 3;
+}
+.wg-feature-slots span {
+  padding: 5px 12px;
+  background: #fffaf0;
+  border: 1px solid #29213c;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.wg-pieces {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.wg-pieces button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  min-height: 63px;
+  border: 2px solid #d3c6e1;
+  border-radius: 14px;
+  background: #fffaf0;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #29213c;
+}
+.wg-pieces button > strong {
+  margin-left: auto;
+}
+.wg-pieces button[aria-pressed="true"] {
+  border-color: #7242d5;
+  background: #eae0fb;
+  box-shadow: 0 3px 0 #bca2e3;
+}
+.wg-pieces button:disabled:not([aria-pressed="true"]) {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.wg-feature-symbol {
+  font-size: 30px;
+  min-width: 28px;
+  text-align: center;
+  color: #7242d5;
+}
+.wg-pieces .wl-picture {
+  width: 39px;
+  height: 39px;
+  flex: none;
+}
+.wg-pieces .wl-picture svg {
+  width: 25px;
+  height: 25px;
+}
+.wg-scene-objects {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  z-index: 1;
+  padding: 40px 15px;
+}
+.wg-scene-objects > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: wg-pop 0.25s ease;
+}
+.wg-scene-objects > div > span:last-child {
+  font-size: 12px;
+  background: #fffaf0;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+.wg-scene-empty {
+  font-size: 15px;
+  background: #fffaf0d9;
+  padding: 20px;
+  border-radius: 15px;
+}
+.wg-scene-objects .wl-picture {
+  height: 90px;
+  width: 90px;
+}
+.wg-scene-objects .wl-picture svg {
+  height: 58px;
+  width: 58px;
+}
+/* All-mission game interactions */
+.wg-sort-world {
+  background: linear-gradient(#e4eff6, #f8edcb);
+  border-radius: 20px;
+  padding: 24px;
+}
+.wg-sort-object {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  min-height: 170px;
+  justify-content: center;
+}
+.wg-sort-object > .wl-picture {
+  width: 91px;
+  height: 91px;
+  background: #fffaf0;
+  box-shadow: 0 6px 0 #29213c20;
+  animation: wg-pop 0.25s ease;
+}
+.wg-sort-object > .wl-picture svg {
+  width: 58px;
+  height: 58px;
+}
+.wg-baskets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+.wg-basket {
+  padding: 17px;
+  border: 3px solid #8b6750;
+  border-radius: 14px 14px 26px 26px;
+  background: repeating-linear-gradient(
+    0deg,
+    #e2bd8f 0 13px,
+    #d4a977 14px 17px
+  );
+  min-height: 140px;
+  color: #29213c;
+}
+.wg-basket > strong {
+  display: inline-block;
+  background: #fffaf0;
+  padding: 5px 14px;
+  border: 1px solid #8b6750;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.wg-basket > span {
+  font-size: 10px;
+  display: block;
+}
+.wg-basket-items {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 50px;
+  flex-wrap: wrap;
+}
+.wg-basket-items .wl-picture {
+  height: 34px;
+  width: 34px;
+}
+.wg-basket-items .wl-picture svg {
+  height: 22px;
+  width: 22px;
+}
+.wg-stepping-stones {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  position: relative;
+  background: #d8eee2;
+  border-radius: 18px;
+  padding: 30px 20px 90px;
+  overflow: hidden;
+}
+.wg-stepping-stones > div {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px dashed #92b7a3;
+  border-radius: 15px;
+  min-height: 100px;
+  font-size: 11px;
+  padding: 10px;
+  background: #fffaf080;
+  position: relative;
+}
+.wg-stepping-stones > div.filled {
+  background: #fffaf0;
+  border: 2px solid #8c74b7;
+  box-shadow: 0 5px 0 #b8acd0;
+}
+.wg-step-count {
+  position: absolute;
+  top: -12px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  background: #7242d5;
+  color: white;
+  border-radius: 50%;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+.wg-stepping-stones button {
+  font: inherit;
+  border: 0;
+  background: none;
+  color: #29213c;
+  min-height: 44px;
+}
+.wg-plan-pip {
+  position: absolute;
+  bottom: 0;
+  left: 45%;
+  height: 80px;
+}
+.wg-plan-pip .wl-pip {
+  height: 80px;
+  width: auto;
+}
+.wg-caseboard {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 25px;
+  background: #e9ddce;
+  border-radius: 18px;
+  padding: 23px;
+  border: 5px solid #b5957a;
+}
+.wg-sources details {
+  background: #fffdf0;
+  padding: 14px 17px;
+  margin: 12px 0;
+  box-shadow: 0 3px 0 #29213c12;
+  transform: rotate(-1deg);
+}
+.wg-sources summary {
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  min-height: 30px;
+}
+.wg-sources p {
+  font-size: 13px;
+  margin-top: 9px;
+}
+.wg-claims > button:not(.wg-launch) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: #fffaf0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 13px;
+  min-height: 60px;
+  width: 100%;
+  margin: 12px 0;
+}
+.wg-claims > button[aria-pressed="true"] {
+  border-color: #7242d5;
+  background: #ece1ff;
+}
+.wg-pin {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffb775;
+  flex: none;
+  font-weight: 800;
+}
+.wg-decision-scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+  min-height: 200px;
+  background-size: cover;
+  background-position: center 48%;
+  border-radius: 18px;
+}
+.wg-decision-scene > .wl-pip {
+  width: 105px;
+  height: 120px;
+  filter: drop-shadow(0 3px 0 #29213c20);
+}
+.wg-speech {
+  background: #fffaf0;
+  border: 2px solid #29213c;
+  padding: 13px 19px;
+  border-radius: 16px 16px 16px 0;
+  font-size: 16px;
+  font-weight: 800;
+  transform: rotate(-3deg);
+}
+.wg-action-paths {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+.wg-action-paths button {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  text-align: left;
+  border: 2px solid #cabcdc;
+  background: #fffaf0;
+  border-radius: 17px;
+  padding: 17px;
+  min-height: 86px;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: 0 4px 0 #e4d8fa;
+}
+.wg-action-paths button > svg {
+  margin-left: auto;
+  flex: none;
+}
+.wg-action-paths button[aria-pressed="true"] {
+  border-color: #7242d5;
+  background: #eae0fb;
+}
+.wg-path-icon {
+  font-size: 33px;
+  color: #7242d5;
+  flex: none;
+}
+.wg-path-icon .wl-picture {
+  width: 46px;
+  height: 46px;
+}
+.wg-path-icon .wl-picture svg {
+  width: 29px;
+  height: 29px;
+}
+/* Teen game tools */
+.wg-fact-ticket {
+  padding: 20px 23px;
+  background: #def2e7;
+  border: 1px solid #9fbcab;
+  border-radius: 13px;
+  margin-bottom: 20px;
+}
+.wg-fact-ticket > span {
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  color: #345c4b;
+}
+.wg-fact-ticket > p {
+  font-size: 15px;
+  margin-top: 9px;
+}
+.wg-prompt-console {
+  background: #2d2841;
+  border-radius: 16px;
+  padding: 18px 22px;
+  color: #fffaf0;
+}
+.wg-console-bar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 19px;
+}
+.wg-console-bar > span {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: #ffb16e;
+}
+.wg-console-bar > span:nth-child(2) {
+  background: #b4dbaa;
+}
+.wg-console-bar > span:nth-child(3) {
+  background: #bd9de9;
+}
+.wg-console-bar strong {
+  font-size: 9px;
+  letter-spacing: 0.17em;
+  margin-left: 10px;
+}
+.wg-prompt-console fieldset {
+  border: 0;
+  border-top: 1px solid #fff3;
+  padding: 14px 0 20px;
+  margin: 0;
+}
+.wg-prompt-console legend {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding-right: 14px;
+  color: #d8c1ff;
+}
+.wg-prompt-console fieldset > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.wg-prompt-console button {
+  padding: 13px;
+  border: 1px solid #8e839c;
+  border-radius: 10px;
+  min-height: 60px;
+  font-size: 12px;
+  color: #f9f2ff;
+  background: #ffffff0c;
+  line-height: 1.5;
+}
+.wg-prompt-console button[aria-pressed="true"] {
+  background: #d3bae8;
+  color: #29213c;
+  border: 2px solid #fffaf0;
+  box-shadow: 0 3px 0 #a892bc;
+}
+.wg-output-screen {
+  background: #f1eafa;
+  border: 1px solid #c7b6db;
+  border-radius: 13px;
+  margin: 18px 0;
+  padding: 19px 23px;
+  min-height: 130px;
+}
+.wg-output-screen > span {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+.wg-output-screen > p {
+  font-size: 15px;
+  white-space: pre-line;
+  margin-top: 12px;
+}
+.wg-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 23px;
+}
+.wg-poster {
+  background: #29213c;
+  color: #fffaf0;
+  padding: 28px;
+  border-radius: 4px;
+  box-shadow: 7px 7px 0 #cbb9e1;
+  overflow: hidden;
+}
+.wg-poster > span {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: #c7b4e5;
+}
+.wg-poster h3 {
+  font-size: clamp(30px, 4vw, 55px);
+  line-height: 0.96;
+  letter-spacing: -0.06em;
+  margin-top: 24px;
+  max-width: 350px;
+}
+.wg-poster-graphic {
+  font-size: 112px;
+  line-height: 1.25;
+  color: #b3e6c7;
+  text-align: center;
+}
+.wg-poster > button {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  text-align: left;
+  padding: 12px 10px;
+  border: 1px dashed #bfa0ea;
+  background: #ffffff09;
+  border-radius: 8px;
+  margin-top: 10px;
+  color: #fffaf0;
+  min-height: 56px;
+  line-height: 1.4;
+}
+.wg-poster > button.active {
+  border: 2px solid #fac07a;
+  background: #ffcf9d15;
+}
+.wg-poster > button > span {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  background: #fac07a;
+  color: #29213c;
+  border-radius: 50%;
+  font-size: 10px;
+  flex: none;
+}
+.wg-poster > button strong {
+  font-size: 13px;
+  flex: 1;
+  min-width: 0;
+}
+.wg-poster > button small {
+  font-size: 9px;
+  text-transform: uppercase;
+  width: 100%;
+  padding-left: 30px;
+  color: #c6b3e2;
+}
+.wg-inspector h3 {
+  margin: 15px 0;
+  font-size: 21px;
+}
+.wg-inspector > p {
+  font-size: 13px;
+}
+.wg-verdicts {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 19px 0;
+}
+.wg-verdicts button {
+  border: 1px solid #bfaed2;
+  border-radius: 10px;
+  background: #fffaf0;
+  padding: 12px 16px;
+  text-align: left;
+  min-height: 47px;
+  font-size: 13px;
+}
+.wg-verdicts button[aria-pressed="true"] {
+  background: #dfd1f2;
+  border: 2px solid #7242d5;
+}
+.wg-review-dots {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+.wg-review-dots button {
+  width: 45px;
+  height: 45px;
+  border: 1px solid #bfaed2;
+  border-radius: 50%;
+  background: #f0e6fa;
+  color: #7242d5;
+  font-weight: 800;
+}
+.wg-trophy-room {
+  text-align: center;
+  background: radial-gradient(circle at 50% 35%, #e9ddfa, #fffaf0 70%);
+  border: 2px solid #29213c;
+  border-radius: 30px;
+  padding: 40px 30px;
+}
+.wg-big-sticker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid #29213c;
+  border-radius: 50%;
+  height: 235px;
+  width: 235px;
+  background: #d9c8ff;
+  box-shadow: 7px 9px 0 #29213c;
+  margin: 0 auto 33px;
+  transform: rotate(-7deg);
+  animation: wg-pop 0.5s ease;
+}
+.wg-big-sticker > span {
+  font-size: 95px;
+  color: #7242d5;
+  line-height: 1.1;
+}
+.wg-big-sticker > strong {
+  font-size: 17px;
+}
+.wg-big-sticker > small {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  margin-top: 8px;
+}
+.wg-trophy-room > p {
+  max-width: 540px;
+  margin: 18px auto;
+}
+.wg-trophy-room .wg-win-actions {
+  justify-content: center;
+  margin-bottom: 25px;
+}
+.wg-trophy-room > h2 {
+  font-size: 35px;
+}
+/* Full-curriculum player: checkpoint strip and making space */
+.wg-mission-game .wl-game-header {
+  align-items: center;
+}
+.wg-mission-game .wl-game-header > .wg-narrate {
+  margin-left: auto;
+}
+.wg-mission-layout {
+  display: block;
+}
+.wg-mission-layout .wl-chapters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 22px 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.wg-mission-layout .wl-chapters > button {
+  flex: 1;
+  min-width: 130px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid #c7bdcf;
+  border-radius: 14px;
+  background: #fffaf0;
+  font-size: 11px;
+  margin: 0;
+}
+.wg-mission-layout .wl-chapters > button[aria-current="step"] {
+  background: #e4d8fa;
+  border: 2px solid #7242d5;
+}
+.wg-mission-layout > .wl-stage {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+.wg-mission-layout > .wl-stage > .wg-stage {
+  margin: 0;
+}
+.wg-mission-layout > .wl-stage > .wg-stage h2 {
+  margin-top: 0;
+}
+.wg-workshop {
+  margin-top: 25px;
+  background: #e9e0f6;
+  padding: 23px;
+  border-radius: 22px;
+  border: 1px solid #cbb9e1;
+}
+.wg-workshop-heading > span {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  color: #6e4c96;
+}
+.wg-workshop-heading h3 {
+  margin: 10px 0;
+}
+.wg-workshop-heading p {
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.wg-canvas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  background: linear-gradient(#cee6f0 0 65%, #cce6b9 65%);
+  border: 3px solid #29213c;
+  border-radius: 17px;
+  padding: 15px;
+  min-height: 280px;
+}
+.wg-canvas > button {
+  display: grid;
+  place-items: center;
+  min-height: 78px;
+  border: 1px dashed #29213c30;
+  border-radius: 12px;
+  background: #fffaf035;
+  color: #6b8390;
+  font-size: 25px;
+}
+.wg-canvas > button:hover {
+  background: #fffaf080;
+}
+.wg-canvas .wl-picture {
+  width: 53px;
+  height: 53px;
+}
+.wg-canvas .wl-picture svg {
+  width: 35px;
+  height: 35px;
+}
+.wg-canvas.sorting {
+  background: linear-gradient(
+    90deg,
+    #ffdfb5 49.5%,
+    #29213c 49.5%,
+    #29213c 50.5%,
+    #b9e2cc 50.5%
+  );
+}
+.wg-canvas-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  text-align: center;
+  font-weight: 800;
+  font-size: 13px;
+  margin: 15px 0 7px;
+}
+.wg-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 18px 0;
+}
+.wg-palette > button {
+  display: grid;
+  place-items: center;
+  min-width: 47px;
+  min-height: 47px;
+  padding: 5px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #fffaf0;
+  font-size: 12px;
+}
+.wg-palette > button[aria-pressed="true"] {
+  border-color: #7242d5;
+  background: #d9c8ff;
+}
+.wg-palette .wl-picture {
+  width: 32px;
+  height: 32px;
+}
+.wg-palette .wl-picture svg {
+  width: 22px;
+  height: 22px;
+}
+.wg-workshop .wl-form textarea {
+  min-height: 100px;
+}
+.wg-workshop .wl-form {
+  font-size: 13px;
+}
+.wg-board-complete {
+  opacity: 0.85;
+}
+.wg-board-complete button {
+  cursor: default;
+}
+@media (min-width: 900px) {
+  .wg-arcade.explorers .wg-brief p,
+  .wg-arcade.inventors .wg-brief p {
+    font-size: 17px;
+  }
+  .wg-arcade.explorers .wg-stage {
+    padding: 30px 45px;
+  }
+  .wg-mission-game .wl-game-progress {
+    max-width: 100%;
+  }
+}
+@media (max-width: 1000px) {
+  .wg-game-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wg-pieces {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wg-age-nav a {
+    padding: 14px 12px;
+    font-size: 12px;
+  }
+  .wg-age-nav a.active {
+    padding: 13px 11px;
+  }
+  .wg-age-nav a svg {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .wg-age-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 18px 6%;
+    gap: 9px;
+  }
+  .wg-arcade {
+    padding: 19px 5% 35px;
+  }
+  .wg-arcade-nav {
+    flex-wrap: wrap;
+    font-size: 11px;
+  }
+  .wg-arcade-nav > div {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .wg-arcade-title {
+    margin: 24px 0 20px;
+    gap: 10px;
+  }
+  .wg-arcade-title h1 {
+    font-size: 34px;
+  }
+  .wg-star-meter {
+    gap: 4px;
+  }
+  .wg-star-meter span {
+    font-size: 22px;
+  }
+  .wg-stage {
+    padding: 19px 14px;
+    border-radius: 20px;
+  }
+  .wg-stage-top {
+    align-items: center;
+  }
+  .wg-stage-label {
+    font-size: 8px;
+  }
+  .wg-narrate {
+    font-size: 10px;
+    padding: 7px 9px;
+  }
+  .wg-brief {
+    padding: 13px 12px;
+    gap: 10px;
+  }
+  .wg-brief p {
+    font-size: 13px;
+  }
+  .wg-brief .wl-pip {
+    width: 35px;
+    height: 47px;
+  }
+  .wg-island {
+    border-width: 4px;
+  }
+  .wg-home .wl-picture {
+    height: 35px;
+    width: 35px;
+  }
+  .wg-home .wl-picture svg {
+    height: 24px;
+    width: 24px;
+  }
+  .wg-home small {
+    font-size: 7px;
+  }
+  .wg-tile > .wl-picture {
+    width: 28px;
+    height: 28px;
+  }
+  .wg-tile > .wl-picture svg {
+    width: 19px;
+    height: 19px;
+  }
+  .wg-tree {
+    font-size: 35px;
+  }
+  .wg-controls {
+    gap: 7px;
+  }
+  .wg-controls button {
+    min-width: 42px;
+    min-height: 56px;
+    flex: 1;
+  }
+  .wg-controls button svg {
+    width: 21px;
+  }
+  .wg-controls .wg-go {
+    flex-basis: 100%;
+    min-height: 48px;
+  }
+  .wg-program {
+    gap: 5px;
+    padding: 8px;
+  }
+  .wg-program > span:not(.wg-program-empty) {
+    width: 28px;
+    height: 28px;
+  }
+  .wg-habitat,
+  .wg-scene {
+    min-height: 275px;
+  }
+  .wg-creature {
+    width: 225px;
+    height: 225px;
+  }
+  .wg-pieces button {
+    padding: 10px;
+    gap: 7px;
+    font-size: 11px;
+  }
+  .wg-feature-symbol {
+    font-size: 25px;
+    min-width: 22px;
+  }
+  .wg-feature-slots span {
+    font-size: 9px;
+    padding: 4px 7px;
+  }
+  .wg-prompt-console {
+    padding: 14px;
+  }
+  .wg-prompt-console fieldset > div {
+    grid-template-columns: 1fr;
+  }
+  .wg-prompt-console button {
+    min-height: 45px;
+    text-align: left;
+    padding: 10px 13px;
+  }
+  .wg-fact-ticket {
+    padding: 15px;
+  }
+  .wg-fact-ticket > p {
+    font-size: 13px;
+  }
+  .wg-output-screen > p {
+    font-size: 13px;
+  }
+  .wg-editor-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .wg-poster {
+    padding: 23px;
+  }
+  .wg-poster h3 {
+    font-size: 42px;
+  }
+  .wg-poster-graphic {
+    font-size: 82px;
+  }
+  .wg-caseboard {
+    grid-template-columns: 1fr;
+    padding: 15px;
+    gap: 15px;
+  }
+  .wg-action-paths {
+    grid-template-columns: 1fr;
+  }
+  .wg-action-paths button {
+    font-size: 13px;
+    min-height: 69px;
+    padding: 12px;
+  }
+  .wg-stepping-stones {
+    flex-wrap: wrap;
+    gap: 16px 10px;
+    padding: 25px 12px 75px;
+  }
+  .wg-stepping-stones > div {
+    flex-basis: 42%;
+    min-height: 85px;
+  }
+  .wg-baskets {
+    gap: 10px;
+  }
+  .wg-basket {
+    padding: 10px 7px;
+    min-height: 140px;
+  }
+  .wg-basket > strong {
+    padding: 5px 7px;
+    font-size: 11px;
+  }
+  .wg-sort-world {
+    padding: 15px 9px;
+  }
+  .wg-sort-object h3 {
+    font-size: 17px;
+    text-align: center;
+  }
+  .wg-basket-items {
+    gap: 4px;
+  }
+  .wg-basket-items .wl-picture {
+    width: 28px;
+    height: 28px;
+  }
+  .wg-reaction {
+    padding: 15px;
+    gap: 10px;
+  }
+  .wg-reaction p {
+    font-size: 13px;
+  }
+  .wg-win-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .wg-win-actions > span {
+    font-size: 13px;
+  }
+  .wg-next-worlds .wl-world-grid {
+    grid-template-columns: 1fr;
+  }
+  .wg-game-cards {
+    grid-template-columns: 1fr;
+  }
+  .wg-game-cards > a {
+    min-height: 330px;
+  }
+  .wg-game-lobby h1 {
+    font-size: 43px;
+  }
+  .wg-trophy-room {
+    padding: 30px 20px;
+  }
+  .wg-trophy-room h2 {
+    font-size: 29px;
+  }
+  .wg-mission-layout .wl-chapters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .wg-mission-layout .wl-chapters > button {
+    min-width: 0;
+    font-size: 10px;
+  }
+  .wg-mission-game .wl-game-header {
+    flex-wrap: wrap;
+  }
+  .wg-mission-game .wl-game-header > .wg-narrate {
+    margin-left: 0;
+  }
+  .wg-workshop {
+    padding: 15px;
+  }
+  .wg-canvas {
+    padding: 8px;
+    min-height: 240px;
+  }
+  .wg-canvas > button {
+    min-height: 65px;
+  }
+  .wg-canvas .wl-picture {
+    width: 43px;
+    height: 43px;
+  }
+  .wg-canvas .wl-picture svg {
+    width: 28px;
+    height: 28px;
+  }
+  .wl-nav nav {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .wg-scene-objects {
+    gap: 14px;
+  }
+  .wg-scene-objects .wl-picture {
+    width: 60px;
+    height: 60px;
+  }
+  .wg-scene-objects .wl-picture svg {
+    width: 40px;
+    height: 40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wg-arcade *,
+  .wg-mission-game * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .wg-game-cards > a:hover {
+    transform: none;
+  }
+}
+.wg-story-tabs {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+}
+.wg-story-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.wg-story-fields > .wl-form:first-child,
+.wg-story-fields > .wl-form:last-child {
+  grid-column: 1/-1;
+}
+.wg-story-screen {
+  padding: 28px;
+  background: #29213c;
+  color: #fffaf0;
+  border-radius: 18px;
+}
+.wg-story-screen > span {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #d0b6f1;
+}
+.wg-story-screen > h3 {
+  margin: 18px 0;
+}
+.wg-story-screen > p {
+  white-space: pre-wrap;
+  margin: 20px 0;
+  font-size: 16px;
+}
+.wg-story-screen .wg-action-paths button {
+  color: #29213c;
+}
+.wg-story-screen .wg-micro {
+  color: #d8c7e8;
+}
+@media (max-width: 700px) {
+  .wg-story-fields {
+    grid-template-columns: 1fr;
+  }
+  .wg-story-screen {
+    padding: 20px;
+  }
+}
+
+/* Robot Rescue: the playable map and one instruction at a time. */
+.wg-rescue-start { margin: 20px 0; padding: 18px 22px; border-radius: 20px; background: #e5f1dd; border: 1px solid #afcfa4; }
+.wg-rescue-start-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.wg-rescue-start-row p { max-width: 600px; font-size: 15px; }
+.wg-rescue-start-row strong { display: block; }
+.wg-rescue-start .wg-secondary { flex: none; }
+.wg-rescue-coached { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(290px, 1fr); align-items: start; gap: 24px; }
+.wg-rescue-world { min-width: 0; }
+.wg-rescue-coached .wg-island { width: 100%; margin: 0; }
+.wg-rescue-console { min-width: 0; }
+.wg-coach-bubble { background: #eee6fb; border-radius: 16px; padding: 16px; min-height: 116px; }
+.wg-coach-bubble strong { font-size: 17px; }
+.wg-coach-bubble p { margin-top: 8px; font-size: 15px; line-height: 1.5; }
+.wg-rescue-console .wg-narrate { margin-top: 8px; }
+.wg-rescue-console .wg-program { margin-top: 12px; min-height: 72px; }
+.wg-program > button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-width: 48px; min-height: 48px; background: #e4d8fa; color: #29213c; border: 2px solid transparent; border-radius: 10px; }
+.wg-program > button small { align-self: flex-start; font-size: 10px; }
+.wg-program > button.is-running { background: #d8ef96; outline: 3px solid white; transform: translateY(-3px); }
+.wg-program > button.needs-repair { background: #ffdaa3; border: 3px dashed #8b3c1f; }
+.wg-program > button b { position: absolute; right: -5px; top: -9px; background: #fffaf0; color: #8b3c1f; border-radius: 50%; font-size: 20px; line-height: 22px; width: 22px; }
+.wg-rescue-console .wg-controls { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+.wg-rescue-console .wg-controls button { min-width: 48px; min-height: 58px; }
+.wg-rescue-console .wg-controls .wg-go { grid-column: span 2; padding: 0 10px; }
+.wg-map-key { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin: 20px 0 0 !important; font-size: 12px; font-weight: 700; }
+.wg-parent-notes { margin: 24px 0; padding: 20px; background: #eee7f7; border-radius: 16px; font-size: 14px; }
+.wg-parent-notes summary { cursor: pointer; font-weight: 700; min-height: 28px; }
+.wg-parent-notes p, .wg-parent-notes ul { margin-top: 14px; }
+.wg-parent-notes ul { padding-left: 22px; }
+.wg-discovery { text-align: center; }
+.wg-discovery .wg-discovery-context { font-size: 12px; margin: 12px 0 24px; }
+.wg-ai-claim { display: flex; justify-content: center; align-items: center; gap: 20px; background: #e5dcfa; padding: 20px; border-radius: 20px; margin-bottom: 24px; }
+.wg-ai-claim .wl-pip { width: 70px; }
+.wg-ai-claim p { font-size: clamp(19px, 3vw, 28px); }
+.wg-counting-apples { display: flex; justify-content: center; gap: 24px; margin: 28px 0; }
+.wg-counting-apples button { display: flex; flex-direction: column; align-items: center; padding: 16px; border-radius: 20px; border: 3px solid #ccb8ed; background: #fffaf0; min-width: 110px; }
+.wg-counting-apples button[aria-pressed="true"] { background: #dff3ce; border-color: #4c7340; }
+.wg-counting-apples .wl-picture { width: 74px; height: 74px; background: #ffd4b9; }
+.wg-counting-apples span { margin-top: 10px; font-weight: 700; }
+.wg-discovery-choices { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.wg-discovery > .wg-launch { margin-top: 20px; }
+@media(max-width: 900px) {
+  .wg-rescue-coached { grid-template-columns: 1fr; }
+  .wg-rescue-coached .wg-island { max-width: 480px; }
+  .wg-rescue-start-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .wg-coach-bubble { min-height: auto; }
+}
+@media(prefers-reduced-motion: reduce) { .wg-program > button.is-running { transform: none; } }
+.wg-discovery .wg-count-status { margin-bottom: 18px; font-weight: 700; }
+.wg-discovery-choices button:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Coach beside the action, with a fresh evidence challenge before rewards. */
+.wg-arcade-coach { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 22px; margin: 0 0 22px; border-radius: 18px; background: #eee6fb; }
+.wg-arcade-coach p { max-width: 700px; font-size: 15px; line-height: 1.6; }
+.wg-arcade-coach strong { display: block; font-size: 16px; margin-bottom: 4px; }
+.wg-arcade-coach .wg-narrate { flex: none; }
+.wg-prompt-console .wg-slot-repair { border: 2px dashed #ffcc88; border-radius: 12px; padding: 12px; }
+.wg-poster button.wg-claim-repair { outline: 3px dashed #ffd18b; outline-offset: 4px; }
+.wg-decision-status { min-height: 48px; margin: 18px 0; font-size: 14px; line-height: 1.5; }
+.wg-transfer-intro { margin: 16px 0 24px; max-width: 850px; }
+.wg-transfer-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); align-items: start; gap: 28px; }
+.wg-transfer-draft { padding: 28px; background: #e7def9; border: 2px solid #c7b2e5; border-radius: 24px; }
+.wg-transfer-draft > p { font-size: clamp(18px,2.3vw,28px); line-height: 1.5; margin: 20px 0; }
+.wg-transfer-draft .wg-creature { position: relative; display: block; width: min(100%,280px); height: auto; margin: 15px auto; }
+.wg-source-reveal { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 18px; border: 2px solid #7054a1; border-radius: 12px; background: #fffaf0; color: #29213c; text-align: left; font-weight: 700; min-height: 48px; }
+.wg-transfer .wg-fact-ticket { margin: 14px 0; }
+.wg-transfer-choices { border: 0; margin: 22px 0 12px; min-width: 0; padding: 0; }
+.wg-transfer-choices legend { font-weight: 700; margin-bottom: 12px; }
+.wg-transfer-choices button { display: flex; justify-content: space-between; align-items: center; gap: 18px; width: 100%; min-height: 58px; padding: 16px; margin-top: 10px; border: 2px solid #c3b2dd; border-radius: 12px; background: #fffaf0; color: #29213c; text-align: left; }
+.wg-transfer-choices button[aria-pressed="true"] { border-color: #7540d7; background: #e6d9fa; box-shadow: 0 3px 0 #c8b3eb; }
+.wg-transfer-choices:disabled { opacity: .65; }
+.wg-transfer > .wg-launch { margin-top: 20px; }
+.wg-transfer > .wg-micro { margin-top: 22px; }
+.wg-repair-stamp { display: inline-block; padding: 10px 14px; border-radius: 10px; background: #d2ecc7; color: #254d29; font-weight: 700; animation: wg-stamp-in .3s ease-out; }
+.wg-field-report { grid-column: 1 / -1; padding: 18px 22px; background: #e5f1dd; border-radius: 16px; }
+.wg-field-report ul { display: flex; flex-wrap: wrap; gap: 14px 30px; padding: 10px 0 0; list-style: none; }
+.wg-field-report li { display: flex; align-items: center; gap: 8px; }
+.wg-field-report li span { font-weight: 700; }
+@keyframes wg-stamp-in { from { transform: scale(.9); opacity: .3; } to { transform: scale(1); opacity: 1; } }
+@media (max-width: 900px) {
+  .wg-arcade-coach { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .wg-transfer-grid { grid-template-columns: 1fr; }
+}
+
+.wg-activity-controls { border: 0; margin: 0; padding: 0; min-width: 0; }

@@ -10,6 +10,8 @@ import {
 } from "@/lib/constants";
 import type { CertificateSnapshot } from "@/lib/types";
 import { verifyCertificateMetadata } from "@/lib/public-share-metadata";
+import { findSignedRecord } from "@/lib/self-serve/records";
+import { SelfServePublicRecord } from "@/components/learn/public-record";
 
 export const dynamic = "force-dynamic";
 
@@ -38,15 +40,31 @@ export default async function VerifyPage({
   const { ref } = await params;
   const normalised = ref.toUpperCase();
 
-  if (!REF_PATTERN.test(normalised)) notFound();
+  if (REF_PATTERN.test(normalised)) {
+    const { data } = await supabaseAdmin
+      .from("certificates")
+      .select("public_ref, issued_at, revoked_at, snapshot")
+      .eq("public_ref", normalised)
+      .maybeSingle();
+    if (data) return <CohortCertificate data={data} />;
+  }
 
-  const { data } = await supabaseAdmin
-    .from("certificates")
-    .select("public_ref, issued_at, revoked_at, snapshot")
-    .eq("public_ref", normalised)
-    .maybeSingle();
+  const selfServe = await findSignedRecord(normalised);
+  if (selfServe) return <SelfServePublicRecord record={selfServe} />;
 
-  if (!data) notFound();
+  notFound();
+}
+
+function CohortCertificate({
+  data,
+}: {
+  data: {
+    public_ref: string;
+    issued_at: string;
+    revoked_at: string | null;
+    snapshot: unknown;
+  };
+}) {
 
   const snapshot = (data.snapshot ?? {}) as Partial<CertificateSnapshot>;
   const revoked = !!data.revoked_at;

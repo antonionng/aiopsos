@@ -23,7 +23,12 @@ export const dynamic = "force-dynamic";
 type MooovEvent = {
   id: string;
   type: string;
-  data?: { payment_id?: string };
+  data?: {
+    payment_id?: string;
+    amount?: number;
+    currency?: string;
+    state?: string;
+  };
 };
 
 export async function POST(req: Request) {
@@ -33,10 +38,15 @@ export async function POST(req: Request) {
   try {
     secret = getMooovWebhookSecret();
   } catch {
-    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook not configured" },
+      { status: 500 },
+    );
   }
 
-  if (!verifyMooovWebhook(rawBody, req.headers.get("x-mooov-signature"), secret)) {
+  if (
+    !verifyMooovWebhook(rawBody, req.headers.get("x-mooov-signature"), secret)
+  ) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -46,9 +56,58 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
-  if (!event.id || !event.type) {
+  if (
+    !event ||
+    typeof event.id !== "string" ||
+    !event.id ||
+    typeof event.type !== "string" ||
+    !event.type ||
+    (event.data?.payment_id !== undefined &&
+      typeof event.data.payment_id !== "string") ||
+    (event.data?.amount !== undefined &&
+      !Number.isInteger(event.data.amount)) ||
+    (event.data?.currency !== undefined &&
+      typeof event.data.currency !== "string") ||
+    (event.data?.state !== undefined && typeof event.data.state !== "string")
+  ) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
+
+  // Course receipts and enrolment are one database transaction. Process them
+  // before legacy event dedupe so a failed fulfilment remains retryable.
+  if (event.data?.payment_id?.startsWith("pay_course_")) {
+    const { data: order, error: lookupError } = await supabaseAdmin
+      .from("agent_course_orders")
+      .select("payment_provider")
+      .eq("payment_id", event.data.payment_id)
+      .maybeSingle();
+    if (lookupError)
+      return NextResponse.json(
+        { error: "Course payment lookup failed." },
+        { status: 503 },
+      );
+    if (order?.payment_provider === "stripe")
+      return NextResponse.json({ received: true, ignored: true });
+    const { data, error } = await supabaseAdmin.rpc(
+      "agent_course_payment_event",
+      {
+        p_event: event.id,
+        p_type: event.type,
+        p_payment: event.data.payment_id,
+        p_amount: event.data.amount ?? null,
+        p_currency: event.data.currency ?? null,
+        p_state: event.data.state ?? null,
+      },
+    );
+    if (error)
+      return NextResponse.json(
+        { error: "Course payment could not be processed. Retry this event." },
+        { status: 503 },
+      );
+    return NextResponse.json({ received: true, ...data });
+  }
+  if (event.data?.payment_id?.startsWith("stripe_"))
+    return NextResponse.json({ received: true, ignored: true });
 
   // Guard 1: event-id dedupe. An empty result means this id was already
   // recorded by an earlier delivery - acknowledge and stop.
@@ -61,7 +120,7 @@ export async function POST(req: Request) {
         event_type: event.type,
         payload: event,
       },
-      { onConflict: "event_id", ignoreDuplicates: true }
+      { onConflict: "event_id", ignoreDuplicates: true },
     )
     .select("event_id");
 
@@ -147,7 +206,8 @@ async function handleCaptured(paymentId: string) {
       .update({ paid_at: new Date().toISOString() })
       .eq("id", payment.cohort_id)
       .is("paid_at", null);
-    if (cohortError) throw new Error(`cohort update failed: ${cohortError.message}`);
+    if (cohortError)
+      throw new Error(`cohort update failed: ${cohortError.message}`);
   }
 
   if (payment.purpose === "credit_pack" && payment.pack_id) {
@@ -156,16 +216,21 @@ async function handleCaptured(paymentId: string) {
       .select("credits, name")
       .eq("id", payment.pack_id)
       .single();
-    if (packError || !pack) throw new Error("credit pack not found for captured payment");
+    if (packError || !pack)
+      throw new Error("credit pack not found for captured payment");
 
-    const { error: creditError } = await supabaseAdmin.rpc("academy_apply_credit_delta", {
-      p_org: payment.org_id,
-      p_delta: pack.credits,
-      p_reason: "purchase",
-      p_payment: payment.id,
-      p_description: `${pack.name} pack purchase`,
-    });
-    if (creditError) throw new Error(`credit apply failed: ${creditError.message}`);
+    const { error: creditError } = await supabaseAdmin.rpc(
+      "academy_apply_credit_delta",
+      {
+        p_org: payment.org_id,
+        p_delta: pack.credits,
+        p_reason: "purchase",
+        p_payment: payment.id,
+        p_description: `${pack.name} pack purchase`,
+      },
+    );
+    if (creditError)
+      throw new Error(`credit apply failed: ${creditError.message}`);
   }
 }
 
@@ -190,14 +255,18 @@ async function handleRefunded(paymentId: string) {
       .eq("id", payment.pack_id)
       .single();
     if (pack) {
-      const { error: creditError } = await supabaseAdmin.rpc("academy_apply_credit_delta", {
-        p_org: payment.org_id,
-        p_delta: -pack.credits,
-        p_reason: "refund",
-        p_payment: payment.id,
-        p_description: `${pack.name} pack refund`,
-      });
-      if (creditError) throw new Error(`credit clawback failed: ${creditError.message}`);
+      const { error: creditError } = await supabaseAdmin.rpc(
+        "academy_apply_credit_delta",
+        {
+          p_org: payment.org_id,
+          p_delta: -pack.credits,
+          p_reason: "refund",
+          p_payment: payment.id,
+          p_description: `${pack.name} pack refund`,
+        },
+      );
+      if (creditError)
+        throw new Error(`credit clawback failed: ${creditError.message}`);
     }
   }
 }

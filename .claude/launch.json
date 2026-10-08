@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "ailabs",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/ant/ailabs", "run", "dev", "--", "--port", "3100"],
+      "port": 3100
+    },
+    {
       "name": "aiopsos",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],

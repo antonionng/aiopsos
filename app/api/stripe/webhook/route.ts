@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { isSelfServeCheckout } from "@/lib/self-serve/commerce";
+import { fulfillSelfServeSession } from "@/lib/self-serve/records";
+import { isTeamCheckout } from "@/lib/self-serve/team-rules";
+import { fulfillTeamSession } from "@/lib/self-serve/teams";
 import type Stripe from "stripe";
+import { fulfilWonderlabEvent } from "@/lib/wonderlab/payments";
+import { fulfilStripePayment } from "@/lib/stripe-fulfilment";
 
-/**
- * TRANSITIONAL. Payments moved to Mooov (app/api/mooov/webhook); this
- * endpoint remains only so Stripe checkout sessions created before the
- * cutover can still complete (they expire within 24h). Delete this route,
- * lib/stripe.ts and the `stripe` dependency one deploy after cutover.
- */
-
+/** Direct Stripe payments, with compatibility for older subscription sessions. */
 export async function POST(req: Request) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
@@ -18,91 +18,121 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET)
+    return NextResponse.json(
+      { error: "Stripe webhook is not configured" },
+      { status: 503 },
+    );
+
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET!,
     );
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  switch (event.type) {
-    case "checkout.session.completed": {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const orgId = session.metadata?.org_id;
-      const planName = session.metadata?.plan;
-      const cohortId = session.metadata?.cohort_id;
+  try {
+    if (await fulfilWonderlabEvent(event))
+      return NextResponse.json({ received: true });
+    if (await fulfilStripePayment(event))
+      return NextResponse.json({ received: true });
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        if (isSelfServeCheckout(session.metadata)) {
+          await fulfillSelfServeSession(session);
+          break;
+        }
+        if (isTeamCheckout(session.metadata)) {
+          await fulfillTeamSession(session);
+          break;
+        }
+        const orgId = session.metadata?.org_id;
+        const planName = session.metadata?.plan;
+        const cohortId = session.metadata?.cohort_id;
 
-      // Cohort payments are one-off and carry no `plan`, so they fall past
-      // the subscription branch below untouched.
-      if (cohortId && session.payment_status === "paid") {
-        await supabaseAdmin
-          .from("cohorts")
-          .update({ paid_at: new Date().toISOString() })
-          .eq("id", cohortId);
+        // Cohort payments are one-off and carry no `plan`, so they fall past
+        // the subscription branch below untouched.
+        if (cohortId && session.payment_status === "paid") {
+          await supabaseAdmin
+            .from("cohorts")
+            .update({ paid_at: new Date().toISOString() })
+            .eq("id", cohortId);
+        }
+
+        if (orgId && planName && session.payment_status === "paid") {
+          const { data: planRow } = await supabaseAdmin
+            .from("subscription_plans")
+            .select("id")
+            .eq("name", planName)
+            .single();
+
+          await supabaseAdmin
+            .from("organisations")
+            .update({
+              stripe_customer_id: session.customer as string,
+              subscription_plan_id: planRow?.id,
+              subscription_status: "active",
+            })
+            .eq("id", orgId);
+        }
+        break;
       }
 
-      if (orgId && planName) {
-        const { data: planRow } = await supabaseAdmin
-          .from("subscription_plans")
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = subscription.customer as string;
+
+        const { data: org } = await supabaseAdmin
+          .from("organisations")
           .select("id")
-          .eq("name", planName)
+          .eq("stripe_customer_id", customerId)
           .single();
 
-        await supabaseAdmin
-          .from("organisations")
-          .update({
-            stripe_customer_id: session.customer as string,
-            subscription_plan_id: planRow?.id,
-            subscription_status: "active",
-          })
-          .eq("id", orgId);
+        if (org) {
+          const status =
+            subscription.status === "active"
+              ? "active"
+              : subscription.status === "past_due"
+                ? "past_due"
+                : subscription.status === "canceled"
+                  ? "canceled"
+                  : "incomplete";
+
+          await supabaseAdmin
+            .from("organisations")
+            .update({ subscription_status: status })
+            .eq("id", org.id);
+        }
+        break;
       }
-      break;
-    }
 
-    case "customer.subscription.updated": {
-      const subscription = event.data.object as Stripe.Subscription;
-      const customerId = subscription.customer as string;
-
-      const { data: org } = await supabaseAdmin
-        .from("organisations")
-        .select("id")
-        .eq("stripe_customer_id", customerId)
-        .single();
-
-      if (org) {
-        const status = subscription.status === "active" ? "active"
-          : subscription.status === "past_due" ? "past_due"
-          : subscription.status === "canceled" ? "canceled"
-          : "incomplete";
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = subscription.customer as string;
 
         await supabaseAdmin
           .from("organisations")
-          .update({ subscription_status: status })
-          .eq("id", org.id);
+          .update({ subscription_status: "canceled" })
+          .eq("stripe_customer_id", customerId);
+        break;
       }
-      break;
+
+      case "invoice.paid": {
+        break;
+      }
     }
 
-    case "customer.subscription.deleted": {
-      const subscription = event.data.object as Stripe.Subscription;
-      const customerId = subscription.customer as string;
-
-      await supabaseAdmin
-        .from("organisations")
-        .update({ subscription_status: "canceled" })
-        .eq("stripe_customer_id", customerId);
-      break;
-    }
-
-    case "invoice.paid": {
-      break;
-    }
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error("Stripe webhook processing failed", error);
+    return NextResponse.json(
+      { error: "Payment processing failed. Please retry this event." },
+      { status: 503 },
+    );
   }
-
-  return NextResponse.json({ received: true });
 }

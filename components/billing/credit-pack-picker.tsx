@@ -15,7 +15,7 @@ export interface CreditPack {
 }
 
 /**
- * The pack shop. Card orgs are redirected to Mooov hosted checkout; for
+ * The pack shop. Card orgs are redirected to Stripe Checkout; for
  * invoice orgs the same button raises and emails an invoice, and the
  * toast says so - no redirect.
  */

@@ -12,17 +12,20 @@ import {
   CheckCheck,
   ChevronRight,
   Layers3,
-  Plus,
   Search,
   Send,
   Users,
   X,
 } from "lucide-react";
 import { PlatformFeatures } from "@/components/marketing/platform-features";
+import { AgentCourseShowcase } from "@/components/marketing/agent-course-showcase";
+import { AcademyIntroduction } from "@/components/courses/course-introduction";
 import { Wordmark } from "@/components/wordmark";
 import { SiteNav } from "@/components/site-nav";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { COURSE_TITLES } from "@/lib/published-course-slugs";
+import { SelfServeHomePitch } from "@/components/learn/self-serve-marketing";
+import { showSelfServeOnHomepage } from "@/lib/self-serve/flag";
 import "./learning-home.css";
 
 const courses = [
@@ -149,10 +152,10 @@ function PlatformPreview() {
       </div>
       <Tabs defaultValue="plan" className="ex-preview-tabs">
         <TabsList className="ex-tab-list">
-          <TabsTrigger value="learn">My learning</TabsTrigger>
-          <TabsTrigger value="plan">Try the learning agent</TabsTrigger>
+          <TabsTrigger value="learn" id="home-learning-tab" aria-controls="home-learning-panel">My learning</TabsTrigger>
+          <TabsTrigger value="plan" id="home-agent-tab" aria-controls="home-agent-panel">Try the learning agent</TabsTrigger>
         </TabsList>
-        <TabsContent value="learn" className="ex-tab-content">
+        <TabsContent value="learn" id="home-learning-panel" aria-labelledby="home-learning-tab" className="ex-tab-content">
           <div className="ex-preview-heading">
             <div>
               <span className="ex-small-label">
@@ -200,7 +203,7 @@ function PlatformPreview() {
             <ArrowUpRight size={18} />
           </div>
         </TabsContent>
-        <TabsContent value="plan" className="ex-tab-content">
+        <TabsContent value="plan" id="home-agent-panel" aria-labelledby="home-agent-tab" className="ex-tab-content">
           <div className="ex-preview-heading">
             <div>
               <span className="ex-small-label">START WITH AN AMBITION</span>
@@ -283,17 +286,15 @@ export default function Home() {
               .
             </h1>
             <p>
-              A learning platform for people with big ideas.
-              <br className="ex-desktop-break" /> Bring courses, teams and
-              progress together, with AI to help you find your next step.
+              Experrt teaches courses you can buy and start on your own, and programmes you take with a facilitator. This autumn, learn to brief AI the way you would brief a colleague.
             </p>
             <div className="ex-hero-actions">
-              <a className="ex-button ex-button-dark" href="#capabilities">
+              <Link className="ex-button ex-button-dark" href="/learn">
+                Explore courses <ArrowRight size={18} />
+              </Link>
+              <a className="ex-button ex-button-plain" href="#capabilities">
                 Explore the platform <ArrowUpRight size={19} />
               </a>
-              <Link className="ex-button ex-button-plain" href="/courses">
-                Find your next skill <ArrowRight size={18} />
-              </Link>
             </div>
             <div className="ex-hero-foot">
               <span className="ex-stacked-labels">
@@ -346,19 +347,10 @@ export default function Home() {
           </Reveal>
         </section>
 
-        <div className="ex-ribbon">
-          <div className="ex-container">
-            <span>Human curiosity.</span>
-            <Plus aria-hidden="true" />
-            <span>Expert knowledge.</span>
-            <Plus aria-hidden="true" />
-            <span>AI possibility.</span>
-            <span className="ex-ribbon-end">
-              All in a day&apos;s learning. <ArrowUpRight size={20} />
-            </span>
-          </div>
-        </div>
+        <AgentCourseShowcase />
+        <AcademyIntroduction homepage />
 
+        {showSelfServeOnHomepage() ? <SelfServeHomePitch /> : null}
         <PlatformFeatures />
 
         <section id="platform" className="ex-platform ex-container ex-section">
@@ -483,7 +475,7 @@ export default function Home() {
                       <p>{course.detail}</p>
                       <div className="ex-course-meta">
                         <span>
-                          <Users size={14} /> Facilitated learning
+                          <Users size={14} /> Trainer-led course
                         </span>
                         <ArrowUpRight size={17} />
                       </div>
@@ -688,7 +680,7 @@ export default function Home() {
               <span className="ex-offer-number">02 / ACADEMY</span>
               <h3>Build the skills.</h3>
               <p>
-                Facilitated AI, technology, robotics and HR transformation courses for real work.
+                Self-paced and trainer-led courses in AI, technology, robotics and HR transformation, each assessed on realistic work.
               </p>
               <Link href="/courses" className="ex-text-link">
                 Find a course <ArrowUpRight size={17} />
@@ -757,6 +749,8 @@ export default function Home() {
           <div>
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>
+            <Link href="/course-terms">Course terms</Link>
+            <Link href="/learn/faq">FAQ</Link>
             <Link href="/cookies">Cookies</Link>
           </div>
           <span>Keep learning. Keep moving.</span>

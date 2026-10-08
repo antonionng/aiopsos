@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { termsMetadata } from "@/lib/public-share-metadata";
+import { COMPANY, LEGAL_UPDATED } from "@/lib/legal";
 
 export const metadata: Metadata = termsMetadata();
 
@@ -9,14 +10,34 @@ export default function TermsPage() {
   return (
     <article className="prose prose-neutral dark:prose-invert max-w-none">
       <h1 className="text-3xl font-bold tracking-tight">Terms of Service</h1>
-      <p className="text-sm text-muted-foreground">Last updated: 24 February 2026</p>
+      <p className="text-sm text-muted-foreground">Last updated: {LEGAL_UPDATED}</p>
 
       <p>
         Welcome to Experrt. These Terms of Service (&quot;Terms&quot;) govern your access
         to and use of the Experrt platform, website, APIs, and related services
-        (collectively, the &quot;Service&quot;) operated by Experrt (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
+        (collectively, the &quot;Service&quot;) operated by {COMPANY.legalName}, trading as
+        Experrt (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
         By creating an account or using the Service, you agree to be bound by
         these Terms. If you do not agree, do not use the Service.
+      </p>
+
+      <h2>Who we are</h2>
+      <p>
+        The Service is provided by <strong>{COMPANY.legalName}</strong>, a free zone limited
+        liability company in {COMPANY.freeZone}, {COMPANY.country}, trading as Experrt.
+        Licence No. {COMPANY.licenceNo}. Registration No. {COMPANY.registrationNo}. Date of
+        incorporation: {COMPANY.incorporated}. General Manager: {COMPANY.manager}. Contact:{" "}
+        <a href={`mailto:${COMPANY.email}`} className="text-foreground underline underline-offset-4">
+          {COMPANY.email}
+        </a>
+        .
+      </p>
+      <p>
+        Self-paced courses bought on experrt.com are also covered by our{" "}
+        <Link href="/course-terms" className="text-foreground underline underline-offset-4">
+          Course Terms of Sale
+        </Link>
+        . If the two conflict for a course purchase, the Course Terms of Sale apply.
       </p>
 
       <h2>1. Definitions</h2>
@@ -157,9 +178,15 @@ export default function TermsPage() {
         </li>
       </ul>
       <p>
-        Refunds are handled on a case-by-case basis. Downgrading or cancelling a
-        Subscription does not entitle you to a refund for the current billing
-        period.
+        <strong>All fees are non-refundable and no refunds are given</strong>,
+        including for part of a billing period, unused seats or unused features.
+        Cancelling or downgrading a Subscription stops the next renewal and does
+        not entitle you to a refund. Self-paced course purchases are final, as
+        set out in the{" "}
+        <Link href="/course-terms" className="text-foreground underline underline-offset-4">
+          Course Terms of Sale
+        </Link>
+        .
       </p>
 
       <h2>7. Free Trials</h2>
@@ -216,7 +243,7 @@ export default function TermsPage() {
 
       <h2>12. Limitation of Liability</h2>
       <p>
-        TO THE MAXIMUM EXTENT PERMITTED BY LAW, Experrt SHALL NOT BE LIABLE FOR
+        TO THE MAXIMUM EXTENT PERMITTED BY LAW, {COMPANY.legalName.toUpperCase()} SHALL NOT BE LIABLE FOR
         ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES,
         OR ANY LOSS OF PROFITS, DATA, OR GOODWILL, ARISING OUT OF OR RELATED TO
         YOUR USE OF THE SERVICE. OUR TOTAL AGGREGATE LIABILITY SHALL NOT EXCEED
@@ -243,11 +270,13 @@ export default function TermsPage() {
 
       <h2>15. Governing Law &amp; Disputes</h2>
       <p>
-        These Terms are governed by and construed in accordance with the laws of
-        the jurisdiction in which Experrt is incorporated, without regard to
-        conflict of law principles. Any disputes arising from these Terms shall
-        be resolved through good-faith negotiation, and failing that, through
-        binding arbitration or the courts of competent jurisdiction.
+        These Terms are governed by the laws of the Emirate of Ras Al Khaimah and
+        the federal laws of the United Arab Emirates, without regard to conflict
+        of law principles. Any dispute will first be addressed through
+        good-faith negotiation and, failing that, decided by the courts of Ras Al
+        Khaimah. If you use the Service as a consumer, you also keep any
+        protections that the mandatory laws of the country where you live give
+        you.
       </p>
 
       <h2>16. Severability</h2>
@@ -266,8 +295,8 @@ export default function TermsPage() {
       <h2>18. Contact</h2>
       <p>
         If you have questions about these Terms, please contact us at{" "}
-        <a href="mailto:legal@experrt.com" className="text-foreground underline underline-offset-4">
-          legal@experrt.com
+        <a href={`mailto:${COMPANY.email}`} className="text-foreground underline underline-offset-4">
+          {COMPANY.email}
         </a>
         .
       </p>
