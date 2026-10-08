@@ -43,6 +43,16 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Page metadata imports the image route too. Include assets for both the
+  // page and image functions, not just the public CDN upload.
+  outputFileTracingIncludes: {
+    "/courses/agents/og/*": ["./public/courses/always-on-agents/*.png"],
+    "/*": [
+      "./public/experrt-logo.png",
+      "./public/fonts/space-grotesk-bold.ttf",
+      "./public/fonts/mrs-saint-delafield.ttf",
+    ],
+  },
   serverExternalPackages: ["@react-pdf/renderer"],
   images: {
     remotePatterns: [
@@ -62,17 +72,13 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // One host for search engines. API routes are left alone so webhooks
+      // registered against the apex keep receiving POSTs.
       {
-        source: "/",
+        source: "/:path((?!api/).*)",
         has: [{ type: "host", value: "experrt.com" }],
-        destination: "https://www.experrt.com/",
-        statusCode: 301,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "experrt.com" }],
-        destination: "https://www.experrt.com/:path*",
-        statusCode: 301,
+        destination: "https://www.experrt.com/:path",
+        permanent: true,
       },
       {
         source: "/blog",
@@ -85,33 +91,18 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: "/programmes/ai-literacy",
-        destination: "/ai-literacy-training",
+        source: "/ai-literacy-training",
+        destination: "/learn/eu-ai-act-article-4-training",
         statusCode: 301,
       },
       {
-        source: "/free-trial",
-        destination: "/register",
-        statusCode: 301,
-      },
-      {
-        source: "/academy",
-        destination: "/courses",
+        source: "/ai-readiness-assessment",
+        destination: "/assessment/start",
         statusCode: 301,
       },
       {
         source: "/pricing",
-        destination: "/contact",
-        statusCode: 301,
-      },
-      {
-        source: "/enterprise",
-        destination: "/use-cases/enterprise",
-        statusCode: 301,
-      },
-      {
-        source: "/insights/article-4-evidence-pack-for-ld",
-        destination: "/insights/article-4-evidence-pack",
+        destination: "/learn",
         statusCode: 301,
       },
     ];

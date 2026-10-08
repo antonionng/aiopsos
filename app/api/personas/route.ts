@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -11,6 +12,9 @@ export async function GET() {
     .select("org_id")
     .eq("id", user.id)
     .single();
+
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
 
   if (!profile?.org_id) {
     return NextResponse.json({ personas: [] });
@@ -35,6 +39,9 @@ export async function POST(req: Request) {
     .select("org_id, role")
     .eq("id", user.id)
     .single();
+
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
 
   if (!profile?.org_id || !["admin", "super_admin"].includes(profile.role ?? "")) {
     return NextResponse.json({ error: "Only admins can create personas" }, { status: 403 });
@@ -75,16 +82,21 @@ export async function DELETE(req: Request) {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.org_id || profile.role !== "admin") {
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
+
+  if (!profile?.org_id || !["admin", "super_admin"].includes(profile.role)) {
     return NextResponse.json({ error: "Only admins can delete personas" }, { status: 403 });
   }
 
   const { id } = await req.json();
-  await supabase
+  const { data: removed, error } = await supabase
     .from("model_personas")
     .delete()
     .eq("id", id)
-    .eq("org_id", profile.org_id);
+    .eq("org_id", profile.org_id).select("id");
+  if (error) return NextResponse.json({ error: "Could not delete the persona." }, { status: 503 });
+  if (!removed?.length) return NextResponse.json({ error: "Persona unavailable or access changed." }, { status: 404 });
 
   return NextResponse.json({ success: true });
 }

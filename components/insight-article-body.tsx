@@ -14,8 +14,8 @@ import ReactMarkdown, { type Components } from "react-markdown";
  */
 
 const components: Components = {
-  h2: ({ children }) => (
-    <h2 className="mt-12 mb-4 scroll-mt-24 border-t border-border/60 pt-8 text-xl font-semibold tracking-[-0.01em] text-foreground first:mt-0 first:border-0 first:pt-0">
+  h2: ({ children, node }) => (
+    <h2 id={`section-${node?.position?.start.line}`} className="mt-12 mb-4 scroll-mt-24 border-t border-border/60 pt-8 text-xl font-semibold tracking-[-0.01em] text-foreground first:mt-0 first:border-0 first:pt-0">
       {children}
     </h2>
   ),

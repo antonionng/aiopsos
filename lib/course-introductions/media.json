@@ -1,0 +1,154 @@
+{
+  "always-on-agent-foundations": {
+    "src": "/courses/media/always-on-agent-foundations.mp4",
+    "poster": "/courses/media/always-on-agent-foundations-poster.jpg",
+    "captions": "/courses/media/always-on-agent-foundations.captions-draft.vtt",
+    "transcript": "/courses/media/always-on-agent-foundations.transcript-draft.txt",
+    "durationLabel": "5:30",
+    "reviewed": false
+  },
+  "academy-overview": {
+    "src": "/courses/media/academy-overview.mp4",
+    "poster": "/courses/media/academy-overview-poster.jpg",
+    "captions": "/courses/media/academy-overview.captions-draft.vtt",
+    "transcript": "/courses/media/academy-overview.transcript-draft.txt",
+    "durationLabel": "3:58",
+    "reviewed": false
+  },
+  "always-on-agent-foundations/lesson-01": {
+    "src": "/courses/media/foundations-lesson-01.mp4",
+    "poster": "/courses/media/foundations-lesson-01-poster.jpg",
+    "captions": "/courses/media/foundations-lesson-01.captions-draft.vtt",
+    "transcript": "/courses/media/foundations-lesson-01.transcript-draft.txt",
+    "durationLabel": "5:45",
+    "reviewed": false
+  },
+  "working-with-openai-dots": {
+    "src": "/courses/media/working-with-openai-dots.mp4",
+    "poster": "/courses/media/working-with-openai-dots-poster.jpg",
+    "captions": "/courses/media/working-with-openai-dots.captions-draft.vtt",
+    "transcript": "/courses/media/working-with-openai-dots.transcript-draft.txt",
+    "durationLabel": "4:23",
+    "reviewed": false
+  },
+  "working-with-grok-bot": {
+    "src": "/courses/media/working-with-grok-bot.mp4",
+    "poster": "/courses/media/working-with-grok-bot-poster.jpg",
+    "captions": "/courses/media/working-with-grok-bot.captions-draft.vtt",
+    "transcript": "/courses/media/working-with-grok-bot.transcript-draft.txt",
+    "durationLabel": "4:12",
+    "reviewed": false
+  },
+  "working-with-meta-muse": {
+    "src": "/courses/media/working-with-meta-muse.mp4",
+    "poster": "/courses/media/working-with-meta-muse-poster.jpg",
+    "captions": "/courses/media/working-with-meta-muse.captions-draft.vtt",
+    "transcript": "/courses/media/working-with-meta-muse.transcript-draft.txt",
+    "durationLabel": "4:39",
+    "reviewed": false
+  },
+  "business-agents-copilot-studio": {
+    "src": "/courses/media/business-agents-copilot-studio.mp4",
+    "poster": "/courses/media/business-agents-copilot-studio-poster.jpg",
+    "captions": "/courses/media/business-agents-copilot-studio.captions-draft.vtt",
+    "transcript": "/courses/media/business-agents-copilot-studio.transcript-draft.txt",
+    "durationLabel": "3:56",
+    "reviewed": false
+  },
+  "running-your-own-agent-openclaw": {
+    "src": "/courses/media/running-your-own-agent-openclaw.mp4",
+    "poster": "/courses/media/running-your-own-agent-openclaw-poster.jpg",
+    "captions": "/courses/media/running-your-own-agent-openclaw.captions-draft.vtt",
+    "transcript": "/courses/media/running-your-own-agent-openclaw.transcript-draft.txt",
+    "durationLabel": "5:17",
+    "reviewed": false
+  },
+  "managing-agents-reliably": {
+    "src": "/courses/media/managing-agents-reliably.mp4",
+    "poster": "/courses/media/managing-agents-reliably-poster.jpg",
+    "captions": "/courses/media/managing-agents-reliably.captions-draft.vtt",
+    "transcript": "/courses/media/managing-agents-reliably.transcript-draft.txt",
+    "durationLabel": "4:05",
+    "reviewed": false
+  },
+  "agents-small-business-operations": {
+    "src": "/courses/media/agents-small-business-operations.mp4",
+    "poster": "/courses/media/agents-small-business-operations-poster.jpg",
+    "captions": "/courses/media/agents-small-business-operations.captions-draft.vtt",
+    "transcript": "/courses/media/agents-small-business-operations.transcript-draft.txt",
+    "durationLabel": "4:05",
+    "reviewed": false
+  },
+  "agent-research-market-monitoring": {
+    "src": "/courses/media/agent-research-market-monitoring.mp4",
+    "poster": "/courses/media/agent-research-market-monitoring-poster.jpg",
+    "captions": "/courses/media/agent-research-market-monitoring.captions-draft.vtt",
+    "transcript": "/courses/media/agent-research-market-monitoring.transcript-draft.txt",
+    "durationLabel": "4:47",
+    "reviewed": false
+  },
+  "content-operations-agents": {
+    "src": "/courses/media/content-operations-agents.mp4",
+    "poster": "/courses/media/content-operations-agents-poster.jpg",
+    "captions": "/courses/media/content-operations-agents.captions-draft.vtt",
+    "transcript": "/courses/media/content-operations-agents.transcript-draft.txt",
+    "durationLabel": "4:22",
+    "reviewed": false
+  },
+  "agents-for-developers": {
+    "src": "/courses/media/agents-for-developers.mp4",
+    "poster": "/courses/media/agents-for-developers-poster.jpg",
+    "captions": "/courses/media/agents-for-developers.captions-draft.vtt",
+    "transcript": "/courses/media/agents-for-developers.transcript-draft.txt",
+    "durationLabel": "4:19",
+    "reviewed": false
+  },
+  "coordinating-multiple-agents": {
+    "src": "/courses/media/coordinating-multiple-agents.mp4",
+    "poster": "/courses/media/coordinating-multiple-agents-poster.jpg",
+    "captions": "/courses/media/coordinating-multiple-agents.captions-draft.vtt",
+    "transcript": "/courses/media/coordinating-multiple-agents.transcript-draft.txt",
+    "durationLabel": "4:34",
+    "reviewed": false
+  },
+  "prompt-engineering-for-professional-work": {
+    "src": "/courses/media/prompt-engineering-for-professional-work.mp4",
+    "poster": "/courses/media/prompt-engineering-for-professional-work-poster.jpg",
+    "captions": "/courses/media/prompt-engineering-for-professional-work.captions-draft.vtt",
+    "transcript": "/courses/media/prompt-engineering-for-professional-work.transcript-draft.txt",
+    "durationLabel": "4:56",
+    "reviewed": false
+  },
+  "ai-output-verification": {
+    "src": "/courses/media/ai-output-verification.mp4",
+    "poster": "/courses/media/ai-output-verification-poster.jpg",
+    "captions": "/courses/media/ai-output-verification.captions-draft.vtt",
+    "transcript": "/courses/media/ai-output-verification.transcript-draft.txt",
+    "durationLabel": "5:11",
+    "reviewed": false
+  },
+  "applying-ai-in-daily-work": {
+    "src": "/courses/media/applying-ai-in-daily-work.mp4",
+    "poster": "/courses/media/applying-ai-in-daily-work-poster.jpg",
+    "captions": "/courses/media/applying-ai-in-daily-work.captions-draft.vtt",
+    "transcript": "/courses/media/applying-ai-in-daily-work.transcript-draft.txt",
+    "durationLabel": "4:40",
+    "reviewed": false
+  },
+  "ai-for-writing-and-communication": {
+    "src": "/courses/media/ai-for-writing-and-communication.mp4",
+    "poster": "/courses/media/ai-for-writing-and-communication-poster.jpg",
+    "captions": "/courses/media/ai-for-writing-and-communication.captions-draft.vtt",
+    "transcript": "/courses/media/ai-for-writing-and-communication.transcript-draft.txt",
+    "durationLabel": "4:13",
+    "reviewed": false
+  },
+  "designing-ai-agents-for-business-workflows": {
+    "src": "/courses/media/designing-ai-agents-for-business-workflows.mp4",
+    "poster": "/courses/media/designing-ai-agents-for-business-workflows-poster.jpg",
+    "captions": "/courses/media/designing-ai-agents-for-business-workflows.captions-draft.vtt",
+    "transcript": "/courses/media/designing-ai-agents-for-business-workflows.transcript-draft.txt",
+    "durationLabel": "4:26",
+    "reviewed": false
+  }
+}

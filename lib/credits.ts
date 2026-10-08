@@ -46,7 +46,7 @@ export async function getCreditSettings(): Promise<CreditSettings> {
   return settings;
 }
 
-export type CreditCheck = { allowed: boolean; balance: number };
+export type CreditCheck = { allowed: boolean; balance: number; unavailable?: boolean };
 
 /**
  * Pre-flight: may this org start a metered AI request? Blocks only at
@@ -58,7 +58,8 @@ export type CreditCheck = { allowed: boolean; balance: number };
  * means "allowed" would brick every existing customer, so absence of a
  * wallet fails open. Orgs enter the credit system on first purchase.
  */
-export async function checkOrgCredits(orgId: string): Promise<CreditCheck> {
+/** Strict callers, including background learning agents, require a verified funded wallet. */
+export async function checkOrgCredits(orgId: string, strict = false): Promise<CreditCheck> {
   const { data, error } = await supabaseAdmin
     .from("credit_wallets")
     .select("balance")
@@ -67,10 +68,10 @@ export async function checkOrgCredits(orgId: string): Promise<CreditCheck> {
 
   if (error) {
     console.error("checkOrgCredits query failed:", error.message);
-    return { allowed: true, balance: 0 };
+    return { allowed: !strict, balance: 0, unavailable: true };
   }
 
-  if (!data) return { allowed: true, balance: 0 };
+  if (!data) return { allowed: !strict, balance: 0 };
 
   return { allowed: data.balance > 0, balance: data.balance };
 }

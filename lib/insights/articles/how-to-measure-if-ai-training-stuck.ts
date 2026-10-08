@@ -12,13 +12,6 @@ export const article: InsightArticle = {
     "ai-governance-and-oversight-for-managers",
     "embedding-ai-in-daily-workflows",
   ],
-  cta: {
-    heading: "See the literacy programme",
-    blurb:
-      "Experrt runs live, in-house cohorts. If you want the programme scoped against the roles you already have, start on the AI literacy training page. You can also write to ag@experrt.com.",
-    primaryHref: "/ai-literacy-training",
-    primaryLabel: "AI literacy training",
-  },
   body: `
 ## Who this is for
 
@@ -80,6 +73,6 @@ Experrt will run the cohort and give you the attendance and assessment pack. We 
 
 Choose one team, one work type, and one checking standard. Capture three samples before the cohort. Run the training. Capture three after. Sit with the manager at week four and write down what changed and what did not. File the pack next to the policy. If nothing changed, do not buy a second course until you know why the first one missed the work.
 
-If you want the programme scoped against the roles you already have, start on the [AI literacy training](/ai-literacy-training) page. Bring the list of roles and the tools they already use. You can also write to [ag@experrt.com](mailto:ag@experrt.com).
+[Contact Experrt](/contact) with the team and the work type. We will tell you whether a cohort can produce that evidence, and what it cannot.
 `,
 };

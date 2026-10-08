@@ -1,16 +1,27 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import {
-  isAuthPath,
-  isPublicPath,
-  isSessionGatedPath,
-} from "../public-routes.ts";
+import { readFileSync } from "node:fs";
+
+import { isAuthPath, isPrivatePath, isPublicPath } from "../public-routes.ts";
+
+function middlewareMatcher(): RegExp {
+  const source = readFileSync(new URL("../../middleware.ts", import.meta.url), "utf8");
+  const match = source.match(/matcher:\s*\[\s*"((?:\\.|[^"\\])*)"/);
+  assert.ok(match, "middleware matcher string");
+  return new RegExp(`^${JSON.parse(`"${match[1]}"`)}$`);
+}
+
+test("Wonderlab authored narration plays without a session, without exposing other audio routes", () => {
+  assert.equal(isPublicPath("/audio/wonderlab/marin-v1-bc848836-ca9e05c0.mp3"), true);
+  assert.equal(isPublicPath("/audio/private-recording.mp3"), false);
+  assert.equal(isPublicPath("/audio/wonderlab/private/export"), false);
+  assert.equal(isPublicPath("/api/audio/generate"), false);
+});
 
 test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights"), true);
   assert.equal(isPublicPath("/insights/eu-ai-act-article-4-literacy-for-ld"), true);
-  assert.equal(isPublicPath("/insights/article-4-evidence-pack"), true);
   assert.equal(isPublicPath("/insights/how-to-commission-workforce-ai-training"), true);
   assert.equal(isPublicPath("/insights/unused-ai-licences-training-gap"), true);
   assert.equal(isPublicPath("/insights/ai-output-verification-at-work"), true);
@@ -19,25 +30,19 @@ test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights/technology-judgement-for-nontechnical-directors"), true);
   assert.equal(isPublicPath("/blog"), true);
   assert.equal(isPublicPath("/blog/anything"), true);
-  assert.equal(isSessionGatedPath("/blog"), false);
-  assert.equal(isSessionGatedPath("/blog/anything"), false);
 });
 
-test("contact is a public marketing page so LinkedIn and Google can use the URL", () => {
-  assert.equal(isPublicPath("/contact"), true);
-  assert.equal(isPublicPath("/api/contact"), true);
-  assert.equal(isSessionGatedPath("/contact"), false);
+test("self-serve learn routes stay public so a disabled flag 404s, not a login wall", () => {
+  assert.equal(isPublicPath("/learn"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work/certificate"), true);
+  assert.equal(isPublicPath("/learning-agent"), true);
 });
 
 test("use cases are public marketing pages", () => {
   assert.equal(isPublicPath("/use-cases"), true);
   assert.equal(isPublicPath("/use-cases/enterprise"), true);
   assert.equal(isPublicPath("/use-cases/finance"), true);
-});
-
-test("money pages are public so they do not 307 to /login", () => {
-  assert.equal(isPublicPath("/ai-literacy-training"), true);
-  assert.equal(isPublicPath("/ai-readiness-assessment"), true);
 });
 
 test("the endpoints that create a session are reachable without one", () => {
@@ -48,6 +53,19 @@ test("the endpoints that create a session are reachable without one", () => {
   assert.equal(isPublicPath("/api/contact"), true);
   assert.equal(isPublicPath("/auth/callback"), true);
   assert.equal(isPublicPath("/auth/callback/"), true);
+});
+
+test("self-serve checkout and the Stripe webhook are reachable without a session", () => {
+  assert.equal(isPublicPath("/api/learn/checkout"), true);
+  assert.equal(isPublicPath("/api/learn/claim"), true);
+  assert.equal(isPublicPath("/api/learn/progress"), true);
+  assert.equal(isPublicPath("/api/learn/certificate/EX123"), true);
+  assert.equal(isPublicPath("/api/stripe/webhook"), true);
+  assert.equal(isPublicPath("/api/cron/self-serve-nudges"), true);
+  assert.equal(isPublicPath("/api/cron/agent-course-reports"), true);
+  assert.equal(isPublicPath("/api/courses/agents/report/order-id"), true);
+  assert.equal(isPublicPath("/api/courses/agents/assessment/order-id"), true);
+  assert.equal(isPublicPath("/api/courses/agents/admin"), false);
 });
 
 test("the Mooov webhook is reachable by Mooov's servers", () => {
@@ -62,18 +80,30 @@ test("social cards are crawlable without a session", () => {
   assert.equal(isPublicPath("/opengraph-image-abc123"), true);
 });
 
+test("Vercel Web Analytics script and events pass middleware untouched", () => {
+  assert.equal(isPublicPath("/_vercel/insights/script.js"), true);
+  assert.equal(isPublicPath("/_vercel/insights"), true);
+  assert.equal(isPublicPath("/_vercel/insights/event"), true);
+  const matcher = middlewareMatcher();
+  assert.equal(matcher.test("/_vercel/insights/script.js"), false);
+  assert.equal(matcher.test("/_vercel/insights/event"), false);
+  assert.equal(matcher.test("/dashboard"), true);
+  assert.equal(matcher.test("/learn/prompt-engineering-for-professional-work"), true);
+});
+
+test("unknown public paths are not treated as private, so Next can 404 them", () => {
+  assert.equal(isPublicPath("/this-does-not-exist"), false);
+  assert.equal(isPrivatePath("/this-does-not-exist"), false);
+  assert.equal(isPrivatePath("/dashboard"), true);
+  assert.equal(isPrivatePath("/shared/token"), true);
+  assert.equal(isPrivatePath("/api/private"), true);
+  assert.equal(isPrivatePath("/learn/eu-ai-act-article-4-training"), false);
+});
+
 test("private app routes stay gated", () => {
   assert.equal(isPublicPath("/dashboard"), false);
   assert.equal(isPublicPath("/dashboard/enquiries"), false);
   assert.equal(isPublicPath("/api/ai-policies/abc"), false);
   assert.equal(isAuthPath("/login"), true);
   assert.equal(isAuthPath("/insights"), false);
-  assert.equal(isSessionGatedPath("/dashboard"), true);
-  assert.equal(isSessionGatedPath("/api/chat"), true);
-  assert.equal(isSessionGatedPath("/ai-literacy-training"), false);
-  assert.equal(isSessionGatedPath("/free-trial"), false);
-  assert.equal(isSessionGatedPath("/academy"), false);
-  assert.equal(isSessionGatedPath("/pricing"), false);
-  assert.equal(isSessionGatedPath("/enterprise"), false);
-  assert.equal(isSessionGatedPath("/programmes/ai-literacy"), false);
 });

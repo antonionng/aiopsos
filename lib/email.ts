@@ -22,13 +22,25 @@ import {
 import { InvoiceEmail } from "./emails/invoice-email";
 import type { InvoicePayload } from "./invoices";
 import { ContactAlertEmail } from "./emails/contact-alert";
+import { ReviewAlertEmail } from "./emails/review-alert";
+import { TeamInviteEmail, TeamPurchaseEmail } from "./emails/self-serve-team";
+import { SelfServeAccessEndingEmail } from "./emails/self-serve-access-ending";
 import { ConfirmWelcomeEmail, ResetPasswordEmail } from "./emails/confirm-welcome";
+import { SelfServeReceiptEmail } from "./emails/self-serve-receipt";
+import { SelfServePurchaseAlertEmail } from "./emails/self-serve-purchase-alert";
+import { SelfServeNudgeEmail } from "./emails/self-serve-nudge";
+import { SelfServeAccountAlertEmail, SelfServeWelcomeEmail } from "./emails/self-serve-welcome";
+import { SelfServeCompletedAlertEmail, SelfServeCompletedEmail } from "./emails/self-serve-completed";
+import { SignupAlertEmail } from "./emails/signup-alert";
+import { recommendCourses, workNoun } from "./self-serve/upsell";
+import { linkedInAddUrl, verifyUrl } from "./self-serve/share-links";
+import type { SelfServeNudgeKind } from "./self-serve/nudges";
 import { LITERACY_DISCLAIMER } from "./constants";
 import { getNotifyEmail } from "./notify-email";
 import { getPublicSiteUrl } from "./site";
 import type { DimensionScores } from "./types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const BASE_URL = getPublicSiteUrl();
 
 /**
  * Links in the insights emails point at the public marketing origin, not at
@@ -49,6 +61,12 @@ function getEmailConfig() {
 
 function getResend() {
   return new Resend(getEmailConfig().apiKey);
+}
+
+async function sendEmail(options: Parameters<Resend["emails"]["send"]>[0]) {
+  const result = await getResend().emails.send(options);
+  if (result.error) throw new Error(`Email delivery rejected: ${result.error.message}`);
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,7 +114,7 @@ export async function sendWelcomeEmail(
       : orgName
         ? `Thanks for joining ${orgName}`
         : "Welcome to Experrt";
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject,
@@ -116,18 +134,13 @@ export async function sendWelcomeEmail(
   }
 }
 
-export async function sendTeamInviteEmail(to: string, name: string, inviterName: string) {
-  try {
-    const { from } = getEmailConfig();
-    await getResend().emails.send({
-      from,
-      to,
-      subject: `You're invited to join Experrt`,
-      react: InviteEmail({ name, inviterName, loginUrl: `${BASE_URL}/auth/login` }),
-    });
-  } catch (error) {
-    console.error("Failed to send invite email:", error);
-  }
+export async function sendTeamInviteEmail(to: string, name: string, inviterName: string, inviteUrl: string) {
+  const { from } = getEmailConfig();
+  await sendEmail({
+    from, to,
+    subject: "You're invited to join Experrt",
+    react: InviteEmail({ name, inviterName, loginUrl: inviteUrl }),
+  });
 }
 
 export async function sendAssessmentResultsEmail(
@@ -139,7 +152,7 @@ export async function sendAssessmentResultsEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Your AI Maturity Score: ${overall.toFixed(1)} / 5`,
@@ -165,7 +178,7 @@ export async function sendApprovalDecisionEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: decision === "approved" ? "Your request was approved" : "Your request was declined",
@@ -190,7 +203,7 @@ export async function sendRoadmapReadyEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: "Your 90-Day AI Adoption Roadmap is Ready",
@@ -219,7 +232,7 @@ export async function sendAssessmentInviteEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `${orgName} needs your input - ${assessmentTitle} (5 min)`,
@@ -241,7 +254,7 @@ export async function sendAssessmentReminderEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Reminder: ${orgName} ${assessmentTitle}`,
@@ -270,7 +283,7 @@ export async function sendScoreCardEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Your AI Readiness Score: ${overallScore.toFixed(1)} / 5`,
@@ -415,7 +428,7 @@ export async function sendAdminNewMemberEmail(
 
     await Promise.allSettled(
       admins.map((admin) =>
-        getResend().emails.send({
+        sendEmail({
           from,
           to: admin.email,
           subject: `${memberName} has joined ${orgName}`,
@@ -447,7 +460,7 @@ export async function sendApprovalRequestEmail(
 
     await Promise.allSettled(
       reviewers.map((reviewer) =>
-        getResend().emails.send({
+        sendEmail({
           from,
           to: reviewer.email,
           subject: `Approval request from ${requesterName}`,
@@ -481,7 +494,7 @@ export async function sendCohortEnrolmentEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `You are enrolled: ${details.courseTitle}`,
@@ -509,7 +522,7 @@ export async function sendSessionReminderEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Tomorrow: ${details.sessionTitle}`,
@@ -535,7 +548,7 @@ export async function sendCertificateIssuedEmail(
 ) {
   try {
     const { from } = getEmailConfig();
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to,
       subject: `Certificate issued: ${details.courseTitle}`,
@@ -567,7 +580,7 @@ export async function sendLowCreditsEmail(orgId: string, balance: number) {
     if (admins.length === 0) return;
 
     const { LowCreditsEmail } = await import("./emails/low-credits");
-    await getResend().emails.send({
+    await sendEmail({
       from,
       to: admins.map((a) => a.email),
       subject: `AI credits running low - ${balance.toLocaleString()} left`,
@@ -602,7 +615,7 @@ export async function sendInvoiceEmail(
     console.warn("[email] invoice has no recipients", payload.invoice_number);
     return;
   }
-  await getResend().emails.send({
+  await sendEmail({
     from,
     to,
     subject: options.isReminder
@@ -648,7 +661,7 @@ export async function sendConfirmWelcomeEmail(
   confirmUrl: string
 ) {
   const { from } = getEmailConfig();
-  const { error } = await getResend().emails.send({
+  const { error } = await sendEmail({
     from,
     to,
     subject: organisationName
@@ -662,7 +675,7 @@ export async function sendConfirmWelcomeEmail(
 /** Branded password reset. Throws on Resend error. */
 export async function sendResetPasswordEmail(to: string, resetUrl: string) {
   const { from } = getEmailConfig();
-  const { error } = await getResend().emails.send({
+  const { error } = await sendEmail({
     from,
     to,
     subject: "Reset your Experrt password",
@@ -671,19 +684,371 @@ export async function sendResetPasswordEmail(to: string, resetUrl: string) {
   if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
 }
 
-/** The contact-form alert, on the branded shell. Throws on Resend error so
- * the route can tell the sender their message did not go through. */
+function courseBase(origin?: string | null): string {
+  return (origin ?? getPublicSiteUrl()).replace(/\/$/, "");
+}
+
+/** Customer emails come from a no-reply sender, so replies reach the owner inbox. */
+function customerReplyTo(): string {
+  return getNotifyEmail();
+}
+
+export async function sendSelfServeReceipt(details: {
+  email: string;
+  name?: string | null;
+  courseSlug: string;
+  courseTitle: string;
+  artefactTitle?: string | null;
+  amountGbp: number;
+  paidAt?: string | null;
+  learnUrl: string;
+  accountUrl: string;
+  hasAccount: boolean;
+  owned?: string[];
+  origin?: string | null;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping self-serve receipt");
+    return;
+  }
+  const base = courseBase(details.origin);
+  await sendEmail({
+    from,
+    to: details.email,
+    replyTo: customerReplyTo(),
+    subject: `Thank you. Your place on ${details.courseTitle} is confirmed`,
+    react: SelfServeReceiptEmail({
+      ...details,
+      base,
+      picks: recommendCourses(details.courseSlug, details.owned),
+    }),
+  });
+}
+
+export async function sendSelfServePurchaseAlert(details: {
+  email: string;
+  name?: string | null;
+  courseTitle: string;
+  amountGbp: number;
+  paidAt?: string | null;
+  hasAccount: boolean;
+  stripeSessionId: string;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping self-serve purchase alert");
+    return;
+  }
+  const notify = getNotifyEmail();
+  const who = details.name?.trim() ? `${details.name.trim()} (${details.email})` : details.email;
+  await sendEmail({
+    from,
+    to: notify,
+    replyTo: details.email,
+    subject: `Course purchase: ${details.courseTitle}, bought by ${who}`,
+    react: SelfServePurchaseAlertEmail(details),
+  });
+}
+
+export async function sendSelfServeWelcome(details: {
+  email: string;
+  name?: string | null;
+  courseSlug?: string | null;
+  courseTitle?: string | null;
+  accountUrl: string;
+  owned?: string[];
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping learner welcome");
+    return;
+  }
+  await sendEmail({
+    from,
+    to: details.email,
+    replyTo: customerReplyTo(),
+    subject: "Welcome to Experrt. Your sign-in is saved",
+    react: SelfServeWelcomeEmail({
+      ...details,
+      base: courseBase(),
+      picks: recommendCourses(details.courseSlug, details.owned),
+    }),
+  });
+}
+
+export async function sendSelfServeAccountAlert(details: {
+  email: string;
+  name?: string | null;
+  courseTitle?: string | null;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping learner account alert");
+    return;
+  }
+  const who = details.name?.trim() ? `${details.name.trim()} (${details.email})` : details.email;
+  await sendEmail({
+    from,
+    to: getNotifyEmail(),
+    replyTo: details.email,
+    subject: `New learner account: ${who}`,
+    react: SelfServeAccountAlertEmail(details),
+  });
+}
+
+/**
+ * The learner's completion email and the owner's alert. Sent independently
+ * so a bounced learner address never hides the completion from the owner.
+ */
+export async function sendSelfServeCompleted(details: {
+  email: string;
+  name: string;
+  courseSlug: string;
+  courseTitle: string;
+  artefactTitle: string;
+  certificateRef: string;
+  signedAt: string;
+  owned?: string[];
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping completion emails");
+    return;
+  }
+  const base = courseBase();
+  const verify = verifyUrl(details.certificateRef);
+  const results = await Promise.allSettled([
+    sendEmail({
+      from,
+      to: details.email,
+      replyTo: customerReplyTo(),
+      subject: `You're certified: ${details.courseTitle}`,
+      react: SelfServeCompletedEmail({
+        name: details.name,
+        courseTitle: details.courseTitle,
+        artefactTitle: details.artefactTitle,
+        certificateRef: details.certificateRef,
+        signedAt: details.signedAt,
+        verifyUrl: verify,
+        certificateUrl: `${base}/learn/${details.courseSlug}/certificate`,
+        pdfUrl: `${base}/api/learn/certificate/${encodeURIComponent(details.certificateRef)}`,
+        linkedInUrl: linkedInAddUrl(details.courseTitle, details.certificateRef, details.signedAt),
+        base,
+        picks: recommendCourses(details.courseSlug, details.owned),
+      }),
+    }),
+    sendEmail({
+      from,
+      to: getNotifyEmail(),
+      replyTo: details.email,
+      subject: `Course completed: ${details.courseTitle}, by ${details.name}`,
+      react: SelfServeCompletedAlertEmail({
+        name: details.name,
+        email: details.email,
+        courseTitle: details.courseTitle,
+        certificateRef: details.certificateRef,
+        verifyUrl: verify,
+      }),
+    }),
+  ]);
+  for (const result of results) {
+    if (result.status === "rejected") console.error("[email] completion mail", result.reason);
+  }
+}
+
+const NUDGE_SUBJECT: Record<
+  SelfServeNudgeKind,
+  (title: string, work: string, next: string | null) => string
+> = {
+  start: (title) => `Your first lesson on ${title} is ready`,
+  continue: (title) => `Pick up where you left off on ${title}`,
+  sign: (title, work) => `One step left: sign your ${work} for ${title}`,
+  next: (title, _work, next) =>
+    next ? `After ${title}: ${next} is the natural next step` : `Your next course after ${title}`,
+};
+
+export async function sendSelfServeNudge(details: {
+  email: string;
+  kind: SelfServeNudgeKind;
+  courseSlug: string;
+  courseTitle: string;
+  artefactTitle?: string | null;
+  name?: string | null;
+  learnUrl: string;
+  passed: number;
+  total: number;
+  owned?: string[];
+  unsubscribeUrl?: string;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping self-serve nudge");
+    return false;
+  }
+  const picks = details.kind === "next" ? recommendCourses(details.courseSlug, details.owned, 3) : [];
+  if (details.kind === "next" && picks.length === 0) return false;
+  const work = workNoun(details.artefactTitle);
+  await sendEmail({
+    from,
+    to: details.email,
+    replyTo: customerReplyTo(),
+    subject: NUDGE_SUBJECT[details.kind](details.courseTitle, work, picks[0]?.title ?? null),
+    react: SelfServeNudgeEmail({ ...details, base: courseBase(), picks }),
+    ...(details.unsubscribeUrl
+      ? {
+          headers: {
+            "List-Unsubscribe": `<${details.unsubscribeUrl}>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          },
+        }
+      : {}),
+  });
+  return true;
+}
+
+export async function sendSignupAlert(details: {
+  name: string;
+  email: string;
+  organisationName?: string | null;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping signup alert");
+    return;
+  }
+  await sendEmail({
+    from,
+    to: getNotifyEmail(),
+    replyTo: details.email,
+    subject: `New sign-up: ${details.name || details.email}${details.organisationName ? `, ${details.organisationName}` : ""}`,
+    react: SignupAlertEmail(details),
+  });
+}
+
+export async function sendSelfServeAccessEnding(details: {
+  email: string;
+  name?: string | null;
+  courseTitle: string;
+  endsOn: string;
+  kind: "month" | "week";
+  passed: number;
+  total: number;
+  learnUrl: string;
+  renewUrl: string;
+  priceGbp: number;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) return false;
+  const { error } = await sendEmail({
+    from,
+    to: details.email,
+    subject:
+      details.kind === "week"
+        ? `One week left on ${details.courseTitle}`
+        : `Your access to ${details.courseTitle} ends on ${details.endsOn}`,
+    react: SelfServeAccessEndingEmail(details),
+  });
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+  return true;
+}
+
+export async function sendTeamPurchase(details: {
+  email: string;
+  name?: string | null;
+  courseTitle: string;
+  seats: number;
+  amountGbp: number;
+  paidAt?: string | null;
+  placesExpire: Date | null;
+  manageUrl: string;
+  base: string;
+  stripeSessionId: string;
+}) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY is not set; skipping team purchase email");
+    return false;
+  }
+  const { error } = await sendEmail({
+    from,
+    to: details.email,
+    subject: `Your ${details.seats} places on ${details.courseTitle}`,
+    react: TeamPurchaseEmail(details),
+  });
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+  const who = details.name?.trim() ? `${details.name.trim()} (${details.email})` : details.email;
+  await sendEmail({
+    from,
+    to: getNotifyEmail(),
+    replyTo: details.email,
+    subject: `Team purchase: ${details.seats} places on ${details.courseTitle}, bought by ${who}`,
+    react: SelfServePurchaseAlertEmail({
+      email: details.email,
+      name: details.name,
+      courseTitle: `${details.courseTitle} (${details.seats} team places)`,
+      amountGbp: details.amountGbp,
+      paidAt: details.paidAt,
+      hasAccount: false,
+      stripeSessionId: details.stripeSessionId,
+    }),
+  }).catch((alertError) => console.error("[email] team alert", alertError));
+  return true;
+}
+
+export async function sendTeamInvite(details: {
+  email: string;
+  inviteeName?: string | null;
+  buyerName?: string | null;
+  replyTo?: string | null;
+  courseTitle: string;
+  promise: string;
+  hours: string;
+  joinUrl: string;
+}) {
+  const { from } = getEmailConfig();
+  const { error } = await sendEmail({
+    from,
+    to: details.email,
+    ...(details.replyTo ? { replyTo: details.replyTo } : {}),
+    subject: `You have a place on ${details.courseTitle}`,
+    react: TeamInviteEmail(details),
+  });
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+}
+
+export async function sendReviewAlert(details: {
+  courseTitle: string;
+  displayName: string;
+  email: string;
+  rating: number;
+  body: string;
+  hideUrl: string | null;
+  pageUrl: string;
+}) {
+  const { from } = getEmailConfig();
+  const { error } = await sendEmail({
+    from,
+    to: getNotifyEmail(),
+    replyTo: details.email,
+    subject: `New ${details.rating}-star review: ${details.courseTitle}`,
+    react: ReviewAlertEmail(details),
+  });
+  if (error) {
+    throw new Error(`Resend error: ${JSON.stringify(error)}`);
+  }
+}
+
 export async function sendContactAlert(details: {
   name: string;
   email: string;
-  organisation?: string;
   message: string;
 }) {
   const { from } = getEmailConfig();
   const notify = getNotifyEmail();
   console.log("[email] contact notify-to", notify);
 
-  const { error } = await getResend().emails.send({
+  const { error } = await sendEmail({
     from,
     to: notify,
     replyTo: details.email,
@@ -711,7 +1076,7 @@ export async function sendEnquiryEmails(details: {
   console.log("[email] enquiry notify-to", notify);
 
   await Promise.allSettled([
-    getResend().emails.send({
+    sendEmail({
       from,
       to: details.email,
       subject: details.courseTitle
@@ -722,7 +1087,7 @@ export async function sendEnquiryEmails(details: {
         courseTitle: details.courseTitle,
       }),
     }),
-    getResend().emails.send({
+    sendEmail({
       from,
       to: notify,
       replyTo: details.email,
@@ -756,7 +1121,7 @@ export async function sendInsightConfirmationEmail(
 ) {
   const { from } = getEmailConfig();
 
-  await getResend().emails.send({
+  await sendEmail({
     from,
     to,
     subject: "Confirm your Experrt insights subscription",
@@ -790,7 +1155,7 @@ export async function sendInsightArticleEmail(
     `/insights/unsubscribe?token=${unsubscribeToken}`
   );
 
-  await getResend().emails.send({
+  await sendEmail({
     from,
     to,
     subject: article.title,
@@ -810,4 +1175,32 @@ export async function sendInsightArticleEmail(
       unsubscribeUrl,
     }),
   });
+}
+
+/**
+ * Sends every sample in `lib/email-samples` to one inbox, each subject marked
+ * as a test. Used by the owner's email check in platform administration.
+ */
+export async function sendEmailSamples(to: string, ids?: string[]) {
+  const { apiKey, from } = getEmailConfig();
+  if (!apiKey) throw new Error("RESEND_API_KEY is not set");
+  const { emailSamples } = await import("./email-samples");
+  const samples = emailSamples().filter((sample) => !ids?.length || ids.includes(sample.id));
+  const results: { id: string; ok: boolean; error?: string }[] = [];
+  for (const [index, sample] of samples.entries()) {
+    // Resend allows two requests a second on the default plan.
+    if (index > 0) await new Promise((resolve) => setTimeout(resolve, 600));
+    try {
+      await sendEmail({
+        from,
+        to,
+        subject: `[Test] ${sample.subject}`,
+        react: sample.element,
+      });
+      results.push({ id: sample.id, ok: true });
+    } catch (error) {
+      results.push({ id: sample.id, ok: false, error: error instanceof Error ? error.message : String(error) });
+    }
+  }
+  return results;
 }

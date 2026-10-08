@@ -1,7 +1,12 @@
+import { missions as wonderlabMissions } from './wonderlab/catalog.ts';
+import { caseStudies } from "./case-studies.ts";
+import { INSIGHT_TOPIC_PAGES } from "./insights/topics.ts";
 import { COURSE_SECTOR_SLUGS } from "./constants.ts";
 import { getPublishedInsights } from "./insights/catalog.ts";
 import { getSectors } from "./sectors.ts";
 import { getUseCases } from "./use-cases.ts";
+import { TOPIC_HUBS, allSelfServeCourses } from "./self-serve/seo.ts";
+import { agentMarketingCourses } from "./always-on-agents/marketing.ts";
 
 export type PublicSitemapEntry = {
   url: string;
@@ -14,6 +19,7 @@ const LOGIN_ONLY_PATHS = [
   "/login",
   "/register",
   "/dashboard",
+  "/blog",
   "/forgot-password",
   "/reset-password",
 ];
@@ -30,17 +36,10 @@ export function staticMarketingEntries(
 ): PublicSitemapEntry[] {
   return [
     { path: "", priority: 1, changeFrequency: "weekly" as const },
+    { path: "/ai-labs", priority: 0.9, changeFrequency: "monthly" as const },
+    { path: "/learning-agent", priority: 0.9, changeFrequency: "monthly" as const },
+    { path: "/assessment/start", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/courses", priority: 0.9, changeFrequency: "weekly" as const },
-    {
-      path: "/ai-literacy-training",
-      priority: 0.9,
-      changeFrequency: "weekly" as const,
-    },
-    {
-      path: "/ai-readiness-assessment",
-      priority: 0.9,
-      changeFrequency: "weekly" as const,
-    },
     { path: "/use-cases", priority: 0.8, changeFrequency: "monthly" as const },
     { path: "/insights", priority: 0.8, changeFrequency: "weekly" as const },
     { path: "/experrt-ai", priority: 0.8, changeFrequency: "monthly" as const },
@@ -48,6 +47,17 @@ export function staticMarketingEntries(
     { path: "/contact", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/docs", priority: 0.5, changeFrequency: "monthly" as const },
     { path: "/terms", priority: 0.2, changeFrequency: "yearly" as const },
+    { path: "/learn/faq", priority: 0.5, changeFrequency: "monthly" as const },
+    { path: "/learn/eu-ai-act-article-4-training", priority: 0.9, changeFrequency: "weekly" as const },
+    { path: "/learn/for/finance-teams", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/learn/for/hr-teams", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/learn/for/legal-teams", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/learn/for/operations-teams", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/learn/for/line-managers", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/learn/for/l-and-d-teams", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/learn/compare/ai-literacy-courses-uk", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/learn/compare/ai-courses-for-hr-uk", priority: 0.8, changeFrequency: "monthly" as const },
+    { path: "/course-terms", priority: 0.2, changeFrequency: "yearly" as const },
     { path: "/privacy", priority: 0.2, changeFrequency: "yearly" as const },
     { path: "/cookies", priority: 0.2, changeFrequency: "yearly" as const },
   ].map((r) => ({
@@ -106,6 +116,27 @@ export function insightSitemapEntries(baseUrl: string): PublicSitemapEntry[] {
   }));
 }
 
+export function selfServeSitemapEntries(
+  baseUrl: string,
+  lastModified: Date
+): PublicSitemapEntry[] {
+  return [
+    { url: `${baseUrl}/learn`, lastModified, changeFrequency: "weekly" as const, priority: 0.9 },
+    ...TOPIC_HUBS.map((hub) => ({
+      url: `${baseUrl}/learn/topics/${hub.slug}`,
+      lastModified,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    })),
+    ...allSelfServeCourses().map((course) => ({
+      url: `${baseUrl}/learn/${course.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+  ];
+}
+
 export function buildPublicSitemap(options: {
   baseUrl: string;
   courseSlugs: string[];
@@ -114,10 +145,17 @@ export function buildPublicSitemap(options: {
   const lastModified = options.lastModified ?? new Date();
   const entries = [
     ...staticMarketingEntries(options.baseUrl, lastModified),
+    ...["/wonderlab", "/wonderlab/games", "/wonderlab/kids", "/wonderlab/teens", "/wonderlab/parents", ...wonderlabMissions.map(m => `/wonderlab/missions/${m.slug}`)].map(path => ({url: `${options.baseUrl}${path}`, lastModified, changeFrequency: "monthly" as const, priority: 0.7})),
+    ...["/case-studies", ...caseStudies.map(item => `/case-studies/${item.slug}`)].map(path => ({url: `${options.baseUrl}${path}`, lastModified, changeFrequency: "monthly" as const, priority: 0.8})),
     ...courseSitemapEntries(options.baseUrl, options.courseSlugs, lastModified),
+    ...selfServeSitemapEntries(options.baseUrl, lastModified),
+    ...["/courses/agents", "/courses/always-on-agents-preview", ...agentMarketingCourses.map(course => course.href)].map(path => ({ url: `${options.baseUrl}${path}`, lastModified: new Date("2026-10-02T00:00:00Z"), changeFrequency: "monthly" as const, priority: 0.8 })),
     ...sectorSitemapEntries(options.baseUrl, lastModified),
+    // This is a use-case URL utility, not a React hook.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     ...useCaseSitemapEntries(options.baseUrl, lastModified),
     ...insightSitemapEntries(options.baseUrl),
+    ...INSIGHT_TOPIC_PAGES.map(entry => ({url: `${options.baseUrl}/insights/topic/${entry.slug}`,lastModified,changeFrequency: "monthly" as const,priority: 0.7})),
   ];
 
   return entries.filter((entry) => {

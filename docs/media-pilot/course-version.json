@@ -1,0 +1,120 @@
+{
+  "pilotVersion": "2026.10.3-foundations-media-01",
+  "courseSlug": "always-on-agent-foundations",
+  "courseVersion": "2026.10.2-ai-assessed",
+  "module": 1,
+  "moduleTitle": "Choose a task you do every day or week",
+  "sourcePreparedDate": "2026-10-03",
+  "sourceFilesSha256": {
+    "lib/always-on-agents/courses.ts": "923b4f4a38920d5051d83e220f523196b7e834efb27befb41127330ab910dac1",
+    "lib/always-on-agents/catalogue.ts": "39c49498c2031e869a5fa1a35e5bbc40a2dede0d0337b44267fcb3e4c4236e2f",
+    "lib/always-on-agents/content/teaching.ts": "d1443fd4918cde5c4f01aff0df0b02ac0138c2550dddef2cec82255f65be88b7",
+    "lib/always-on-agents/content/units.ts": "b86825bcc6f7c9fc49dd003e55a4faa70c1e5815a1e99262f51ab8c88ed1f3ee",
+    "lib/always-on-agents/content/cases.ts": "6cc7a4b7ef1c1bfd45c99d0d16d82861d9d91da943dfc1bc9e5f6d2d7428a614"
+  },
+  "provider": "Google Gemini Notebook (NotebookLM)",
+  "interface": "web",
+  "notebookUrl": "https://notebook.google.com/notebook/e65d2aa9-fc3f-4fe9-9b36-edcbd590850d",
+  "access": "private; owner only inspected",
+  "accountEntitlementObserved": "existing Pro",
+  "newPurchaseOrUpgrade": false,
+  "paidApplicationApiUsed": false,
+  "watermarkRemovalRequested": false,
+  "aiGenerated": true,
+  "audio": {
+    "format": "Deep Dive",
+    "language": "English",
+    "lengthSetting": "Default",
+    "targetMinutes": [
+      8,
+      12
+    ],
+    "status": "downloaded; private review ready",
+    "reviewStatus": "complete transcript/source review; listening and editorial approval pending",
+    "source": "video-revision-source.md",
+    "prompt": "audio-revision-prompt.md",
+    "attempts": [
+      {
+        "attempt": 1,
+        "lengthSetting": "Default",
+        "durationSeconds": 1273.800272,
+        "title": "Delegating daily tasks to AI agents",
+        "reviewStatus": "excluded for length; not content reviewed",
+        "file": "output/media-pilot/foundations-01-audio-v1.ai-generated.m4a"
+      },
+      {
+        "attempt": 2,
+        "lengthSetting": "Short",
+        "durationSeconds": 361,
+        "title": "Safe First Tasks for AI Agents",
+        "reviewStatus": "rejected after complete transcript review",
+        "file": "output/media-pilot/foundations-01-audio-v2.ai-generated.m4a"
+      },
+      {
+        "attempt": 3,
+        "lengthSetting": "Default",
+        "status": "downloaded",
+        "sourceId": "82210985-51a9-401e-a387-7209f7aa3bc3",
+        "durationSeconds": 658.076735,
+        "reviewStatus": "private review ready; final approval pending"
+      }
+    ],
+    "preferredAttempt": 3,
+    "durationSeconds": 658.076735,
+    "file": "output/media-pilot/foundations-01-audio.ai-generated.m4a",
+    "sha256": "adba6543ef2798e07edecf273e0ebf674ed5bd039a2598400207a2b90b03f255",
+    "transcript": "output/media-pilot/foundations-01-audio.transcript-draft.txt",
+    "captionVtt": "output/media-pilot/foundations-01-audio.captions-draft.vtt",
+    "captionSrt": "output/media-pilot/foundations-01-audio.captions-draft.srt"
+  },
+  "video": {
+    "format": "Explainer",
+    "language": "English",
+    "style": "Custom",
+    "targetMinutes": [
+      5,
+      7
+    ],
+    "status": "downloaded; private review ready",
+    "reviewStatus": "complete transcript/source review; listening and editorial approval pending",
+    "source": "video-revision-source.md",
+    "prompt": "video-revision-prompt.md",
+    "attempts": [
+      {
+        "attempt": 1,
+        "durationSeconds": 524.538776,
+        "title": "Choose a Regular Task",
+        "reviewStatus": "rejected after complete transcript and scene review",
+        "file": "output/media-pilot/foundations-01-video-v1.ai-generated.mp4"
+      },
+      {
+        "attempt": 2,
+        "status": "downloaded",
+        "sourceId": "82210985-51a9-401e-a387-7209f7aa3bc3",
+        "durationSeconds": 345.141406,
+        "reviewStatus": "private review ready; final approval pending"
+      }
+    ],
+    "preferredAttempt": 2,
+    "durationSeconds": 345.141406,
+    "file": "output/media-pilot/foundations-01-video.ai-generated.mp4",
+    "sha256": "85076fc7ee2c4e78c6c5c8024ba14771622da6c75e007f50ffb809abc547c583",
+    "transcript": "output/media-pilot/foundations-01-video.transcript-draft.txt",
+    "captionVtt": "output/media-pilot/foundations-01-video.captions-draft.vtt",
+    "captionSrt": "output/media-pilot/foundations-01-video.captions-draft.srt"
+  },
+  "productionDeployment": false,
+  "pilotFilesSha256": {
+    "audio-short-generation-prompt.md": "bf10346f29deebf697ce9c59f703485e7e20b14587127ae4d1b8f704dff4e9f2",
+    "video-generation-prompt.md": "3bb41710dcb580e7dd4efb453c323cb73dbcf7c98dce8b1357af0c4736c085fe",
+    "audio-generation-prompt.md": "27a8b17a76a55c498e0b8f674506a00478ec94ffa57acba61a90cf64d7c50d78",
+    "video-revision-prompt.md": "6ed181f59ee2b01a712c74459a9b91ac06833959a045c82b130cdc511862028b",
+    "video-revision-source.md": "80fa788455d1601f551ca4d42dcd78ea213876fa6f89336802205333edd2a4c0",
+    "audio-revision-prompt.md": "8766a5427e7d978039f013200854a3871dc5b44e2d2ce5bd08ac20f60532a7a4",
+    "foundations-module-01-source.md": "54972528960720f3b6579dd1bcbca64c7d486608c683d2319609c8c8825edaf1"
+  },
+  "reviewLimitation": "Audio input is unsupported in this assistant session. Listening, pronunciation and word-for-word caption checks require human review. No full listening review has been claimed.",
+  "localReviewUrl": "http://127.0.0.1:3033/",
+  "reviewNotes": "docs/media-pilot/review-notes.md",
+  "pilotApprovedForPaidCourses": false
+}

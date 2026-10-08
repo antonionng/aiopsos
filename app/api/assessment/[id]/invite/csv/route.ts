@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,6 +16,9 @@ export async function POST(req: NextRequest) {
       .select("org_id, role")
       .eq("id", user.id)
       .single();
+
+    const denied = await resourceAccessError(supabase, profile?.org_id, profile?.role);
+    if (denied) return denied;
 
     if (
       !profile?.org_id ||

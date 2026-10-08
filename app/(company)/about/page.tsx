@@ -75,21 +75,21 @@ function FounderSection() {
 const VALUES = [
   {
     icon: Target,
-    title: "Measured, not assumed",
+    title: "Start with curiosity",
     description:
-      "Training that is not aimed at a measured gap is guesswork. We score first, by department and by role, and let that decide what gets delivered.",
+      "Ask what people want to do better. Turn that question into a clear learning priority and a practical next step.",
   },
   {
     icon: Users,
-    title: "A trainer in the room",
+    title: "Make room for practice",
     description:
-      "Every course is facilitated live, in person or online. No video library, no self-paced module nobody finishes. The platform schedules the cohort and holds the record; it does not replace the person teaching.",
+      "Bring useful materials, expert guidance and real tasks together. Give people the space to try, ask questions and build confidence.",
   },
   {
     icon: Sparkles,
-    title: "Documented, not claimed",
+    title: "Make progress visible",
     description:
-      "We produce attendance, grades, credentials and observed practice as a dated record. We never claim a course or a certificate makes an organisation compliant.",
+      "Look at what someone has learned and what they can demonstrate. Keep clear records and choose the next step from evidence.",
   },
 ];
 
@@ -106,9 +106,7 @@ export default function AboutPage() {
           About Experrt
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Experrt is a training academy for applied AI, technology and
-          robotics. We teach the people who have to use this technology on
-          Monday morning - live, in the room or online, on their own work.
+          A learning platform for people with big ideas. We bring courses, people and progress together, with expert-led AI and robotics training and practical consulting.
         </p>
       </motion.div>
 
@@ -119,11 +117,7 @@ export default function AboutPage() {
         </h2>
         <div className="rounded-2xl border border-border bg-card p-8">
           <p className="text-lg leading-relaxed text-foreground">
-            To make a workforce genuinely capable with AI, technology and
-            robotics - not licensed for it, capable with it. That means
-            training delivered by a person who has done the work, aimed at a
-            measured gap, and recorded well enough that you can show what was
-            done, for whom, and by whom.
+            To help curiosity become practical progress. We support training providers, enterprise learning teams and learners with a place to organise learning, practise useful skills and understand what comes next.
           </p>
         </div>
       </motion.section>

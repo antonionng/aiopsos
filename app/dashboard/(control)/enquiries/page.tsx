@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Inbox, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { ASSESSMENT_TEMPLATES } from "@/lib/assessment-templates";
 import { Badge } from "@/components/ui/badge";
 
 interface Enquiry {
@@ -17,6 +18,8 @@ interface Enquiry {
   source: string;
   status: string;
   created_at: string;
+  marketing_consent: boolean;
+  assessment_data: { answers?: Record<string, number> } | null;
   courses: { slug: string; title: string } | null;
 }
 
@@ -30,6 +33,7 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
 export default function EnquiriesPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -37,13 +41,11 @@ export default function EnquiriesPage() {
     fetch("/api/enquiries", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
-        if (cancelled || d.error) return;
+        if (cancelled) return;
+        if (d.error) throw new Error("We couldn’t load enquiries. Please refresh to try again.");
         setEnquiries(d.enquiries ?? []);
       })
-      .catch(() => {
-        // The list is a record, not the alert - every enquiry also arrives
-        // by email, so a failed load is not a lost lead.
-      })
+      .catch(() => { if (!cancelled) setError("We couldn’t load enquiries. Please refresh to try again."); })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -66,12 +68,11 @@ export default function EnquiriesPage() {
       <div className="mb-8">
         <h1 className="mb-1">Enquiries</h1>
         <p className="text-sm text-muted-foreground">
-          People asking to be taught a course. Every one also arrives by email,
-          so this is the record rather than the alert.
+          Conversations from the contact form, course enquiries and learning checks. Details are saved here before email notifications are attempted.
         </p>
       </div>
 
-      {enquiries.length === 0 ? (
+      {error ? <p role="alert">{error}</p> : enquiries.length === 0 ? (
         <Card className="border-border bg-card">
           <CardContent className="py-14 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10">
@@ -124,11 +125,13 @@ export default function EnquiriesPage() {
                 </div>
 
                 {e.message && (
-                  <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mb-3 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
                     {e.message}
                   </p>
                 )}
 
+                {e.assessment_data?.answers && <details className="mb-4 rounded-xl border border-border p-4"><summary className="cursor-pointer text-sm font-medium">View learning-check answers</summary><dl className="mt-3 space-y-3">{ASSESSMENT_TEMPLATES["training-needs"].questions.filter(q => e.assessment_data?.answers?.[q.id] !== undefined).map(q => <div key={q.id}><dt className="text-sm font-medium">{q.text}</dt><dd className="text-sm text-muted-foreground">{q.options.find(o => o.value === e.assessment_data?.answers?.[q.id])?.label}</dd></div>)}</dl></details>}
+                <p className="mb-3 text-xs text-muted-foreground">Marketing updates: {e.marketing_consent ? "Opted in" : "Not subscribed"}</p>
                 <a
                   href={`mailto:${e.email}`}
                   className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:text-brand"

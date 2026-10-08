@@ -1,0 +1,53 @@
+{
+  "userIds": [
+    "0402b13b-5d6c-4602-a334-8ecfaaf37099",
+    "f949fbdf-4242-4149-ab82-3e983ce80977",
+    "4c5962c1-24e2-4722-aa68-1eb056262959",
+    "36191d6c-10ca-427c-a29f-15422238328a",
+    "a849a9a0-f1fa-46ac-853a-164301734aa6",
+    "ea6bbb64-37a6-487a-bbba-6703d47c6e40",
+    "a6805c22-fd95-4697-8219-44b590635b36",
+    "aac92171-234a-4ae3-beed-e2d90eb3d2f5",
+    "65623ac7-d27e-4891-a45e-2d628d279832",
+    "82539143-672c-4879-a121-00576635a161",
+    "ca4b63c5-98b4-4b84-a316-f2350c9bf7e8",
+    "6b75529b-25fe-40a4-b6a2-4aee807db748",
+    "2127c5de-9c28-4b40-b338-3edcd53627e1",
+    "362bc9fc-7243-4342-9b4b-e40e84707f9f",
+    "2b446bd3-923d-486d-9331-92b3528aab46",
+    "ad22d829-1a80-4074-9a34-7118352f7de3",
+    "b8f0be4f-4032-40bc-b60f-070713e22b84",
+    "117a0b5b-1923-40fe-8bf1-877c0f7bcf7f",
+    "4d6e7fef-872f-4fec-b1bc-3ab1a45df2f2",
+    "460ce54b-f500-4bb2-9151-aa9c9e11704b",
+    "bbc9e563-78ed-4a12-87ca-6b075b07d4f8",
+    "204ac378-4caa-40c6-b1bb-327226c2fbce",
+    "a13bcf9f-db14-4ec7-a638-c9eda6454769",
+    "3b292acd-bb15-4b51-95e4-ad73da029bec",
+    "41692ed7-24dc-47eb-9308-d769d053865d",
+    "fb8ff0a5-7f84-417c-9103-c4d9497bed45",
+    "2cae08a8-d299-4f7e-825e-43adcf3f3f13",
+    "4b2aa793-23f9-48f9-bd21-34022bf2f4a5",
+    "e8eb22cd-e85a-460e-a79b-1100f7faf1bc",
+    "7ac2978d-154f-45cb-b7ab-cee39a99d668"
+  ],
+  "departmentIds": [
+    "c5094c9c-c4b5-4161-9b02-d98390aabeb6",
+    "f8f5cdec-be4a-4bbb-9a41-450b1b3c90a2",
+    "2c0b0627-0d59-4b96-8943-ee8d9ece1ceb",
+    "6ba660e5-f140-4a21-9e6a-18919a5bfd31",
+    "8dbb99b5-1d52-4375-a8b7-289d61b98bc3"
+  ],
+  "assessmentIds": [
+    "20c3a202-d62a-4f45-857b-bb3ec52a7af9",
+    "77c613d2-4514-4f52-a7f6-bf27a87b782d"
+  ],
+  "cohortIds": [
+    "a6152d34-31b7-481f-a038-f89884d6ea08",
+    "87a7d1d8-13a1-4a7c-abea-a9246c2d35a0",
+    "96334c45-3c7e-45a1-8ba4-51e1bbd049bf",
+    "81c3329c-e282-4f7c-922a-376ff786c200"
+  ],
+  "facilitatorUserId": "a3ba5d3d-13d1-44f3-be21-712a41b27326",
+  "facilitatorId": "b11b66cc-e4aa-47c5-8b20-075569b44f1a"
+}

@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,6 +13,9 @@ export async function GET() {
     .eq("id", user.id)
     .single();
 
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
+
   if (!profile?.org_id) {
     return NextResponse.json({ prompts: [] });
   }
@@ -19,6 +23,7 @@ export async function GET() {
   const { data: prompts } = await supabase
     .from("saved_prompts")
     .select("*")
+    .eq("org_id", profile.org_id)
     .or(`user_id.eq.${user.id},and(is_shared.eq.true,org_id.eq.${profile.org_id})`)
     .order("created_at", { ascending: false });
 
@@ -35,6 +40,9 @@ export async function POST(req: Request) {
     .select("org_id")
     .eq("id", user.id)
     .single();
+
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
 
   if (!profile?.org_id) {
     return NextResponse.json({ error: "No organisation" }, { status: 400 });
@@ -72,6 +80,9 @@ export async function DELETE(req: Request) {
     .eq("id", user.id)
     .single();
 
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
+
   const { id } = await req.json();
 
   const { data: prompt } = await supabase
@@ -84,13 +95,12 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const isOwner = prompt.user_id === user.id;
-  const isSameOrg = profile?.org_id && prompt.org_id === profile.org_id;
-  if (!isOwner && !isSameOrg) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!profile?.org_id || prompt.user_id !== user.id || prompt.org_id !== profile?.org_id) {
+    return NextResponse.json({ error: "Only the creator can delete this prompt in its workspace." }, { status: 403 });
   }
-
-  await supabase.from("saved_prompts").delete().eq("id", id);
-
+  const { data: removed, error } = await supabase.from("saved_prompts").delete()
+    .eq("id", id).eq("org_id", profile.org_id).eq("user_id", user.id).select("id");
+  if (error) return NextResponse.json({ error: "Could not delete the prompt." }, { status: 503 });
+  if (!removed?.length) return NextResponse.json({ error: "Prompt unavailable or access changed." }, { status: 404 });
   return NextResponse.json({ success: true });
 }

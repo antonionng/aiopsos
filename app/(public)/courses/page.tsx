@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import { CourseEnquiryForm } from "@/components/course-enquiry-form";
 import { ArrowRight } from "lucide-react";
 import { fetchPublishedCourses } from "@/lib/courses";
 import { StructuredData, ORGANISATION_LD } from "@/components/structured-data";
@@ -17,6 +19,12 @@ import {
   type CourseLevel,
 } from "@/lib/constants";
 import { coursesIndexMetadata } from "@/lib/public-share-metadata";
+import { isSelfServeEnabled } from "@/lib/self-serve/flag";
+import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog-meta";
+import { SelfServeAcademyCatalogue } from "@/components/learn/self-serve-marketing";
+import { AcademyFormats } from "@/components/courses/academy-formats";
+import { AcademyIntroduction } from "@/components/courses/course-introduction";
+import type { SelfServeTrack } from "@/lib/self-serve/types";
 
 export const metadata: Metadata = coursesIndexMetadata();
 
@@ -33,11 +41,14 @@ function isCourseCategory(value: string | undefined): value is CourseCategory {
 export default async function CoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ level?: string; category?: string }>;
+  searchParams: Promise<{ level?: string; category?: string; self?: string }>;
 }) {
-  const { level, category } = await searchParams;
+  const { level, category, self } = await searchParams;
   const activeLevel = isCourseLevel(level) ? level : null;
   const activeCategory = isCourseCategory(category) ? category : null;
+  const activeSelf = SELF_SERVE_TRACKS.includes(self as SelfServeTrack)
+    ? (self as SelfServeTrack)
+    : null;
 
   const allCourses = await fetchPublishedCourses();
   const courses = allCourses.filter(
@@ -51,17 +62,51 @@ export default async function CoursesPage({
   return (
     <div>
       <StructuredData data={ORGANISATION_LD} />
-      <header className="mb-10">
-        <h1 className="mb-4 font-display text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
-          Training courses
-        </h1>
-        <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Applied AI, technology adoption and applied robotics - every course
-          facilitated live by a trainer, in person or online, and worked
-          through on your team&apos;s own material. Pick from the catalogue, or
-          run the assessment first and let it tell you which teams need what.
-        </p>
+      <header className="academy-hero">
+        <div>
+          <p className="academy-eyebrow">EXPERRT ACADEMY / YOUR NEXT CHAPTER</p>
+          <h1>Big curiosity.<br />Practical skills.<br /><em>New possibilities.</em></h1>
+          <p className="academy-intro">Experrt Academy offers two ways to build practical skills in AI, technology, robotics and HR transformation. Self-paced courses let each person learn online in their own time, and trainer-led courses bring a group together with an Experrt trainer, in person or online.</p>
+          <div className="academy-actions">
+            <a href="#self-paced" className="academy-button">Browse self-paced courses <ArrowRight size={18} /></a>
+            <a href="#trainer-led" className="academy-text-link">Browse trainer-led courses <ArrowRight size={18} /></a>
+          </div>
+          <p className="academy-hero-note">Both formats are assessed on realistic work, and both end with a record your organisation can verify.</p>
+        </div>
+        <div className="academy-hero-visual">
+          <Image src="/images/learning/together.webp" alt="An illustrative workshop scene of professionals exploring ideas together" fill priority sizes="(max-width: 760px) 100vw, 50vw" />
+          <span className="academy-photo-tag">A little curiosity changes everything. ↗</span>
+          <div className="academy-visual-note"><span>YOUR NEXT STEP</span><strong>Learn it.<br />Try it.<br />Make it yours.</strong></div>
+        </div>
       </header>
+      <AcademyIntroduction />
+      <section className="academy-hr-discovery" aria-label="Always-on AI agent courses">
+        <div><h2>Learn to work with always-on AI agents</h2><p>Explore £99 courses with illustrated lessons, practical projects, assessment feedback and an Experrt certificate after you pass. Read an outline or try the Foundations sample to find your starting point.</p></div>
+        <Link href="/courses/agents" className="academy-text-link">Explore agent courses <ArrowRight size={18} /></Link>
+      </section>
+      <AcademyFormats selfPacedOn={isSelfServeEnabled()} />
+      {isSelfServeEnabled() ? (
+        <SelfServeAcademyCatalogue
+          track={activeSelf}
+          level={activeLevel}
+          category={activeCategory}
+        />
+      ) : null}
+      <section id="trainer-led" className="academy-format-head" aria-labelledby="trainer-led-title">
+        <p className="academy-eyebrow">TRAINER-LED COURSES</p>
+        <h2 id="trainer-led-title">Learn with an Experrt trainer and colleagues from your organisation.</h2>
+        <p>
+          Trainer-led courses are delivered live, in person or online, to a group from your organisation. The trainer works through your own examples, attendance and assessed work are recorded, and each learner who meets the standard receives a certificate that names the course, the dates, and the trainer.
+        </p>
+      </section>
+      <section className="academy-hr-discovery" aria-label="HR academy">
+        <div><h2>HR, AI &amp; People Ops Academy</h2><p>Make people work better. Explore AI for HR, connected people systems and practical transformation, from everyday operations to leadership strategy.</p></div>
+        <Link href="/courses?category=hr#catalogue" className="academy-text-link">Explore HR courses <ArrowRight size={18} /></Link>
+      </section>
+      <section id="catalogue" className="academy-catalogue-heading">
+        <div><p className="academy-eyebrow">TRAINER-LED CATALOGUE</p><h2>Choose a subject and a level.</h2></div>
+        <p>Filter the trainer-led catalogue by subject and level. Every course can be adapted to your sector, and we will help you choose the right starting point for your team.</p>
+      </section>
 
       <CatalogueFilters
         active={{ category: activeCategory, level: activeLevel, sector: null }}
@@ -79,15 +124,14 @@ export default async function CoursesPage({
       )}
 
       <p className="mb-8 text-xs text-muted-foreground">
-        {courses.length} course{courses.length === 1 ? "" : "s"} ·{" "}
-        {totalHours} facilitated hours
+        {courses.length} trainer-led course{courses.length === 1 ? "" : "s"} ·{" "}
+        {totalHours} hours with a trainer
       </p>
 
       {courses.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-10 text-center">
           <p className="text-sm text-muted-foreground">
-            Nothing matches that combination yet. Try a different subject or
-            level.
+            No courses match these filters yet. Try another subject or level, or ask us to help you find the right fit.
           </p>
         </div>
       ) : (
@@ -105,9 +149,8 @@ export default async function CoursesPage({
           Browse by sector
         </h2>
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          The catalogue is the catalogue. What changes by sector is the
-          material the room works through, the constraints in it, and which
-          courses matter most first. These pages say which, and why.
+          Learning feels different when it speaks your language. Explore courses
+          with the challenges, examples and opportunities of your industry in mind.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {getSectors().map((entry) => (
@@ -130,23 +173,15 @@ export default async function CoursesPage({
         </div>
       </section>
 
-      <section className="mt-16 rounded-2xl border border-border bg-card p-8">
-        <h2 className="mb-3 text-xl font-semibold tracking-[-0.01em]">
-          Not sure which courses your teams need?
-        </h2>
-        <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          The readiness assessment scores each person across five dimensions and
-          maps the gaps onto this catalogue, by department and by role. Five
-          minutes per person, and it is usually the cheapest way to find out
-          that the team you assumed was fine is not.
-        </p>
-        <Link
-          href="/register"
-          className="inline-flex h-11 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground transition-opacity hover:opacity-90"
-        >
-          Run an assessment
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
+      <section id="enquire" className="academy-enquiry">
+        <div>
+          <p className="academy-eyebrow">LET’S MAKE A START</p>
+          <h2>Your next chapter<br />starts with<br /><em>a conversation.</em></h2>
+          <p>Whether you need one trainer-led course or a programme for your whole team, tell us what you have in mind. We will recommend the right format, confirm dates, and send a price for your group.</p>
+          <p className="academy-enquiry-note">Not sure where to start? That’s a good place to begin, too.</p>
+          <Link href="/assessment/start" className="academy-text-link">Find your starting point with a learning check <ArrowRight size={18} /></Link>
+        </div>
+        <div className="academy-form-panel"><h3>Let’s talk about your learning</h3><CourseEnquiryForm source="catalogue" /></div>
       </section>
     </div>
   );

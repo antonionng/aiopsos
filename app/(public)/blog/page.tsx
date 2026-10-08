@@ -6,9 +6,8 @@ export const metadata: Metadata = blogRedirectMetadata();
 
 /**
  * /blog used to hit the auth wall because middleware treated unknown paths
- * as private. It is public (see isPublicPath) so updateSession never 307s
- * crawlers to /login. next.config already 308s /blog → /insights; this
- * page is the in-app fallback. Metadata is Insights, not a login wall.
+ * as private. Published editorial lives at /insights. Send humans and
+ * crawlers there rather than to /login.
  */
 export default function BlogRedirectPage() {
   redirect("/insights");

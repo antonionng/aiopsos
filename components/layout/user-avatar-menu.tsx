@@ -97,7 +97,7 @@ export function UserAvatarMenu() {
           </>
         )}
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => router.push("/dashboard/hub")}>
+          <DropdownMenuItem onClick={() => router.push("/dashboard/learning")}>
             <LayoutGrid className="mr-2 h-4 w-4" />
             Control Centre
           </DropdownMenuItem>

@@ -1,0 +1,18 @@
+/** Absolute titles (already include | Experrt) and metas for agent pages. */
+export const AGENT_SEO: Record<string, { title: string; description: string }> = {
+  "catalogue": { title: "AI Agent Courses Online, £99 Each | Experrt Academy", description: "Thirteen self-paced AI agent courses with a practical project, AI assessment and a certificate when you pass. £99 per course, 12 months of access." },
+  "always-on-agent-foundations": { title: "AI Agents for Beginners: Foundations, £99 | Experrt", description: "Choose a task you do regularly, write clear instructions for an AI agent and learn to check its work. Six modules and a project, £99." },
+  "working-with-openai-dots": { title: "Working with OpenAI Dots: Online Course, £99 | Experrt", description: "Give a dot a regular task, connect the files and apps it needs, and check what it did while you were away. Six modules and a project, £99." },
+  "working-with-grok-bot": { title: "Working with Grok Bot: Online Course, £99 | Experrt", description: "Ask Grok Bot to track a topic, check where its findings come from and decide when you need an update. Six modules and a project, £99." },
+  "working-with-meta-muse": { title: "Working with Meta Muse: Online Course, £99 | Experrt", description: "Use Muse to plan your week and manage changing priorities, with approval before bookings or big changes. Six modules and a project, £99." },
+  "working-with-claude-cowork": { title: "Working with Claude Cowork: Course, £99 | Experrt", description: "Ask Claude Cowork to work with your files and prepare regular reports, then check the results. Six modules and a practical project, £99." },
+  "business-agents-copilot-studio": { title: "Copilot Studio Agents Course, £99 | Experrt", description: "Build a Microsoft Copilot Studio agent that sorts requests, uses the right records and asks a person to approve. Six modules, project, £99." },
+  "running-your-own-agent-openclaw": { title: "Run Your Own AI Agent with OpenClaw, £99 | Experrt", description: "Set up an agent with OpenClaw, choose what it can access, and keep it running and fix problems. Six modules and a practical project, £99." },
+  "managing-agents-reliably": { title: "Managing AI Agents Reliably: Course, £99 | Experrt", description: "Check an agent's work, spot problems and restart a failed task without doing the same work twice. Six modules and a practical project, £99." },
+  "agents-small-business-operations": { title: "AI Agents for Small Business: Course, £99 | Experrt", description: "Use agents for regular business tasks, organise requests and prepare reports you check before sharing. Six modules and a project, £99." },
+  "agent-research-market-monitoring": { title: "AI Agents for Market Research: Course, £99 | Experrt", description: "Track a topic, check new information against its sources and get an alert when something important changes. Six modules and a project, £99." },
+  "content-operations-agents": { title: "AI Agents for Content Teams: Course, £99 | Experrt", description: "Use agents to draft content, check the facts, choose images and prepare drafts for approval. Six modules and a practical project, £99." },
+  "agents-for-developers": { title: "AI Coding Agents for Developers: Course, £99 | Experrt", description: "Give an agent a small coding task, review its changes and run tests to check the code works. Six modules and a practical project, £99." },
+  "coordinating-multiple-agents": { title: "Coordinating Multiple AI Agents: Course, £99 | Experrt", description: "Give each agent a clear job, check how they hand work over and keep a person in charge of the result. Six modules and a project, £99." },
+};
+

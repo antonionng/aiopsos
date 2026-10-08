@@ -7,15 +7,15 @@ import {
   getInsightTopics,
   getInsightsByTopic,
   getPublishedInsights,
-  insightCta,
   insightForCourse,
   insightReadingMinutes,
   insightWordCount,
   relatedCoursesFor,
   relatedInsights,
 } from "../insights/catalog.ts";
+import { growthGuides } from "../insights/articles/growth-guides.ts";
+import { COURSE_TITLES } from "../published-course-slugs.ts";
 import { INSIGHT_TOPICS } from "../insights/types.ts";
-import { articleLd, faqPageLd } from "../json-ld.ts";
 
 const ORIGINAL_SLUGS = [
   "eu-ai-act-article-4-literacy-for-ld",
@@ -32,7 +32,6 @@ const NEW_SLUGS = [
   "how-to-measure-if-ai-training-stuck",
   "cobot-training-for-the-shift-not-the-integrator",
   "technology-judgement-for-nontechnical-directors",
-  "article-4-evidence-pack",
 ] as const;
 
 const REQUIRED_SLUGS = [...ORIGINAL_SLUGS, ...NEW_SLUGS] as const;
@@ -49,12 +48,11 @@ const EXPECTED_DATES: Record<string, string> = {
   "eu-ai-act-article-4-literacy-for-ld": "2026-08-05",
   "cobot-training-for-the-shift-not-the-integrator": "2026-08-12",
   "technology-judgement-for-nontechnical-directors": "2026-08-19",
-  "article-4-evidence-pack": "2026-09-04",
 };
 
-test("twelve published insights with unique titles, descriptions, and dates", () => {
-  const articles = getPublishedInsights();
-  assert.equal(articles.length, 12);
+test("original eleven insights retain their titles and publication dates", () => {
+  const articles = getPublishedInsights().filter(a => a.slug in EXPECTED_DATES);
+  assert.equal(articles.length, 11);
 
   const slugs = articles.map((a) => a.slug).sort();
   assert.deepEqual(slugs, [...REQUIRED_SLUGS].sort());
@@ -62,17 +60,17 @@ test("twelve published insights with unique titles, descriptions, and dates", ()
   const titles = new Set(articles.map((a) => a.title));
   const descriptions = new Set(articles.map((a) => a.description));
   const dates = new Set(articles.map((a) => a.publishedAt));
-  assert.equal(titles.size, 12);
-  assert.equal(descriptions.size, 12);
-  assert.equal(dates.size, 12);
+  assert.equal(titles.size, 11);
+  assert.equal(descriptions.size, 11);
+  assert.equal(dates.size, 11);
 
   for (const article of articles) {
     assert.ok(article.title.length > 10);
     assert.ok(article.description.length > 40);
     assert.ok(article.dek.length > 10);
     assert.equal(article.publishedAt, EXPECTED_DATES[article.slug]);
-    assert.match(article.publishedAt, /^2026-(06|07|08|09)-\d{2}$/);
-    assert.ok(article.publishedAt <= "2026-09-04");
+    assert.match(article.publishedAt, /^2026-(06|07|08)-\d{2}$/);
+    assert.ok(article.publishedAt <= "2026-08-21");
   }
 
   const originalNewest = articles
@@ -82,8 +80,8 @@ test("twelve published insights with unique titles, descriptions, and dates", ()
   assert.equal(originalNewest.publishedAt, "2026-08-05");
 });
 
-test("published dates are weekly-ish, not a consecutive dump", () => {
-  const dates = getPublishedInsights()
+test("original archive publication dates remain unchanged", () => {
+  const dates = getPublishedInsights().filter(a => a.slug in EXPECTED_DATES)
     .map((a) => a.publishedAt)
     .sort();
   for (let i = 1; i < dates.length; i++) {
@@ -91,18 +89,15 @@ test("published dates are weekly-ish, not a consecutive dump", () => {
     const next = new Date(`${dates[i]}T00:00:00Z`).getTime();
     const days = (next - prev) / 86400000;
     assert.ok(days >= 6, `${dates[i - 1]} to ${dates[i]} is only ${days} days`);
-    // The first eleven were a weekly scatter. Later editorial pieces can
-    // sit a fortnight on, so the list does not look like a dump, without
-    // forcing a fake mid-August date onto a September briefing.
-    assert.ok(days <= 17, `${dates[i - 1]} to ${dates[i]} is ${days} days`);
+    assert.ok(days <= 10, `${dates[i - 1]} to ${dates[i]} is ${days} days`);
   }
 });
 
-test("each article is 900-1800 words, one H1-free body, no em dashes", () => {
-  for (const article of getPublishedInsights()) {
+test("original articles retain their long-form content", () => {
+  for (const article of getPublishedInsights().filter(a => a.slug in EXPECTED_DATES)) {
     const words = insightWordCount(article);
     assert.ok(
-      words >= 900 && words <= 1800,
+      words >= 900 && words <= 1400,
       `${article.slug} is ${words} words`
     );
     assert.equal(
@@ -116,19 +111,11 @@ test("each article is 900-1800 words, one H1-free body, no em dashes", () => {
   }
 });
 
-test("each article links to named courses", () => {
+test("each article links to named courses and contact", () => {
   const expectedCourses: Record<string, string[]> = {
     "eu-ai-act-article-4-literacy-for-ld": [
       "sponsoring-an-ai-literacy-programme",
       "responsible-ai-use-at-work",
-      "ai-foundations-for-every-role",
-      "ai-governance-and-oversight-for-managers",
-    ],
-    "article-4-evidence-pack": [
-      "sponsoring-an-ai-literacy-programme",
-      "responsible-ai-use-at-work",
-      "ai-foundations-for-every-role",
-      "ai-governance-and-oversight-for-managers",
     ],
     "unused-ai-licences-training-gap": [
       "getting-value-from-tools-you-already-own",
@@ -179,31 +166,7 @@ test("each article links to named courses", () => {
   for (const [slug, courses] of Object.entries(expectedCourses)) {
     const article = getInsightBySlug(slug);
     assert.ok(article, slug);
-    if (
-      slug === "eu-ai-act-article-4-literacy-for-ld" ||
-      slug === "article-4-evidence-pack" ||
-      slug === "what-ai-literacy-actually-means-at-work" ||
-      slug === "how-to-commission-workforce-ai-training" ||
-      slug === "unused-ai-licences-training-gap" ||
-      slug === "in-person-ai-training-vs-lms" ||
-      slug === "ai-output-verification-at-work" ||
-      slug === "managers-not-champions-ai-adoption" ||
-      slug === "how-to-measure-if-ai-training-stuck"
-    ) {
-      assert.doesNotMatch(article.body, /\]\(\/contact(?:\?[^)]*)?\)/);
-      assert.ok(article.body.includes("/ai-literacy-training"));
-      if (
-        slug === "eu-ai-act-article-4-literacy-for-ld" ||
-        slug === "article-4-evidence-pack"
-      ) {
-        assert.ok(article.body.includes("/ai-readiness-assessment"));
-        assert.ok(article.body.includes("ag@experrt.com"));
-      } else {
-        assert.ok(article.body.includes("ag@experrt.com"));
-      }
-    } else {
-      assert.match(article.body, /\]\(\/contact\)/);
-    }
+    assert.match(article.body, /\]\(\/contact\)/);
     for (const course of courses) {
       assert.ok(
         article.body.includes(`/courses/${course}`),
@@ -216,8 +179,6 @@ test("each article links to named courses", () => {
 
 test("new articles link to related insights", () => {
   const expectedInsightLinks: Record<string, string> = {
-    "article-4-evidence-pack":
-      "/insights/eu-ai-act-article-4-literacy-for-ld",
     "what-ai-literacy-actually-means-at-work":
       "/insights/eu-ai-act-article-4-literacy-for-ld",
     "in-person-ai-training-vs-lms":
@@ -325,155 +286,33 @@ test("related insights never include the article itself and prefer its topic", (
   }
 });
 
-test("Article 4 L&D briefing is a literacy enquiry page, not a contact dump", () => {
-  const article = getInsightBySlug("eu-ai-act-article-4-literacy-for-ld");
-  assert.ok(article);
-  assert.equal(
-    article.title,
-    "L&D has to evidence staff AI literacy under Article 4"
-  );
-  assert.equal(
-    article.h1,
-    "Article 4 of the EU AI Act asks Learning and Development to help staff understand the AI they already use."
-  );
-  assert.match(article.lede ?? "", /Europe's law for how companies use AI at work/);
-  assert.match(article.lede ?? "", /Learning and Development/);
-  assert.match(article.dek, /literacy duty, not a certificate/);
-  assert.match(
-    article.description,
-    /duty to support AI literacy at work/
-  );
-  assert.doesNotMatch(article.body, /this month/);
-  assert.match(article.body, /2 August 2026/);
-  assert.match(article.body, /September/);
-  assert.match(article.body, /Commission AI literacy Q&A/);
-  assert.doesNotMatch(article.body, /EU AI Act compliant training/i);
-  assert.doesNotMatch(article.body, /\bKumo\b/);
-  assert.doesNotMatch(article.body, /£100,?000/);
 
-  const faqs = article.faqs ?? [];
-  assert.ok(faqs.length >= 5 && faqs.length <= 7);
-  const faqText = faqs.map((faq) => `${faq.question} ${faq.answer}`).join("\n");
-  assert.match(faqText, /certificate/i);
-  assert.match(faqText, /not an Article 4 measure/i);
-  assert.doesNotMatch(faqText, /\/contact/);
-
-  const cta = insightCta(article);
-  assert.equal(cta.primaryHref, "/ai-literacy-training");
-  assert.equal(cta.secondaryHref, "/ai-readiness-assessment");
-  assert.notEqual(cta.primaryHref, "/contact");
-  assert.doesNotMatch(cta.primaryHref, /^\/contact/);
-  assert.doesNotMatch(cta.blurb + cta.heading, /\/contact/);
-  assert.match(cta.blurb, /ag@experrt\.com/);
-  assert.match(article.body, /ag@experrt\.com/);
-
-  const articleSchema = articleLd(article);
-  assert.equal(articleSchema["@type"], "Article");
-  assert.equal(articleSchema.headline, article.h1);
-  assert.notEqual(articleSchema["@type"], "Course");
-
-  const faqsSchema = faqPageLd(faqs);
-  assert.equal(faqsSchema["@type"], "FAQPage");
-  assert.equal(faqsSchema.mainEntity.length, faqs.length);
-  assert.doesNotMatch(JSON.stringify(articleSchema), /"@type":"Course"/);
-});
-
-test("Article 4 evidence pack is a filing checklist, not a contact dump", () => {
-  const article = getInsightBySlug("article-4-evidence-pack");
-  assert.ok(article);
-  assert.equal(
-    article.title,
-    "What L&D should file for Article 4 AI literacy"
-  );
-  assert.equal(
-    article.h1,
-    "Article 4 does not ask for a certificate. It asks for a file you can describe."
-  );
-  assert.match(article.lede ?? "", /Europe's law for how companies use AI at work/);
-  assert.match(article.lede ?? "", /Learning and Development/);
-  assert.match(article.dek, /evidence pack L&D should be able to open/);
-  assert.match(article.description, /role map, training record/);
-  assert.match(article.body, /2 August 2026/);
-  assert.match(article.body, /September/);
-  assert.match(article.body, /Commission AI literacy Q&A/);
-  assert.match(
-    article.body,
-    /\/insights\/eu-ai-act-article-4-literacy-for-ld/
-  );
-  assert.doesNotMatch(article.body, /EU AI Act compliant training/i);
-  assert.doesNotMatch(article.body, /\]\(\/contact(?:\?[^)]*)?\)/);
-  assert.doesNotMatch(article.body, /calendly\.com/i);
-  assert.doesNotMatch(article.body, /£100,?000/);
-  assert.doesNotMatch(article.body, /£100k\/month/i);
-
-  const faqs = article.faqs ?? [];
-  assert.ok(faqs.length >= 6 && faqs.length <= 8);
-  const faqText = faqs.map((faq) => `${faq.question} ${faq.answer}`).join("\n");
-  assert.match(faqText, /certificate/i);
-  assert.match(faqText, /LMS completion/i);
-  assert.match(faqText, /not an Article 4 measure/i);
-  assert.match(faqText, /champions/i);
-  assert.match(faqText, /export/i);
-  assert.match(faqText, /Article 4 compliant/i);
-  assert.match(faqText, /first cohort/i);
-  assert.doesNotMatch(faqText, /\/contact/);
-  assert.doesNotMatch(faqText, /calendly\.com/i);
-
-  const cta = insightCta(article);
-  assert.equal(cta.primaryHref, "/ai-literacy-training");
-  assert.equal(cta.primaryLabel, "AI literacy training");
-  assert.equal(cta.secondaryHref, "/ai-readiness-assessment");
-  assert.equal(cta.secondaryLabel, "AI readiness assessment");
-  assert.notEqual(cta.primaryHref, "/contact");
-  assert.doesNotMatch(cta.primaryHref, /^\/contact/);
-  assert.doesNotMatch(cta.blurb + cta.heading, /\/contact/);
-  assert.doesNotMatch(cta.blurb, /calendly/i);
-  assert.match(cta.blurb, /ag@experrt\.com/);
-  assert.match(article.body, /ag@experrt\.com/);
-
-  const articleSchema = articleLd(article);
-  assert.equal(articleSchema["@type"], "Article");
-  assert.equal(articleSchema.headline, article.h1);
-  assert.notEqual(articleSchema["@type"], "Course");
-
-  const faqsSchema = faqPageLd(faqs);
-  assert.equal(faqsSchema["@type"], "FAQPage");
-  assert.equal(faqsSchema.mainEntity.length, faqs.length);
-  assert.doesNotMatch(JSON.stringify(articleSchema), /"@type":"Course"/);
-});
-
-test("literacy-programme closers are the programme, not /contact", () => {
-  for (const slug of [
-    "what-ai-literacy-actually-means-at-work",
-    "how-to-commission-workforce-ai-training",
-    "unused-ai-licences-training-gap",
-    "in-person-ai-training-vs-lms",
-    "ai-output-verification-at-work",
-    "managers-not-champions-ai-adoption",
-    "how-to-measure-if-ai-training-stuck",
-  ]) {
-    const article = getInsightBySlug(slug);
-    assert.ok(article, slug);
-    assert.doesNotMatch(article.body, /\]\(\/contact(?:\?[^)]*)?\)/);
-    assert.match(
-      article.body,
-      /If you want the programme scoped against the roles you already have/
-    );
-    assert.match(article.body, /\[AI literacy training\]\(\/ai-literacy-training\)/);
-    assert.match(article.body, /\[ag@experrt\.com\]\(mailto:ag@experrt\.com\)/);
-    assert.doesNotMatch(article.body, /\]\(\/contact\)/);
-
-    const cta = insightCta(article);
-    assert.equal(cta.primaryHref, "/ai-literacy-training", slug);
-    assert.notEqual(cta.primaryHref, "/contact");
-    assert.doesNotMatch(cta.primaryHref, /^\/contact/);
-    assert.doesNotMatch(`${cta.blurb}${cta.heading}${cta.primaryLabel}`, /\/contact/);
-    assert.match(cta.blurb, /ag@experrt\.com/);
-    assert.equal(cta.secondaryHref, undefined);
+test("growth guides have unique metadata, valid editorial dates and resolvable internal links", () => {
+  const all = getPublishedInsights();
+  assert.equal(growthGuides.length, 12);
+  assert.equal(new Set(all.map(a => a.slug)).size, all.length);
+  assert.equal(new Set(all.map(a => a.title)).size, all.length);
+  assert.equal(new Set(all.map(a => a.description)).size, all.length);
+  for (const article of growthGuides) {
+    assert.ok(article.publishedAt >= "2026-06-10" && article.publishedAt <= "2026-09-09");
+    assert.ok(insightWordCount(article) >= 500, article.slug);
+    assert.ok(!/(^|\n)# /.test(article.body), article.slug);
+    assert.ok(!article.body.includes("\u2014"), article.slug);
+    assert.ok(article.body.includes("](/contact)"), article.slug);
+    for (const course of article.relatedCourseSlugs) assert.ok(COURSE_TITLES[course], course);
+    for (const link of article.body.matchAll(/\]\((\/[^)]+)\)/g)) {
+      const path = link[1];
+      if (path.startsWith("/insights/")) assert.ok(getInsightBySlug(path.slice(10)), `${article.slug}: ${path}`);
+      else if (path.startsWith("/courses/")) assert.ok(COURSE_TITLES[path.slice(9)], path);
+      else assert.ok(["/contact", "/assessment/start"].includes(path), path);
+    }
   }
+});
 
-  const defaultCta = insightCta(
-    getInsightBySlug("robotics-training-is-an-ops-problem")!
-  );
-  assert.equal(defaultCta.primaryHref, "/contact");
+test("archive dates are distributed through 10 September 2026", () => {
+  const articles = getPublishedInsights();
+  assert.equal(new Set(articles.map(article => article.publishedAt)).size, articles.length);
+  assert.equal(articles[0].publishedAt, "2026-09-10");
+  assert.equal(articles.at(-1)?.publishedAt, "2026-06-10");
+  assert.ok(articles.every(article => article.publishedAt <= "2026-09-10"));
 });

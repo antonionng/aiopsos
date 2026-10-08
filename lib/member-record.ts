@@ -8,27 +8,30 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
  * usage - that exists only in aggregate.
  */
 export async function assembleMemberRecord(orgId: string, memberId: string) {
-  const { data: member } = await supabaseAdmin
+  const { data: member, error: memberError } = await supabaseAdmin
     .from("user_profiles")
-    .select("id, name, email, job_title, role, department_id, created_at, departments(name)")
+    .select("id, name, email, job_title, role, department_id, departments(name)")
     .eq("id", memberId)
     .eq("org_id", orgId)
     .maybeSingle();
+  if (memberError) throw new Error("Member identity could not be loaded");
   if (!member) return null;
 
-  const [{ data: maturity }, { data: tna }, { data: enrolments }] = await Promise.all([
+  const [{ data: maturity, error: maturityError }, { data: tna, error: tnaError }, { data: enrolments, error: enrolmentError }] = await Promise.all([
     supabaseAdmin
       .from("assessment_responses")
-      .select("confidence_score, practice_score, tools_score, responsible_score, culture_score, submitted_at")
+      .select("confidence_score, practice_score, tools_score, responsible_score, culture_score, submitted_at, assessments!inner(org_id)")
       .eq("user_id", memberId)
+      .eq("assessments.org_id", orgId)
       .or("template_id.is.null,template_id.neq.training-needs")
       .order("submitted_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
     supabaseAdmin
       .from("assessment_responses")
-      .select("dimension_scores, submitted_at")
+      .select("dimension_scores, submitted_at, assessments!inner(org_id)")
       .eq("user_id", memberId)
+      .eq("assessments.org_id", orgId)
       .eq("template_id", "training-needs")
       .order("submitted_at", { ascending: false })
       .limit(1)
@@ -43,8 +46,10 @@ export async function assembleMemberRecord(orgId: string, memberId: string) {
       .order("enrolled_at", { ascending: false }),
   ]);
 
+  if (maturityError || tnaError || enrolmentError) throw new Error("Member learning records could not be loaded");
+
   const enrIds = (enrolments ?? []).map((e) => e.id);
-  const [{ data: att }, { data: grades }, { data: certs }, { data: sessions }] = enrIds.length
+  const [{ data: att, error: attendanceError }, { data: grades, error: gradeError }, { data: certs, error: certificateError }, { data: sessions, error: sessionError }] = enrIds.length
     ? await Promise.all([
         supabaseAdmin.from("attendance").select("enrolment_id, session_id, status, minutes_attended").in("enrolment_id", enrIds),
         supabaseAdmin.from("grades").select("enrolment_id, score, max_score, feedback, graded_at, graded_by, user_profiles:graded_by(name)").in("enrolment_id", enrIds),
@@ -54,7 +59,9 @@ export async function assembleMemberRecord(orgId: string, memberId: string) {
           .select("id, cohort_id, position, title, starts_at")
           .in("cohort_id", (enrolments ?? []).map((e) => (e.cohorts as unknown as { id: string })?.id).filter(Boolean)),
       ])
-    : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }];
+    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
+
+  if (attendanceError || gradeError || certificateError || sessionError) throw new Error("Member delivery records could not be loaded");
 
   const allAtt = att ?? [];
   const attendedCount = allAtt.filter((a) => a.status === "present" || a.status === "late").length;
@@ -113,7 +120,7 @@ export async function assembleMemberRecord(orgId: string, memberId: string) {
       job_title: member.job_title,
       role: member.role,
       department: (member.departments as unknown as { name: string } | null)?.name ?? null,
-      joined_at: member.created_at,
+      joined_at: null,
     },
     stats: {
       enrolments: (enrolments ?? []).length,

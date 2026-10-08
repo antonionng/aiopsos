@@ -6,19 +6,6 @@ import { ArrowRight } from "lucide-react";
 import { formatInsightDate } from "@/lib/insights/format";
 import { cn } from "@/lib/utils";
 
-/**
- * The filterable article list.
- *
- * Filtering happens in the browser rather than through a `?topic=` search
- * param, which keeps the index statically rendered and makes the chips
- * instant. It also avoids publishing five filtered URLs that are each a
- * subset of the canonical one, which is a duplicate-content problem we would
- * then have to solve with noindex tags.
- *
- * The trade is that a filtered view is not shareable. At eleven articles
- * nobody is sharing a filtered view.
- */
-
 export type InsightCard = {
   slug: string;
   title: string;
@@ -38,17 +25,20 @@ export function InsightList({
   topics: string[];
 }) {
   const [active, setActive] = useState<string>(ALL);
+  const [query, setQuery] = useState("");
 
-  const visible = useMemo(
-    () =>
-      active === ALL
-        ? articles
-        : articles.filter((article) => article.topic === active),
-    [articles, active]
-  );
+  const visible = useMemo(() => {
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    return articles.filter(article => (active === ALL || article.topic === active)
+      && terms.every(term => `${article.title} ${article.dek} ${article.topic}`.toLowerCase().includes(term)));
+  }, [articles, active, query]);
 
   return (
-    <section>
+    <div>
+      <div className="mb-5">
+        <label htmlFor="insight-search" className="mb-2 block text-sm font-medium">Find a guide, template or idea</label>
+        <input id="insight-search" type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Try Copilot, skills matrix or training ROI" className="h-12 w-full rounded-xl border border-input bg-card px-4 text-sm outline-offset-4 focus-visible:outline-brand" />
+      </div>
       <div className="mb-8 flex flex-wrap items-center gap-2">
         {[ALL, ...topics].map((topic) => (
           <button
@@ -68,12 +58,13 @@ export function InsightList({
         ))}
       </div>
 
+      <p role="status" className="mb-5 text-xs text-muted-foreground">{visible.length} {visible.length === 1 ? "guide" : "guides"}{active !== ALL ? ` in ${active}` : ""}{query.trim() ? ` matching “${query.trim()}”` : ""}</p>
       <ul className="grid gap-4 sm:grid-cols-2">
         {visible.map((article) => (
           <li key={article.slug}>
             <Link
               href={`/insights/${article.slug}`}
-              className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-colors hover:border-foreground/30"
+              className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-colors hover:border-brand/60 hover:bg-brand/5"
             >
               <p className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 <span className="font-medium text-brand">{article.topic}</span>
@@ -99,9 +90,9 @@ export function InsightList({
 
       {visible.length === 0 && (
         <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          Nothing published under that topic yet.
+          No guides match that search. Try fewer words or another topic.
         </p>
       )}
-    </section>
+    </div>
   );
 }

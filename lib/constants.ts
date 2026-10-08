@@ -362,11 +362,11 @@ export function getTierImpactIndex(tierNumber: number): number {
 // Ordered from least to most senior. `recommendCourses` tie-breaks on this
 // order, so the index is meaningful - do not reorder without updating tests.
 /**
- * The three subjects the academy teaches. A browse axis, deliberately separate
+ * The subjects the academy teaches. A browse axis, deliberately separate
  * from `target_dimensions`: those describe the assessment gap a course closes,
  * this describes what the course is about.
  */
-export const COURSE_CATEGORIES = ["ai", "technology", "robotics"] as const;
+export const COURSE_CATEGORIES = ["ai", "technology", "robotics", "hr"] as const;
 
 export type CourseCategory = (typeof COURSE_CATEGORIES)[number];
 
@@ -374,6 +374,7 @@ export const COURSE_CATEGORY_LABELS: Record<CourseCategory, string> = {
   ai: "Applied AI",
   technology: "Technology adoption",
   robotics: "Applied robotics",
+  hr: "HR, AI & People Ops",
 };
 
 /**
@@ -388,9 +389,11 @@ export const COURSE_CATEGORY_COLORS: Record<
   ai: { base: "#7c3aed", soft: "#f3eefc" },
   technology: { base: "#b45309", soft: "#faf1e4" },
   robotics: { base: "#c2410c", soft: "#fdeee4" },
+  hr: { base: "#0f766e", soft: "#e1f5ee" },
 };
 
 export const COURSE_CATEGORY_DESCRIPTIONS: Record<CourseCategory, string> = {
+  hr: "Transform HR through AI and technology. Build better people services, connected systems and evidence-led decisions, with human judgement at the centre.",
   ai: "Using AI on the work your team already does, with the judgement to know when the output is wrong.",
   technology: "The tools your organisation already pays for, actually used - and the ones worth buying next.",
   robotics: "Robotics as an operational question rather than an engineering one. Not how they are built, how they are put to work.",
@@ -409,7 +412,7 @@ export const COURSE_LEVEL_LABELS: Record<CourseLevel, string> = {
 export const COURSE_LEVEL_DESCRIPTIONS: Record<CourseLevel, string> = {
   practitioner: "For the people doing the work day to day.",
   manager: "For those who set expectations and review the output.",
-  leadership: "For those accountable for the organisation AI use.",
+  leadership: "For those accountable for strategy, investment and organisational change.",
 };
 
 export const DELIVERY_MODES = ["in_person", "virtual", "blended"] as const;

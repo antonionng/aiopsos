@@ -31,7 +31,7 @@ interface MemberRecord {
     job_title: string | null;
     role: string;
     department: string | null;
-    joined_at: string;
+    joined_at: string | null;
   };
   stats: {
     enrolments: number;

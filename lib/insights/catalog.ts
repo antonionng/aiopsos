@@ -1,5 +1,5 @@
+import { aiLabsGuides } from "./articles/ai-labs-guides.ts";
 import { article as euAiAct } from "./articles/eu-ai-act-article-4-literacy-for-ld.ts";
-import { article as article4Pack } from "./articles/article-4-evidence-pack.ts";
 import { article as unusedLicences } from "./articles/unused-ai-licences-training-gap.ts";
 import { article as commissionTraining } from "./articles/how-to-commission-workforce-ai-training.ts";
 import { article as roboticsOps } from "./articles/robotics-training-is-an-ops-problem.ts";
@@ -11,16 +11,18 @@ import { article as measureStuck } from "./articles/how-to-measure-if-ai-trainin
 import { article as cobotShift } from "./articles/cobot-training-for-the-shift-not-the-integrator.ts";
 import { article as directorJudgement } from "./articles/technology-judgement-for-nontechnical-directors.ts";
 import { COURSE_TITLES } from "../published-course-slugs.ts";
-import {
-  INSIGHT_TOPICS,
-  type InsightArticle,
-  type InsightCta,
-  type InsightTopic,
-} from "./types.ts";
+import { growthGuides } from "./articles/growth-guides.ts";
+import { INSIGHT_TOPICS, type InsightArticle, type InsightTopic } from "./types.ts";
+
+import { hrAndAgenticGuides } from "./articles/hr-and-agentic-guides.ts";
+import { INSIGHT_SELF_SERVE } from "./self-serve-links.ts";
+import { getSelfServeCourseMeta } from "../self-serve/catalog-meta.ts";
 
 const PUBLISHED: InsightArticle[] = [
+  ...aiLabsGuides,
+  ...hrAndAgenticGuides,
+  ...growthGuides,
   euAiAct,
-  article4Pack,
   unusedLicences,
   commissionTraining,
   roboticsOps,
@@ -33,10 +35,46 @@ const PUBLISHED: InsightArticle[] = [
   directorJudgement,
 ];
 
+function withSelfServe(article: InsightArticle): InsightArticle {
+  const extra = INSIGHT_SELF_SERVE[article.slug];
+  if (!extra) return article;
+  return {
+    ...article,
+    relatedSelfServeSlugs: extra.slugs,
+  };
+}
+
 export function getPublishedInsights(): InsightArticle[] {
-  return [...PUBLISHED].sort((a, b) =>
+  return PUBLISHED.map(withSelfServe).sort((a, b) =>
     a.publishedAt < b.publishedAt ? 1 : a.publishedAt > b.publishedAt ? -1 : 0
   );
+}
+
+export function relatedSelfServeFor(article: InsightArticle) {
+  const slugs = article.relatedSelfServeSlugs ?? INSIGHT_SELF_SERVE[article.slug]?.slugs ?? [];
+  return slugs
+    .map((slug) => getSelfServeCourseMeta(slug))
+    .filter((course): course is NonNullable<typeof course> => Boolean(course));
+}
+
+export function insightSelfServeSentence(article: InsightArticle): string | undefined {
+  return INSIGHT_SELF_SERVE[article.slug]?.inBodySentence;
+}
+
+export function injectAfterFirstSection(body: string, sentence: string): string {
+  const lines = body.split("\n");
+  let seenHeading = false;
+  for (let index = 0; index < lines.length; index += 1) {
+    if (lines[index].startsWith("## ")) {
+      if (seenHeading) {
+        const before = lines.slice(0, index);
+        const after = lines.slice(index);
+        return [...before, "", sentence, "", ...after].join("\n");
+      }
+      seenHeading = true;
+    }
+  }
+  return `${body.trimEnd()}\n\n${sentence}\n`;
 }
 
 export function getInsightBySlug(slug: string): InsightArticle | undefined {
@@ -109,19 +147,6 @@ export function relatedCoursesFor(article: InsightArticle): {
     slug,
     title: COURSE_TITLES[slug] ?? slug,
   }));
-}
-
-const DEFAULT_INSIGHT_CTA: InsightCta = {
-  heading: "Book a conversation",
-  blurb:
-    "Experrt runs live, in-house cohorts. If this briefing matches a gap you already have, talk to us about scope, dates and the record the programme should produce.",
-  primaryHref: "/contact",
-  primaryLabel: "Contact Experrt",
-};
-
-/** End-of-article CTA. Literacy closers override this; others still use /contact. */
-export function insightCta(article: InsightArticle): InsightCta {
-  return article.cta ?? DEFAULT_INSIGHT_CTA;
 }
 
 /** One related article for a course page. First published match wins. */

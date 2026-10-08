@@ -28,8 +28,8 @@ export function AssessmentResultsEmail({
     <div
       style={{
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
-        backgroundColor: "#0d0d0d",
-        color: "#ececec",
+        backgroundColor: "#201C29",
+        color: "#FFFEFA",
         padding: "48px 24px",
       }}
     >
@@ -68,7 +68,7 @@ export function AssessmentResultsEmail({
           style={{
             fontSize: "15px",
             lineHeight: 1.6,
-            color: "#888888",
+            color: "#D5C7FF",
             margin: "0 0 32px",
           }}
         >
@@ -95,13 +95,13 @@ export function AssessmentResultsEmail({
             }}
           >
             {overall.toFixed(1)}
-            <span style={{ fontSize: "18px", color: "#888888" }}> / 5</span>
+            <span style={{ fontSize: "18px", color: "#D5C7FF" }}> / 5</span>
           </p>
           <p
             style={{
               fontSize: "14px",
               fontWeight: 600,
-              color: "#888888",
+              color: "#D5C7FF",
               margin: 0,
             }}
           >
@@ -125,7 +125,7 @@ export function AssessmentResultsEmail({
                     padding: "12px 0",
                     borderBottom: "1px solid rgba(255,255,255,0.06)",
                     fontSize: "14px",
-                    color: "#888888",
+                    color: "#D5C7FF",
                   }}
                 >
                   {LABELS[dim]}
@@ -151,8 +151,8 @@ export function AssessmentResultsEmail({
           href={resultsUrl}
           style={{
             display: "inline-block",
-            backgroundColor: "#fbbf24",
-            color: "#1c1503",
+            backgroundColor: "#E4F477",
+            color: "#201C29",
             fontSize: "14px",
             fontWeight: 600,
             padding: "12px 28px",
@@ -174,11 +174,11 @@ export function AssessmentResultsEmail({
         <p
           style={{
             fontSize: "12px",
-            color: "#555555",
+            color: "#BEB3D0",
             margin: 0,
           }}
         >
-          Experrt -- The enterprise AI control layer.
+          Experrt. Stay curious. Get unstoppable.
         </p>
       </div>
     </div>

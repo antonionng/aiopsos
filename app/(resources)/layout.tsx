@@ -48,6 +48,12 @@ export default function ResourcesLayout({
             >
               Terms
             </Link>
+            <Link
+              href="/course-terms"
+              className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Course terms
+            </Link>
           </nav>
         </div>
       </footer>

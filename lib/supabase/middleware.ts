@@ -1,30 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import {
-  isAuthPath,
-  isPublicPath,
-  isSessionGatedPath,
-} from "@/lib/public-routes";
+import { isAuthPath, isPrivatePath, isPublicPath } from "@/lib/public-routes";
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAuthPage = isAuthPath(pathname);
   const isPublicRoute = isPublicPath(pathname);
 
-  // Public marketing, /contact, /insights and /blog must not touch Supabase.
-  // Constructing the client here is what turns a missing
-  // NEXT_PUBLIC_SUPABASE_URL into a failed request (or, previously, a login
-  // wall). /blog is public so crawlers get the 308 to /insights, not a 307
-  // to /login.
+  // Public marketing and Insights must not touch Supabase. Constructing the
+  // client here is what turns a missing NEXT_PUBLIC_SUPABASE_URL into a
+  // failed request (or, previously, a login wall for unknown paths).
   if (isPublicRoute) {
-    return NextResponse.next({ request });
-  }
-
-  // Unknown paths (stale marketing URLs, typos) used to 307 to /login
-  // because the default was "private". Let Next 404 them, or apply a
-  // configured 301, instead of teaching crawlers that every miss is a
-  // login wall.
-  if (!isAuthPage && !isSessionGatedPath(pathname)) {
     return NextResponse.next({ request });
   }
 
@@ -32,8 +18,11 @@ export async function updateSession(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    if (isAuthPage) {
+    if (isAuthPage || !isPrivatePath(pathname)) {
       return NextResponse.next({ request });
+    }
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "unauthorised" }, { status: 401 });
     }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -63,7 +52,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && !isAuthPage) {
+  if (!user && !isAuthPage && isPrivatePath(pathname)) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "unauthorised" }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

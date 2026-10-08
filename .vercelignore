@@ -1,0 +1,13 @@
+output/
+tmp/
+scripts/verification/
+scripts/.seed-manifest.json
+scripts/.lms-demo-manifest.json
+.claude/
+.codex/
+.env*
+
+.deck-build/
+.playwright-mcp/
+.agents/
+supabase/.temp/

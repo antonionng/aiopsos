@@ -1,3 +1,5 @@
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
@@ -8,21 +10,25 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from("user_profiles")
-    .select("org_id")
+    .select("org_id, role")
     .eq("id", user.id)
     .single();
+
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
 
   if (!profile?.org_id) {
     return NextResponse.json({ files: [] });
   }
 
-  const { data: files } = await supabase
+  const { data: files, error } = await supabase
     .from("knowledge_base_files")
     .select("*, departments(name)")
     .eq("org_id", profile.org_id)
     .order("created_at", { ascending: false });
 
-  return NextResponse.json({ files: files ?? [] });
+  if (error) return NextResponse.json({ error: "Documents could not be loaded." }, { status: 503 });
+  return NextResponse.json({ files: files ?? [], canUpload: ["admin", "manager"].includes(profile.role), canDelete: profile.role === "admin" }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
 export async function POST(req: Request) {
@@ -36,6 +42,9 @@ export async function POST(req: Request) {
     .eq("id", user.id)
     .single();
 
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
+
   if (!profile?.org_id || !["admin", "manager"].includes(profile.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -44,11 +53,18 @@ export async function POST(req: Request) {
   const file = formData.get("file") as File;
   const departmentId = formData.get("department_id") as string | null;
 
-  if (!file) {
+  if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
-  const storagePath = `${profile.org_id}/${Date.now()}-${file.name}`;
+  if (!file.size || file.size > 4 * 1024 * 1024 || !/\.(pdf|docx|txt|md|csv)$/i.test(file.name)) {
+    return NextResponse.json({ error: "Choose a PDF, DOCX, TXT, MD or CSV file up to 4MB." }, { status: 400 });
+  }
+  if (departmentId) {
+    const { data: department } = await supabase.from("departments").select("id").eq("id", departmentId).eq("org_id", profile.org_id).maybeSingle();
+    if (!department) return NextResponse.json({ error: "Choose a department in this workspace." }, { status: 400 });
+  }
+  const storagePath = `${profile.org_id}/${crypto.randomUUID()}.${file.name.split(".").pop()?.toLowerCase()}`;
   const { error: uploadError } = await supabase.storage
     .from("knowledge-base")
     .upload(storagePath, file);
@@ -71,6 +87,7 @@ export async function POST(req: Request) {
     .single();
 
   if (insertError) {
+    await supabaseAdmin.storage.from("knowledge-base").remove([storagePath]);
     return NextResponse.json({ error: insertError.message }, { status: 500 });
   }
 
@@ -88,7 +105,10 @@ export async function DELETE(req: Request) {
     .eq("id", user.id)
     .single();
 
-  if (!profile?.org_id || !["admin", "manager"].includes(profile.role)) {
+  const denied = await resourceAccessError(supabase, profile?.org_id);
+  if (denied) return denied;
+
+  if (!profile?.org_id || profile.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -104,8 +124,10 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await supabase.storage.from("knowledge-base").remove([file.storage_path]);
-  await supabase.from("knowledge_base_files").delete().eq("id", id);
+  const { error: storageError } = await supabaseAdmin.storage.from("knowledge-base").remove([file.storage_path]);
+  if (storageError) return NextResponse.json({ error: "Could not remove the file. Please retry." }, { status: 503 });
+  const { data: removed, error } = await supabase.from("knowledge_base_files").delete().eq("id", id).eq("org_id", profile.org_id).select("id");
+  if (error || !removed?.length) return NextResponse.json({ error: "Could not finish removing the document record. Please retry." }, { status: 503 });
 
   return NextResponse.json({ success: true });
 }

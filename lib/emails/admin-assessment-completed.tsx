@@ -36,8 +36,8 @@ export function AdminAssessmentCompletedEmail({
       style={{
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
-        backgroundColor: "#0d0d0d",
-        color: "#ececec",
+        backgroundColor: "#201C29",
+        color: "#FFFEFA",
         padding: "48px 24px",
       }}
     >
@@ -78,7 +78,7 @@ export function AdminAssessmentCompletedEmail({
           style={{
             fontSize: "15px",
             lineHeight: 1.6,
-            color: "#888888",
+            color: "#D5C7FF",
             margin: "0 0 24px",
           }}
         >
@@ -101,7 +101,7 @@ export function AdminAssessmentCompletedEmail({
                   style={{
                     padding: "8px 0",
                     fontSize: "13px",
-                    color: "#888888",
+                    color: "#D5C7FF",
                   }}
                 >
                   Respondent
@@ -123,7 +123,7 @@ export function AdminAssessmentCompletedEmail({
                   style={{
                     padding: "8px 0",
                     fontSize: "13px",
-                    color: "#888888",
+                    color: "#D5C7FF",
                     borderTop: "1px solid rgba(255,255,255,0.06)",
                   }}
                 >
@@ -148,7 +148,7 @@ export function AdminAssessmentCompletedEmail({
                     style={{
                       padding: "8px 0",
                       fontSize: "13px",
-                      color: "#888888",
+                      color: "#D5C7FF",
                       borderTop: "1px solid rgba(255,255,255,0.06)",
                     }}
                   >
@@ -174,7 +174,7 @@ export function AdminAssessmentCompletedEmail({
                     style={{
                       padding: "8px 0",
                       fontSize: "13px",
-                      color: "#888888",
+                      color: "#D5C7FF",
                       borderTop: "1px solid rgba(255,255,255,0.06)",
                     }}
                   >
@@ -200,7 +200,7 @@ export function AdminAssessmentCompletedEmail({
                     style={{
                       padding: "8px 0",
                       fontSize: "13px",
-                      color: "#888888",
+                      color: "#D5C7FF",
                       borderTop: "1px solid rgba(255,255,255,0.06)",
                     }}
                   >
@@ -227,7 +227,7 @@ export function AdminAssessmentCompletedEmail({
                       style={{
                         padding: "8px 0",
                         fontSize: "13px",
-                        color: "#888888",
+                        color: "#D5C7FF",
                         borderTop: "1px solid rgba(255,255,255,0.06)",
                       }}
                     >
@@ -252,7 +252,7 @@ export function AdminAssessmentCompletedEmail({
                   style={{
                     padding: "8px 0",
                     fontSize: "13px",
-                    color: "#888888",
+                    color: "#D5C7FF",
                     borderTop: "1px solid rgba(255,255,255,0.06)",
                   }}
                 >
@@ -276,7 +276,7 @@ export function AdminAssessmentCompletedEmail({
                   style={{
                     padding: "8px 0",
                     fontSize: "13px",
-                    color: "#888888",
+                    color: "#D5C7FF",
                     borderTop: "1px solid rgba(255,255,255,0.06)",
                   }}
                 >
@@ -303,8 +303,8 @@ export function AdminAssessmentCompletedEmail({
           href={resultsUrl}
           style={{
             display: "inline-block",
-            backgroundColor: "#fbbf24",
-            color: "#1c1503",
+            backgroundColor: "#E4F477",
+            color: "#201C29",
             fontSize: "15px",
             fontWeight: 700,
             padding: "14px 36px",

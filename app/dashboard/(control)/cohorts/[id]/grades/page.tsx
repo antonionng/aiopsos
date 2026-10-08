@@ -65,7 +65,9 @@ export default function GradesPage() {
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/cohorts/${id}/progress`, { cache: "no-store" });
+    const res = await fetch(`/api/cohorts/${id}/progress`, {
+      cache: "no-store",
+    });
     const d = await res.json();
     if (!d.error) setData(d);
   }, [id]);
@@ -87,7 +89,11 @@ export default function GradesPage() {
     const numericScore = Number(score);
     const numericMax = Number(maxScore);
 
-    if (!Number.isFinite(numericScore) || !Number.isFinite(numericMax) || numericMax <= 0) {
+    if (
+      !Number.isFinite(numericScore) ||
+      !Number.isFinite(numericMax) ||
+      numericMax <= 0
+    ) {
       toast.error("Enter a score and the marks available");
       return;
     }
@@ -183,18 +189,24 @@ export default function GradesPage() {
           const isOpen = openFor === participant.enrolment_id;
 
           return (
-            <Card key={participant.enrolment_id} className="border-border bg-card">
+            <Card
+              key={participant.enrolment_id}
+              className="border-border bg-card"
+            >
               <CardContent className="pt-5">
                 <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold">{participant.name}</p>
-                    <p className="text-xs text-muted-foreground">{participant.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {participant.email}
+                    </p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 text-xs">
                     <span
                       className={
-                        eligibility.attendance_pct >= data.cohort.pass_attendance_pct
+                        eligibility.attendance_pct >=
+                        data.cohort.pass_attendance_pct
                           ? "text-emerald-500"
                           : "text-amber-500"
                       }
@@ -221,10 +233,13 @@ export default function GradesPage() {
                   <div className="mb-3 space-y-1">
                     {participant.grades.map((grade) => {
                       const courseModule = data.modules.find(
-                        (m) => m.id === grade.module_id
+                        (m) => m.id === grade.module_id,
                       );
                       return (
-                        <p key={grade.id} className="text-xs text-muted-foreground">
+                        <p
+                          key={grade.id}
+                          className="text-xs text-muted-foreground"
+                        >
                           {courseModule
                             ? `${courseModule.position}. ${courseModule.title}`
                             : "Overall"}
@@ -279,11 +294,19 @@ export default function GradesPage() {
                     />
 
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={() => saveGrade(participant.enrolment_id)} disabled={saving}>
+                      <Button
+                        size="sm"
+                        onClick={() => saveGrade(participant.enrolment_id)}
+                        disabled={saving}
+                      >
                         <Check className="mr-1.5 h-3.5 w-3.5" />
                         {saving ? "Saving..." : "Save grade"}
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setOpenFor(null)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setOpenFor(null)}
+                      >
                         <X className="mr-1.5 h-3.5 w-3.5" />
                         Cancel
                       </Button>
@@ -299,7 +322,8 @@ export default function GradesPage() {
                       Add grade
                     </Button>
 
-                    {participant.certificate && !participant.certificate.revoked_at ? (
+                    {participant.certificate &&
+                    !participant.certificate.revoked_at ? (
                       <Link
                         href={`/verify/${participant.certificate.public_ref}`}
                         target="_blank"
@@ -314,7 +338,9 @@ export default function GradesPage() {
                           size="sm"
                           variant={eligibility.eligible ? "default" : "ghost"}
                           disabled={!eligibility.eligible}
-                          onClick={() => issueCertificate(participant.enrolment_id)}
+                          onClick={() =>
+                            issueCertificate(participant.enrolment_id)
+                          }
                           title={eligibility.reasons.join(" ")}
                         >
                           <Award className="mr-1.5 h-3.5 w-3.5" />
@@ -323,11 +349,12 @@ export default function GradesPage() {
                       )
                     )}
 
-                    {!eligibility.eligible && eligibility.reasons.length > 0 && (
-                      <span className="text-[11px] text-muted-foreground">
-                        {eligibility.reasons[0]}
-                      </span>
-                    )}
+                    {!eligibility.eligible &&
+                      eligibility.reasons.length > 0 && (
+                        <span className="text-[11px] text-muted-foreground">
+                          {eligibility.reasons[0]}
+                        </span>
+                      )}
                   </div>
                 )}
               </CardContent>

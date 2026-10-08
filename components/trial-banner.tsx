@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 export function TrialBanner() {
   const [billing, setBilling] = useState<{
+    checkedAt: number;
     status: string;
     trialEndsAt: string | null;
   } | null>(null);
@@ -15,7 +16,7 @@ export function TrialBanner() {
   useEffect(() => {
     fetch("/api/billing")
       .then((r) => r.json())
-      .then(setBilling)
+      .then((data) => setBilling({ ...data, checkedAt: Date.now() }))
       .catch(() => {});
   }, []);
 
@@ -23,18 +24,18 @@ export function TrialBanner() {
   if (billing.status !== "trialing") return null;
 
   const daysLeft = billing.trialEndsAt
-    ? Math.max(0, Math.ceil((new Date(billing.trialEndsAt).getTime() - Date.now()) / 86400000))
+    ? Math.max(0, Math.ceil((new Date(billing.trialEndsAt).getTime() - billing.checkedAt) / 86400000))
     : 0;
 
-  if (daysLeft <= 0) return null;
+  if (!Number.isFinite(daysLeft) || daysLeft <= 0) return null;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-muted px-4 py-2.5 mb-6">
+    <div className="learning-trial-banner flex items-center gap-3">
       <Crown className="h-4 w-4 shrink-0 text-foreground" />
       <p className="flex-1 text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">Pro trial</span> --{" "}
+        <span className="font-medium text-foreground">Pro trial</span> ·{" "}
         {daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining.
-        All features unlocked.
+
       </p>
       <Link href="/dashboard/billing">
         <Button size="sm" variant="ghost" className="h-7 text-xs">
@@ -42,6 +43,7 @@ export function TrialBanner() {
         </Button>
       </Link>
       <button
+        aria-label="Dismiss trial notice"
         onClick={() => setDismissed(true)}
         className="text-muted-foreground hover:text-foreground"
       >

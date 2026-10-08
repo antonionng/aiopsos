@@ -12,27 +12,75 @@ export function isAuthPath(pathname: string): boolean {
   );
 }
 
-/**
- * App surfaces that need a session. Unknown marketing paths must not fall
- * through to this list — that is what 307s /free-trial and typos to /login.
- */
-export function isSessionGatedPath(pathname: string): boolean {
-  if (isPublicPath(pathname) || isAuthPath(pathname)) return false;
-  return pathname.startsWith("/dashboard") || pathname.startsWith("/api/");
+/** Prefixes that genuinely need a session. Anything else that is not public falls through to Next, which 404s unknown paths. */
+export function isPrivatePath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/shared") ||
+    pathname.startsWith("/api/")
+  );
 }
 
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/" ||
+    pathname === "/_vercel" ||
+    pathname.startsWith("/_vercel/") ||
+    pathname === "/wonderlab" ||
+    pathname.startsWith("/wonderlab/") ||
+    pathname.startsWith("/api/wonderlab/") ||
+    // Authored narration is a public asset, including in the free games.
+    /^\/audio\/wonderlab\/[a-zA-Z0-9-]+\.mp3$/.test(pathname) ||
+    pathname === "/accept-invite" ||
+    pathname === "/api/auth/accept-invite" ||
+    // Scheduler authentication is checked by the route, without a browser session.
+    pathname === "/api/cron/learning-agent-recovery" ||
+    pathname === "/api/cron/self-serve-nudges" ||
+    pathname === "/api/cron/self-serve-access" ||
+    pathname === "/api/cron/agent-course-reports" ||
+    // Agent APIs enforce learner/workspace ownership and return JSON auth errors.
+    pathname === "/api/courses/agents/checkout" ||
+    pathname === "/api/courses/agents/claim" ||
+    pathname === "/api/courses/agents/account" ||
+    /^\/api\/courses\/agents\/(orders|learning|assessment|report)\/[^/]+$/.test(pathname) ||
+    pathname === "/llms.txt" ||
+    pathname === "/llms-full.txt" ||
+    pathname === "/ai-labs" ||
+    pathname === "/case-studies" ||
+    pathname.startsWith("/case-studies/") ||
+    pathname === "/learning-agent" ||
+    pathname === "/learning-agent/chat" ||
+    pathname === "/resources/hr-automation-checklist.csv" ||
     pathname.startsWith("/verify/") ||
     pathname === "/courses" ||
     pathname.startsWith("/courses/") ||
+    // Self-serve is public so a disabled flag 404s inside the page, rather
+    // than the middleware sending an unknown path to /login.
+    pathname === "/learn" ||
+    pathname.startsWith("/learn/") ||
+    pathname === "/api/learn/checkout" ||
+    pathname === "/api/learn/claim" ||
+    pathname === "/api/learn/progress" ||
+    pathname === "/api/learn/account" ||
+    pathname === "/api/learn/feedback" ||
+    pathname === "/api/learn/unsubscribe" ||
+    pathname === "/api/learn/me" ||
+    pathname === "/api/learn/enquiry" ||
+    pathname === "/api/learn/profile" ||
+    pathname === "/api/learn/receipt" ||
+    pathname === "/api/learn/review" ||
+    pathname === "/api/learn/review/moderate" ||
+    pathname === "/api/learn/team" ||
+    pathname === "/api/learn/team/join" ||
+    pathname === "/api/learn/team/claim" ||
+    pathname === "/api/learn/team/invite" ||
+    pathname === "/learn/faq" ||
+    pathname === "/course-terms" ||
+    pathname.startsWith("/api/learn/certificate/") ||
+    // Stripe posts here with a signature, not a session.
+    pathname === "/api/stripe/webhook" ||
     pathname.startsWith("/assess/") ||
     pathname.startsWith("/assessment/") ||
-    pathname === "/ai-literacy-training" ||
-    pathname.startsWith("/ai-literacy-training/") ||
-    pathname === "/ai-readiness-assessment" ||
-    pathname.startsWith("/ai-readiness-assessment/") ||
     pathname.startsWith("/api/public/") ||
     pathname === "/api/assessment/public-submit" ||
     /^\/api\/assessment\/[^/]+\/public-info$/.test(pathname) ||
@@ -41,6 +89,7 @@ export function isPublicPath(pathname: string): boolean {
     pathname === "/api/auth/register" ||
     pathname === "/api/auth/forgot" ||
     pathname === "/api/contact" ||
+    pathname === "/api/learning-check" ||
     // Mooov's servers post here with an HMAC signature, not a session;
     // the route verifies the signature itself.
     pathname === "/api/mooov/webhook" ||

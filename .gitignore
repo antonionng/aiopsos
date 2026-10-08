@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local manifest for additive LMS demonstration records
+scripts/.lms-demo-manifest.json
+
+# Private recording review copies and machine transcript drafts
+output/course-introductions/
+output/media-pilot/

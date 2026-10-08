@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -26,6 +27,9 @@ export async function GET(
     .eq("id", user.id)
     .single();
 
+  const denied = await resourceAccessError(supabase, profile?.org_id, profile?.role);
+  if (denied) return denied;
+
   const { data: assessment } = await supabase
     .from("assessments")
     .select("org_id, template_id")
@@ -44,7 +48,7 @@ export async function GET(
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const noCache = { "Cache-Control": "no-store" };
+  const noCache = { "Cache-Control": "private, no-store" };
 
   // Training-needs assessments aggregate their jsonb scores by department;
   // the five maturity columns are 0 on these rows and would only mislead.

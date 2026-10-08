@@ -31,7 +31,10 @@ interface CohortRow {
   facilitators: { display_name: string } | null;
 }
 
-const STATUS_VARIANT: Record<CohortStatus, "default" | "secondary" | "outline"> = {
+const STATUS_VARIANT: Record<
+  CohortStatus,
+  "default" | "secondary" | "outline"
+> = {
   scheduled: "outline",
   running: "default",
   completed: "secondary",
@@ -42,6 +45,9 @@ export default function CohortsPage() {
   const [cohorts, setCohorts] = useState<CohortRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState("active");
+  const [search, setSearch] = useState("");
+  const visible = cohorts.filter(c => (filter === "all" || (filter === "active" ? ["running", "scheduled"].includes(c.status) : c.status === filter)) && `${c.title} ${c.courses?.title || ""}`.toLowerCase().includes(search.toLowerCase()));
 
   useEffect(() => {
     fetch("/api/cohorts", { cache: "no-store" })
@@ -63,24 +69,67 @@ export default function CohortsPage() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-      <div className="mb-8">
-        <h1 className="mb-1">Cohorts</h1>
+    <motion.div className="training-catalogue" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+      <div className="catalogue-heading">
+        <span className="lms-eyebrow">Learning / Live delivery</span>
+        <h1>Your training, brought together.</h1>
         <p className="text-sm text-muted-foreground">
-          Scheduled deliveries of academy courses. Attendance, submissions and
-          grades are recorded against each one.
+          Plan the next session, bring your people together and see every group through to completion.
         </p>
       </div>
 
+      <div className="mb-6 flex flex-wrap gap-3">
+        <Link
+          href="/dashboard/cohorts/new"
+          className="rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white"
+        >
+          Schedule a training group →
+        </Link>
+        <Link
+          href="/dashboard/my-learning"
+          className="rounded-full border px-5 py-3 text-sm font-semibold"
+        >
+          My sessions & learning
+        </Link>
+      </div>
+      <div className="catalogue-stats">
+        {[["Happening now", cohorts.filter(c => c.status === "running").length], ["Coming up", cohorts.filter(c => c.status === "scheduled").length], ["Completed groups", cohorts.filter(c => c.status === "completed").length]].map(([label, count]) => <div key={label}><strong>{count}</strong><span>{label}</span></div>)}
+      </div>
+      <details className="mb-6 text-sm">
+        <summary className="cursor-pointer font-semibold">
+          How does this connect to Courses and Programmes?
+        </summary>
+        <p className="mt-3 max-w-3xl leading-relaxed text-muted-foreground">
+          Courses holds your authored lessons and activities. Programmes assigns
+          those courses to your people or clients. Live training currently uses
+          the academy catalogue and records trainer-led sessions separately. A
+          learner sees both formats in My learning and My record. Adding a
+          programme does not automatically schedule a live group.
+        </p>
+        <div className="mt-3 flex gap-4">
+          <Link href="/dashboard/programmes" className="text-brand">
+            Manage programmes →
+          </Link>
+          <Link href="/dashboard/transcript" className="text-brand">
+            My combined record →
+          </Link>
+        </div>
+      </details>
       {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
 
+      <div className="catalogue-controls">
+        <div aria-label="Filter training groups" className="catalogue-filters">{[["active","Active & upcoming"],["completed","Completed"],["all","All groups"]].map(([value,label]) => <button key={value} onClick={() => setFilter(value)} aria-pressed={filter === value}>{label}</button>)}</div>
+        <input aria-label="Search training groups" placeholder="Find a training group…" value={search} onChange={e => setSearch(e.target.value)} />
+      </div>
       {cohorts.length === 0 ? (
         <Card className="border-border bg-card">
           <CardContent className="py-14 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10">
               <GraduationCap className="h-6 w-6 text-brand" />
             </div>
-            <h2 className="mb-2 text-lg font-semibold">No cohorts yet</h2>
+            <h2 className="mb-2 text-lg font-semibold">
+              Schedule your first training group
+            </h2>
             <p className="mx-auto mb-6 max-w-sm text-sm text-muted-foreground">
               A cohort is one delivery of a course: a facilitator, a set of
               dates, and the people attending. Start from the training needs on
@@ -95,13 +144,18 @@ export default function CohortsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {cohorts.map((cohort) => (
-            <Link key={cohort.id} href={`/dashboard/cohorts/${cohort.id}`}>
-              <Card className="border-border bg-card transition-colors hover:border-foreground/30">
-                <CardContent className="pt-5">
+        <div className="catalogue-grid">
+          {!visible.length && <p className="catalogue-no-results">No groups match this view. Try another filter or search.</p>}
+          {visible.map((cohort) => (
+            <Link className={`catalogue-course ${cohort.status}`} key={cohort.id} href={`/dashboard/cohorts/${cohort.id}`}>
+              <Card className="catalogue-course-card">
+                <div className="catalogue-course-top"><span>{DELIVERY_MODE_LABELS[cohort.delivery_mode]}</span><span>{cohort.starts_on ? new Date(cohort.starts_on).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "Date to confirm"}</span></div>
+                <CardContent className="catalogue-course-body">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <Badge variant={STATUS_VARIANT[cohort.status]} className="text-[10px]">
+                    <Badge
+                      variant={STATUS_VARIANT[cohort.status]}
+                      className="text-[10px]"
+                    >
                       {COHORT_STATUS_LABELS[cohort.status]}
                     </Badge>
                     {cohort.courses && (
@@ -114,7 +168,10 @@ export default function CohortsPage() {
                     </span>
                   </div>
 
-                  <p className="mb-1 text-base font-semibold">{cohort.title}</p>
+                  <h2 className="catalogue-course-title">{cohort.title}</h2>
+                  <span className="catalogue-course-open">
+                    Open group →
+                  </span>
                   {cohort.courses && (
                     <p className="mb-3 text-xs text-muted-foreground">
                       {cohort.courses.title}
@@ -125,21 +182,28 @@ export default function CohortsPage() {
                     {cohort.starts_on && (
                       <span className="inline-flex items-center gap-1.5">
                         <CalendarDays className="h-3 w-3" />
-                        {new Date(cohort.starts_on).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                        {cohort.ends_on && cohort.ends_on !== cohort.starts_on && (
-                          <>
-                            {" – "}
-                            {new Date(cohort.ends_on).toLocaleDateString("en-GB", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
-                          </>
+                        {new Date(cohort.starts_on).toLocaleDateString(
+                          "en-GB",
+                          {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          },
                         )}
+                        {cohort.ends_on &&
+                          cohort.ends_on !== cohort.starts_on && (
+                            <>
+                              {" – "}
+                              {new Date(cohort.ends_on).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )}
+                            </>
+                          )}
                       </span>
                     )}
                     <span className="inline-flex items-center gap-1.5">
@@ -153,7 +217,9 @@ export default function CohortsPage() {
                       </span>
                     )}
                     {cohort.facilitators && (
-                      <span>Facilitated by {cohort.facilitators.display_name}</span>
+                      <span>
+                        Facilitated by {cohort.facilitators.display_name}
+                      </span>
                     )}
                   </div>
                 </CardContent>

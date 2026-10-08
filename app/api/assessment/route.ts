@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -11,9 +12,12 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from("user_profiles")
-    .select("org_id")
+    .select("org_id, role")
     .eq("id", user.id)
     .single();
+
+    const denied = await resourceAccessError(supabase, profile?.org_id, profile?.role);
+    if (denied) return denied;
 
   if (!profile?.org_id) return NextResponse.json({ assessments: [] });
 
@@ -38,6 +42,9 @@ export async function POST(req: NextRequest) {
       .eq("id", user.id)
       .single();
 
+    const denied = await resourceAccessError(supabase, profile?.org_id, profile?.role);
+    if (denied) return denied;
+
     if (!profile?.org_id || !["admin", "super_admin"].includes(profile.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -48,34 +55,11 @@ export async function POST(req: NextRequest) {
     if (!validation.success) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
-    const row: Record<string, string> = {
-      org_id: profile.org_id,
-      created_by: user.id,
-      title: validation.data.title,
-      template_id: validation.data.template_id,
-      status: "active",
-    };
-
-    let { data, error } = await supabaseAdmin
-      .from("assessments")
-      .insert(row)
-      .select()
-      .single();
-
-    if (error?.code === "PGRST204") {
-      console.warn("template_id column missing - retrying without it. Run migration 010_templates_and_rls.sql to fix.");
-      const { template_id: _, ...rowWithout } = row;
-      ({ data, error } = await supabaseAdmin
-        .from("assessments")
-        .insert(rowWithout)
-        .select()
-        .single());
-    }
-
-    if (error) {
-      console.error("Assessment insert failed:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const { data, error } = await supabaseAdmin.rpc("assessment_manage", {
+      p_actor: user.id, p_org: profile.org_id, p_action: "create",
+      p_title: validation.data.title, p_template: validation.data.template_id,
+    });
+    if (error) return NextResponse.json({ error: "Assessment could not be created. Refresh your workspace and retry." }, { status: error.code === "42501" ? 403 : error.code === "22023" ? 400 : 503 });
     return NextResponse.json({ assessment: data });
   } catch (err) {
     console.error("Assessment POST error:", err);
@@ -95,6 +79,9 @@ export async function DELETE(req: NextRequest) {
       .eq("id", user.id)
       .single();
 
+    const denied = await resourceAccessError(supabase, profile?.org_id, profile?.role);
+    if (denied) return denied;
+
     if (!profile?.org_id || !["admin", "super_admin"].includes(profile.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -104,27 +91,10 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Assessment id is required" }, { status: 400 });
     }
 
-    const { data: assessment } = await supabaseAdmin
-      .from("assessments")
-      .select("id")
-      .eq("id", id)
-      .eq("org_id", profile.org_id)
-      .maybeSingle();
-
-    if (!assessment) {
-      return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
-    }
-
-    const { error } = await supabaseAdmin
-      .from("assessments")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      console.error("Assessment delete failed:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
+    const { error } = await supabaseAdmin.rpc("assessment_manage", {
+      p_actor: user.id, p_org: profile.org_id, p_action: "delete", p_id: id,
+    });
+    if (error) return NextResponse.json({ error: "Assessment unavailable or could not be deleted." }, { status: error.code === "42501" ? 403 : error.code === "P0002" ? 404 : error.code === "22P02" ? 400 : 503 });
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("Assessment DELETE error:", err);

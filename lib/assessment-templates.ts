@@ -4,7 +4,7 @@ import {
   DIMENSION_LABELS,
   COURSE_CATEGORIES,
   COURSE_CATEGORY_LABELS,
-} from "./constants";
+} from "./constants.ts";
 
 export type AssessmentKind = "maturity" | "training-needs";
 

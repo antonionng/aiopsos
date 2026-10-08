@@ -17,7 +17,7 @@ const linkStyle: React.CSSProperties = {
 const unsubscribeStyle: React.CSSProperties = {
   fontSize: "12px",
   lineHeight: 1.6,
-  color: "#555555",
+  color: "#BEB3D0",
   margin: "24px 0 0",
 };
 

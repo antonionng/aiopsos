@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { getActor } from "@/lib/cohorts";
+import { getWorkspaceActor as getActor } from "@/lib/cohorts";
 import { logAuditBatch, AUDIT_ACTIONS } from "@/lib/audit";
 import { enrolSchema, validateBody } from "@/lib/validations";
 import { sendCohortEnrolmentEmail } from "@/lib/email";

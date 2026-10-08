@@ -1,8 +1,9 @@
 import * as React from "react";
 import { EMAIL_BRAND, EMAIL_BRAND_FOREGROUND } from "@/lib/email-theme";
+import { getPublicSiteUrl } from "@/lib/site";
 
 /**
- * Shared shell for the academy emails.
+ * Shared shell for Experrt transactional emails.
  *
  * The existing transactional emails each repeat their inline styles, which is
  * fine for one-offs but would mean three more copies of the same 120 lines
@@ -14,8 +15,8 @@ const styles = {
   page: {
     fontFamily:
       "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
-    backgroundColor: "#0d0d0d",
-    color: "#ececec",
+    backgroundColor: "#201C29",
+    color: "#FFFEFA",
     padding: "48px 24px",
   },
   inner: { maxWidth: "480px", margin: "0 auto" },
@@ -37,13 +38,13 @@ const styles = {
   paragraph: {
     fontSize: "15px",
     lineHeight: 1.6,
-    color: "#888888",
+    color: "#D5C7FF",
     margin: "0 0 8px",
   },
   lastParagraph: {
     fontSize: "15px",
     lineHeight: 1.6,
-    color: "#888888",
+    color: "#D5C7FF",
     margin: "0 0 32px",
   },
   strong: { color: "#cccccc" },
@@ -62,14 +63,14 @@ const styles = {
     borderTop: "1px solid rgba(255,255,255,0.06)",
     margin: "40px 0 20px",
   },
-  footer: { fontSize: "12px", color: "#555555", margin: 0 },
+  footer: { fontSize: "12px", color: "#BEB3D0", margin: 0 },
   detailRow: {
     fontSize: "14px",
     lineHeight: 1.7,
     color: "#cccccc",
     margin: "0 0 4px",
   },
-  detailLabel: { color: "#666666" },
+  detailLabel: { color: "#BEB3D0" },
 } as const;
 
 export const emailStyles = styles;
@@ -112,26 +113,97 @@ export function formatDateInZone(iso: string, timezone: string): string {
   }
 }
 
+const SITE = getPublicSiteUrl().replace(/\/$/, "");
+
+const FOOTER_LINKS = [
+  { label: "Courses", href: `${SITE}/learn` },
+  { label: "My courses", href: `${SITE}/learn/my-courses` },
+  { label: "Contact", href: `${SITE}/contact` },
+];
+
+/**
+ * Hidden inbox preview text. Without it, clients show the first words of the
+ * body, which for these emails is the logo's alt text.
+ */
+function Preheader({ text }: { text: string }) {
+  return (
+    <div
+      style={{
+        display: "none",
+        overflow: "hidden",
+        lineHeight: "1px",
+        opacity: 0,
+        maxHeight: 0,
+        maxWidth: 0,
+      }}
+    >
+      {text}
+    </div>
+  );
+}
+
 export function EmailShell({
   heading,
   children,
   footerNote,
+  preheader,
+  eyebrow,
+  after,
 }: {
   heading: string;
   children: React.ReactNode;
   footerNote?: string;
+  preheader?: string;
+  eyebrow?: string;
+  /** Rendered below the main card, above the footer. */
+  after?: React.ReactNode;
 }) {
   return (
     <div style={styles.page}>
+      {preheader ? <Preheader text={preheader} /> : null}
       <div style={styles.inner}>
-        <p style={styles.brand}>Experrt</p>
+        <a href={SITE} style={{ display: "inline-block", marginBottom: "36px" }}>
+          <img
+            src={`${SITE}/experrt-logo.png`}
+            alt="Experrt"
+            width={120}
+            height={27}
+            style={{ display: "block", border: 0, color: "#ffffff", fontWeight: 700 }}
+          />
+        </a>
+        <div style={{ height: "4px", width: "48px", backgroundColor: EMAIL_BRAND, borderRadius: "2px", marginBottom: "20px" }} />
+        {eyebrow ? (
+          <p
+            style={{
+              fontSize: "11px",
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: EMAIL_BRAND,
+              margin: "0 0 10px",
+            }}
+          >
+            {eyebrow}
+          </p>
+        ) : null}
         <h1 style={styles.heading}>{heading}</h1>
         {children}
+        {after}
         <hr style={styles.rule} />
-        <p style={styles.footer}>
-          {footerNote ??
-            "Sent via Experrt - workforce AI assessment, facilitated training, and the records that evidence it."}
+        <p style={{ ...styles.footer, marginBottom: "12px" }}>
+          {FOOTER_LINKS.map((link, index) => (
+            <React.Fragment key={link.href}>
+              {index > 0 ? <span style={{ color: "#BEB3D0", padding: "0 8px" }}>·</span> : null}
+              <a href={link.href} style={{ color: "#FFFEFA", textDecoration: "none" }}>
+                {link.label}
+              </a>
+            </React.Fragment>
+          ))}
         </p>
+        <p style={styles.footer}>
+          {footerNote ?? "Stay curious. Get unstoppable. Learning for people with big ideas."}
+        </p>
+        <p style={{ ...styles.footer, marginTop: "12px" }}>Experrt · experrt.com</p>
       </div>
     </div>
   );

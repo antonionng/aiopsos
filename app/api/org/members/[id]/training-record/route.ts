@@ -1,3 +1,4 @@
+import { resourceAccessError } from "@/lib/workspace-resource-access";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -22,12 +23,17 @@ export async function GET(
     .select("org_id, role")
     .eq("id", user.id)
     .maybeSingle();
+
+  const denied = await resourceAccessError(supabase, viewer?.org_id, viewer?.role);
+  if (denied) return denied;
   if (!viewer?.org_id) return NextResponse.json({ error: "No organisation" }, { status: 404 });
   if (!["admin", "manager", "super_admin"].includes(viewer.role ?? "user")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const record = await assembleMemberRecord(viewer.org_id, id);
+  let record;
+  try { record = await assembleMemberRecord(viewer.org_id, id); }
+  catch { return NextResponse.json({ error: "Training records could not be loaded. Please retry." }, { status: 503 }); }
   if (!record) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const { data: org } = await supabaseAdmin
@@ -73,12 +79,15 @@ export async function GET(
     })),
   });
 
+  const accessChanged = await resourceAccessError(supabase, viewer.org_id, viewer.role);
+  if (accessChanged) return accessChanged;
+
   const filename = `training-record-${record.member.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`;
   return new NextResponse(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="${filename}"`,
-      "Cache-Control": "no-store",
+      "Cache-Control": "private, no-store",
     },
   });
 }

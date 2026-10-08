@@ -18,8 +18,8 @@ export function RoadmapReadyEmail({
       style={{
         fontFamily:
           "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
-        backgroundColor: "#0d0d0d",
-        color: "#ececec",
+        backgroundColor: "#201C29",
+        color: "#FFFEFA",
         padding: "48px 24px",
       }}
     >
@@ -53,7 +53,7 @@ export function RoadmapReadyEmail({
           style={{
             fontSize: "15px",
             lineHeight: 1.6,
-            color: "#888888",
+            color: "#D5C7FF",
             margin: "0 0 8px",
           }}
         >
@@ -64,7 +64,7 @@ export function RoadmapReadyEmail({
           style={{
             fontSize: "15px",
             lineHeight: 1.6,
-            color: "#888888",
+            color: "#D5C7FF",
             margin: "0 0 32px",
           }}
         >
@@ -76,8 +76,8 @@ export function RoadmapReadyEmail({
           href={roadmapUrl}
           style={{
             display: "inline-block",
-            backgroundColor: "#fbbf24",
-            color: "#1c1503",
+            backgroundColor: "#E4F477",
+            color: "#201C29",
             fontSize: "14px",
             fontWeight: 600,
             padding: "12px 28px",
@@ -96,8 +96,8 @@ export function RoadmapReadyEmail({
           }}
         />
 
-        <p style={{ fontSize: "12px", color: "#555555", margin: 0 }}>
-          Experrt -- The enterprise AI control layer.
+        <p style={{ fontSize: "12px", color: "#BEB3D0", margin: 0 }}>
+          Experrt. Stay curious. Get unstoppable.
         </p>
       </div>
     </div>

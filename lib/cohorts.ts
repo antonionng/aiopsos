@@ -1,3 +1,4 @@
+import { cohortMembershipGuardsEnabled } from "@/lib/workspace-rollout";
 import { randomBytes } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { CERTIFICATE_REF_LENGTH } from "@/lib/constants";
@@ -209,10 +210,12 @@ export async function getActor(): Promise<Actor | null> {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const [{ data: profile }, { data: facilitator }] = await Promise.all([
+  const [{ data: profile, error: profileError }, { data: facilitator, error: facilitatorError }] = await Promise.all([
     supabase.from("user_profiles").select("org_id, role").eq("id", user.id).maybeSingle(),
     supabase.from("facilitators").select("id").eq("user_id", user.id).eq("active", true).maybeSingle(),
   ]);
+
+  if (profileError || facilitatorError) throw new Error("Your workspace could not be loaded. Please retry.");
 
   return {
     userId: user.id,
@@ -220,4 +223,20 @@ export async function getActor(): Promise<Actor | null> {
     role: profile?.role ?? "user",
     facilitatorId: facilitator?.id ?? null,
   };
+}
+
+/** Compatibility guard for live delivery and billing entry points.
+ * RLS remains the record-level authority; service operations must also retain
+ * their existing role/ownership checks. Missing permission data fails closed.
+ */
+export async function getWorkspaceActor(): Promise<Actor | null> {
+  if (!cohortMembershipGuardsEnabled()) return getActor();
+  const actor = await getActor();
+  if (!actor?.orgId) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("current_workspace_access", {
+    p_expected_org: actor.orgId,
+    p_expected_role: actor.role,
+  });
+  return !error && data === true ? actor : null;
 }

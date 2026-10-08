@@ -1,5 +1,7 @@
+import { cohortMembershipGuardsEnabled } from "@/lib/workspace-rollout";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { PlanType } from "@/lib/constants";
 import { getFeatureUsageSummary } from "@/lib/feature-quotas";
 
@@ -19,6 +21,17 @@ export async function GET() {
 
   if (!profile?.org_id) {
     return NextResponse.json({ error: "No organisation" }, { status: 400 });
+  }
+
+  if (cohortMembershipGuardsEnabled()) {
+  const { data: access, error: accessError } = await supabase.rpc("current_workspace_access", {
+    p_expected_org: profile.org_id,
+    p_expected_role: profile.role,
+  });
+  if (accessError || access !== true) {
+    return NextResponse.json({ error: "Workspace access is unavailable. Refresh or contact your administrator." }, { status: 403 });
+  }
+
   }
 
   const callerRole = profile.role ?? "user";
@@ -105,6 +118,14 @@ export async function GET() {
     .eq("id", profile.org_id)
     .single();
 
+  let reservedCredits: number | null = 0;
+  if (process.env.LEARNING_AGENT_CREDIT_HOLDS_ENABLED === "true") {
+    const holds = await supabaseAdmin.from("lms_agent_credit_holds")
+      .select("reserved", { count: "exact" }).eq("org_id", profile.org_id).eq("state", "held").limit(1000);
+    reservedCredits = holds.error || holds.count !== holds.data?.length
+      ? null : holds.data.reduce((sum, hold) => sum + hold.reserved, 0);
+  }
+
   return NextResponse.json({
     plan,
     status: org?.subscription_status ?? "trialing",
@@ -115,8 +136,9 @@ export async function GET() {
     featureUsage,
     billingMethod: orgBilling?.billing_method ?? "card",
     creditBalance: wallet?.balance ?? null,
+    reservedCredits,
     creditPacks: packs ?? [],
     creditHistory: ledger ?? [],
     invoices: invoices ?? [],
-  });
+  }, { headers: { "Cache-Control": "no-store" } });
 }

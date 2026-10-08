@@ -1,0 +1,364 @@
+{
+  "date": "2026-10-03",
+  "method": "Complete machine transcript read against course source, plus all scene contact sheets inspected. Full listening and word-for-word captions remain outstanding; this is not publication approval.",
+  "courses": [
+    {
+      "slug": "academy-overview",
+      "status": "needs-revision",
+      "issues": [
+        "01:49-02:19: resubmission wording implies unlimited attempts.",
+        "02:08 visual: team capacity says 2 to 60; actual limit is 2 to 50.",
+        "02:49-03:19: undeniable proof claim overstates AI assessment and learner-signed records.",
+        "Branding drifts to orange; closing language is pushy; full listening and caption checking required."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "always-on-agent-foundations",
+      "status": "needs-revision",
+      "issues": [
+        "03:26: project described as proving workplace application; submitted text and simulations do not independently prove this.",
+        "Speech recognition flags A&I and opening title; full listening and caption checking required.",
+        "Partial requested branding; invented module heading at 01:02."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/always-on-agent-foundations-contact-01.jpg",
+          "output/course-introductions/always-on-agent-foundations-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "working-with-openai-dots",
+      "status": "needs-revision",
+      "issues": [
+        "03:46: wording about real, verifiable skills overstates independent verification; change to a practical example of learning.",
+        "Complete listening, pronunciation and speech-to-caption checks remain outstanding.",
+        "03:17: narration unnecessarily contrasts the course with other assessment formats; simplify to the actual project assessment process.",
+        "Opening visual invents module titles such as Task Identification instead of the actual six-module sequence; use the course source names."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/working-with-openai-dots-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "working-with-grok-bot",
+      "status": "needs-revision",
+      "issues": [
+        "Opening visual invents Agent Evaluation Framework and a Comprehensive Evaluation Report project; the actual project is a monitoring/briefing workflow.",
+        "03:53: replace the unsupported claim that these professionals stand out with a specific example of discussing the checked briefing at work.",
+        "Green visual accents depart from the requested purple/cream style."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/working-with-grok-bot-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "working-with-meta-muse",
+      "status": "needs-revision",
+      "issues": [
+        "00:34: always asks permission is an unsupported product guarantee; say learners set approval steps and test whether they work.",
+        "01:12 visual labels modules Week 1 to Week 6, implying a fixed six-week schedule; the course is self-paced.",
+        "00:46 visual has dark purple text on a dark background. Use readable contrast.",
+        "00:15: replace completely reshape your week with organise a weekly plan and check changes."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/working-with-meta-muse-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "business-agents-copilot-studio",
+      "status": "needs-revision",
+      "issues": [
+        "00:00-00:29: will know exactly when to pause overstates agent reliability; explain setting and testing approval steps.",
+        "Orange opening and definition slides depart from the requested purple/cream style."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/business-agents-copilot-studio-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "running-your-own-agent-openclaw",
+      "status": "needs-revision",
+      "issues": [
+        "02:06-02:10: automatic scrubbing of private details and completely secure accounts are invented guarantees. Learners must remove private details before sharing records.",
+        "01:40: remove definitely does not break the bank; teach tracking costs against a budget.",
+        "02:26: a heartbeat does not guarantee detection of every failure; describe a regular check and its limits.",
+        "00:16 and later visuals invent module and project titles. The actual project is a scoped monitoring agent with checks and recovery.",
+        "03:47 visual introduces code optimisation logs not specified by this project."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/running-your-own-agent-openclaw-contact-01.jpg",
+          "output/course-introductions/running-your-own-agent-openclaw-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "managing-agents-reliably",
+      "status": "needs-revision",
+      "issues": [
+        "00:12 visual invents Module 1 Understanding AI Agents and Final Project Safe AI Agent Deployment; replace with the actual course sequence and workflow audit project.",
+        "01:59: distinguish measured practice results from estimated business value; do not imply supplied fictional files establish actual workplace savings.",
+        "Yellow accents depart from the requested purple/cream style."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/managing-agents-reliably-contact-01.jpg",
+          "output/course-introductions/managing-agents-reliably-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "agents-small-business-operations",
+      "status": "needs-revision",
+      "issues": [
+        "02:38 visual invents six skill names and an A AND I ASSESSMENT label. Use the actual rubric names or simply all six required skill areas.",
+        "02:13 visual adds Google Academy as a label. Retain the provider watermark but do not invent a provider partnership or co-branding.",
+        "Simplify 03:02 mastery language to explaining the weekly operations pack and the decisions a person keeps."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/agents-small-business-operations-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "agent-research-market-monitoring",
+      "status": "needs-revision",
+      "issues": [
+        "00:16 visual invents AI Market Monitoring module and Automated Research Pipeline project title; the final work is a monitoring brief.",
+        "02:06: replace proves exactly with explains how you checked the changes.",
+        "Orange slides depart from the requested purple/cream style."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/agent-research-market-monitoring-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "content-operations-agents",
+      "status": "needs-revision",
+      "issues": [
+        "01:25: bulletproof approval workflow is an unsupported guarantee. Say a clear workflow with named checks and approval steps.",
+        "02:37 visual inserts Human Moderation into the certificate process, although this project is AI assessed.",
+        "04:01 visual invents AI Foundations, Workflow Integration and Content Strategy modules plus Automated Content Plan project.",
+        "02:43 visual spells out Google WATERMARK. Keep the actual watermark without adding a separate production label."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/content-operations-agents-contact-01.jpg",
+          "output/course-introductions/content-operations-agents-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "agents-for-developers",
+      "status": "needs-revision",
+      "issues": [
+        "Opening and 03:00 visuals invent module titles and an AI Task Delegation Framework project; use the maintenance change, review and recovery project.",
+        "00:43: check actual speech for AI novice agent; the machine transcript is uncertain.",
+        "02:27: clarify the AI assessor checks submitted text and cannot run the repository or independently verify authorship.",
+        "Use calmer language than mindlessly clicking buttons and No way; preserve the actual deployment boundary."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/agents-for-developers-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "coordinating-multiple-agents",
+      "status": "needs-revision",
+      "issues": [
+        "04:02: proves you know your stuff overstates independent verification; describe a practical example of task sharing and checked handovers.",
+        "02:07 visual makes the reviewer agent the accountable final owner; the source requires a responsible person overseeing the final result.",
+        "00:59: remove no passing the buck and explain responsibility respectfully."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/coordinating-multiple-agents-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "prompt-engineering-for-professional-work",
+      "status": "needs-revision",
+      "issues": [
+        "User listening check confirmed AI is spoken as A and I. Regenerate with AI pronounced as the two letters ay eye, and check every occurrence before release.",
+        "04:30: no separate accounts or subscriptions required is unsupported; the source says separate accounts and licences are not included in the fee.",
+        "02:14: a prompt does not guarantee the model never guesses; explain including facts and limits, then checking the reply.",
+        "02:56 and 03:41 visuals invent Module 3 Overview and AI Workplace Guardrails instead of the actual lesson titles.",
+        "04:05: do not narrate the production contrast with agent AI assessment; explain this course\u2019s scenario checks and signed prompt card."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/prompt-engineering-for-professional-work-contact-01.jpg",
+          "output/course-introductions/prompt-engineering-for-professional-work-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false,
+        "pronunciation": "failed-user-confirmed"
+      }
+    },
+    {
+      "slug": "ai-output-verification",
+      "status": "downloaded-awaiting-review",
+      "issues": [
+        "Complete machine transcript and all detected scene contact sheets checked against the source; audience, study estimate, final note, 6/7 assessment and fee match.",
+        "Blue accents and stock-style hand/notebook visual depart from the requested illustrated purple/cream style.",
+        "Opening brand is transcribed Experrent; confirm the actual speech before correcting captions."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/ai-output-verification-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "applying-ai-in-daily-work",
+      "status": "needs-revision",
+      "issues": [
+        "02:58 visual invents AI Ethics and Automation modules; use the actual five lessons.",
+        "03:15 visual names AI Integration Final Assessment; retain the actual scenario assessment and signed weekly plan.",
+        "03:00: remove contrast with an agent-based assessor, which is a production constraint.",
+        "03:29 transcript contains a broken transition; listen and correct/regenerate if present in the recording."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/applying-ai-in-daily-work-contact-01.jpg",
+          "output/course-introductions/applying-ai-in-daily-work-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "ai-for-writing-and-communication",
+      "status": "needs-revision",
+      "issues": [
+        "Opening visual says AI Course Introduction instead of the course title.",
+        "01:47 and 02:34 visuals invent module labels; use the actual five lessons.",
+        "03:58: no extra accounts or subscriptions required is unsupported; the source states external software access is not included.",
+        "03:50 visual shows PRO SUBSCRIPTION while narration says none required. Remove unsupported subscription claims in either direction."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/ai-for-writing-and-communication-contact-01.jpg",
+          "output/course-introductions/ai-for-writing-and-communication-contact-02.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    },
+    {
+      "slug": "designing-ai-agents-for-business-workflows",
+      "status": "needs-revision",
+      "issues": [
+        "01:48-01:59: reading an email and drafting a reply does not necessarily require an agent. Explain the choice in terms of repeated steps and tools needed, rather than an absolute rule.",
+        "00:18, 02:45 and 03:30 visuals invent numbered modules and project titles. Use the actual lesson names and one-page agent brief.",
+        "03:46: passing the scenario assessment alone does not earn the certificate; completing and signing the brief and lesson checks are also required.",
+        "04:01: no separate accounts or subscriptions needed is not established by the source; explain that external software access is not included."
+      ],
+      "checks": {
+        "transcriptAgainstSource": "checked-machine-draft",
+        "detectedSceneContactSheets": "checked",
+        "contactSheets": [
+          "output/course-introductions/designing-ai-agents-for-business-workflows-contact-01.jpg"
+        ],
+        "listening": "pending",
+        "captionsAgainstSpeech": "pending",
+        "publicationApproved": false
+      }
+    }
+  ]
+}

@@ -19,7 +19,10 @@ const COLUMNS = [
   {
     heading: "Learn",
     links: [
+      { href: "/learn", label: "Online courses from £99" },
+      { href: "/learn/eu-ai-act-article-4-training", label: "EU AI Act Article 4 training" },
       { href: "/courses", label: "Courses" },
+      { href: "/learning-agent", label: "Try the agent" },
       { href: "/use-cases", label: "Use cases" },
       { href: "/insights", label: "Insights" },
     ],
@@ -28,6 +31,8 @@ const COLUMNS = [
     heading: "Company",
     links: [
       { href: "/about", label: "About" },
+      { href: "/case-studies", label: "Case studies" },
+  { href: "/ai-labs", label: "AI Labs · Consulting & delivery" },
       { href: "/experrt-ai", label: "Experrt AI" },
       { href: "/contact", label: "Contact" },
       { href: "/docs", label: "Docs" },
@@ -37,6 +42,8 @@ const COLUMNS = [
     heading: "Legal",
     links: [
       { href: "/terms", label: "Terms" },
+      { href: "/course-terms", label: "Course terms" },
+      { href: "/learn/faq", label: "Course FAQ" },
       { href: "/privacy", label: "Privacy" },
       { href: "/cookies", label: "Cookies" },
     ],

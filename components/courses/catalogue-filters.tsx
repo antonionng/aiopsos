@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 // The active subject pill takes its own hue, so the filter you applied and
 // the badges on the matching cards visibly agree.
 const CATEGORY_PILL_ACTIVE: Record<CourseCategory, string> = {
+  hr: "border-cat-hr/40 bg-cat-hr-soft text-cat-hr",
   ai: "border-cat-ai/40 bg-cat-ai-soft text-cat-ai",
   technology: "border-cat-technology/40 bg-cat-technology-soft text-cat-technology",
   robotics: "border-cat-robotics/40 bg-cat-robotics-soft text-cat-robotics",

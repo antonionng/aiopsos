@@ -1,0 +1,12 @@
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import {liveNextStep,type LiveProgress} from "./delivery-progress.ts";
+const base:LiveProgress={cohortId:"one",title:"Workshop",status:"completed",enrolmentStatus:"enrolled",sessions:3,recorded:3,attended:3,excused:0,attendancePercent:100,attendanceRequired:80,gradePercent:85,gradeRequired:70,certificate:"none",upcoming:0};
+test("thresholds met means trainer review, not an issued certificate",()=>assert.equal(liveNextStep(base).state,"ready_for_review"));
+test("missing grade is ungraded, not a failed zero",()=>assert.equal(liveNextStep({...base,gradePercent:null}).state,"awaiting_grade"));
+test("scheduled sessions are not reported as attendance failure",()=>assert.equal(liveNextStep({...base,upcoming:2,attendancePercent:0,recorded:0}).state,"scheduled"));
+test("incomplete register asks for evidence before interpreting absence",()=>assert.equal(liveNextStep({...base,recorded:1,attendancePercent:33}).state,"awaiting_register"));
+test("revocation stays visible even when numeric thresholds are met",()=>assert.equal(liveNextStep({...base,certificate:"revoked"}).state,"review_needed"));
+test("withdrawn and unconfirmed learners are not classified as passing",()=>{assert.equal(liveNextStep({...base,enrolmentStatus:"withdrawn",certificate:"issued"}).state,"withdrawn");assert.equal(liveNextStep({...base,enrolmentStatus:null}).state,"not_enrolled");});
+test("unscheduled training never becomes ready through zero thresholds",()=>assert.equal(liveNextStep({...base,sessions:0,attendanceRequired:0}).state,"awaiting_schedule"));
+test("recorded attendance and grade gaps produce distinct actions",()=>{assert.equal(liveNextStep({...base,attendancePercent:50}).state,"attendance_gap");assert.equal(liveNextStep({...base,gradePercent:40}).state,"grade_gap");});

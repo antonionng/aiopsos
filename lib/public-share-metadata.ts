@@ -2,8 +2,6 @@ import { getPublicSiteUrl } from "./site.ts";
 import { withSiteShareImages } from "./social-image.ts";
 import type { InsightArticle } from "./insights/types.ts";
 import type { UseCaseEntry } from "./use-cases.ts";
-import { getCourseSeo } from "./money-pages.ts";
-import { getUseCaseSeo } from "./use-case-seo.ts";
 
 /**
  * Page-level metadata for public marketing routes. Kept as plain objects so
@@ -14,17 +12,17 @@ import { getUseCaseSeo } from "./use-case-seo.ts";
 export function insightsIndexMetadata() {
   const site = getPublicSiteUrl();
   return withSiteShareImages({
-    title: "Insights on workforce AI and robotics training",
+    title: "AI training, HR transformation & learning guides",
     description:
-      "Briefings for L&D, HR, operations and transformation leads commissioning in-house AI, technology and robotics training. No login required.",
+      "Practical guides to AI training, HR transformation, people operations and LMS buying. Templates and checklists for employers and training providers.",
     alternates: {
       canonical: `${site}/insights`,
       types: { "application/rss+xml": `${site}/insights/rss.xml` },
     },
     openGraph: {
-      title: "Insights on workforce AI and robotics training",
+      title: "AI training, HR transformation & learning guides",
       description:
-        "Public briefings for people buying in-house AI and robotics training.",
+        "Practical guides, checklists and templates for AI adoption, HR transformation and better learning.",
       url: `${site}/insights`,
       type: "website",
     },
@@ -59,12 +57,12 @@ export function insightArticleMetadata(article: InsightArticle) {
 
 export function coursesIndexMetadata() {
   return withSiteShareImages({
-    title: "Courses - applied AI, technology and robotics training",
+    title: "Courses - AI, technology, robotics and HR training",
     description:
-      "Facilitated training courses in applied AI, technology adoption and applied robotics, by subject, by level and by sector. Delivered live by a trainer, in person or online, with attendance and grades recorded.",
+      "Facilitated training courses in applied AI, technology, robotics and HR transformation, by subject, by level and by sector. Delivered live by a trainer, in person or online, with attendance and grades recorded.",
     alternates: { canonical: "/courses" },
     openGraph: {
-      title: "Courses - applied AI, technology and robotics training | Experrt",
+      title: "Courses - AI, technology, robotics and HR training | Experrt",
       description:
         "Facilitated live by a trainer, in person or online. Courses by subject, by level and by sector.",
       url: "/courses",
@@ -75,23 +73,19 @@ export function coursesIndexMetadata() {
 export function coursePageMetadata(course: { title: string; summary: string; slug: string }) {
   // Course pages have a local opengraph-image.tsx. Do not set images here —
   // Next would replace that generated card with the site default.
-  const seo = getCourseSeo(course.slug);
-  const title = seo?.title ?? course.title;
-  const description = seo?.description ?? course.summary;
-
   return {
-    title,
-    description,
+    title: course.title,
+    description: course.summary,
     alternates: { canonical: `/courses/${course.slug}` },
     openGraph: {
-      title,
-      description,
+      title: course.title,
+      description: course.summary,
       type: "article",
     },
     twitter: {
       card: "summary_large_image" as const,
-      title,
-      description,
+      title: course.title,
+      description: course.summary,
     },
   };
 }
@@ -129,73 +123,29 @@ export function useCasesIndexMetadata() {
   return withSiteShareImages({
     title: "Use cases",
     description:
-      "What facilitated AI, technology and robotics training looks like applied to your kind of organisation - enterprise or growing team - and to the function doing the work.",
+      "What facilitated AI, technology, robotics and HR training looks like applied to your kind of organisation - enterprise or growing team - and to the function doing the work.",
     alternates: { canonical: "/use-cases" },
   });
 }
 
 export function useCasePageMetadata(entry: UseCaseEntry) {
-  const seo = getUseCaseSeo(entry.slug);
-  const title = seo?.title ?? `${entry.name} - Use cases`;
-  const description = seo?.description ?? entry.headline;
-
   return withSiteShareImages({
-    title,
-    description,
+    title: `${entry.name} - Use cases`,
+    description: entry.headline,
     alternates: { canonical: `/use-cases/${entry.slug}` },
     openGraph: {
-      title: seo?.title ?? `${entry.name} - Experrt use cases`,
-      description,
+      title: `${entry.name} - Experrt use cases`,
+      description: entry.headline,
       type: "article",
     },
   });
 }
 
-export function contactMetadata() {
-  const site = getPublicSiteUrl();
-  const canonical = `${site}/contact`;
-  const title = "Book a conversation";
-  const description =
-    "Enquire about a facilitated training cohort, or book a conversation about applied AI, technology and robotics training for your team. Name, email, organisation and a short brief is enough.";
-  return withSiteShareImages({
-    title,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      title: `${title} | Experrt`,
-      description,
-      url: canonical,
-      type: "website",
-    },
-    twitter: {
-      title: `${title} | Experrt`,
-      description,
-    },
-    robots: { index: true, follow: true },
-  });
-}
-
-/**
- * /blog is a permanent redirect to /insights. This metadata must never look
- * like a login wall: title and description are the public Insights page, the
- * canonical is /insights, and the URL stays noindex so search consolidates
- * on /insights.
- */
 export function blogRedirectMetadata() {
-  const site = getPublicSiteUrl();
   return withSiteShareImages({
-    title: "Insights on workforce AI and robotics training",
-    description:
-      "Briefings for L&D, HR, operations and transformation leads commissioning in-house AI, technology and robotics training. No login required.",
+    title: "Insights",
     robots: { index: false, follow: true },
-    alternates: { canonical: `${site}/insights` },
-    openGraph: {
-      title: "Insights on workforce AI and robotics training",
-      description:
-        "Public briefings for people buying in-house AI and robotics training.",
-      url: `${site}/insights`,
-      type: "website",
-    },
+    alternates: { canonical: "/insights" },
   });
 }
 
@@ -226,21 +176,24 @@ export function unsubscribedMetadata() {
 
 export function termsMetadata() {
   return withSiteShareImages({
-    title: "Terms of Service | Experrt",
-    description: "Terms of Service for the Experrt enterprise AI adoption platform.",
+    title: "Terms of Service",
+    alternates: { canonical: "/terms" },
+    description: "Terms of Service for the Experrt learning platform.",
   });
 }
 
 export function privacyMetadata() {
   return withSiteShareImages({
-    title: "Privacy Policy | Experrt",
-    description: "Privacy Policy for the Experrt enterprise AI adoption platform.",
+    title: "Privacy Policy",
+    alternates: { canonical: "/privacy" },
+    description: "Privacy Policy for the Experrt learning platform.",
   });
 }
 
 export function cookiesMetadata() {
   return withSiteShareImages({
-    title: "Cookie Policy | Experrt",
-    description: "Cookie Policy for the Experrt enterprise AI adoption platform.",
+    title: "Cookie Policy",
+    alternates: { canonical: "/cookies" },
+    description: "Cookie Policy for the Experrt learning platform.",
   });
 }

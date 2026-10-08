@@ -39,8 +39,8 @@ export function WelcomeEmail({
     <div
       style={{
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif",
-        backgroundColor: "#0d0d0d",
-        color: "#ececec",
+        backgroundColor: "#201C29",
+        color: "#FFFEFA",
         padding: "48px 24px",
       }}
     >
@@ -91,7 +91,7 @@ export function WelcomeEmail({
           style={{
             fontSize: "15px",
             lineHeight: 1.6,
-            color: "#888888",
+            color: "#D5C7FF",
             margin: "0 0 32px",
           }}
         >
@@ -115,7 +115,7 @@ export function WelcomeEmail({
                 margin: "0 0 20px",
               }}
             >
-              Here's how you scored across the five dimensions.
+              Here&apos;s how you scored across the five dimensions.
             </p>
             {/* Overall score card */}
             <div
@@ -134,7 +134,7 @@ export function WelcomeEmail({
                   fontWeight: 600,
                   textTransform: "uppercase" as const,
                   letterSpacing: "0.08em",
-                  color: "#666666",
+                  color: "#BEB3D0",
                   margin: "0 0 12px",
                 }}
               >
@@ -151,7 +151,7 @@ export function WelcomeEmail({
                 }}
               >
                 {overall!.toFixed(1)}
-                <span style={{ fontSize: "20px", color: "#666666" }}> / 5</span>
+                <span style={{ fontSize: "20px", color: "#BEB3D0" }}> / 5</span>
               </p>
               <div
                 style={{
@@ -191,7 +191,7 @@ export function WelcomeEmail({
                   fontWeight: 600,
                   textTransform: "uppercase" as const,
                   letterSpacing: "0.08em",
-                  color: "#666666",
+                  color: "#BEB3D0",
                   margin: "0 0 16px",
                 }}
               >
@@ -227,7 +227,7 @@ export function WelcomeEmail({
                         }}
                       >
                         {scores![dim].toFixed(1)}
-                        <span style={{ color: "#666666", fontWeight: 400 }}> / 5</span>
+                        <span style={{ color: "#BEB3D0", fontWeight: 400 }}> / 5</span>
                       </td>
                     </tr>
                   ))}
@@ -252,7 +252,7 @@ export function WelcomeEmail({
                     fontWeight: 600,
                     textTransform: "uppercase" as const,
                     letterSpacing: "0.08em",
-                    color: "#666666",
+                    color: "#BEB3D0",
                     margin: "0 0 16px",
                   }}
                 >
@@ -398,8 +398,8 @@ export function WelcomeEmail({
             href={dashboardUrl}
             style={{
               display: "inline-block",
-              backgroundColor: "#fbbf24",
-              color: "#1c1503",
+              backgroundColor: "#E4F477",
+              color: "#201C29",
               fontSize: "15px",
               fontWeight: 700,
               padding: "14px 36px",
@@ -428,7 +428,7 @@ export function WelcomeEmail({
             textAlign: "center" as const,
           }}
         >
-          Experrt - The enterprise AI control layer.
+          Experrt - Stay curious. Get unstoppable.
         </p>
       </div>
     </div>

@@ -1,0 +1,2 @@
+-- No schema change. Global platform-administrator wall access was not applied.
+-- Cohort walls retain organisation, enrolment and assigned-facilitator checks.
