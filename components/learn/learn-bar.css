@@ -1,0 +1,5 @@
+.ex-learn-bar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}

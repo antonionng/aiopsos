@@ -1,0 +1,13 @@
+# Revised video instructions
+
+Use only the revised source, “Experrt Academy: Choose a task you do every day or week”. Explainer format, English, custom visual style. Aim for 5 to 7 minutes by covering each idea once, with no lengthy introduction or repetitive transitions. This is a private AI-generated sample.
+
+Explain the source in a calm, friendly British trainer voice, using everyday language and connected explanations. Stay close to the source's wording. Start directly with what the learner will practise and produce. Avoid repeated “absolutely”, “exactly”, “literally”, “brilliant”, “crucially”, “golden rule”, “go rogue”, “magical”, “guarantee” and “100%”. Never tell the learner they are cheating themselves or need to be brutally honest. Do not invent emotional examples such as an angry payment demand. Keeping a draft for review creates an opportunity to check it; it does not guarantee that anyone has done the check. Do not claim absolute accuracy or that a method is incredibly safe.
+
+Cover all the source's teaching points: what agents do and their availability limits; choose a familiar regular task; fictional Northstar; compare drafting a report with customer contact and prices; all three selection questions; accurate P101/P102/P103 checks using the fictional reporting date; starting timing including preparation/checking/corrections and at least three later attempts at equal quality; the full practical exercise and Northstar alternative. Keep the exercise unchanged. No tool installation, live account connection, made-up measurements or certificate claims.
+
+Use illustrated diagrams and large readable text. Show “Experrt Academy” and “AI-generated pilot” on the opening visual. Pronounce Experrt like “expert”, Northstar as “North star”. If you show a table, P101 is overdue, P102 is not overdue because it is complete, and P103 has a missing date which is listed separately rather than marked overdue. Label that distinction explicitly. Use visual headings in everyday language. Preserve Google's watermark.
+
+## Custom visual style
+
+Use the same Experrt palette on EVERY visual, including definitions, project tables and exercise slides: warm cream #FFFDF8 backgrounds, plum #2D2439 text, purple #7044B2 accents and lavender #EEE7FA panels, with small peach highlights. No bright blue glossary cards or blue table headings. Warm textured watercolour and editorial illustrations of adult learners and a creative studio. Use simple illustrated information-to-draft-to-owner-review diagrams, clear project labels and spacious readable layouts. Do not draw tiny decorative text, invented logos or simulated product screenshots. Put Experrt Academy and AI-generated pilot on the opening slide. Preserve Google watermarks.

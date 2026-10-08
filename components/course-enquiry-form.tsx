@@ -21,11 +21,13 @@ export function CourseEnquiryForm({
   courseTitle,
   source = "course_page",
   compact = false,
+  mode = "team",
 }: {
   courseSlug?: string;
   courseTitle?: string;
   source?: "course_page" | "assessment_results" | "catalogue" | "dashboard";
   compact?: boolean;
+  mode?: "team" | "launch";
 }) {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -57,7 +59,7 @@ export function CourseEnquiryForm({
           name: form.name,
           email: form.email,
           organisation_name: form.organisation_name,
-          message: form.message,
+          message: mode === "launch" ? `Course launch enquiry: ${courseTitle ?? "Agent course"}.\n${form.message}` : form.message,
           seats: form.seats ? Number(form.seats) : null,
           source,
           ...botGuard.fields(),
@@ -84,9 +86,7 @@ export function CourseEnquiryForm({
           <p className="text-sm font-semibold">Thank you - that has reached us.</p>
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          A real person reads these. We will come back within one working day
-          with dates, what the session would cover for your team, and what it
-          costs. Check your inbox for a confirmation.
+          {mode === "launch" ? "Your course enquiry has been saved. We will reply to discuss availability and your learning goals." : "A real person reads these. We will come back within one working day with dates, what the session would cover for your team, and what it costs. Check your inbox for a confirmation."}
         </p>
       </div>
     );
@@ -97,7 +97,7 @@ export function CourseEnquiryForm({
       <HoneypotField value={botGuard.honeypot} onChange={botGuard.setHoneypot} />
       {!compact && (
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {courseTitle
+          {mode === "launch" ? "Tell us what you would like to learn and we will reply about this course’s availability." : courseTitle
             ? `Tell us a little about your team and we will come back with dates and a price for ${courseTitle}.`
             : "Tell us a little about your team and we will come back with dates and a price."}
         </p>
@@ -110,7 +110,7 @@ export function CourseEnquiryForm({
                  placeholder="Jane Smith" className="h-10 bg-surface" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="enq-email" className="text-xs">Work email</Label>
+          <Label htmlFor="enq-email" className="text-xs">{mode === "launch" ? "Email address" : "Work email"}</Label>
           <Input id="enq-email" type="email" required value={form.email} onChange={set("email")}
                  placeholder="you@company.com" className="h-10 bg-surface" />
         </div>
@@ -118,12 +118,12 @@ export function CourseEnquiryForm({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="enq-org" className="text-xs">Organisation</Label>
+          <Label htmlFor="enq-org" className="text-xs">{mode === "launch" ? "Organisation (optional)" : "Organisation"}</Label>
           <Input id="enq-org" value={form.organisation_name} onChange={set("organisation_name")}
                  placeholder="Northwind" className="h-10 bg-surface" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="enq-seats" className="text-xs">Roughly how many people</Label>
+          <Label htmlFor="enq-seats" className="text-xs">{mode === "launch" ? "Learners (optional)" : "Roughly how many people"}</Label>
           <Input id="enq-seats" type="number" min="1" step="1" inputMode="numeric" value={form.seats} onChange={set("seats")}
                  placeholder="12" className="h-10 bg-surface" />
         </div>
@@ -134,14 +134,15 @@ export function CourseEnquiryForm({
           Anything we should know? <span className="text-muted-foreground">(optional)</span>
         </Label>
         <Textarea id="enq-message" value={form.message} onChange={set("message")}
-                  placeholder="Timing, location, the specific problem you are trying to fix."
+                  placeholder={mode === "launch" ? "What would you like to be able to do with an AI agent?" : "Timing, location, the specific problem you are trying to fix."}
+                  maxLength={mode === "launch" ? 2500 : undefined}
                   className="min-h-[70px] bg-surface text-xs" />
       </div>
 
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       <Button type="submit" disabled={sending} className="w-full">
-        {sending ? "Sending..." : (courseSlug ? "Enquire about this course" : "Discuss my learning goals")}
+        {sending ? "Sending..." : (mode === "launch" ? "Send a course enquiry" : courseSlug ? "Enquire about this course" : "Discuss my learning goals")}
         {!sending && <ArrowRight className="ml-2 h-4 w-4" />}
       </Button>
 

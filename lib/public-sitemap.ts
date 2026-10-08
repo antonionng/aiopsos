@@ -1,9 +1,12 @@
+import { missions as wonderlabMissions } from './wonderlab/catalog.ts';
 import { caseStudies } from "./case-studies.ts";
 import { INSIGHT_TOPIC_PAGES } from "./insights/topics.ts";
 import { COURSE_SECTOR_SLUGS } from "./constants.ts";
 import { getPublishedInsights } from "./insights/catalog.ts";
 import { getSectors } from "./sectors.ts";
 import { getUseCases } from "./use-cases.ts";
+import { TOPIC_HUBS, allSelfServeCourses } from "./self-serve/seo.ts";
+import { agentMarketingCourses } from "./always-on-agents/marketing.ts";
 
 export type PublicSitemapEntry = {
   url: string;
@@ -44,6 +47,8 @@ export function staticMarketingEntries(
     { path: "/contact", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/docs", priority: 0.5, changeFrequency: "monthly" as const },
     { path: "/terms", priority: 0.2, changeFrequency: "yearly" as const },
+    { path: "/learn/faq", priority: 0.5, changeFrequency: "monthly" as const },
+    { path: "/course-terms", priority: 0.2, changeFrequency: "yearly" as const },
     { path: "/privacy", priority: 0.2, changeFrequency: "yearly" as const },
     { path: "/cookies", priority: 0.2, changeFrequency: "yearly" as const },
   ].map((r) => ({
@@ -102,6 +107,27 @@ export function insightSitemapEntries(baseUrl: string): PublicSitemapEntry[] {
   }));
 }
 
+export function selfServeSitemapEntries(
+  baseUrl: string,
+  lastModified: Date
+): PublicSitemapEntry[] {
+  return [
+    { url: `${baseUrl}/learn`, lastModified, changeFrequency: "weekly" as const, priority: 0.9 },
+    ...TOPIC_HUBS.map((hub) => ({
+      url: `${baseUrl}/learn/topics/${hub.slug}`,
+      lastModified,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    })),
+    ...allSelfServeCourses().map((course) => ({
+      url: `${baseUrl}/learn/${course.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+  ];
+}
+
 export function buildPublicSitemap(options: {
   baseUrl: string;
   courseSlugs: string[];
@@ -110,8 +136,11 @@ export function buildPublicSitemap(options: {
   const lastModified = options.lastModified ?? new Date();
   const entries = [
     ...staticMarketingEntries(options.baseUrl, lastModified),
+    ...["/wonderlab", "/wonderlab/games", "/wonderlab/kids", "/wonderlab/teens", "/wonderlab/parents", ...wonderlabMissions.map(m => `/wonderlab/missions/${m.slug}`)].map(path => ({url: `${options.baseUrl}${path}`, lastModified, changeFrequency: "monthly" as const, priority: 0.7})),
     ...["/case-studies", ...caseStudies.map(item => `/case-studies/${item.slug}`)].map(path => ({url: `${options.baseUrl}${path}`, lastModified, changeFrequency: "monthly" as const, priority: 0.8})),
     ...courseSitemapEntries(options.baseUrl, options.courseSlugs, lastModified),
+    ...selfServeSitemapEntries(options.baseUrl, lastModified),
+    ...["/courses/agents", "/courses/always-on-agents-preview", ...agentMarketingCourses.map(course => course.href)].map(path => ({ url: `${options.baseUrl}${path}`, lastModified: new Date("2026-10-02T00:00:00Z"), changeFrequency: "monthly" as const, priority: 0.8 })),
     ...sectorSitemapEntries(options.baseUrl, lastModified),
     // This is a use-case URL utility, not a React hook.
     // eslint-disable-next-line react-hooks/rules-of-hooks

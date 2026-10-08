@@ -3,6 +3,13 @@ import assert from "node:assert/strict";
 
 import { isAuthPath, isPublicPath } from "../public-routes.ts";
 
+test("Wonderlab authored narration plays without a session, without exposing other audio routes", () => {
+  assert.equal(isPublicPath("/audio/wonderlab/marin-v1-bc848836-ca9e05c0.mp3"), true);
+  assert.equal(isPublicPath("/audio/private-recording.mp3"), false);
+  assert.equal(isPublicPath("/audio/wonderlab/private/export"), false);
+  assert.equal(isPublicPath("/api/audio/generate"), false);
+});
+
 test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights"), true);
   assert.equal(isPublicPath("/insights/eu-ai-act-article-4-literacy-for-ld"), true);
@@ -14,6 +21,13 @@ test("Insights and blog are public so Google does not hit /login", () => {
   assert.equal(isPublicPath("/insights/technology-judgement-for-nontechnical-directors"), true);
   assert.equal(isPublicPath("/blog"), true);
   assert.equal(isPublicPath("/blog/anything"), true);
+});
+
+test("self-serve learn routes stay public so a disabled flag 404s, not a login wall", () => {
+  assert.equal(isPublicPath("/learn"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work"), true);
+  assert.equal(isPublicPath("/learn/prompt-engineering-for-professional-work/certificate"), true);
+  assert.equal(isPublicPath("/learning-agent"), true);
 });
 
 test("use cases are public marketing pages", () => {
@@ -30,6 +44,19 @@ test("the endpoints that create a session are reachable without one", () => {
   assert.equal(isPublicPath("/api/contact"), true);
   assert.equal(isPublicPath("/auth/callback"), true);
   assert.equal(isPublicPath("/auth/callback/"), true);
+});
+
+test("self-serve checkout and the Stripe webhook are reachable without a session", () => {
+  assert.equal(isPublicPath("/api/learn/checkout"), true);
+  assert.equal(isPublicPath("/api/learn/claim"), true);
+  assert.equal(isPublicPath("/api/learn/progress"), true);
+  assert.equal(isPublicPath("/api/learn/certificate/EX123"), true);
+  assert.equal(isPublicPath("/api/stripe/webhook"), true);
+  assert.equal(isPublicPath("/api/cron/self-serve-nudges"), true);
+  assert.equal(isPublicPath("/api/cron/agent-course-reports"), true);
+  assert.equal(isPublicPath("/api/courses/agents/report/order-id"), true);
+  assert.equal(isPublicPath("/api/courses/agents/assessment/order-id"), true);
+  assert.equal(isPublicPath("/api/courses/agents/admin"), false);
 });
 
 test("the Mooov webhook is reachable by Mooov's servers", () => {

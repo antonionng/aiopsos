@@ -1,0 +1,19 @@
+# Video production prompt
+
+Use Video Overview, Explainer format, English. Target 5 to 7 minutes where the interface permits; length is a target controlled by Google. Use only the supplied Experrt module 1 source. This is a private AI-generated pilot for review, not a published lesson. Preserve Google's watermark.
+
+## Instructions to paste into the generation dialogue
+
+Create a beginner-friendly Experrt Academy teaching video about “Choose a task you do every day or week”. Aim for 5 to 7 minutes. Use a warm, natural British trainer voice with complete, connected explanations. Explain “AI agent”, “project tracker”, “reviewer” and “baseline” in everyday language when first introduced. Do not use unexplained jargon, slogans, sales claims or a rapid list of tips.
+
+Open by explaining what the learner will practise and produce. Introduce Northstar Studio explicitly as a fictional six-person design business. Explain that some always-on tools depend on apps or computers being available. Show why a draft weekly project report is a useful first task by comparing it with sending payment reminders and choosing prices. Make clear that the agent in this exercise may only read the supplied tracker and prepare a draft; the owner checks the work and keeps decisions about customer contact, prices and record changes.
+
+Teach the three questions: do I have the information, can I check the result, and can I correct a mistake before anyone relies on it? Use the source's P101, P102 and P103 examples accurately if you include individual records. Keep the fictional reporting date of 1 October 2026 explicit. Do not invent company facts, product features, statistics, outcomes, timings or additional exercise requirements. A missing deadline is not proof of overdue work. A complete project is not overdue under this example's rule.
+
+Explain that the starting timing record includes preparation, checking and fixing mistakes. Later compare at least three attempts at the same quality standard, including the learner's checking time. Do not promise a time saving. Finish with the source's exact exercise: list three regular tasks, explain information, reader and checks, choose one draft task, name who checks it, describe a correct result and retained decisions, and record the task's current preparation, checking and correction time. Offer Northstar as an alternative if the learner does not want to use real work. Invite the learner to pause and complete the exercise. Do not give a certificate or claim this sample completes the full course.
+
+Use purposeful narrated diagrams and illustrations rather than dense slides. Aim for this sequence: introduction and outcome; a familiar regular task; fictional Northstar; report versus customer messages and prices; the three questions; checking against original records and timing; the practical exercise. Keep on-screen text brief and readable, while the narration provides depth. Include “AI-generated pilot” on the opening or closing visual if possible. Pronounce Experrt like “expert”, Northstar as “North star”, and British dates naturally. Preserve the brand spelling Experrt in visible text.
+
+## Custom visual style prompt
+
+Experrt Academy editorial illustration: warm cream backgrounds (#FFFDF8), deep plum text (#2D2439), rich purple accents (#7044B2), pale lavender panels (#EEE7FA), restrained peach highlights. Hand-painted, textured illustrations of adult learners, a small creative studio, project records and a report being checked. Calm, polished and welcoming. Use spacious layouts and clear labelled diagrams. Strong text contrast; large readable type; a maximum of three short points per visual. Show the three task choices side by side and a simple information-to-draft-to-owner-review diagram. Avoid photorealistic presenters, neon gradients, stock corporate imagery, tiny tables, invented product logos and decorative clutter. Retain Google's watermark.

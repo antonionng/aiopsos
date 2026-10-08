@@ -13,6 +13,7 @@ import {
   Moon,
   ChevronDown,
   Shield,
+  Mail,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Wordmark } from "@/components/wordmark";
@@ -152,6 +153,16 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
           >
             <Shield size={17} />
             Platform administration
+          </Link>
+        )}
+        {role === "super_admin" && (
+          <Link
+            href="/dashboard/admin/emails"
+            onClick={onNavigate}
+            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-muted-foreground hover:bg-sidebar-accent"
+          >
+            <Mail size={17} />
+            Emails
           </Link>
         )}
         <Link
