@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { isSupabaseAdminConfigured, supabaseAdmin } from "@/lib/supabase/admin";
 import { summariseReviews, type PublishedReview, type ReviewSummary } from "@/lib/self-serve/reviews";
 
 type ReviewRow = {
@@ -29,19 +29,27 @@ function toPublished(row: ReviewRow): PublishedReview {
 export async function courseReviews(
   slug: string
 ): Promise<{ reviews: PublishedReview[]; summary: ReviewSummary }> {
-  const { data, error } = await supabaseAdmin
-    .from("self_serve_reviews")
-    .select(COLUMNS)
-    .eq("course_slug", slug)
-    .eq("status", "published")
-    .order("created_at", { ascending: false })
-    .limit(60);
-  if (error) {
+  if (!isSupabaseAdminConfigured()) {
+    return { reviews: [], summary: summariseReviews([]) };
+  }
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("self_serve_reviews")
+      .select(COLUMNS)
+      .eq("course_slug", slug)
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(60);
+    if (error) {
+      console.error("[self-serve] reviews read", error);
+      return { reviews: [], summary: summariseReviews([]) };
+    }
+    const rows = (data ?? []) as ReviewRow[];
+    return { reviews: rows.map(toPublished), summary: summariseReviews(rows) };
+  } catch (error) {
     console.error("[self-serve] reviews read", error);
     return { reviews: [], summary: summariseReviews([]) };
   }
-  const rows = (data ?? []) as ReviewRow[];
-  return { reviews: rows.map(toPublished), summary: summariseReviews(rows) };
 }
 
 export async function reviewForPurchase(purchaseId: string) {

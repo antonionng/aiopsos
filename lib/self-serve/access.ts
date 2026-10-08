@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/admin";
 import { ACCESS_COOKIE } from "./commerce.ts";
 import { hasActiveAccess } from "./entitlement.ts";
 import {
@@ -31,6 +32,7 @@ export async function accessToken(): Promise<string> {
 
 /** The browser that paid holds the cookie. Any other device signs in. */
 export async function findEntitledPurchase(slug: string): Promise<PurchaseRow | null> {
+  if (!isSupabaseAdminConfigured()) return null;
   const token = await accessToken();
   const byCookie = token ? await findPaidPurchase(token, slug) : null;
   if (byCookie && hasActiveAccess(byCookie.paid_at)) return byCookie;

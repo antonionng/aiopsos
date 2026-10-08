@@ -11,7 +11,7 @@ export function AgentCourseShowcase({ catalogue = false }: { catalogue?: boolean
   const rail = useRef<HTMLDivElement>(null);
   const [group, setGroup] = useState<AgentCourseGroup | "All courses">("All courses");
   const [available,setAvailable]=useState<string[]>(() => agentMarketingCourses.map((course) => course.slug));
-  useEffect(()=>{const controller=new AbortController();void fetch("/api/public/agent-course-offers",{signal:controller.signal}).then(r=>r.ok?r.json():null).then(data=>{if(data)setAvailable(data.offers.map((o:{slug:string})=>o.slug));}).catch(()=>{});return ()=>controller.abort();},[]);
+  useEffect(()=>{const controller=new AbortController();void fetch("/api/public/agent-course-offers",{signal:controller.signal}).then(r=>r.ok?r.json():null).then(data=>{const slugs=data?.offers?.map((o:{slug:string})=>o.slug).filter(Boolean);if(slugs?.length)setAvailable(slugs);}).catch(()=>{});return ()=>controller.abort();},[]);
   const courses = agentMarketingCourses.filter(course => group === "All courses" || course.group === group);
 
   function scroll(direction: number) {
