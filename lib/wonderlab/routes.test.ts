@@ -10,6 +10,7 @@ import * as versions from "./versions.ts";
 import * as engine from "./engine.ts";
 import * as membershipRules from "./membership-rules.ts";
 import * as generationRules from "./generation-rules.ts";
+import * as insightRules from "./learning-insights.ts";
 import type Stripe from "stripe";
 
 type Row = Record<string, unknown>;
@@ -202,6 +203,15 @@ async function fixture() {
       "utf8",
     ),
   );
+  await pg.exec(
+    readFileSync(
+      new URL(
+        "../../supabase/migrations/20261008182925_wonderlab_lifetime_access.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
   const db = database(pg),
     cookies = new Map<string, string>();
   let user: { id: string; email: string; is_anonymous?: boolean } | null = {
@@ -262,6 +272,7 @@ async function fixture() {
     "@/lib/wonderlab/catalog": catalogue,
     "@/lib/wonderlab/engine": engine,
     "@/lib/wonderlab/generation-rules": generationRules,
+    "@/lib/wonderlab/learning-insights": insightRules,
     "@/lib/wonderlab/flags": {
       launchStatus: () => ({ commerce: true, ai: false, terms: "test-v1" }),
     },
@@ -872,6 +883,251 @@ test("Stripe event handling retrieves provider records before granting or refund
     assert.ok((await orders()).every((o) => o.state === "refunded"));
     await handler.fulfilMembershipEvent(event("invoice.paid", invoice));
     assert.ok((await orders()).every((o) => o.state === "refunded"));
+  } finally {
+    await f.pg.close();
+  }
+});
+
+test("parents can preserve or withdraw existing AI permission while launch is closed", async () => {
+  const f = await fixture();
+  try {
+    const child = await f.createChild();
+    await f.pg.query(
+      "update wonderlab_children set ai_enabled=true where id=$1",
+      [child],
+    );
+    assert.equal(
+      (
+        await f.post("family", {
+          action: "preferences",
+          childId: child,
+          aiEnabled: true,
+          narration: true,
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await f.post("family", {
+          action: "preferences",
+          childId: child,
+          aiEnabled: false,
+          narration: true,
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await f.pg.query<{ ai_enabled: boolean }>(
+          "select ai_enabled from wonderlab_children where id=$1",
+          [child],
+        )
+      ).rows[0].ai_enabled,
+      false,
+    );
+    assert.equal(
+      (
+        await f.post("family", {
+          action: "preferences",
+          childId: child,
+          aiEnabled: true,
+          narration: true,
+        })
+      ).status,
+      400,
+    );
+  } finally {
+    await f.pg.close();
+  }
+});
+
+test("lifetime guided AI enforces parental choice, successful-use limits and calendar-month renewal", async () => {
+  const f = await fixture();
+  try {
+    const child = await f.createChild();
+    await f.pg.query("select wonderlab_grant_lifetime_access($1,$2,$3)", [
+      parent,
+      child,
+      JSON.stringify(
+        catalogue.missions.map((m) => ({ slug: m.slug, version: m.version })),
+      ),
+    ]);
+    const order = (
+      await f.pg.query<{ id: string }>(
+        "select id from wonderlab_orders where mission_slug='prompt-repair-shop'",
+      )
+    ).rows[0].id;
+    const reserve = (id: string) =>
+      f.pg.query("select wonderlab_reserve_generation($1,$2,$3)", [
+        id,
+        order,
+        child,
+      ]);
+    const finish = async (id: string, value: string | null) =>
+      (
+        await f.pg.query<{ ok: boolean }>(
+          "select wonderlab_finish_generation($1,$2) as ok",
+          [id, value],
+        )
+      ).rows[0].ok;
+    await assert.rejects(reserve(crypto.randomUUID()), /AI unavailable/);
+    await f.pg.query(
+      "update wonderlab_children set ai_enabled=true where id=$1",
+      [child],
+    );
+    const failed = crypto.randomUUID();
+    await reserve(failed);
+    await assert.rejects(reserve(crypto.randomUUID()), /already running/);
+    assert.equal(await finish(failed, null), false);
+    let first = "";
+    for (let i = 0; i < 30; i++) {
+      const id = crypto.randomUUID();
+      if (!i) first = id;
+      await reserve(id);
+      assert.equal(await finish(id, "A fictional draft to check."), true);
+    }
+    await reserve(first);
+    assert.equal(await finish(first, "Repeated result"), true);
+    await assert.rejects(reserve(crypto.randomUUID()), /Allowance reached/);
+    await f.pg.query(
+      "update wonderlab_orders set generation_period_start=date_trunc('month',now())-interval '1 month' where id=$1",
+      [order],
+    );
+    const renewed = crypto.randomUUID();
+    await reserve(renewed);
+    assert.equal(await finish(renewed, "A new month's draft."), true);
+    assert.equal(
+      (
+        await f.pg.query<{ generations_used: number }>(
+          "select generations_used from wonderlab_orders where id=$1",
+          [order],
+        )
+      ).rows[0].generations_used,
+      1,
+    );
+    const late = crypto.randomUUID();
+    await reserve(late);
+    await f.pg.query(
+      "update wonderlab_generations set created_at=date_trunc('month',now())-interval '1 second' where id=$1",
+      [late],
+    );
+    assert.equal(await finish(late, "Late response"), false);
+    const disabled = crypto.randomUUID();
+    await reserve(disabled);
+    await f.pg.query(
+      "update wonderlab_children set ai_enabled=false where id=$1",
+      [child],
+    );
+    assert.equal(await finish(disabled, "Disabled response"), false);
+    await f.pg.query(
+      "update wonderlab_children set ai_enabled=true where id=$1",
+      [child],
+    );
+    await f.pg.query(
+      "update wonderlab_orders set state='paid',amount=2000 where id=$1",
+      [order],
+    );
+    await assert.rejects(reserve(crypto.randomUUID()), /Access unavailable/);
+  } finally {
+    await f.pg.close();
+  }
+});
+
+test("complimentary lifetime access is idempotent, private and saves progress without payment or renewal", async () => {
+  const f = await fixture();
+  try {
+    const child = await f.createChild();
+    const catalog = JSON.stringify(
+      catalogue.missions.map((m) => ({ slug: m.slug, version: m.version })),
+    );
+    f.mocks["@/lib/stripe"] = {
+      getStripe: () => {
+        throw new Error("Complimentary access must not call Stripe");
+      },
+    };
+    const grant = (owner = parent) =>
+      f.pg.query("select wonderlab_grant_lifetime_access($1,$2,$3)", [
+        owner,
+        child,
+        catalog,
+      ]);
+    await assert.rejects(grant(other), /Child unavailable/);
+    await grant();
+    await grant();
+    const access = await f.pg.query<{
+      state: string;
+      amount: number;
+      expires_at: unknown;
+      purchased_at: unknown;
+    }>("select state,amount,expires_at,purchased_at from wonderlab_orders");
+    assert.equal(access.rows.length, 24);
+    assert.ok(
+      access.rows.every(
+        (o) =>
+          o.state === "granted" &&
+          o.amount === 0 &&
+          o.expires_at === null &&
+          o.purchased_at === null,
+      ),
+    );
+    assert.equal(
+      (await f.pg.query("select * from wonderlab_memberships")).rows.length,
+      0,
+    );
+    assert.equal(
+      (await f.pg.query("select * from wonderlab_payment_events")).rows.length,
+      0,
+    );
+    const family = await (await f.route("family").GET()).json();
+    assert.equal(family.insights[child].completed, 0);
+    assert.equal(
+      (
+        await f.post("checkout", {
+          childId: child,
+          acceptedTerms: "test-v1",
+          immediateAccess: true,
+          ukResident: true,
+        })
+      ).status,
+      409,
+    );
+    await f.post("session", { action: "play", childId: child });
+    const m = catalogue.getMission("prompt-repair-shop")!;
+    await f.server.requireMission(m.slug);
+    assert.equal(
+      (
+        await f.post("progress", {
+          slug: m.slug,
+          revision: 0,
+          creation: "My fictional draft",
+          checks: [],
+          answers: { [m.activities[0].id]: m.activities[0].correct },
+        })
+      ).status,
+      200,
+    );
+    await f.post("session", { action: "unlock", password: "correct-password" });
+    const saved = await (await f.route("family").GET()).json();
+    assert.equal(saved.insights[child].activitiesChecked, 1);
+    assert.equal(saved.insights[child].creations, 1);
+    f.setUser({ id: other, email: "other@example.test" });
+    await f.server.issueSession("parent", other);
+    assert.deepEqual(
+      (await (await f.route("family").GET()).json()).insights,
+      {},
+    );
+    await f.pg.exec("set role authenticated");
+    await assert.rejects(grant(), /permission denied/);
+    await f.pg.exec("reset role");
+    f.setUser({ id: parent, email: "parent@example.test" });
+    await f.server.issueSession("parent", parent);
+    await f.post("family", { action: "delete-request", childId: child });
+    assert.equal(
+      (await f.post("session", { action: "play", childId: child })).status,
+      404,
+    );
   } finally {
     await f.pg.close();
   }

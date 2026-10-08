@@ -1514,3 +1514,41 @@
     gap: 24px;
   }
 }
+
+.wl-learning-insights { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--wl-line, #d6cce2); }
+.wl-learning-insights h3 { font-size: 1.35rem; margin-bottom: 12px; }
+.wl-learning-counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.wl-learning-counts div { background: #f0e8ff; border-radius: 16px; padding: 14px; }
+.wl-learning-counts dt { font-size: .85rem; }
+.wl-learning-counts dd { margin: 4px 0 0; font-size: 1.8rem; font-weight: 750; }
+.wl-learning-skills { list-style: none; padding: 0; }
+.wl-learning-skills li { border-bottom: 1px solid #d6cce2; padding: 14px 0; }
+.wl-learning-skills strong, .wl-learning-skills span { display: block; }
+.wl-learning-skills span, .wl-learning-skills p { font-size: .9rem; margin-top: 6px; }
+.wl-learning-next { margin: 20px 0; padding: 18px; border-radius: 16px; background: #dff4ea; }
+.wl-learning-next h4 { margin-bottom: 10px; }
+
+.wl-learning-welcome {
+  margin: 18px 0 22px;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #f0e8ff, #e5f5ed);
+  border: 1px solid #d8c9ee;
+}
+.wl-learning-welcome h4 { margin: 0 0 10px; font-size: 1.15rem; line-height: 1.4; }
+.wl-learning-welcome .wl-caption + .wl-caption { margin-top: 12px; }
+.wl-learning-welcome-art { position: relative; width: 200px; height: 154px; margin: 0 auto 12px; }
+.wl-learning-welcome-art .wl-pip.small { position: absolute; width: 100px; height: 120px; left: 50px; bottom: 3px; transform: rotate(-7deg); }
+.wl-welcome-orbit { position: absolute; inset: 13px 5px; border: 2px dashed #b4a0d5; border-radius: 50%; transform: rotate(-20deg); }
+.wl-welcome-spark, .wl-welcome-book, .wl-welcome-idea { position: absolute; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; border: 2px solid var(--ink); box-shadow: 2px 3px 0 #29213c20; }
+.wl-welcome-spark { top: 0; left: 87px; background: #fffaf0; transform: rotate(9deg); }
+.wl-welcome-book { top: 60px; left: 3px; background: #ffe1be; transform: rotate(-12deg); }
+.wl-welcome-idea { top: 53px; right: 1px; background: #cff1df; transform: rotate(12deg); }
+.wl-learning-next .wl-button { width: 100%; margin-top: 18px; justify-content: space-between; }
+.wl-family-welcome { display: grid; grid-template-columns: 200px minmax(0, 1fr); align-items: center; gap: 30px; padding-bottom: 30px; margin-bottom: 30px; border-bottom: 1px solid #d6cce2; }
+.wl-family-welcome h2 { margin: 12px 0; }
+@media (max-width: 600px) {
+  .wl-family-welcome { grid-template-columns: 1fr; gap: 10px; }
+  .wl-learning-welcome { padding: 18px; }
+}
+.wl-learning-insights summary { min-height: 44px; padding: 10px 0; cursor: pointer; }

@@ -8,6 +8,7 @@ import { launchStatus } from "@/lib/wonderlab/flags";
 import { Arcade } from "@/components/wonderlab/arcade";
 import { getArcadeGame } from "@/lib/wonderlab/games";
 import { Player } from "@/components/wonderlab/player";
+import { generationRemaining } from "@/lib/wonderlab/engine";
 export const dynamic = "force-dynamic";
 export const metadata = withSiteShareImages({
   ...wonderlabShare,
@@ -45,7 +46,8 @@ export default async function Page({
         demo={false}
         initial={data ?? undefined}
         aiEnabled={child.ai_enabled && launchStatus().ai}
-        remaining={30 - order.generations_used}
+        remaining={generationRemaining(order)}
+        lifetimeAccess={order.state === "granted"}
         narrationPreferred={child.narration}
       />
     );

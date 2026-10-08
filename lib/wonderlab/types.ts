@@ -73,7 +73,8 @@ export type Order = {
   id: string;
   child_id: string;
   mission_slug: string;
-  state: "pending" | "paid" | "refunded";
+  state: "pending" | "paid" | "refunded" | "granted";
   expires_at: string | null;
   generations_used: number;
+  generation_period_start?: string | null;
 };

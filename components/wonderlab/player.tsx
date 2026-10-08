@@ -28,6 +28,7 @@ export function Player({
   initial,
   aiEnabled = false,
   remaining = 30,
+  lifetimeAccess = false,
   narrationPreferred = false,
 }: {
   mission: Mission;
@@ -35,6 +36,7 @@ export function Player({
   initial?: SavedProgress & { project_checks?: boolean[] };
   aiEnabled?: boolean;
   remaining?: number;
+  lifetimeAccess?: boolean;
   narrationPreferred?: boolean;
 }) {
   const activities = demo ? mission.activities.slice(0, 1) : mission.activities;
@@ -423,7 +425,9 @@ export function Player({
                   ) : (
                     <p className="wl-notice">
                       {allowance <= 0
-                        ? "You have used all the AI drafts included for this course in your current access period."
+                        ? lifetimeAccess
+                          ? "You have used this month’s 30 AI drafts for this course. Your allowance renews on the first day of next month."
+                          : "You have used all the AI drafts included for this course in your current access period."
                         : "Live AI is not enabled for this mission."}{" "}
                       You can still complete your project using the practice
                       instructions below and the examples in this game.
@@ -459,7 +463,13 @@ export function Player({
                   )}
                   <p className="wl-caption">
                     You can create {allowance} more of the 30 AI drafts included
-                    for this course in your current access period.
+                    for this course{" "}
+                    {lifetimeAccess
+                      ? "this calendar month"
+                      : "in your current access period"}
+                    .
+                    {lifetimeAccess &&
+                      " Your allowance renews on the first day of each month at midnight UTC."}
                   </p>
                 </div>
               )}
