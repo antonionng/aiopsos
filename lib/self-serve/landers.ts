@@ -48,6 +48,8 @@ export type ComparisonPage = {
 
 export const CHECKED_DATE = "8 October 2026";
 
+export const EXPERRT_VAT_NOTE = "No VAT to add";
+
 export const ARTICLE4_PAGE = {
   "path": "/learn/eu-ai-act-article-4-training",
   "route_file": "app/learn/eu-ai-act-article-4-training/page.tsx",

@@ -29,7 +29,15 @@ function RichText({ text }: { text: string }) {
   return <>{parts}</>;
 }
 
-function CourseCard({ slug, blurb }: { slug: string; blurb: string }) {
+function CourseCard({
+  slug,
+  blurb,
+  priceNote,
+}: {
+  slug: string;
+  blurb: string;
+  priceNote?: string;
+}) {
   const course = getSelfServeCourseMeta(slug);
   if (!course) return null;
   return (
@@ -38,7 +46,14 @@ function CourseCard({ slug, blurb }: { slug: string; blurb: string }) {
         <Link href={`/learn/${course.slug}`}>{course.title}</Link>
       </h3>
       <p className="ex-lander-course-meta">
-        £{course.priceGbp} · {formatCourseHours(course.hours)} · Certificate included
+        £{course.priceGbp}
+        {priceNote ? (
+          <>
+            {" "}
+            <span className="ex-hint">{priceNote}</span>
+          </>
+        ) : null}{" "}
+        · {formatCourseHours(course.hours)} · Certificate included
       </p>
       <p>{blurb}</p>
       <p>
@@ -113,13 +128,15 @@ export function LanderParagraph({ text }: { text: string }) {
 
 export function LanderCourseList({
   courses,
+  priceNote,
 }: {
   courses: ReadonlyArray<readonly [string, string]>;
+  priceNote?: string;
 }) {
   return (
     <div className="ex-lander-courses">
       {courses.map(([slug, blurb]) => (
-        <CourseCard key={slug} slug={slug} blurb={blurb} />
+        <CourseCard key={slug} slug={slug} blurb={blurb} priceNote={priceNote} />
       ))}
     </div>
   );

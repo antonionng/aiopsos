@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ARTICLE4_PAGE, COMPARISON_PAGES, ROLE_PAGES } from "./landers.ts";
+import { ARTICLE4_PAGE, COMPARISON_PAGES, EXPERRT_VAT_NOTE, ROLE_PAGES } from "./landers.ts";
 import { HR_COMPARE, LITERACY_COMPARE, ROLE_LINKS, otherRoleLinks } from "./role-links.ts";
 import { SEO_OVERRIDES } from "./seo-overrides.ts";
 import { getSelfServeCourseMeta } from "./catalog-meta.ts";
@@ -22,16 +22,27 @@ test("new lander titles stay within 60 characters once Experrt is added", () => 
 });
 
 test("comparison pages show Experrt's final price with no VAT added", () => {
+  assert.equal(EXPERRT_VAT_NOTE, "No VAT to add");
+  assert.ok(!/[\u2013\u2014]/.test(EXPERRT_VAT_NOTE));
   for (const page of COMPARISON_PAGES) {
+    const experrtRows = page.rows.filter((row) => row[1] === "Experrt");
+    assert.ok(experrtRows.length > 0, page.slug);
     for (const row of page.rows) {
       const [course, provider, price] = row;
       if (provider === "Experrt") {
-        assert.doesNotMatch(price, /\+ VAT|plus VAT|including VAT|exc\. VAT/i, `${course} ${price}`);
-        assert.match(price, /£\d+/);
+        assert.match(price, /^£(99|129)$/, `${course} ${price}`);
+        assert.equal(EXPERRT_VAT_NOTE, "No VAT to add", `${page.slug} ${course}`);
+        assert.ok(!/[\u2013\u2014]/.test(`${price} ${EXPERRT_VAT_NOTE}`));
       }
       assert.doesNotMatch(price, /PRE-PUBLISH/);
     }
   }
+  const literacy = COMPARISON_PAGES.find((page) => page.slug === "ai-literacy-courses-uk");
+  const hr = COMPARISON_PAGES.find((page) => page.slug === "ai-courses-for-hr-uk");
+  assert.ok(literacy?.rows.some((row) => row[2] === "£90 + VAT"));
+  assert.ok(literacy?.rows.some((row) => row[2] === "From £750 + VAT"));
+  assert.ok(literacy?.rows.some((row) => row[2] === "From €50 per participant, excl. VAT"));
+  assert.ok(hr?.rows.some((row) => row[2].includes("exc. VAT")));
 });
 
 test("role landers all have inbound link copy and cross-links", () => {
