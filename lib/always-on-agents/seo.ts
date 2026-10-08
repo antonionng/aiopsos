@@ -1,4 +1,5 @@
 import { agentMarketingCourses } from "./marketing.ts";
+import { AGENT_SEO } from "./seo-overrides.ts";
 
 export const AGENT_SHARE_VERSION = "agents-20261002";
 export const AGENT_CATALOGUE_DESCRIPTION = "Learn to work with OpenAI Dots, Grok Bot, Claude Cowork and other AI agents. Explore 13 practical courses at £99 each, with AI assessment and a certificate when you pass.";
@@ -10,14 +11,16 @@ export function agentShareImage(slug: string, base: string) {
 }
 
 export function agentCourseMetadata(course: MarketingCourse, base: string) {
-  const title = `${course.title} | Experrt Academy`;
+  const override = AGENT_SEO[course.slug];
+  const title = override?.title ?? `${course.title} | Experrt Academy`;
+  const description = override?.description ?? course.summary;
   const image = agentShareImage(course.slug, base);
   return {
     title: { absolute: title },
-    description: course.summary,
+    description,
     alternates: { canonical: `${base}${course.href}` },
-    openGraph: { type: "website" as const, title, description: course.summary, url: `${base}${course.href}`, siteName: "Experrt", locale: "en_GB", images: [image] },
-    twitter: { card: "summary_large_image" as const, title, description: course.summary, images: [image.url] },
+    openGraph: { type: "website" as const, title, description, url: `${base}${course.href}`, siteName: "Experrt", locale: "en_GB", images: [image] },
+    twitter: { card: "summary_large_image" as const, title, description, images: [image.url] },
   };
 }
 

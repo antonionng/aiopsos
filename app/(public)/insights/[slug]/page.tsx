@@ -7,8 +7,11 @@ import {
   getInsightBySlug,
   getPublishedInsights,
   insightReadingMinutes,
+  injectAfterFirstSection,
+  insightSelfServeSentence,
   relatedCoursesFor,
   relatedInsights,
+  relatedSelfServeFor,
 } from "@/lib/insights/catalog";
 import { formatInsightDate } from "@/lib/insights/format";
 import { insightArticleMetadata } from "@/lib/public-share-metadata";
@@ -52,6 +55,11 @@ export default async function InsightArticlePage({
   if (!article) notFound();
 
   const courses = relatedCoursesFor(article);
+  const selfServe = relatedSelfServeFor(article);
+  const selfServeSentence = insightSelfServeSentence(article);
+  const articleBody = selfServeSentence
+    ? injectAfterFirstSection(article.body, selfServeSentence)
+    : article.body;
   const alsoRead = relatedInsights(article);
   const { older, newer } = adjacentInsights(article.slug);
   const url = `${SITE_URL}/insights/${article.slug}`;
@@ -99,7 +107,7 @@ export default async function InsightArticlePage({
         <h2 className="mb-4 text-sm font-semibold">In this guide</h2>
         <ol className="grid gap-3 text-sm sm:grid-cols-2">{sections.map(section => <li key={section.id}><a href={`#${section.id}`} className="text-muted-foreground underline-offset-4 hover:text-brand hover:underline">{section.title}</a></li>)}</ol>
       </nav>
-      <InsightArticleBody markdown={article.body.replaceAll("](/contact)", `](${contactHref})`)} />
+      <InsightArticleBody markdown={articleBody.replaceAll("](/contact)", `](${contactHref})`)} />
 
       <aside className="mt-10 max-w-[68ch] rounded-3xl bg-[#201C29] p-7 text-[#FFFEFA]">
         <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#E4F477]">Your next useful move</p>
@@ -175,6 +183,30 @@ export default async function InsightArticlePage({
             ))}
           </ul>
         </section>
+      )}
+
+      {selfServe.length > 0 && (
+        <aside className="mt-10 max-w-[68ch] rounded-2xl border border-border bg-card p-6">
+          <h2 className="mb-3 text-sm font-semibold">Start today, self-paced</h2>
+          <ul className="space-y-3">
+            {selfServe.map((course) => (
+              <li key={course.slug}>
+                <Link
+                  href={`/learn/${course.slug}`}
+                  className="group inline-flex flex-col text-sm font-medium text-foreground hover:text-brand"
+                >
+                  <span>
+                    Take the £{course.priceGbp} course: {course.title}
+                    <ArrowRight className="ml-1.5 inline h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                  <span className="mt-1 text-xs font-normal text-muted-foreground">
+                    {course.hours} hours · Certificate included
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </aside>
       )}
 
       {courses.length > 0 && (

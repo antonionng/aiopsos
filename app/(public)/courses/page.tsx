@@ -20,7 +20,7 @@ import {
 } from "@/lib/constants";
 import { coursesIndexMetadata } from "@/lib/public-share-metadata";
 import { isSelfServeEnabled } from "@/lib/self-serve/flag";
-import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog";
+import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog-meta";
 import { SelfServeAcademyCatalogue } from "@/components/learn/self-serve-marketing";
 import { AcademyFormats } from "@/components/courses/academy-formats";
 import { AcademyIntroduction } from "@/components/courses/course-introduction";

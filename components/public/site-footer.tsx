@@ -19,7 +19,10 @@ const COLUMNS = [
   {
     heading: "Learn",
     links: [
+      { href: "/learn", label: "Online courses from £99" },
+      { href: "/learn/eu-ai-act-article-4-training", label: "EU AI Act Article 4 training" },
       { href: "/courses", label: "Courses" },
+      { href: "/learning-agent", label: "Try the agent" },
       { href: "/use-cases", label: "Use cases" },
       { href: "/insights", label: "Insights" },
     ],

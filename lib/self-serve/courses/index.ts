@@ -1,3 +1,4 @@
+import "server-only";
 import type { CourseContent } from "./types.ts";
 import { COURSE as aiAdoptionForLineManagers } from "./ai-adoption-for-line-managers.ts";
 import { COURSE as aiAssistedAnalysisAndReporting } from "./ai-assisted-analysis-and-reporting.ts";

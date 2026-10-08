@@ -12,9 +12,20 @@ export function isAuthPath(pathname: string): boolean {
   );
 }
 
+/** Prefixes that genuinely need a session. Anything else that is not public falls through to Next, which 404s unknown paths. */
+export function isPrivatePath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/shared") ||
+    pathname.startsWith("/api/")
+  );
+}
+
 export function isPublicPath(pathname: string): boolean {
   return (
     pathname === "/" ||
+    pathname === "/_vercel" ||
+    pathname.startsWith("/_vercel/") ||
     pathname === "/wonderlab" ||
     pathname.startsWith("/wonderlab/") ||
     pathname.startsWith("/api/wonderlab/") ||

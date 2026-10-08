@@ -1,18 +1,18 @@
 import Link from "next/link";
-import { coursesByTrack, SELF_SERVE_TRACKS, trackLabel } from "@/lib/self-serve/catalog";
-import type { SelfServeCourse, SelfServeTrack } from "@/lib/self-serve/types";
+import { coursesByTrackMeta, SELF_SERVE_TRACKS, trackLabel, type SelfServeCourseMeta } from "@/lib/self-serve/catalog-meta";
+import type { SelfServeTrack } from "@/lib/self-serve/types";
 import "./course-cards.css";
 
-export function previewCourses(track: SelfServeTrack | "all"): SelfServeCourse[] {
+export function previewCourses(track: SelfServeTrack | "all"): SelfServeCourseMeta[] {
   if (track === "all") {
-    return SELF_SERVE_TRACKS.map((item) => coursesByTrack(item)[0]).filter(
-      (course): course is SelfServeCourse => Boolean(course),
+    return SELF_SERVE_TRACKS.map((item) => coursesByTrackMeta(item)[0]).filter(
+      (course): course is SelfServeCourseMeta => Boolean(course),
     );
   }
-  return coursesByTrack(track).slice(0, 4);
+  return coursesByTrackMeta(track).slice(0, 4);
 }
 
-export function SelfServeCourseCards({ courses }: { courses: SelfServeCourse[] }) {
+export function SelfServeCourseCards({ courses }: { courses: SelfServeCourseMeta[] }) {
   return (
     <ul className="ss-cards">
       {courses.map((course) => (

@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isAuthPath, isPublicPath } from "@/lib/public-routes";
+import { isAuthPath, isPrivatePath, isPublicPath } from "@/lib/public-routes";
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -18,8 +18,11 @@ export async function updateSession(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    if (isAuthPage) {
+    if (isAuthPage || !isPrivatePath(pathname)) {
       return NextResponse.next({ request });
+    }
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "unauthorised" }, { status: 401 });
     }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -49,7 +52,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && !isAuthPage) {
+  if (!user && !isAuthPage && isPrivatePath(pathname)) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "unauthorised" }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

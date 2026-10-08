@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { agentMarketingCourses } from "../always-on-agents/marketing.ts";
 import { agentCourseMetadata, agentCourseGraph, agentCourseFaqs, agentCatalogueGraph, agentShareImage } from "../always-on-agents/seo.ts";
+import { AGENT_SEO } from "../always-on-agents/seo-overrides.ts";
 import { buildPublicSitemap } from "../public-sitemap.ts";
 import { llmsTxt, llmsFullTxt } from "../llms.ts";
 import robots from "../../app/robots.ts";
@@ -14,7 +15,10 @@ test("every agent course has a unique canonical social image and public discover
   const images = new Set<string>();
   for (const course of agentMarketingCourses) {
     const metadata = agentCourseMetadata(course, base);
-    assert.equal(metadata.title.absolute, `${course.title} | Experrt Academy`);
+    assert.equal(
+      metadata.title.absolute,
+      AGENT_SEO[course.slug]?.title ?? `${course.title} | Experrt Academy`,
+    );
     assert.equal(metadata.alternates.canonical, `${base}${course.href}`);
     assert.equal(metadata.openGraph.url, metadata.alternates.canonical);
     assert.equal(metadata.twitter.card, "summary_large_image");

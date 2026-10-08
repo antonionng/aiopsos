@@ -13,12 +13,16 @@ import {
 import { llmsFullTxt, llmsTxt } from "../llms.ts";
 import { buildPublicSitemap } from "../public-sitemap.ts";
 
-test("every course has a search title and a description made of whole sentences", () => {
+test("every course has a priced search title and a description made of whole sentences", () => {
   for (const course of SELF_SERVE_COURSES) {
-    assert.ok(courseMetaTitle(course).startsWith(course.title));
+    const title = courseMetaTitle(course);
     const description = courseMetaDescription(course);
+    assert.ok(`${title} | Experrt`.length <= 60, course.slug);
+    assert.ok(title.includes(`£${course.priceGbp}`), course.slug);
+    assert.ok(description.length <= 155, course.slug);
+    assert.ok(description.includes(`£${course.priceGbp}`), course.slug);
     assert.match(description, /\.$/, course.slug);
-    assert.ok(description.startsWith(course.promise.split(".")[0]), course.slug);
+    assert.doesNotMatch(title + description, /[\u2014\u2013]/);
   }
 });
 

@@ -2646,3 +2646,93 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+.ex-learn .ex-lander {
+  padding: 48px 0 80px;
+}
+.ex-learn .ex-lander h1 {
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin: 12px 0 18px;
+}
+.ex-learn .ex-lander h2 {
+  font-size: 1.35rem;
+  margin: 36px 0 12px;
+}
+.ex-learn .ex-lander p,
+.ex-learn .ex-lander li,
+.ex-learn .ex-lander dd {
+  max-width: 68ch;
+}
+.ex-learn .ex-lander p + p {
+  margin-top: 14px;
+}
+.ex-learn .ex-lander-stamp {
+  color: var(--ex-mute);
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+.ex-learn .ex-lander-courses {
+  display: grid;
+  gap: 16px;
+  margin: 18px 0 8px;
+}
+.ex-learn .ex-lander-course {
+  border: 1px solid var(--ex-line);
+  border-radius: 16px;
+  padding: 18px 20px;
+  background: #fff;
+}
+.ex-learn .ex-lander-course h3 {
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+}
+.ex-learn .ex-lander-course a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ex-learn .ex-lander-course-meta {
+  color: var(--ex-mute);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.ex-learn .ex-lander-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+  align-items: center;
+  margin: 28px 0;
+}
+.ex-learn .ex-lander-faq {
+  display: grid;
+  gap: 16px;
+}
+.ex-learn .ex-lander-faq dt {
+  font-weight: 650;
+}
+.ex-learn .ex-lander-faq dd {
+  margin: 6px 0 0;
+}
+.ex-learn .ex-lander-table-wrap {
+  overflow-x: auto;
+  margin: 20px 0;
+}
+.ex-learn .ex-lander-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.ex-learn .ex-lander-table th,
+.ex-learn .ex-lander-table td {
+  border-bottom: 1px solid var(--ex-line);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.ex-learn .ex-lander-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ex-mute);
+}

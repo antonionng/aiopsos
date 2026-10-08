@@ -2,6 +2,7 @@ import { SELF_SERVE_COURSES, coursesByTrack, trackLabel } from "./catalog.ts";
 import { courseArtefact } from "./engine.ts";
 import { formatCourseHours } from "./landing.ts";
 import { COURSE_SALES } from "./sales-copy.ts";
+import { SEO_OVERRIDES } from "./seo-overrides.ts";
 import { getPublicSiteUrl } from "../site.ts";
 import type { ReviewSummary } from "./reviews.ts";
 import type { SelfServeCourse, SelfServeTrack } from "./types.ts";
@@ -44,7 +45,7 @@ export const TOPIC_HUBS: TopicHub[] = [
       {
         question: "Do these courses help with the EU AI Act literacy duty?",
         answer:
-          "Article 4 of the EU AI Act has required providers and deployers of AI systems to take measures to ensure a sufficient level of AI literacy among their staff since 2 February 2025. Our courses provide documented, assessed training that can form part of those measures. The signed record states what was completed and does not claim compliance with any regulation.",
+          "Article 4 of the EU AI Act has required providers and deployers of AI systems to take measures to support the development of AI literacy among their staff since 2 February 2025. After the Digital Omnibus on AI in July 2026, the law does not require any specific level of AI literacy for any individual. Our courses provide documented, assessed training that can form part of those measures. The signed record states what was completed and does not claim compliance with any regulation.",
       },
     ],
   },
@@ -168,18 +169,32 @@ function assessmentOf(course: SelfServeCourse) {
   };
 }
 
+const TITLE_MAX = 50;
+const META_MAX = 155;
+
+function trimToWord(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max + 1);
+  const space = cut.lastIndexOf(" ");
+  return `${cut.slice(0, space > 0 ? space : max).replace(/[,;:]$/, "")}.`;
+}
+
 export function courseMetaTitle(course: SelfServeCourse): string {
-  return `${course.title}: Online Course with Certificate`;
+  const override = SEO_OVERRIDES[course.slug]?.title;
+  if (override) return override;
+  const price = `, £${course.priceGbp}`;
+  const full = `${course.title} Course${price}`;
+  if (full.length <= TITLE_MAX) return full;
+  const short = `${course.title}${price}`;
+  if (short.length <= TITLE_MAX) return short;
+  return `${trimToWord(course.title, TITLE_MAX - price.length - 1).replace(/\.$/, "")}${price}`;
 }
 
 export function courseMetaDescription(course: SelfServeCourse): string {
-  const lead = sentences(course.promise)[0];
-  const tails = [
-    ` Self-paced, ${formatCourseHours(course.hours)}, £${course.priceGbp}, with a verifiable certificate.`,
-    ` Online, ${formatCourseHours(course.hours)}, £${course.priceGbp}, with certificate.`,
-    ` £${course.priceGbp}, with certificate.`,
-  ];
-  const tail = tails.find((candidate) => lead.length + candidate.length <= 160) ?? "";
+  const override = SEO_OVERRIDES[course.slug]?.description;
+  if (override) return override;
+  const tail = ` Online, ${formatCourseHours(course.hours)}, £${course.priceGbp}, certificate included.`;
+  const lead = trimToWord(sentences(course.promise)[0], META_MAX - tail.length);
   return `${lead}${tail}`;
 }
 

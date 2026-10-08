@@ -17,7 +17,7 @@ import {
   firstOpenIndex,
   progressStorageKey,
 } from "@/lib/self-serve/engine";
-import { trackLabel } from "@/lib/self-serve/catalog";
+import { trackLabel } from "@/lib/self-serve/catalog-meta";
 import type {
   BuildAnswer,
   CheckMaterial,

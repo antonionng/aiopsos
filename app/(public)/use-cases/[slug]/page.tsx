@@ -11,6 +11,8 @@ import {
 } from "@/lib/use-cases";
 import type { Course } from "@/lib/types";
 import { useCasePageMetadata } from "@/lib/public-share-metadata";
+import { SelfServeCtaLine } from "@/components/learn/self-serve-cta";
+import { USE_CASE_SELF_SERVE } from "@/lib/self-serve/cross-links";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +85,9 @@ export default async function UseCasePage({
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
           {entry.intro}
         </p>
+        {USE_CASE_SELF_SERVE[entry.slug] ? (
+          <SelfServeCtaLine cta={USE_CASE_SELF_SERVE[entry.slug]} />
+        ) : null}
       </header>
 
       <section className="mb-14 space-y-6">

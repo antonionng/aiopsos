@@ -5,13 +5,13 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
 import { previewCourses, SelfServeCourseCards } from "@/components/learn/course-cards";
-import { getSelfServeCourse, SELF_SERVE_TRACKS, trackLabel } from "@/lib/self-serve/catalog";
+import { getSelfServeCourseMeta, SELF_SERVE_TRACKS, trackLabel } from "@/lib/self-serve/catalog-meta";
 import type { SelfServeTrack } from "@/lib/self-serve/types";
 
 const OPEN_SLUG = "prompt-engineering-for-professional-work";
 
 export function SelfServeHomePitch() {
-  const course = getSelfServeCourse(OPEN_SLUG);
+  const course = getSelfServeCourseMeta(OPEN_SLUG);
   const price = course?.priceGbp ?? 99;
   const [track, setTrack] = useState<SelfServeTrack | "all">("all");
   const courses = previewCourses(track);
@@ -47,7 +47,7 @@ export function SelfServeHomePitch() {
               <b>£{price}</b>
               <span>Includes your Experrt certificate. Access begins as soon as payment is confirmed and lasts 12 months.</span>
             </p>
-            <BuyCourseButton slug={OPEN_SLUG} label={`Buy this course for £${price}`} />
+            <BuyCourseButton slug={OPEN_SLUG} label={`Buy this course for £${price}`} priceGbp={price} placement="home_card" />
           </div>
         </article>
 
@@ -144,7 +144,9 @@ export function SelfServeAcademyCatalogue({
           </div>
           <BuyCourseButton
             slug={OPEN_SLUG}
-            label={`Buy this course for £${getSelfServeCourse(OPEN_SLUG)?.priceGbp ?? 99}`}
+            label={`Buy this course for £${getSelfServeCourseMeta(OPEN_SLUG)?.priceGbp ?? 99}`}
+            priceGbp={getSelfServeCourseMeta(OPEN_SLUG)?.priceGbp ?? 99}
+            placement="academy_catalogue"
             className="academy-button"
           />
         </article>

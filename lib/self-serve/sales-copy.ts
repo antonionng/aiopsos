@@ -389,7 +389,7 @@ export const COURSE_SALES: Record<string, CourseSalesCopy> = {
   },
   "ai-literacy-under-the-eu-ai-act": {
     "overview": [
-      "Article 4 of the EU AI Act, Regulation (EU) 2024/1689, places a duty on providers and deployers of AI systems to take measures towards a sufficient level of AI literacy among their staff and others who use AI systems on their behalf, and most employers whose staff use AI tools at work are deployers. Much of what managers hear about the provision comes from vendors and hurried announcements claiming that a certificate, a set number of hours, or one course is required, none of which the text says.",
+      "Article 4 of the EU AI Act, Regulation (EU) 2024/1689, places a duty on providers and deployers of AI systems to take measures to support the development of AI literacy among their staff and others who use AI systems on their behalf, and most employers whose staff use AI tools at work are deployers. After the Digital Omnibus on AI in July 2026, the law does not require any specific level of AI literacy for any individual. Much of what managers hear about the provision comes from vendors and hurried announcements claiming that a certificate, a set number of hours, or one course is required, none of which the text says.",
       "The course reads Article 4 and the Act's definition of AI literacy in plain terms, explains what they do not give you, and shows how to write a literacy measure for each role and an honest internal record of what was done. You finish with a signed one-page AI literacy plan for your area, including a plain statement that the plan is not a claim of compliance; the course is not legal advice, and neither the course nor its record makes anyone compliant."
     ],
     "audience": [
@@ -421,7 +421,7 @@ export const COURSE_SALES: Record<string, CourseSalesCopy> = {
     ],
     "lessons": {
       "what-article-4-asks": "This lesson reads Article 4 in general terms, explains who counts as a provider or a deployer, and shows that the duty is reasonable, targeted effort rather than a pass or fail test. You mark each sentence of a colleague's summary as in Article 4 or not in Article 4.",
-      "what-ai-literacy-means": "This lesson reads the Act's definition of AI literacy and separates it into skills, knowledge, and understanding, explaining why the sufficient level differs by role. You choose which of two descriptions of literacy for a payroll team follows the definition and fits the role.",
+      "what-ai-literacy-means": "This lesson reads the Act's definition of AI literacy and separates it into skills, knowledge, and understanding, explaining why the right measures differ by role. You choose which of two descriptions of literacy for a payroll team follows the definition and fits the role.",
       "what-it-does-not-give-you": "This lesson sets out what the Act does not require, including certificates, approved courses, and set hours, and explains that Article 4 is one provision among many. You mark each sentence of an internal briefing as supported by the Act or a claim the Act does not support.",
       "a-measure-for-your-role": "This lesson explains what a literacy measure is and the six parts it needs, with particular attention to writing an ability someone could actually watch. You edit a finance team measure so that it names the systems, the context, the people affected, the ability, and the evidence.",
       "what-a-record-contains": "This lesson explains what an internal record of literacy measures is for and the five things each entry should contain, including evidence beyond attendance. You mark each line of a draft record as recording what was done or claiming more than was done.",
@@ -1313,7 +1313,7 @@ export const COURSE_SALES: Record<string, CourseSalesCopy> = {
   },
   "eu-ai-act-literacy-for-hr-and-l-and-d": {
     "overview": [
-      "Article 4 of the EU AI Act asks organisations that provide or use AI systems to take measures to ensure a sufficient level of AI literacy among the people who deal with those systems on their behalf. HR and learning teams are often the first to be asked what the organisation is doing about it, and they are frequently working from a vendor's summary that claims far more than the text of the Article says.",
+      "Article 4 of the EU AI Act asks organisations that provide or use AI systems to take measures to support the development of AI literacy among the people who deal with those systems on their behalf. After the Digital Omnibus on AI in July 2026, the law does not require any specific level of AI literacy for any individual. HR and learning teams are often the first to be asked what the organisation is doing about it, and they are frequently working from a vendor's summary that claims far more than the text of the Article says.",
       "This course teaches you to read what Article 4 actually asks, to plan literacy measures that fit each role, system, and group of people affected, and to keep a record of what was done without claiming a legal status. You finish with a role map, a record outline, and a statement of what that evidence does not claim, written for your own organisation."
     ],
     "audience": [

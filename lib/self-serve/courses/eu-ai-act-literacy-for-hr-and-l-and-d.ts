@@ -50,7 +50,7 @@ const READY = "Ready for the record";
 const ANOTHER_LOOK = "Needs another look";
 
 const ARTICLE_OUTLINE =
-  "Article 4 places a duty on providers and deployers of AI systems to take measures to ensure a sufficient level of AI literacy among their staff and other persons dealing with the operation and use of AI systems on their behalf. The measures should take into account those people's technical knowledge, experience, education, and training, the context in which the AI systems are used, and the persons or groups of persons on whom the systems are used. Article 3 describes AI literacy as the skills, knowledge, and understanding that allow people to make an informed deployment of AI systems and to be aware of their opportunities, their risks, and the harm they can cause.";
+  "Article 4 places a duty on providers and deployers of AI systems to take measures to support the development of AI literacy among their staff and other persons dealing with the operation and use of AI systems on their behalf. The measures should take into account those people's technical knowledge, experience, education, and training, the context in which the AI systems are used, and the persons or groups of persons on whom the systems are used. Article 3 describes AI literacy as the skills, knowledge, and understanding that allow people to make an informed deployment of AI systems and to be aware of their opportunities, their risks, and the harm they can cause.";
 
 export const COURSE: CourseContent = {
   slug: "eu-ai-act-literacy-for-hr-and-l-and-d",
@@ -72,7 +72,7 @@ export const COURSE: CourseContent = {
         {
           heading: "What the Article says",
           paragraphs: [
-            "Article 4 of the EU AI Act, Regulation (EU) 2024/1689, is short. In general terms, it places a duty on providers and deployers of AI systems to take measures to ensure a sufficient level of AI literacy among the people who work with those systems for them. A provider is the organisation that develops a system and places it on the market. A deployer is the organisation that uses a system under its own authority, which is where most employers who buy an applicant tracking system or a writing assistant will sit.",
+            "Article 4 of the EU AI Act, Regulation (EU) 2024/1689, is short. In general terms, it places a duty on providers and deployers of AI systems to take measures to support the development of AI literacy among the people who work with those systems for them. A provider is the organisation that develops a system and places it on the market. A deployer is the organisation that uses a system under its own authority, which is where most employers who buy an applicant tracking system or a writing assistant will sit.",
             "The duty covers staff, and it also covers other persons dealing with the operation and use of AI systems on the organisation's behalf. That can include contractors, agency workers, and consultants who use a system as part of work they do for you. It does not, on its face, reach every employee regardless of their work. It reaches the people who operate or use AI systems for the organisation.",
             "The Article says the measures should take into account the people's technical knowledge, experience, education, and training, the context in which the systems are used, and the persons or groups of persons on whom the systems are used. Article 3 describes AI literacy as the skills, knowledge, and understanding that allow people to make an informed deployment of AI systems and to be aware of their opportunities, their risks, and the harm they can cause.",
           ],
@@ -107,7 +107,7 @@ export const COURSE: CourseContent = {
         prompt:
           "Under Article 4, every employee must complete a certified AI literacy course. Our two-hour module makes your organisation fully compliant. The Act requires annual testing with a pass mark.",
         output:
-          "I have read this against Article 4. None of the three sentences is in the text. The Article asks us to take measures to ensure a sufficient level of AI literacy for the people who use AI systems on our behalf, taking their background and the context into account. It does not mention certification, testing, or a pass mark, and no module can make us compliant. I suggest we map which roles use which systems before we buy anything.",
+          "I have read this against Article 4. None of the three sentences is in the text. The Article asks us to take measures to support the development of AI literacy for the people who use AI systems on our behalf, taking their background and the context into account. It does not mention certification, testing, or a pass mark, and no module can make us compliant. I suggest we map which roles use which systems before we buy anything.",
         reading: [
           "The first sentence is Not in the text. Article 4 does not require a certified course, and it covers the people who deal with AI systems on the organisation's behalf, not every employee regardless of their work.",
           "The second sentence is Not in the text. No training module makes an organisation compliant, and the Article describes a duty to take measures that fit the context, which no off-the-shelf module can settle on its own.",
@@ -157,7 +157,7 @@ export const COURSE: CourseContent = {
             id: "exam",
             text: "Every employee must pass an AI literacy exam.",
             fail: true,
-            why: "The Article speaks of measures and a sufficient level of literacy, and it never mentions an exam or a pass, so this is not in the text.",
+            why: "The Article speaks of measures to support the development of AI literacy, and it never mentions an exam or a pass, so this is not in the text.",
           },
           {
             id: "context",
@@ -199,7 +199,7 @@ export const COURSE: CourseContent = {
         {
           heading: "One level does not fit every role",
           paragraphs: [
-            "The Article does not define one level of AI literacy for everyone. It asks the organisation to weigh three things for each group of people: what they already know from their technical knowledge, experience, education, and training; the context in which they use the AI system; and the people on whom the system is used. A sufficient level for one role can be far more than is needed for another.",
+            "The Article does not define one level of AI literacy for everyone, and it does not require any specific level for any individual. It asks the organisation to weigh three things for each group of people: what they already know from their technical knowledge, experience, education, and training; the context in which they use the AI system; and the people on whom the system is used. The right measures for one role can be far more than are needed for another.",
             "This is not a loophole. It is the reason a single awareness course for the whole organisation rarely does the job on its own. A recruiter who reviews a ranked shortlist and a designer who drafts a course outline both use AI, but what can go wrong, and who pays for it, is quite different.",
           ],
         },
@@ -694,7 +694,7 @@ export const COURSE: CourseContent = {
         {
           heading: "Reading the Article and weighing the context",
           paragraphs: [
-            "Article 4 places a duty on providers and deployers of AI systems to take measures to ensure a sufficient level of AI literacy among their staff and other persons dealing with those systems on their behalf. The measures should take into account the people's knowledge, experience, education, and training, the context of use, and the people on whom the systems are used. A claim is In the text when those words support it, and Not in the text when it adds an exam, a certificate, a number of hours, or a promise of compliance.",
+            "Article 4 places a duty on providers and deployers of AI systems to take measures to support the development of AI literacy among their staff and other persons dealing with those systems on their behalf. The measures should take into account the people's knowledge, experience, education, and training, the context of use, and the people on whom the systems are used. A claim is In the text when those words support it, and Not in the text when it adds an exam, a certificate, a number of hours, or a promise of compliance.",
             "The context sets the level. Ask what the system is used for, who is affected by its output, and what the person already knows. In HR the heaviest measures belong where the output is used on applicants and employees, because the Act treats many employment uses as high-risk. A sufficient measure names the system, what it does, where it fails, what the person must do when they disagree with it, and how they record what they did.",
           ],
         },
@@ -780,7 +780,7 @@ export const COURSE: CourseContent = {
                 id: "d",
                 text: "Decline the proposal and tell the HR director that Article 4 does not require any training at all.",
                 feedback:
-                  "The Article does require measures to ensure a sufficient level of AI literacy. Saying nothing is needed is as inaccurate as the supplier's claim. The better reply corrects the claims and proposes the role map.",
+                  "The Article does require measures to support the development of AI literacy. Saying nothing is needed is as inaccurate as the supplier's claim. The better reply corrects the claims and proposes the role map.",
               },
             ],
           },

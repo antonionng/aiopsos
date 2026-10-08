@@ -20,6 +20,8 @@ import {
   type CourseLevel,
 } from "@/lib/constants";
 import { courseSectorMetadata } from "@/lib/public-share-metadata";
+import { SelfServeCtaLine } from "@/components/learn/self-serve-cta";
+import { SECTOR_SELF_SERVE } from "@/lib/self-serve/cross-links";
 
 export const dynamic = "force-dynamic";
 
@@ -98,6 +100,7 @@ export default async function SectorCoursesPage({
           {entry.intro}
         </p>
         <div className="academy-actions"><Link href="/courses#enquire" className="academy-button">Plan your team’s learning <ArrowRight size={18} /></Link></div>
+        {SECTOR_SELF_SERVE[slug] ? <SelfServeCtaLine cta={SECTOR_SELF_SERVE[slug]} /> : null}
       </header>
 
       <CatalogueFilters

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CourseCatalog } from "@/components/learn/course-catalog";
 import { LearnMarket } from "@/components/learn/learn-shell";
-import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog";
+import { SELF_SERVE_TRACKS } from "@/lib/self-serve/catalog-meta";
 import { redirect } from "next/navigation";
 import { StructuredData } from "@/components/structured-data";
 import { allSelfServeCourses, courseListLd, hubForTrack } from "@/lib/self-serve/seo";

@@ -18,6 +18,8 @@ import {
   type CourseCategory,
 } from "@/lib/constants";
 import { coursePageMetadata } from "@/lib/public-share-metadata";
+import { SelfServeCtaLine } from "@/components/learn/self-serve-cta";
+import { TRAINER_LED_SELF_SERVE } from "@/lib/self-serve/cross-links";
 
 const CATEGORY_BADGE: Record<CourseCategory, string> = {
   hr: "bg-cat-hr-soft text-cat-hr",
@@ -104,6 +106,9 @@ export default async function CoursePage({
           <a href="#request" className="academy-button">Enquire about this course <ArrowRight size={18} /></a>
           <a href="#course-outline" className="academy-text-link">Explore what you’ll learn <ArrowRight size={18} /></a>
         </div>
+        {TRAINER_LED_SELF_SERVE[course.slug] ? (
+          <SelfServeCtaLine cta={TRAINER_LED_SELF_SERVE[course.slug]} />
+        ) : null}
 
         {/*
           Sectors sit under the summary rather than in the badge row above.

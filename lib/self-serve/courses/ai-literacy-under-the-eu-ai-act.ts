@@ -83,7 +83,7 @@ export const COURSE: CourseContent = {
         {
           heading: "The duty in plain words",
           paragraphs: [
-            "The EU AI Act is Regulation (EU) 2024/1689. Article 4 is the provision on AI literacy. In general terms, it places a duty on providers and deployers of AI systems to take measures to ensure a sufficient level of AI literacy among their staff and among other people who operate or use AI systems on their behalf. That is the whole of the core duty, and it is worth reading slowly, because each part of it does work.",
+            "The EU AI Act is Regulation (EU) 2024/1689. Article 4 is the provision on AI literacy. In general terms, it places a duty on providers and deployers of AI systems to take measures to support the development of AI literacy among their staff and among other people who operate or use AI systems on their behalf. That is the whole of the core duty, and it is worth reading slowly, because each part of it does work.",
             "The provision also says what those measures should take into account. It refers to the people's technical knowledge, their experience, their education and training, the context in which the AI systems are used, and the people or groups on whom the systems are used. In other words, the measures are meant to fit the person, the job, and the people affected, rather than being the same for everyone.",
             "The Commission has published proposals to amend the Act, and those proposals include changes to Article 4. This course therefore describes the provision in general terms and does not tell you what any amendment will do. Before you rely on the wording in a document of your own, read the current consolidated text on EUR-Lex and the Commission's AI literacy pages, and ask your legal or compliance advisers where you have them.",
           ],
@@ -105,14 +105,14 @@ export const COURSE: CourseContent = {
         {
           heading: "What kind of duty it is",
           paragraphs: [
-            "The duty is to take measures towards a sufficient level of literacy. It is a standard of reasonable, targeted effort, and it is not a fixed test that a person passes or fails. Article 4 does not name a course, a provider, a number of hours, an exam, or a certificate. It leaves the organisation to decide what measures fit its people and its systems, and to be able to explain that decision.",
+            "The duty is to take measures to support the development of AI literacy. It is a standard of reasonable, targeted effort, and it is not a fixed test that a person passes or fails. The law does not require any specific level of AI literacy for any individual. Article 4 does not name a course, a provider, a number of hours, an exam, or a certificate. It leaves the organisation to decide what measures fit its people and its systems, and to be able to explain that decision.",
             "This matters at work because most of what you will hear about Article 4 comes from people who want you to buy something or approve something. A summary that says every employee must pass an approved exam sounds official and is easy to act on, but it is not what the provision says. If you act on the summary rather than the text, you may spend the budget on the wrong measure and still have nothing to show for the roles that matter most.",
           ],
         },
         {
           heading: "Two labels for any summary",
           paragraphs: [
-            "In this lesson you will test summaries of the provision with two labels. A statement is In Article 4 when the provision itself contains it, even in different words: for example, that deployers must take measures towards a sufficient level of AI literacy, or that the measures should take account of experience and context. A statement is Not in Article 4 when it goes beyond the text, for example by requiring an exam, naming an approved course, setting a number of hours, or saying that a course makes an organisation compliant.",
+            "In this lesson you will test summaries of the provision with two labels. A statement is In Article 4 when the provision itself contains it, even in different words: for example, that deployers must take measures to support the development of AI literacy, or that the measures should take account of experience and context. A statement is Not in Article 4 when it goes beyond the text, for example by requiring an exam, naming an approved course, setting a number of hours, or saying that a course makes an organisation compliant.",
             "The usual mistake is to give a statement the first label because it sounds reasonable. Plenty of reasonable ideas are Not in Article 4. Training everyone for a full day may even be a good measure in some organisations, but the provision does not require it, and a summary that says it does has added something. The test is always whether the text says it, and not whether it sounds sensible.",
           ],
         },
@@ -124,7 +124,7 @@ export const COURSE: CourseContent = {
         prompt:
           "Dear Ms Varga, the EU AI Act requires all staff to complete certified AI training by law. Our eight-hour course is fully accredited and makes your organisation compliant with Article 4. We can book your 140 staff onto the next intake.",
         output:
-          "Article 4 asks providers and deployers to take measures to ensure a sufficient level of AI literacy among staff and others using AI systems on our behalf, taking account of their knowledge, experience, training, the context, and the people affected. It does not require certification, it sets no number of hours, and it does not say that any course makes an organisation compliant. Next step: list which roles use which systems before deciding whether this course is a suitable measure for any of them.",
+          "Article 4 asks providers and deployers to take measures to support the development of AI literacy among staff and others using AI systems on our behalf, taking account of their knowledge, experience, training, the context, and the people affected. It does not require certification, it sets no number of hours, and it does not say that any course makes an organisation compliant. Next step: list which roles use which systems before deciding whether this course is a suitable measure for any of them.",
         reading: [
           "Eszter Varga is a regional operations manager at Halden Distribution. The email makes three claims that are Not in Article 4: that training must be certified, that all staff need the same course, and that a course confers compliance.",
           "Her note restates what the provision does contain, in her own words, which is the duty to take measures and the factors those measures should take into account. Each sentence of the note could be traced back to the text.",
@@ -139,7 +139,7 @@ export const COURSE: CourseContent = {
           prompt: "Choose the summary that says only what Article 4 contains.",
           leftLabel: "Summary A",
           left:
-            "Our organisation must take measures to ensure a sufficient level of AI literacy among the people who use AI systems on our behalf, taking account of their experience, the context, and who is affected.",
+            "Our organisation must take measures to support the development of AI literacy among the people who use AI systems on our behalf, taking account of their experience, the context, and who is affected.",
           rightLabel: "Summary B",
           right:
             "Every member of staff must complete an approved AI literacy course of at least one day and receive a certificate before they use any AI tool.",
@@ -158,7 +158,7 @@ export const COURSE: CourseContent = {
         sentences: [
           {
             id: "duty",
-            text: "Organisations that use AI systems at work must take measures to ensure their staff have a sufficient level of AI literacy.",
+            text: "Organisations that use AI systems at work must take measures to support the development of AI literacy among their staff.",
             fail: false,
             why: "This is the core duty as it applies to deployers, which includes organisations using AI systems under their authority at work, so it is In Article 4.",
           },
@@ -172,7 +172,7 @@ export const COURSE: CourseContent = {
             id: "exam",
             text: "Every employee must pass an approved AI literacy exam.",
             fail: true,
-            why: "The provision asks for measures towards a sufficient level. It does not mention an exam, an approved course, or a pass mark, so this sentence is Not in Article 4.",
+            why: "The provision asks for measures to support the development of AI literacy. It does not mention an exam, an approved course, or a pass mark, so this sentence is Not in Article 4.",
           },
           {
             id: "others",
@@ -184,7 +184,7 @@ export const COURSE: CourseContent = {
         why: "That is the right reading. Dominic's first, second, and fourth sentences restate the duty, the factors, and the people covered, and his third adds an approved exam that the provision never mentions.",
       },
       bridge:
-        "Article 4 asks for a sufficient level of AI literacy. The next lesson reads the Act's definition of AI literacy, which explains why that level cannot be the same for every role.",
+        "Article 4 asks organisations to take measures to support the development of AI literacy, and it does not require any specific level for any individual. The next lesson reads the Act's definition of AI literacy, which explains why the measures cannot be the same for every role.",
     },
     {
       id: "what-ai-literacy-means",
@@ -217,7 +217,7 @@ export const COURSE: CourseContent = {
         {
           heading: "Why the level differs by role",
           paragraphs: [
-            "Article 4 asks for a sufficient level of AI literacy, and it says the measures should take account of the person's knowledge, experience, and training, the context of use, and the people affected. Put that together with the definition and the conclusion follows: the right level differs by role. A customer service adviser using a drafting tool, an HR officer using a screening feature, and an engineer building a model each need different skills, different knowledge, and different understanding.",
+            "Article 4 asks organisations to take measures to support the development of AI literacy, and it says the measures should take account of the person's knowledge, experience, and training, the context of use, and the people affected. Put that together with the definition and the conclusion follows: the right measures differ by role. A customer service adviser using a drafting tool, an HR officer using a screening feature, and an engineer building a model each need different skills, different knowledge, and different understanding.",
             "This is good news for a manager. It means you do not have to teach everyone how models are built, and you do not have to buy the same course for the whole organisation. It also means that a single awareness session for everyone is unlikely to be enough on its own for a role whose outputs affect people's pay, jobs, health, or money, because the context there asks for more.",
           ],
         },
@@ -303,7 +303,7 @@ export const COURSE: CourseContent = {
           heading: "Claims the Act does not support",
           paragraphs: [
             "A number of claims are made about AI literacy that the Act does not support. The Act does not require a certificate. The European Commission's published questions and answers on AI literacy indicate that no certificate is needed and that organisations may keep their own internal records of what they have done. The Act does not prescribe a particular course, a particular provider, or a number of hours.",
-            "Most importantly, the Act does not say that completing any course makes a person or an organisation compliant. Article 4 asks for measures towards a sufficient level of literacy. A course can be one of those measures, and it can produce evidence that the measure was taken, but no course, record, or certificate turns the measure into a finding of compliance.",
+            "Most importantly, the Act does not say that completing any course makes a person or an organisation compliant. Article 4 asks for measures to support the development of AI literacy. A course can be one of those measures, and it can produce evidence that the measure was taken, but no course, record, or certificate turns the measure into a finding of compliance.",
           ],
         },
         {
@@ -316,7 +316,7 @@ export const COURSE: CourseContent = {
         {
           heading: "Two labels for briefings and announcements",
           paragraphs: [
-            "In this lesson you will test statements with two labels. A statement is Supported by the Act when it reflects the text, for example that the organisation must take measures towards a sufficient level of AI literacy, or that measures should differ by role and context. A statement is A claim the Act does not support when it goes beyond the text, especially about certificates, approved courses, required hours, or compliance.",
+            "In this lesson you will test statements with two labels. A statement is Supported by the Act when it reflects the text, for example that the organisation must take measures to support the development of AI literacy, or that measures should differ by role and context. A statement is A claim the Act does not support when it goes beyond the text, especially about certificates, approved courses, required hours, or compliance.",
             "The claims tend to appear in the same places: a vendor's sales email, an internal announcement written in a hurry, and a slide for the board that wants a clear answer. They are rarely made in bad faith. They are made because 'certified and compliant' is simpler to say than 'one of several measures, with evidence'. Your job is to keep the simpler words out when they are not true.",
           ],
           beforeAfter: {
@@ -376,7 +376,7 @@ export const COURSE: CourseContent = {
         sentences: [
           {
             id: "measures",
-            text: "Article 4 asks us to take measures to ensure a sufficient level of AI literacy among staff who use AI systems on our behalf.",
+            text: "Article 4 asks us to take measures to support the development of AI literacy among staff who use AI systems on our behalf.",
             fail: false,
             why: "This restates what Article 4 asks, so it is Supported by the Act.",
           },
@@ -414,7 +414,7 @@ export const COURSE: CourseContent = {
         {
           heading: "What a measure is",
           paragraphs: [
-            "A literacy measure is a specific action an organisation takes so that the people in one role reach a sufficient level of AI literacy for the systems they use. It is the unit your plan is built from. A session, a supervised piece of work, a guidance sheet with a review, or a change to how work is checked can all be measures, provided they are aimed at one role and one set of systems.",
+            "A literacy measure is a specific action an organisation takes so that the people in one role can use the systems they use with judgement. It is the unit your plan is built from. A session, a supervised piece of work, a guidance sheet with a review, or a change to how work is checked can all be measures, provided they are aimed at one role and one set of systems.",
             "A measure is not a slogan. 'All staff will complete AI awareness training' names no system, no context, and nothing the person must be able to do afterwards, so nobody can tell whether it worked. A measure is also not a promise of perfect performance. It is a reasonable, targeted step that can be described in advance and reviewed afterwards.",
           ],
         },
@@ -721,7 +721,7 @@ export const COURSE: CourseContent = {
         {
           heading: "What Article 4 asks, and what literacy means",
           paragraphs: [
-            "In general terms, Article 4 places a duty on providers and deployers of AI systems to take measures to ensure a sufficient level of AI literacy among their staff and other people who operate or use AI systems on their behalf. The measures should take account of the people's knowledge, experience, education and training, the context of use, and the people on whom the systems are used. Most employers whose staff use AI tools at work are deployers, and the people covered can include agency staff and contractors.",
+            "In general terms, Article 4 places a duty on providers and deployers of AI systems to take measures to support the development of AI literacy among their staff and other people who operate or use AI systems on their behalf. The measures should take account of the people's knowledge, experience, education and training, the context of use, and the people on whom the systems are used. Most employers whose staff use AI tools at work are deployers, and the people covered can include agency staff and contractors.",
             "The Act defines AI literacy as the skills, knowledge, and understanding that allow people to make an informed deployment of AI systems and to be aware of their opportunities, risks, and possible harm. Because the measures must take account of role and context, the level that is sufficient differs by role. Literacy is not enthusiasm, and for most roles it is not technical knowledge of how models are built. It is knowing where this system goes wrong in this job, and what to do about it.",
           ],
         },
@@ -748,7 +748,7 @@ export const COURSE: CourseContent = {
         prompt:
           "From: Sunita Kaur, Director of Operations, Marlow Veterinary Group. Our insurer asked whether we have done the AI Act training. Can you confirm we are compliant? The practice managers use the booking assistant and the nurses use the note-writing tool.",
         output:
-          "Sunita, I cannot confirm that we are compliant, and our literacy work is not designed to show that. What I can confirm is this. Article 4 asks us to take measures towards a sufficient level of AI literacy for the people using our AI systems. We have a measure for practice managers using the booking assistant and a measure for nurses using the note-writing tool, each saying what people must be able to do and how we check it. The first reviews of real notes are due in March, and I will send you the record then. Other parts of the Act and data protection law are outside this work, and I suggest we ask our legal adviser how to answer the insurer.",
+          "Sunita, I cannot confirm that we are compliant, and our literacy work is not designed to show that. What I can confirm is this. Article 4 asks us to take measures to support the development of AI literacy for the people using our AI systems. We have a measure for practice managers using the booking assistant and a measure for nurses using the note-writing tool, each saying what people must be able to do and how we check it. The first reviews of real notes are due in March, and I will send you the record then. Other parts of the Act and data protection law are outside this work, and I suggest we ask our legal adviser how to answer the insurer.",
         reading: [
           "The reply refuses the one thing it cannot honestly say, which is that the group is compliant. It does this in the first sentence, so the director is not left to find it at the end.",
           "It restates the duty in general terms, then describes a measure for each role and system named in the request. That is lessons one, two, and four working together.",
@@ -797,7 +797,7 @@ export const COURSE: CourseContent = {
                 text: "Explain that Article 4 asks for measures suited to each role and context, not a certificate, and list which roles use which systems before judging whether this course is a suitable measure for any of them.",
                 correct: true,
                 feedback:
-                  "This follows the text. Article 4 asks for measures towards a sufficient level of literacy, taking account of role and context, and it names no certificate or hours. Mapping roles to systems first lets the board judge the course as one possible measure.",
+                  "This follows the text. Article 4 asks for measures to support the development of AI literacy, taking account of role and context, and it names no certificate or hours. Mapping roles to systems first lets the board judge the course as one possible measure.",
               },
               {
                 id: "c",
@@ -845,7 +845,7 @@ export const COURSE: CourseContent = {
                 text: "Skills: handlers check each summary against the file and set their own band before looking at the suggestion. Knowledge: they know the tool can omit facts and that the suggestion is not a decision. Understanding: they understand that an unfair band harms a claimant and can breach our conduct rules.",
                 correct: true,
                 feedback:
-                  "This covers skills, knowledge, and understanding, and ties each part to the tool, the handlers' work, and the claimants affected. It is the definition applied to one role, which is what a sufficient level depends on.",
+                  "This covers skills, knowledge, and understanding, and ties each part to the tool, the handlers' work, and the claimants affected. It is the definition applied to one role, which is what the measures should fit.",
               },
               {
                 id: "b",

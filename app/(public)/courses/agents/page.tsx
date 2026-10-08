@@ -3,19 +3,22 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { AgentCourseShowcase } from "@/components/marketing/agent-course-showcase";
 import { agentCatalogueGraph, agentShareImage, AGENT_CATALOGUE_DESCRIPTION } from "@/lib/always-on-agents/seo";
+import { AGENT_SEO } from "@/lib/always-on-agents/seo-overrides";
 import { getPublicSiteUrl } from "@/lib/site";
 import { StructuredData } from "@/components/structured-data";
 
 const base = getPublicSiteUrl();
 const shareImage = agentShareImage("catalogue", base);
 
+const catalogueSeo = AGENT_SEO.catalogue;
+
 export const metadata: Metadata = withSiteShareImages({
-  title: { absolute: "Always-On AI Agent Courses | Experrt Academy" },
+  title: { absolute: catalogueSeo?.title ?? "Always-On AI Agent Courses | Experrt Academy" },
   description:
-    AGENT_CATALOGUE_DESCRIPTION,
+    catalogueSeo?.description ?? AGENT_CATALOGUE_DESCRIPTION,
   alternates: { canonical: "/courses/agents" },
-  openGraph: { type: "website", title: "Always-On AI Agent Courses | Experrt Academy", description: AGENT_CATALOGUE_DESCRIPTION, url: `${base}/courses/agents`, locale: "en_GB", images: [shareImage] },
-  twitter: { card: "summary_large_image", images: [shareImage.url] },
+  openGraph: { type: "website", title: catalogueSeo?.title ?? "Always-On AI Agent Courses | Experrt Academy", description: catalogueSeo?.description ?? AGENT_CATALOGUE_DESCRIPTION, url: `${base}/courses/agents`, locale: "en_GB", images: [shareImage] },
+  twitter: { card: "summary_large_image", title: catalogueSeo?.title ?? "Always-On AI Agent Courses | Experrt Academy", description: catalogueSeo?.description ?? AGENT_CATALOGUE_DESCRIPTION, images: [shareImage.url] },
 });
 
 export default function AgentCoursesPage() {

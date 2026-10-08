@@ -2,9 +2,18 @@
 
 import { useState } from "react";
 import { TEAM_MAX, TEAM_MIN } from "@/lib/self-serve/team-rules";
+import { trackBuyClick } from "@/lib/analytics/client";
 import "@/components/learn/learner-account.css";
 
-export function TeamBuy({ slug, priceGbp }: { slug: string; priceGbp: number }) {
+export function TeamBuy({
+  slug,
+  priceGbp,
+  placement = "course_page",
+}: {
+  slug: string;
+  priceGbp: number;
+  placement?: string;
+}) {
   const [openForm, setOpenForm] = useState(false);
   const [seats, setSeats] = useState(5);
   const [busy, setBusy] = useState(false);
@@ -13,6 +22,7 @@ export function TeamBuy({ slug, priceGbp }: { slug: string; priceGbp: number }) 
   const set = (n: number) => setSeats(Math.max(TEAM_MIN, Math.min(TEAM_MAX, Math.round(n) || TEAM_MIN)));
 
   async function buy() {
+    trackBuyClick({ slug, price_gbp: priceGbp, placement, seats });
     setBusy(true);
     setError("");
     const res = await fetch("/api/learn/team", {

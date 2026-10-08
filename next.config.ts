@@ -90,6 +90,21 @@ const nextConfig: NextConfig = {
         destination: "/insights/:path*",
         permanent: true,
       },
+      {
+        source: "/ai-literacy-training",
+        destination: "/learn/eu-ai-act-article-4-training",
+        statusCode: 301,
+      },
+      {
+        source: "/ai-readiness-assessment",
+        destination: "/assessment/start",
+        statusCode: 301,
+      },
+      {
+        source: "/pricing",
+        destination: "/learn",
+        statusCode: 301,
+      },
     ];
   },
 };

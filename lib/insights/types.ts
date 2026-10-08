@@ -24,5 +24,7 @@ export type InsightArticle = {
   publishedAt: string;
   topic: InsightTopic;
   relatedCourseSlugs: string[];
+  /** Self-paced /learn slugs, best first. Rendered as buy cards with price. */
+  relatedSelfServeSlugs?: string[];
   body: string;
 };

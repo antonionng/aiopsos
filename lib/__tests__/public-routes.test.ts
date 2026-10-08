@@ -1,7 +1,16 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { isAuthPath, isPublicPath } from "../public-routes.ts";
+import { readFileSync } from "node:fs";
+
+import { isAuthPath, isPrivatePath, isPublicPath } from "../public-routes.ts";
+
+function middlewareMatcher(): RegExp {
+  const source = readFileSync(new URL("../../middleware.ts", import.meta.url), "utf8");
+  const match = source.match(/matcher:\s*\[\s*"((?:\\.|[^"\\])*)"/);
+  assert.ok(match, "middleware matcher string");
+  return new RegExp(`^${JSON.parse(`"${match[1]}"`)}$`);
+}
 
 test("Wonderlab authored narration plays without a session, without exposing other audio routes", () => {
   assert.equal(isPublicPath("/audio/wonderlab/marin-v1-bc848836-ca9e05c0.mp3"), true);
@@ -69,6 +78,26 @@ test("social cards are crawlable without a session", () => {
   // Next serves the root card at /opengraph-image plus a build suffix.
   assert.equal(isPublicPath("/opengraph-image"), true);
   assert.equal(isPublicPath("/opengraph-image-abc123"), true);
+});
+
+test("Vercel Web Analytics script and events pass middleware untouched", () => {
+  assert.equal(isPublicPath("/_vercel/insights/script.js"), true);
+  assert.equal(isPublicPath("/_vercel/insights"), true);
+  assert.equal(isPublicPath("/_vercel/insights/event"), true);
+  const matcher = middlewareMatcher();
+  assert.equal(matcher.test("/_vercel/insights/script.js"), false);
+  assert.equal(matcher.test("/_vercel/insights/event"), false);
+  assert.equal(matcher.test("/dashboard"), true);
+  assert.equal(matcher.test("/learn/prompt-engineering-for-professional-work"), true);
+});
+
+test("unknown public paths are not treated as private, so Next can 404 them", () => {
+  assert.equal(isPublicPath("/this-does-not-exist"), false);
+  assert.equal(isPrivatePath("/this-does-not-exist"), false);
+  assert.equal(isPrivatePath("/dashboard"), true);
+  assert.equal(isPrivatePath("/shared/token"), true);
+  assert.equal(isPrivatePath("/api/private"), true);
+  assert.equal(isPrivatePath("/learn/eu-ai-act-article-4-training"), false);
 });
 
 test("private app routes stay gated", () => {

@@ -8,6 +8,7 @@ import { fulfillTeamSession } from "@/lib/self-serve/teams";
 import type Stripe from "stripe";
 import { fulfilWonderlabEvent } from "@/lib/wonderlab/payments";
 import { fulfilStripePayment } from "@/lib/stripe-fulfilment";
+import { trackPaidCoursePurchase } from "@/lib/analytics/server";
 
 /** Direct Stripe payments, with compatibility for older subscription sessions. */
 export async function POST(req: Request) {
@@ -38,17 +39,23 @@ export async function POST(req: Request) {
   try {
     if (await fulfilWonderlabEvent(event))
       return NextResponse.json({ received: true });
-    if (await fulfilStripePayment(event))
+    if (await fulfilStripePayment(event)) {
+      if (event.type === "checkout.session.completed") {
+        await trackPaidCoursePurchase(event.data.object as Stripe.Checkout.Session, event.type).catch(() => {});
+      }
       return NextResponse.json({ received: true });
+    }
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         if (isSelfServeCheckout(session.metadata)) {
           await fulfillSelfServeSession(session);
+          await trackPaidCoursePurchase(session, event.type).catch(() => {});
           break;
         }
         if (isTeamCheckout(session.metadata)) {
           await fulfillTeamSession(session);
+          await trackPaidCoursePurchase(session, event.type).catch(() => {});
           break;
         }
         const orgId = session.metadata?.org_id;

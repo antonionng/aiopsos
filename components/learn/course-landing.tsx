@@ -11,7 +11,7 @@ import {
 } from "@/lib/self-serve/seo";
 import { BuyCourseButton } from "@/components/learn/buy-course-button";
 import { TeamBuy } from "@/components/learn/team-buy";
-import { trackLabel } from "@/lib/self-serve/catalog";
+import { trackLabel } from "@/lib/self-serve/catalog-meta";
 import { courseArtefact } from "@/lib/self-serve/engine";
 import {
   courseCurriculum,
@@ -182,8 +182,8 @@ export function CourseLanding({
                       <span>Signed, verifiable online and ready for LinkedIn</span>
                     </span>
                   </a>
-                  <BuyCourseButton slug={course.slug} label={`Buy this course for £${course.priceGbp}`} />
-                  <TeamBuy slug={course.slug} priceGbp={course.priceGbp} />
+                  <BuyCourseButton slug={course.slug} label={`Buy this course for £${course.priceGbp}`} priceGbp={course.priceGbp} placement="course_page" />
+                  <TeamBuy slug={course.slug} priceGbp={course.priceGbp} placement="course_page" />
                 </>
               ) : (
                 <p className="ex-land-soon">
@@ -367,6 +367,8 @@ export function CourseLanding({
                 <BuyCourseButton
                   slug={course.slug}
                   label={`Buy this course for £${course.priceGbp}`}
+                  priceGbp={course.priceGbp}
+                  placement="course_page_footer"
                   className="ex-button ex-button-citrus"
                 />
               </>

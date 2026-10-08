@@ -15,6 +15,8 @@ import { growthGuides } from "./articles/growth-guides.ts";
 import { INSIGHT_TOPICS, type InsightArticle, type InsightTopic } from "./types.ts";
 
 import { hrAndAgenticGuides } from "./articles/hr-and-agentic-guides.ts";
+import { INSIGHT_SELF_SERVE } from "./self-serve-links.ts";
+import { getSelfServeCourseMeta } from "../self-serve/catalog-meta.ts";
 
 const PUBLISHED: InsightArticle[] = [
   ...aiLabsGuides,
@@ -33,10 +35,46 @@ const PUBLISHED: InsightArticle[] = [
   directorJudgement,
 ];
 
+function withSelfServe(article: InsightArticle): InsightArticle {
+  const extra = INSIGHT_SELF_SERVE[article.slug];
+  if (!extra) return article;
+  return {
+    ...article,
+    relatedSelfServeSlugs: extra.slugs,
+  };
+}
+
 export function getPublishedInsights(): InsightArticle[] {
-  return [...PUBLISHED].sort((a, b) =>
+  return PUBLISHED.map(withSelfServe).sort((a, b) =>
     a.publishedAt < b.publishedAt ? 1 : a.publishedAt > b.publishedAt ? -1 : 0
   );
+}
+
+export function relatedSelfServeFor(article: InsightArticle) {
+  const slugs = article.relatedSelfServeSlugs ?? INSIGHT_SELF_SERVE[article.slug]?.slugs ?? [];
+  return slugs
+    .map((slug) => getSelfServeCourseMeta(slug))
+    .filter((course): course is NonNullable<typeof course> => Boolean(course));
+}
+
+export function insightSelfServeSentence(article: InsightArticle): string | undefined {
+  return INSIGHT_SELF_SERVE[article.slug]?.inBodySentence;
+}
+
+export function injectAfterFirstSection(body: string, sentence: string): string {
+  const lines = body.split("\n");
+  let seenHeading = false;
+  for (let index = 0; index < lines.length; index += 1) {
+    if (lines[index].startsWith("## ")) {
+      if (seenHeading) {
+        const before = lines.slice(0, index);
+        const after = lines.slice(index);
+        return [...before, "", sentence, "", ...after].join("\n");
+      }
+      seenHeading = true;
+    }
+  }
+  return `${body.trimEnd()}\n\n${sentence}\n`;
 }
 
 export function getInsightBySlug(slug: string): InsightArticle | undefined {

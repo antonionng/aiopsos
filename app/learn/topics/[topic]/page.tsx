@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { SelfServeCourseCards } from "@/components/learn/course-cards";
 import { LearnMarket } from "@/components/learn/learn-shell";
 import { StructuredData } from "@/components/structured-data";
-import { trackLabel } from "@/lib/self-serve/catalog";
+import { trackLabel } from "@/lib/self-serve/catalog-meta";
 import { courseStats } from "@/lib/self-serve/landing";
 import {
   TOPIC_HUBS,

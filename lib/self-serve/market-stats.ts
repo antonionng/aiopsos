@@ -194,14 +194,14 @@ export const MARKET_STATS: Record<string, MarketStat> = {
   "ai-eu-ai-act-article-4-date": {
     "value": "2 Feb 2025",
     "line": "Date the EU AI Act literacy duty in Article 4 began to apply.",
-    "label": "Article 4 of the EU AI Act, which requires providers and deployers to take measures to ensure a sufficient level of AI literacy among their staff, sits in Chapter I, which has applied since 2 February 2025.",
+    "label": "Article 4 of the EU AI Act, which requires providers and deployers to take measures to support the development of AI literacy among their staff, sits in Chapter I, which has applied since 2 February 2025. The law does not require any specific level of AI literacy for any individual.",
     "source": "EUR-Lex, Regulation (EU) 2024/1689 (Artificial Intelligence Act), 2024",
     "href": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202401689"
   },
   "ai-eu-ai-act-top-fine": {
-    "value": "€35 million",
-    "line": "Or 7% of turnover: the top EU AI Act fine tier.",
-    "label": "Under Article 99 of the EU AI Act, breaching the prohibited AI practices in Article 5 can bring fines of up to EUR 35 000 000 or 7% of worldwide annual turnover, whichever is higher. Article 4 itself is not listed among these fine tiers.",
+    "value": "August 2026",
+    "line": "National regulators begin supervising and enforcing Article 4.",
+    "label": "From August 2026, national regulators in each EU country supervise and enforce Article 4 of the EU AI Act. Sanctions for Article 4 are set by national law and must be proportionate.",
     "source": "EUR-Lex, Regulation (EU) 2024/1689 (Artificial Intelligence Act), 2024",
     "href": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202401689"
   },
@@ -257,7 +257,7 @@ export const MARKET_STATS: Record<string, MarketStat> = {
   "hr-eu-ai-act-article-4-date": {
     "value": "2 February 2025",
     "line": "is when the EU AI Act's AI literacy duty in Article 4 began to apply.",
-    "label": "Under Article 113 of Regulation (EU) 2024/1689, Chapters I and II apply from 2 February 2025, which includes the Article 4 duty on providers and deployers to ensure a sufficient level of AI literacy among staff.",
+    "label": "Under Article 113 of Regulation (EU) 2024/1689, Chapters I and II apply from 2 February 2025, which includes the Article 4 duty on providers and deployers to take measures to support the development of AI literacy among staff.",
     "source": "EUR-Lex, Regulation (EU) 2024/1689 (Artificial Intelligence Act), Article 113, 2024",
     "href": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=OJ:L_202401689"
   },
@@ -871,7 +871,7 @@ export const COURSE_MARKET: Record<
     ],
     "benefit": {
       "title": "A documented AI literacy plan",
-      "body": "Article 4 of the EU AI Act has applied since 2 February 2025 and asks providers and deployers to ensure a sufficient level of AI literacy among their staff. KPMG and the University of Melbourne found that only 27% of people in the UK have any AI education or training, so organisations serving EU markets need a plan and a record of the measures they take."
+      "body": "Article 4 of the EU AI Act has applied since 2 February 2025 and asks providers and deployers to take measures to support the development of AI literacy among their staff. KPMG and the University of Melbourne found that only 27% of people in the UK have any AI education or training, so organisations serving EU markets need a plan and a record of the measures they take."
     }
   },
   "ai-for-hr-and-people-teams": {
