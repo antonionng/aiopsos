@@ -1,9 +1,8 @@
-import { SELF_SERVE_PURPOSE } from "../self-serve/commerce.ts";
-import { TEAM_PURPOSE } from "../self-serve/team-rules.ts";
-
 export const BUY_CLICK_EVENT = "buy_click";
 export const PURCHASE_EVENT = "purchase";
 export const AGENT_COURSE_PURPOSE = "agent_course";
+const SELF_SERVE_PURPOSE = "self_serve_course";
+const TEAM_PURPOSE = "self_serve_team";
 
 export type BuyClickProps = {
   slug: string;
