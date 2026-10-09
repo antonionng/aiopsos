@@ -17,7 +17,6 @@ export function useNarration(band: Band) {
       audio.current.load();
       audio.current = null;
     }
-    window.speechSynthesis?.cancel();
   }, []);
   useEffect(() => stop, [stop]);
   const speak = useCallback(
@@ -27,35 +26,15 @@ export function useNarration(band: Band) {
       const ended = () => {
         if (request.current === id) onEnd?.();
       };
-      const fallback = () => {
+      const unavailable = () => {
         if (request.current !== id) return;
-        if ("speechSynthesis" in window) {
-          setMessage(
-            "The recorded voice is unavailable. Your device will read the words instead.",
-          );
-          const words = new SpeechSynthesisUtterance(text);
-          words.lang = "en-GB";
-          words.rate = band === "explorers" ? 0.85 : 0.95;
-          words.voice =
-            window.speechSynthesis
-              .getVoices()
-              .find((voice) => voice.lang === "en-GB") ?? null;
-          words.onerror = () => {
-            if (request.current === id)
-              setMessage(
-                "Read-aloud is unavailable here. All instructions stay on screen.",
-              );
-          };
-          words.onend = ended;
-          window.speechSynthesis.speak(words);
-        } else
-          setMessage(
-            "Read-aloud is unavailable here. All instructions stay on screen.",
-          );
+        setMessage(
+          "The voice could not play. You can try again or read the words on screen.",
+        );
       };
       const src = (clips as Record<string, string>)[narrationId(band, text)];
       if (!src) {
-        fallback();
+        unavailable();
         return;
       }
       const recording = new Audio(src);
@@ -65,7 +44,7 @@ export function useNarration(band: Band) {
         if (request.current !== id || failed) return;
         failed = true;
         recording.pause();
-        fallback();
+        unavailable();
       };
       recording.onerror = fail;
       recording.onended = ended;

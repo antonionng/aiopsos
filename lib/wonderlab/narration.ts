@@ -1,7 +1,9 @@
 import type { Band } from "./types.ts";
 
 // Bump when the narrator or delivery changes. Files are immutable, authored assets.
-export const NARRATION_VERSION = "marin-v1";
+export const NARRATION_VERSION = "marin-realtime21-v2";
+export const NARRATION_MODEL = "gpt-realtime-2.1-mini";
+export const NARRATION_VOICE = "marin";
 export function narrationId(band: Band, text: string): string {
   const input = `${band}:${text.trim().replace(/\s+/g, " ")}`;
   let a = 2166136261;
