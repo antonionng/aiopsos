@@ -35,10 +35,10 @@ export const coachLines = {
   },
   lab: {
     start:
-      "The sorter may have learnt a misleading pattern. Try different examples, then test it on creatures it has not seen.",
+      "The sorter may have learnt a misleading pattern. Try different examples, then test it on items it has not seen.",
     working:
       "Changing the examples can change the prediction. Test the sorter and compare its guesses with the field notes.",
-    hint: "The notes link shape to behaviour. Try examples that separate shape from colour so the sorter cannot rely on colour alone.",
+    hint: "The notes link shape to the correct group. Try examples that separate shape from colour so the sorter cannot rely on colour alone.",
     why: "Some AI systems learn patterns from examples. A pattern can be misleading, so we test unfamiliar cases. This small simulation cannot prove that a real AI is reliable.",
     solved:
       "The sorter handled these test cases. That is useful evidence, but it does not mean it will always be right. What else would you test?",

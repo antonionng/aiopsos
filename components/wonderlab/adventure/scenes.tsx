@@ -497,7 +497,7 @@ export function ForgeScene({
         <CourierWorld
           level={level}
           pieces={state.instructions}
-          position={position}
+          position={state.solved ? level.goals.at(-1)! : position}
           gap={gap}
           running={running}
           solved={state.solved}
