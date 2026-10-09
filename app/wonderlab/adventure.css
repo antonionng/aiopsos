@@ -2108,3 +2108,9 @@
 .wl .wd-primary {
   color: #fff;
 }
+.wd-progress small {
+  color: #665b76;
+}
+.wd-player > .wd-caption {
+  margin-top: 10px;
+}
