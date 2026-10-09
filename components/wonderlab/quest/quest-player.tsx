@@ -39,6 +39,65 @@ const ages: { id: QuestBand; label: string; name: string }[] = [
 const icons = { water: Droplets, light: Sun, soil: Leaf };
 const startPosition = { x: 445, y: 550 };
 
+function PictureClue({ kind }: { kind: "water" | "sun" | "new-plant" }) {
+  const cups = kind === "new-plant" ? 3 : 1;
+  return (
+    <div
+      className="wq-picture-clue"
+      role="img"
+      aria-label={
+        kind === "water"
+          ? "The moonflower needs one cup of water."
+          : kind === "sun"
+            ? "The moonflower needs shade."
+            : "The new flower needs three cups of water and bright sunshine."
+      }
+    >
+      {kind !== "sun" && (
+        <span>
+          {Array.from({ length: cups }, (_, i) => (
+            <svg
+              aria-hidden="true"
+              key={i}
+              width="29"
+              height="35"
+              viewBox="0 0 36 42"
+            >
+              <path
+                d="M7 5h22l-3 31H10Z"
+                fill="#eefbfb"
+                stroke="#497b81"
+                strokeWidth="2.5"
+              />
+              <path d="M9 19q4-3 9 0t9 0l-2 15H11Z" fill="#63bacc" />
+            </svg>
+          ))}
+          <b>{cups === 1 ? "One cup" : "Three cups"}</b>
+        </span>
+      )}
+      {kind !== "water" && (
+        <span>
+          {kind === "new-plant" ? (
+            <Sun size={36} />
+          ) : (
+            <svg aria-hidden="true" width="44" height="40" viewBox="0 0 44 40">
+              <path
+                d="M6 19Q22-6 38 19Z"
+                fill="#80a867"
+                stroke="#4f7348"
+                strokeWidth="2"
+              />
+              <path d="M22 19v18M12 37h20" stroke="#4f7348" strokeWidth="3" />
+              <path d="M10 23h24l-4 8H14Z" fill="#b8cea0" />
+            </svg>
+          )}
+          <b>{kind === "new-plant" ? "Bright sunshine" : "Shade"}</b>
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function QuestPreview() {
   const [band, setBand] = useState<QuestBand>("inventors");
   return (
@@ -518,6 +577,7 @@ function GardenQuest({ band }: { band: QuestBand }) {
             ) : quest.successful && active === "console" ? (
               <>
                 <p>{config.transfer.question}</p>
+                {band === "explorers" && <PictureClue kind="new-plant" />}
                 {machineControls()}
                 <button
                   className="wq-primary"
@@ -538,6 +598,14 @@ function GardenQuest({ band }: { band: QuestBand }) {
             ) : (
               <>
                 <p>{line}</p>
+                {band === "explorers" &&
+                  (active === "water" ||
+                    active === "sun" ||
+                    (active === "seed" && quest.successful)) && (
+                    <PictureClue
+                      kind={active === "seed" ? "new-plant" : active}
+                    />
+                  )}
                 {active === "console" && readyToTest ? (
                   <>
                     <details className="wq-ai-advice">
