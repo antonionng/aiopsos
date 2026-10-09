@@ -221,21 +221,23 @@ function GardenQuest({ band }: { band: QuestBand }) {
       "the ",
     ) || "the greenhouse";
   const complete = quest.transferComplete;
-  const stageNumber = complete ? 3 : quest.successful ? 2 : missing ? 0 : 1;
+  const stageNumber = complete ? 3 : quest.successful ? 2 : readyToTest ? 1 : 0;
   const line =
-    testMessage && !source
-      ? quest.lastFeedback
-      : quest.successful &&
-          (active === "seed" ||
-            active === "guide" ||
-            active === "console" ||
-            !active)
-        ? config.transfer.question
-        : source
-          ? source.text
-          : active
-            ? config.dialogue[active] || config.intro
-            : config.intro;
+    active === "console" && !readyToTest
+      ? reduceQuest(quest, { type: "test" }).lastFeedback
+      : testMessage && !source
+        ? quest.lastFeedback
+        : quest.successful &&
+            (active === "seed" ||
+              active === "guide" ||
+              active === "console" ||
+              !active)
+          ? config.transfer.question
+          : source
+            ? source.text
+            : active
+              ? config.dialogue[active] || config.intro
+              : config.intro;
   const panelTitle = complete
     ? config.reward.title
     : quest.successful && (active === "console" || active === "seed" || !active)
