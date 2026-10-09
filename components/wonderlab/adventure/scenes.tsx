@@ -54,7 +54,13 @@ function Movement({
   disabled?: boolean;
 }) {
   return (
-    <div className="wd-direction-pad" aria-label="Movement controls">
+    <div
+      className="wd-direction-pad"
+      aria-label="Movement controls"
+      onKeyDown={(event) => {
+        if (!disabled) directionKey(event, move);
+      }}
+    >
       {directions.map(({ label, dx, dy, Icon }) => (
         <button
           key={label}
@@ -85,6 +91,7 @@ function directionKey(
   const vector = map[event.key];
   if (vector) {
     event.preventDefault();
+    event.stopPropagation();
     move(...vector);
   }
 }
@@ -360,11 +367,12 @@ export function ForgeScene({
   const [playing, setPlaying] = useState(false);
   const [path, setPath] = useState([level.start]);
   const [notice, setNotice] = useState("");
-  const [waiting, setWaiting] = useState(false);
   const position = path.at(-1)!;
+  const atDestination = level.goals.includes(position);
+  const movementDisabled = busy || atDestination || state.solved;
   const board = useRef<HTMLDivElement>(null);
   function move(dx: number, dy: number) {
-    if (!playing || busy || waiting || state.solved) return;
+    if (!playing || movementDisabled) return;
     const x = (position % level.width) + dx,
       y = Math.floor(position / level.width) + dy,
       next = y * level.width + x;
@@ -389,14 +397,18 @@ export function ForgeScene({
     setPath(nextPath);
     setNotice("");
     if (level.goals.includes(next)) {
-      setWaiting(true);
       send({ type: "walk", path: nextPath });
     }
   }
   const pieces = playing ? state.tiles : state.instructions;
   return (
     <div className="wd-forge-layout">
-      <div className="wd-forge-main">
+      <div
+        className="wd-forge-main"
+        onKeyDown={(event) => {
+          if (playing) directionKey(event, move);
+        }}
+      >
         <div className="wd-canvas-toolbar">
           <span>
             <span className="wd-live-dot" />
@@ -412,7 +424,6 @@ export function ForgeScene({
           tabIndex={0}
           role="group"
           aria-label="Construction board. In playtest mode, use arrow keys or W A S D to move."
-          onKeyDown={(e) => directionKey(e, move)}
           style={{ gridTemplateColumns: `repeat(${level.width},1fr)` }}
         >
           {Array.from({ length: level.width * level.height }, (_, cell) => {
@@ -427,11 +438,13 @@ export function ForgeScene({
                   busy ||
                   state.solved ||
                   rock ||
-                  cell === level.start ||
-                  goal >= 0
+                  (playing ? atDestination : cell === level.start || goal >= 0)
                 }
                 aria-label={`Column ${(cell % level.width) + 1}, row ${Math.floor(cell / level.width) + 1}: ${rock ? "blocked machinery" : goal >= 0 ? level.goalNames[goal] : cell === level.start ? "arrival point" : placed ? (water ? "bridge instruction" : "path instruction") : water ? "water" : "empty ground"}`}
-                aria-pressed={placed}
+                aria-pressed={playing ? undefined : placed}
+                aria-current={
+                  playing && cell === position ? "location" : undefined
+                }
                 className={`wd-world-cell ${water ? "water" : "ground"} ${placed ? (water ? "bridge" : "path") : ""} ${rock ? "rock" : ""} ${goal >= 0 ? "goal" : ""} ${cell === level.start ? "start" : ""}`}
                 onClick={() => {
                   if (playing) {
@@ -476,13 +489,13 @@ export function ForgeScene({
         </div>
         {playing ? (
           <>
-            <Movement move={move} disabled={busy || waiting} />
+            <Movement move={move} disabled={movementDisabled} />
             <div className="wd-playtest-controls">
               <button
                 className="wd-secondary"
+                disabled={busy || state.solved}
                 onClick={() => {
                   setPath([level.start]);
-                  setWaiting(false);
                   setNotice("");
                   board.current?.focus();
                 }}
@@ -491,9 +504,9 @@ export function ForgeScene({
               </button>
               <button
                 className="wd-secondary"
+                disabled={busy || state.solved}
                 onClick={() => {
                   setPlaying(false);
-                  setWaiting(false);
                   setNotice("");
                 }}
               >
@@ -524,7 +537,6 @@ export function ForgeScene({
               onClick={() => {
                 setPlaying(true);
                 setPath([level.start]);
-                setWaiting(false);
                 setNotice("");
                 requestAnimationFrame(() => board.current?.focus());
               }}
@@ -538,10 +550,20 @@ export function ForgeScene({
             {notice}
           </p>
         )}
-        <p className="wd-caption">
-          {playing
-            ? "Move with the arrow keys or tap the neighbouring path squares. Use the arrow controls to enter a destination."
-            : "Tap a square to add a path instruction. Tap it again to remove it. A water square becomes a bridge."}
+        <p className="wd-caption" role="status">
+          {state.solved
+            ? "You have tested every destination. Write your reflection below to continue to the next step."
+            : playing
+              ? atDestination
+                ? busy
+                  ? "You reached a destination. Your journey is being saved."
+                  : state.testedGoals.includes(position)
+                    ? "You tested this destination. Restart this journey to test another route from START."
+                    : "Your journey has not been saved yet. Retry the save below, or restart this journey to test it again."
+                : position === level.start
+                  ? "Your character is at START. Use the arrow buttons, your keyboard arrow keys or a neighbouring path square to start moving. Walk onto the flag to test your route."
+                  : `You are at column ${(position % level.width) + 1}, row ${Math.floor(position / level.width) + 1}. Use the arrow buttons, your keyboard arrow keys or a neighbouring path square to move. You can tap a neighbouring flag to enter your destination.`
+              : "Tap a square to add a path instruction. Tap it again to remove it. A water square becomes a bridge. Choose ‘Fabricate my instructions’ to build your route, then ‘Step inside my world’ to start testing it."}
         </p>
       </div>
       <aside className="wd-blueprint">
