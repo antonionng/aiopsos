@@ -27,6 +27,11 @@ import type {
 import { predict } from "@/lib/wonderlab/adventure/engine";
 import { CourierWorld } from "./courier-world";
 import { planRouteTest } from "@/lib/wonderlab/adventure/route-test";
+import {
+  routeEditAction,
+  type DeliveryMode,
+  type RouteEdit,
+} from "@/lib/wonderlab/adventure/route-interaction";
 type SendAction = (action: Action) => Promise<boolean>;
 const directions = [
   { label: "left", dx: -1, dy: 0, Icon: ArrowLeft },
@@ -383,7 +388,8 @@ export function ForgeScene({
   coach?: React.ReactNode;
   onReflect?: () => void;
 }) {
-  const [running, setRunning] = useState(false);
+  const [mode, setMode] = useState<DeliveryMode>("editing");
+  const [hasTested, setHasTested] = useState(state.attempts > 0);
   const [position, setPosition] = useState(level.start);
   const [gap, setGap] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
@@ -396,12 +402,16 @@ export function ForgeScene({
     },
     [],
   );
-  const disabled = busy || running || state.solved;
+  const deliveryMode = state.solved ? "delivered" : mode;
+  const running = deliveryMode === "running";
+  const blocked = deliveryMode === "blocked";
+  const disabled = busy || deliveryMode !== "editing";
   async function testRoute() {
     if (active.current || busy || state.solved) return;
     active.current = true;
     const token = ++run.current;
-    setRunning(true);
+    setMode("running");
+    setHasTested(true);
     setGap(null);
     setPosition(level.start);
     setNotice(
@@ -409,10 +419,12 @@ export function ForgeScene({
     );
     try {
       if (!(await send({ type: "fabricate" }))) {
-        if (token === run.current)
+        if (token === run.current) {
+          setMode("blocked");
           setNotice(
             "The route could not be saved. Your pieces are still here. Try sending the courier again.",
           );
+        }
         return;
       }
       if (token !== run.current) return;
@@ -434,13 +446,14 @@ export function ForgeScene({
         await new Promise((resolve) => setTimeout(resolve, delay));
         if (token !== run.current) return;
         if (!result.reached) {
+          setMode("blocked");
           setGap(result.gap);
           setNotice(
             result.gap === null
               ? "The rocks block this destination. Try a different route, then test again."
               : level.water.includes(result.gap)
-                ? "The courier has stopped at the river. Your route needs a bridge here. Tap the glowing water to build it, then test again."
-                : "The courier has reached a gap. Tap the glowing space to connect your path, then test again.",
+                ? "The courier has stopped at the river. Your route is still here. Choose Build the missing bridge to connect the two banks, then try the delivery again."
+                : "The courier has reached a gap. Your route is still here. Choose Add the missing path to connect it, then try the delivery again.",
           );
           return;
         }
@@ -448,33 +461,55 @@ export function ForgeScene({
           !(await send({ type: "walk", path: result.path })) ||
           token !== run.current
         ) {
-          if (token === run.current)
+          if (token === run.current) {
+            setMode("blocked");
             setNotice(
               "The journey could not be saved. Your route is still here. Try testing it again.",
             );
+          }
           return;
         }
       }
+      setMode("delivered");
       setNotice(
         "Delivery complete! Your instructions connected every destination. You checked the result instead of assuming the plan would work.",
       );
     } finally {
       if (token === run.current) {
         active.current = false;
-        setRunning(false);
+        setMode((current) => (current === "running" ? "editing" : current));
       }
     }
   }
-  async function place(cell: number) {
-    if (disabled) return;
-    if (await send({ type: "tile", cell })) {
+  async function place(cell: number, intent: RouteEdit["intent"] = "add") {
+    if (busy || active.current || state.solved) return;
+    const action = routeEditAction(
+      level,
+      state.instructions,
+      deliveryMode,
+      { cell, intent },
+      gap,
+    );
+    if (!action) {
+      if (
+        deliveryMode === "editing" &&
+        intent === "add" &&
+        state.instructions.includes(cell)
+      )
+        setNotice(
+          "This piece is already part of your route. Send the courier to test it. To remove a piece, open Review or remove route pieces below.",
+        );
+      return;
+    }
+    if (await send(action)) {
       setGap(null);
+      setMode("editing");
       setNotice(
-        level.water.includes(cell)
-          ? state.instructions.includes(cell)
-            ? "You removed a bridge. Make sure the courier still has a way across before you send it."
-            : "You added a bridge. Now test the route to see whether it connects all the way to the destination."
-          : "You changed the route. Send the courier when you are ready to see what happens.",
+        intent === "remove"
+          ? `You removed this ${level.water.includes(cell) ? "bridge" : "path"}. The rest of your route is unchanged.`
+          : intent === "repair"
+            ? "You connected the gap. Choose Try delivery again to watch the courier test your repaired route automatically."
+            : "You added a piece to your route. Send the courier when you are ready to test it. Tapping an existing piece will keep it in place.",
       );
     }
   }
@@ -488,7 +523,9 @@ export function ForgeScene({
               ? "DELIVERY COMPLETE"
               : running
                 ? "COURIER ON THE MOVE"
-                : "YOUR DELIVERY WORLD"}
+                : blocked
+                  ? "DELIVERY PAUSED"
+                  : "BUILD YOUR ROUTE"}
           </div>
           <span>
             {state.instructions.length} / {level.budget} pieces
@@ -516,7 +553,7 @@ export function ForgeScene({
             {notice ||
               (state.solved
                 ? "You already checked this route. Your reflection is below."
-                : "Connect the depot to each destination. Tap the landscape to add paths and tap water to build bridges. Then send the courier.")}
+                : "Connect the depot to each destination. Tap an empty space to add a path or tap water to build a bridge. Existing pieces stay in place when you tap them. Then send the courier.")}
           </p>
         </div>
         <div className="wd-playtest-controls">
@@ -532,13 +569,24 @@ export function ForgeScene({
                 onClick={() => {
                   run.current++;
                   active.current = false;
-                  setRunning(false);
+                  setMode("blocked");
                   setNotice(
                     "The test has stopped. Change your route or send the courier again when you are ready.",
                   );
                 }}
               >
                 Stop the test
+              </button>
+            ) : blocked && gap !== null ? (
+              <button
+                className="wd-primary"
+                disabled={busy || state.instructions.length >= level.budget}
+                onClick={() => place(gap, "repair")}
+              >
+                <Hammer size={18} />
+                {level.water.includes(gap)
+                  ? "Build the missing bridge"
+                  : "Add the missing path"}
               </button>
             ) : (
               <button
@@ -550,16 +598,38 @@ export function ForgeScene({
                 }
                 onClick={testRoute}
               >
-                <Play size={18} /> Send the courier{" "}
+                <Play size={18} />{" "}
+                {hasTested ? "Try delivery again" : "Send the courier"}{" "}
                 <span className="wd-button-detail">Test my route</span>
               </button>
             ))}
+          {blocked && (
+            <button
+              className="wd-secondary"
+              disabled={busy}
+              onClick={() => {
+                setMode("editing");
+                setGap(null);
+                setNotice(
+                  "Your route is ready to edit. Tap empty spaces to add pieces. Use Review or remove route pieces to remove one deliberately.",
+                );
+              }}
+            >
+              Change my route
+            </button>
+          )}
           <p className="wd-caption">
             {state.instructions.length > level.budget
               ? `Remove ${state.instructions.length - level.budget} pieces before testing. You can use up to ${level.budget}.`
-              : state.solved
-                ? "Your delivery reached every destination. Explain what you checked below."
-                : "The courier moves automatically. You design the route and repair anything that stops it."}
+              : blocked &&
+                  gap !== null &&
+                  state.instructions.length >= level.budget
+                ? "You have used all your pieces. Choose Change my route, then remove an unneeded piece from the route pieces list before repairing the gap."
+                : blocked
+                  ? "Your route stays in place while the delivery is paused. Choose the repair or Change my route before editing."
+                  : state.solved
+                    ? "Your delivery reached every destination. Explain what you checked below."
+                    : "The courier moves automatically. You design the route and repair anything that stops it."}
           </p>
         </div>
       </div>
@@ -593,18 +663,18 @@ export function ForgeScene({
             ))}
           </div>
           <details className="wd-build-details">
-            <summary>See the instructions your route creates.</summary>
+            <summary>Review or remove route pieces.</summary>
             <div className="wd-build-tickets">
               {state.instructions.length ? (
                 state.instructions.map((cell, i) => (
                   <button
                     key={cell}
                     disabled={disabled}
-                    onClick={() => place(cell)}
+                    onClick={() => place(cell, "remove")}
                   >
-                    <span>{i + 1}</span>Put a{" "}
-                    {level.water.includes(cell) ? "bridge" : "path"} at{" "}
-                    {(cell % level.width) + 1},{" "}
+                    <span>{i + 1}</span>Remove the{" "}
+                    {level.water.includes(cell) ? "bridge" : "path"} at column{" "}
+                    {(cell % level.width) + 1}, row{" "}
                     {Math.floor(cell / level.width) + 1}.
                     <b aria-hidden="true">×</b>
                   </button>

@@ -328,7 +328,7 @@ export function CourierWorld({
       <div
         className="wd-world-hotspots"
         role="group"
-        aria-label="Build your delivery route. Select a space to add or remove a path; select water to add or remove a bridge."
+        aria-label="Build your delivery route. Select an empty space to add a path or water to add a bridge. Existing pieces stay in place when selected."
         style={{ gridTemplateColumns: `repeat(${level.width},1fr)` }}
       >
         {Array.from({ length: level.width * level.height }, (_, cell) => (
@@ -340,11 +340,11 @@ export function CourierWorld({
               cell === level.start ||
               level.goals.includes(cell)
             }
-            aria-label={`Column ${(cell % level.width) + 1}, row ${Math.floor(cell / level.width) + 1}: ${level.goals.includes(cell) ? level.goalNames[level.goals.indexOf(cell)] : cell === level.start ? "depot" : level.rocks.includes(cell) ? "rock" : pieces.includes(cell) ? (level.water.includes(cell) ? "remove bridge" : "remove path") : level.water.includes(cell) ? "add bridge" : "add path"}`}
+            aria-label={`Column ${(cell % level.width) + 1}, row ${Math.floor(cell / level.width) + 1}: ${level.goals.includes(cell) ? level.goalNames[level.goals.indexOf(cell)] : cell === level.start ? "depot" : level.rocks.includes(cell) ? "rock" : pieces.includes(cell) ? (level.water.includes(cell) ? "inspect existing bridge" : "inspect existing path") : level.water.includes(cell) ? "add bridge" : "add path"}`}
             aria-pressed={pieces.includes(cell)}
             onClick={() => onPlace(cell)}
           >
-            <span aria-hidden="true">{pieces.includes(cell) ? "−" : "+"}</span>
+            <span aria-hidden="true">{pieces.includes(cell) ? "✓" : "+"}</span>
           </button>
         ))}
       </div>

@@ -1,0 +1,401 @@
+.wq-world {
+  --wq-ground-top: #83ae84;
+  --wq-ground-bottom: #4c8062;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1000 / 660;
+  border: 1px solid #557c68;
+  border-radius: 28px;
+  background: #4c8062;
+  box-shadow:
+    0 5px 0 #284b3d,
+    0 22px 48px #2446381a;
+}
+.wq-world-creators,
+.wq-world-studio {
+  --wq-ground-top: #6e9677;
+  --wq-ground-bottom: #34634f;
+}
+.wq-world-scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.wq-world-location {
+  position: absolute;
+  top: 19px;
+  left: 22px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border: 1px solid #d5dfc642;
+  border-radius: 100px;
+  background: #244f43e8;
+  color: #fff2d5;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  pointer-events: none;
+  box-shadow: 0 2px 8px #1a3a3421;
+}
+.wq-world-location-star {
+  color: #e9d69c;
+  font-size: 16px;
+}
+.wq-world-objects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.wq-world-object {
+  position: absolute;
+  width: max(7.6%, 44px);
+  height: max(12%, 44px);
+  transform: translate(-50%, -76%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: #fff5df;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.wq-world-object-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  transition:
+    background 0.18s,
+    border-color 0.18s;
+}
+.wq-world-object:hover .wq-world-object-ring,
+.wq-world-object.is-active .wq-world-object-ring {
+  border-color: #f5dda3b3;
+  background: #fff1ae14;
+  box-shadow: 0 0 20px #f7d58626;
+}
+.wq-world-object:focus-visible {
+  outline: 3px solid #fff2bf;
+  outline-offset: 4px;
+}
+.wq-world-object-name {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-shrink: 0;
+  max-width: 164px;
+  margin-bottom: -21px;
+  padding: 6px 9px;
+  border: 1px solid #c5d2b865;
+  border-radius: 8px;
+  background: #244d41ed;
+  box-shadow: 0 2px 3px #173a3233;
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: 650;
+  white-space: nowrap;
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+.wq-world-object-arrow {
+  color: #e9d69c;
+  font-size: 14px;
+}
+.wq-world-object.is-active .wq-world-object-name,
+.wq-world-object:hover .wq-world-object-name {
+  background: #f7e7c0;
+  border-color: #fff1c7;
+  color: #284e40;
+}
+.wq-world-object.is-active .wq-world-object-arrow,
+.wq-world-object:hover .wq-world-object-arrow {
+  color: #4a7758;
+}
+.wq-world-object:disabled {
+  cursor: wait;
+}
+.wq-world-object.is-pip {
+  transition:
+    left 0.7s ease-in-out,
+    top 0.7s ease-in-out;
+}
+.wq-world-compass {
+  position: absolute;
+  right: 19px;
+  top: 15px;
+  display: grid;
+  justify-items: center;
+  color: #f4e6c6;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 750;
+  filter: drop-shadow(0 2px 1px #36564788);
+  pointer-events: none;
+}
+.wq-world-compass svg {
+  display: block;
+  width: 32px;
+  height: 32px;
+}
+.wq-world-avatar,
+.wq-world-companion {
+  transition: transform 0.7s ease-in-out;
+}
+.wq-world-companion {
+  transition-duration: 0.85s;
+}
+.wq-world-tree-crown {
+  transform-origin: 0 0;
+  animation: wq-world-sway 7s ease-in-out infinite;
+}
+.wq-world-water {
+  animation: wq-world-water 4.8s ease-in-out infinite;
+}
+.wq-world-pip-hover {
+  animation: wq-world-hover 3.2s ease-in-out infinite;
+}
+.wq-world-wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.wq-world-wheel.is-turning {
+  animation: wq-world-turn 9s linear infinite;
+}
+.wq-world-irrigation {
+  animation: wq-world-flow 1.2s linear infinite;
+}
+.wq-world-plant.is-blooming {
+  transform-origin: bottom center;
+  animation: wq-world-grow 0.8s ease-out both;
+}
+.wq-world-flower {
+  animation: wq-world-flower 0.7s ease-out both;
+}
+.wq-world-butterfly {
+  animation: wq-world-butterfly 9s ease-in-out infinite;
+}
+.wq-world-butterfly-second {
+  animation-duration: 12s;
+  animation-delay: -4s;
+}
+.wq-world-motes circle {
+  animation: wq-world-motes 4s ease-in-out infinite;
+}
+.wq-world-celebration path {
+  animation: wq-world-twinkle 2.1s ease-in-out infinite;
+}
+.wq-world-splash {
+  animation: wq-world-splash 1.5s ease-in-out infinite;
+}
+.wq-world-found {
+  animation: wq-world-appear 0.3s ease-out both;
+}
+@keyframes wq-world-sway {
+  0%,
+  100% {
+    transform: rotate(-0.8deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+}
+@keyframes wq-world-water {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 0.75;
+  }
+}
+@keyframes wq-world-hover {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes wq-world-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes wq-world-flow {
+  to {
+    stroke-dashoffset: -42;
+  }
+}
+@keyframes wq-world-grow {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes wq-world-flower {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes wq-world-butterfly {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  30% {
+    translate: 17px -24px;
+  }
+  65% {
+    translate: -16px -10px;
+  }
+}
+@keyframes wq-world-motes {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+@keyframes wq-world-twinkle {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes wq-world-splash {
+  0%,
+  100% {
+    opacity: 0.4;
+    translate: 0 0;
+  }
+  50% {
+    opacity: 1;
+    translate: 4px -6px;
+  }
+}
+@keyframes wq-world-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 640px) {
+  .wq-world {
+    border-radius: 20px;
+  }
+  .wq-world-location {
+    top: 10px;
+    left: 10px;
+    gap: 5px;
+    padding: 5px 8px;
+    font-size: 9px;
+  }
+  .wq-world-location-star {
+    font-size: 12px;
+  }
+  .wq-world-compass {
+    right: 9px;
+    top: 8px;
+    font-size: 8px;
+  }
+  .wq-world-compass svg {
+    width: 22px;
+    height: 22px;
+  }
+  .wq-world-object-name {
+    gap: 3px;
+    max-width: 96px;
+    padding: 4px 6px;
+    margin-bottom: -14px;
+    border-radius: 6px;
+    font-size: 9px;
+  }
+  .wq-world-object-arrow {
+    font-size: 10px;
+  }
+  .wq-world-object-ring {
+    border-radius: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wq-world *,
+  .wq-world *::before,
+  .wq-world *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.wq-world-shade {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+.wq-world-shade.is-open {
+  opacity: 1;
+}
+.wq-world-sprinklers {
+  animation: wq-world-rain 0.7s linear infinite;
+}
+.wq-world-flood {
+  animation: wq-world-flood 1.8s ease-out both;
+}
+.wq-world-new-plant {
+  animation: wq-world-appear 0.65s ease-out both;
+}
+.wq-world.is-testing .wq-world-greenhouse {
+  filter: drop-shadow(0 0 8px #e6f7b659);
+}
+@keyframes wq-world-rain {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+@keyframes wq-world-flood {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wq-world-shade,
+  .wq-world-sprinklers,
+  .wq-world-flood,
+  .wq-world-new-plant {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.wq-world-sprinklers.is-heavy {
+  stroke-width: 5;
+  stroke-dasharray: 7 5;
+  animation-duration: 0.4s;
+}
