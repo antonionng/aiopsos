@@ -16,6 +16,9 @@ import {
   Sun,
   Volume2,
   VolumeX,
+  Maximize,
+  Menu,
+  X,
 } from "lucide-react";
 import {
   createQuestState,
@@ -29,6 +32,7 @@ import {
 } from "@/lib/wonderlab/quest";
 import { GardenWorld, GARDEN_PLACES } from "./garden-world";
 import { useNarration } from "@/components/wonderlab/use-narration";
+import { useGameScreen } from "@/components/wonderlab/use-game-screen";
 
 const ages: { id: QuestBand; label: string; name: string }[] = [
   { id: "explorers", label: "4–6", name: "Little Explorers" },
@@ -100,13 +104,58 @@ function PictureClue({ kind }: { kind: "water" | "sun" | "new-plant" }) {
 
 export function QuestPreview() {
   const [band, setBand] = useState<QuestBand>("inventors");
+  const screen = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDialogElement>(null);
+  const enterButton = useRef<HTMLButtonElement>(null);
+  const exitButton = useRef<HTMLButtonElement>(null);
+  const wasExpanded = useRef(false);
+  const gameScreen = useGameScreen(screen);
+  useEffect(() => {
+    if (gameScreen.isFullscreen)
+      exitButton.current?.focus({ preventScroll: true });
+    else if (wasExpanded.current) {
+      menu.current?.close();
+      enterButton.current?.focus({ preventScroll: true });
+    }
+    wasExpanded.current = gameScreen.isFullscreen;
+  }, [gameScreen.isFullscreen]);
   return (
-    <div className={`wq wq-${band}`}>
+    <div
+      ref={screen}
+      className={`wq wq-${band} ${gameScreen.isFullscreen ? "is-playing" : ""}`}
+    >
+      <div className="wq-play-bar">
+        <button
+          ref={exitButton}
+          onClick={() => void gameScreen.exit()}
+          aria-label="Leave full-screen play"
+        >
+          <ArrowLeft size={20} />
+          <span>Exit</span>
+        </button>
+        <strong>
+          Wonderlab <span>Fernwood Garden</span>
+        </strong>
+        <button
+          onClick={() => menu.current?.showModal()}
+          aria-label="Open game menu"
+        >
+          <Menu size={21} />
+        </button>
+      </div>
       <div className="wq-preview-bar">
         <Link href="/wonderlab/games">
           <ArrowLeft size={16} /> Wonderlab games
         </Link>
         <span>Playtest · One new quest</span>
+        <button
+          className="wq-screen-button"
+          ref={enterButton}
+          onClick={() => void gameScreen.enter()}
+        >
+          <Maximize size={17} />
+          Play full screen
+        </button>
         <label>
           Play for ages
           <select
@@ -121,12 +170,76 @@ export function QuestPreview() {
           </select>
         </label>
       </div>
-      <GardenQuest key={band} band={band} />
+      <GardenQuest
+        key={band}
+        band={band}
+        expanded={gameScreen.isFullscreen}
+        enterScreen={gameScreen.enter}
+      />
+      <dialog className="wq-menu" ref={menu} aria-labelledby="quest-menu-title">
+        <header>
+          <h2 id="quest-menu-title">Your adventure</h2>
+          <button
+            aria-label="Close game menu"
+            onClick={() => menu.current?.close()}
+          >
+            <X size={20} />
+          </button>
+        </header>
+        <p>
+          Pip helps you explore, check ideas and collect discoveries. Each age
+          level keeps its own progress in this browser.
+        </p>
+        <label>
+          Choose an age level
+          <select
+            value={band}
+            onChange={(event) => {
+              setBand(event.target.value as QuestBand);
+              menu.current?.close();
+            }}
+          >
+            {ages.map((age) => (
+              <option key={age.id} value={age.id}>
+                {age.label} · {age.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p>
+          Tap a place to walk there. On a phone, slide your finger across the
+          world to look around, or open the map to choose a destination.
+        </p>
+        {gameScreen.message && (
+          <p className="wq-screen-note">{gameScreen.message}</p>
+        )}
+        <button className="wq-primary" onClick={() => menu.current?.close()}>
+          Keep playing
+          <ArrowRight size={17} />
+        </button>
+        <button
+          className="wq-menu-exit"
+          onClick={() => {
+            menu.current?.close();
+            void gameScreen.exit();
+          }}
+        >
+          Leave full-screen play
+        </button>
+      </dialog>
     </div>
   );
 }
 
-function GardenQuest({ band }: { band: QuestBand }) {
+function GardenQuest({
+  band,
+  expanded,
+  enterScreen,
+}: {
+  band: QuestBand;
+  expanded: boolean;
+  enterScreen: () => Promise<void>;
+}) {
   const config = QUEST_CONFIG[band];
   const [quest, setQuest] = useState(() => createQuestState(band));
   const current = useRef(quest);
@@ -140,15 +253,30 @@ function GardenQuest({ band }: { band: QuestBand }) {
   const [testMessage, setTestMessage] = useState(false);
   const [hint, setHint] = useState(false);
   const [spokenGuidance, setSpokenGuidance] = useState(false);
+  const speechAllowed = useRef(false);
   const lastSpoken = useRef("");
   const [bag, setBag] = useState(false);
   const [confirmRestart, setConfirmRestart] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const interaction = useRef(false);
   const dialogue = useRef<HTMLElement>(null);
+  const dialogueBody = useRef<HTMLDivElement>(null);
   const world = useRef<HTMLDivElement>(null);
   const { speak, stop, message: voiceMessage } = useNarration(band);
   const storageKey = `wonderlab-garden-playtest-v1:${band}`;
+  useEffect(() => {
+    if (!expanded) {
+      speechAllowed.current = false;
+      stop();
+      const timer = setTimeout(() => setSpokenGuidance(false), 0);
+      return () => clearTimeout(timer);
+    }
+  }, [expanded, stop]);
+
+  function enterMobileScreen() {
+    if (!expanded && window.matchMedia("(max-width: 1000px)").matches)
+      void enterScreen();
+  }
 
   useEffect(() => {
     const activeTimers = timers.current;
@@ -177,6 +305,10 @@ function GardenQuest({ band }: { band: QuestBand }) {
   useEffect(() => {
     if (active && !walking) dialogue.current?.focus({ preventScroll: true });
   }, [active, walking]);
+
+  useEffect(() => {
+    if (dialogueBody.current) dialogueBody.current.scrollTop = 0;
+  }, [active, quest.successful, quest.transferComplete, testMessage]);
 
   function send(action: QuestAction) {
     const next = reduceQuest(current.current, action);
@@ -210,6 +342,7 @@ function GardenQuest({ band }: { band: QuestBand }) {
     if (!ready || interaction.current) return;
     const place = GARDEN_PLACES.find((item) => item.id === id);
     if (!place) return;
+    enterMobileScreen();
     stop();
     setHint(false);
     setTestMessage(false);
@@ -224,15 +357,17 @@ function GardenQuest({ band }: { band: QuestBand }) {
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    world.current?.scrollIntoView({
-      behavior: reduced ? "instant" : "smooth",
-      block: "start",
-    });
+    if (!expanded && !window.matchMedia("(max-width: 1000px)").matches)
+      world.current?.scrollIntoView({
+        behavior: reduced ? "instant" : "smooth",
+        block: "start",
+      });
     timers.current.push(setTimeout(() => arrive(id), reduced ? 0 : 700));
   }
 
   function testGarden() {
     if (interaction.current || !ready) return;
+    enterMobileScreen();
     interaction.current = true;
     stop();
     setTesting(true);
@@ -240,10 +375,11 @@ function GardenQuest({ band }: { band: QuestBand }) {
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    world.current?.scrollIntoView({
-      behavior: reduced ? "instant" : "smooth",
-      block: "start",
-    });
+    if (!expanded && !window.matchMedia("(max-width: 1000px)").matches)
+      world.current?.scrollIntoView({
+        behavior: reduced ? "instant" : "smooth",
+        block: "start",
+      });
     timers.current.push(
       setTimeout(
         () => {
@@ -318,6 +454,7 @@ function GardenQuest({ band }: { band: QuestBand }) {
       : line;
   useEffect(() => {
     if (
+      !speechAllowed.current ||
       !spokenGuidance ||
       !active ||
       walking ||
@@ -471,10 +608,13 @@ function GardenQuest({ band }: { band: QuestBand }) {
                 </span>
                 <button
                   onClick={() => {
-                    dialogue.current?.scrollIntoView({
-                      behavior: "auto",
-                      block: "nearest",
-                    });
+                    if (dialogueBody.current)
+                      dialogueBody.current.scrollTop = 0;
+                    if (!expanded)
+                      dialogue.current?.scrollIntoView({
+                        behavior: "auto",
+                        block: "nearest",
+                      });
                     dialogue.current?.focus({ preventScroll: true });
                   }}
                 >
@@ -563,7 +703,7 @@ function GardenQuest({ band }: { band: QuestBand }) {
               {active === "keeper" ? "Needs your help" : "Your fictional guide"}
             </small>
           </div>
-          <div className="wq-dialogue-body">
+          <div className="wq-dialogue-body" ref={dialogueBody}>
             <h2>{panelTitle}</h2>
             {complete ? (
               <>
@@ -673,6 +813,7 @@ function GardenQuest({ band }: { band: QuestBand }) {
               title="Listen with an AI-generated voice. Guidance follows your actions until you stop it."
               aria-pressed={spokenGuidance}
               onClick={() => {
+                speechAllowed.current = true;
                 setSpokenGuidance(true);
                 lastSpoken.current = spokenLine;
                 speak(spokenLine);
@@ -683,6 +824,7 @@ function GardenQuest({ band }: { band: QuestBand }) {
             <button
               aria-label="Stop spoken guidance"
               onClick={() => {
+                speechAllowed.current = false;
                 setSpokenGuidance(false);
                 stop();
               }}
@@ -702,6 +844,13 @@ function GardenQuest({ band }: { band: QuestBand }) {
         </section>
         {hint && (
           <div className="wq-help" role="status">
+            <button
+              className="wq-close-help"
+              aria-label="Close Pip’s hint"
+              onClick={() => setHint(false)}
+            >
+              <X size={17} />
+            </button>
             <strong>Pip’s next-step hint</strong>
             <p>
               {quest.successful
@@ -718,6 +867,12 @@ function GardenQuest({ band }: { band: QuestBand }) {
         {voiceMessage && (
           <p className="wq-save-note" role="status">
             {voiceMessage}
+          </p>
+        )}
+        {saveError && (
+          <p className="wq-save-warning" role="status">
+            This browser could not save your latest step. Keep the game open to
+            continue.
           </p>
         )}
       </div>

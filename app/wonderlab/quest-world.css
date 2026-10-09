@@ -399,3 +399,176 @@
   stroke-dasharray: 7 5;
   animation-duration: 0.4s;
 }
+
+/* The same world stays mounted when the learner opens the map. */
+.wq-world-camera {
+  container-type: size;
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+}
+.wq-world-camera::-webkit-scrollbar {
+  display: none;
+}
+.wq-world-camera:focus-visible {
+  outline: 3px solid #fff2bf;
+  outline-offset: -5px;
+}
+.wq-world-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 660;
+  flex-shrink: 0;
+}
+.wq-world-camera-tools,
+.wq-world-pan-hint {
+  display: none;
+}
+
+.wq-world-camera-tools {
+  position: absolute;
+  z-index: 3;
+  right: 12px;
+  bottom: 12px;
+  display: none;
+  gap: 7px;
+}
+
+.wq-world-camera-tools button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 11px;
+  border: 1px solid #d4e0bd88;
+  border-radius: 12px;
+  background: #254b3ef0;
+  box-shadow: 0 3px 0 #17382fe0;
+  color: #fff5dc;
+  font-size: 11px;
+  font-weight: 750;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.wq-world-camera-tools button[aria-pressed="true"] {
+  background: #f3e4b8;
+  color: #264f40;
+  border-color: #fff2cc;
+}
+
+.wq-world-camera-tools svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.wq-world-pan-hint {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  bottom: 19px;
+  display: none;
+  max-width: calc(100% - 195px);
+  padding: 5px 7px;
+  border-radius: 6px;
+  background: #254b3edb;
+  color: #fff1cf;
+  font-size: 10px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.wq-world.is-overview .wq-world-camera {
+  display: grid;
+  align-items: safe center;
+  justify-items: safe center;
+  padding-bottom: 64px;
+}
+
+.wq-world.is-overview .wq-world-canvas {
+  width: max(320px, min(100cqw, calc(100cqh * 1000 / 660)));
+  min-width: 320px;
+}
+
+.wq-world.is-overview .wq-world-object-name {
+  padding: 4px 5px;
+  margin-bottom: -14px;
+  font-size: 9px;
+  max-width: 96px;
+}
+
+.wq-world.is-overview .wq-world-object-arrow {
+  font-size: 10px;
+}
+
+@media (max-width: 700px), (max-width: 1000px) and (max-height: 600px) {
+  .wq-world {
+    height: var(--wq-world-height, 48dvh);
+    min-height: 0;
+    aspect-ratio: auto;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+  }
+  .wq-world-canvas {
+    width: max(100%, 820px);
+  }
+  .wq-world-object-name {
+    max-width: 150px;
+    font-size: 11px;
+    padding: 6px 8px;
+    margin-bottom: -18px;
+  }
+  .wq-world-object-arrow {
+    font-size: 12px;
+  }
+  .wq-world-object {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: pan-x pan-y;
+  }
+  .wq-world-location {
+    top: 12px;
+    left: 12px;
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+  .wq-world-compass {
+    right: 14px;
+    top: 12px;
+  }
+  .wq-world-camera-tools {
+    display: flex;
+  }
+
+  .wq-world-pan-hint {
+    display: block;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wq-world-camera {
+    scroll-behavior: auto;
+  }
+}
+
+/* Fullscreen stages can be taller than the original illustration ratio. */
+.wq.is-playing .wq-world:not(.is-overview) .wq-world-canvas {
+  width: max(100cqw, calc(100cqh * 1000 / 660), 820px);
+}
+.wq.is-playing .wq-world-camera-tools {
+  display: flex;
+}
+.wq.is-playing .wq-world-pan-hint {
+  display: block;
+}
