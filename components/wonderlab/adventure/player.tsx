@@ -17,6 +17,7 @@ import type {
 } from "@/lib/wonderlab/adventure/types";
 import { useDemoProgress, saveDemoMove } from "./demo-progress";
 import { initialAdventure } from "@/lib/wonderlab/adventure/engine";
+import { AdventureCoach } from "./coach";
 import { useNarration } from "../use-narration";
 import {
   Avatar,
@@ -30,10 +31,14 @@ export function AdventurePlayer({
   game,
   demo = false,
   initial,
+  aiEnabled = false,
+  remaining = 0,
 }: {
   game: Adventure;
   demo?: boolean;
   initial?: AdventureRecord;
+  aiEnabled?: boolean;
+  remaining?: number;
 }) {
   const [savedRecord, setRecord] = useState({
     revision: initial?.revision ?? 0,
@@ -43,6 +48,7 @@ export function AdventurePlayer({
   const record = demo ? (demoRecord ?? savedRecord) : savedRecord;
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
+  const revision = useRef(initial?.revision ?? 0);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState<Action | null>(null);
   const [reflectionDraft, setReflection] = useState<string | null>(null);
@@ -55,10 +61,10 @@ export function AdventurePlayer({
   const reflectionPanel = useRef<HTMLElement>(null);
   const previouslySolved = useRef(round?.solved ?? false);
   useEffect(() => {
-    if (round?.solved && !previouslySolved.current)
+    if (round?.solved && !previouslySolved.current && level?.kind !== "forge")
       reflectionPanel.current?.focus();
     previouslySolved.current = round?.solved ?? false;
-  }, [round?.solved]);
+  }, [round?.solved, level?.kind]);
   const previousRound = useRef(state.round);
   useEffect(() => {
     if (previousRound.current !== state.round) {
@@ -74,8 +80,9 @@ export function AdventurePlayer({
     setRetry(null);
     try {
       if (demo) {
-        const next = saveDemoMove(game, action).state;
-        setRecord({ revision: record.revision + 1, state: next });
+        const next = saveDemoMove(game, action);
+        revision.current = next.revision;
+        setRecord(next);
         if (action.type === "next" || action.type === "replay") {
           setReflection(null);
           narration.stop();
@@ -87,7 +94,7 @@ export function AdventurePlayer({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           slug: game.slug,
-          revision: record.revision,
+          revision: revision.current,
           action,
         }),
       });
@@ -99,6 +106,7 @@ export function AdventurePlayer({
         );
         const checkpoint = await latest.json();
         if (!latest.ok) throw new Error(checkpoint.error);
+        revision.current = checkpoint.revision;
         setRecord(checkpoint);
         setReflection(
           checkpoint.state.rounds[checkpoint.state.round]?.reflection ?? "",
@@ -112,6 +120,7 @@ export function AdventurePlayer({
         throw new Error(
           data.error ?? "Your move could not be saved. Please try again.",
         );
+      revision.current = data.revision;
       setRecord(data);
       if (action.type === "next" || action.type === "replay") {
         setReflection(null);
@@ -235,6 +244,19 @@ export function AdventurePlayer({
               you write. Use fictional details in your work.
             </p>
           </details>
+          {level.kind !== "forge" && (
+            <AdventureCoach
+              key={`coach-${state.round}`}
+              game={game}
+              state={state}
+              revision={record.revision}
+              aiEnabled={!demo && aiEnabled}
+              allowance={remaining}
+              busy={busy}
+              narrate={narration.speak}
+              stop={narration.stop}
+            />
+          )}
           <div className="wd-game-surface" key={state.round}>
             {level.kind === "signal" ? (
               <SignalScene
@@ -251,6 +273,20 @@ export function AdventurePlayer({
                 send={send}
                 busy={busy}
                 colour={state.cosmetic}
+                onReflect={() => reflectionPanel.current?.focus()}
+                coach={
+                  <AdventureCoach
+                    key={`coach-${state.round}`}
+                    game={game}
+                    state={state}
+                    revision={record.revision}
+                    aiEnabled={!demo && aiEnabled}
+                    allowance={remaining}
+                    busy={busy}
+                    narrate={narration.speak}
+                    stop={narration.stop}
+                  />
+                }
               />
             ) : level.kind === "launch" ? (
               <LaunchScene

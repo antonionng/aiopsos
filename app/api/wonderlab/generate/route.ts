@@ -9,8 +9,13 @@ import {
 } from "@/lib/wonderlab/server";
 import { launchStatus } from "@/lib/wonderlab/flags";
 import { readGeneration, readRate } from "@/lib/wonderlab/generation-rules";
+import { getAdventure } from "@/lib/wonderlab/adventure/catalog";
+import { loadAdventure } from "@/lib/wonderlab/adventure/server";
+import { coachContext } from "@/lib/wonderlab/adventure/coaching";
 export const maxDuration = 60;
 const variants: Record<string, string> = {
+  "coach-hint":
+    "Give one short hint about the learner's current game step, followed by one question that encourages them to investigate. Use at most 60 words. Do not supply a complete solution, claim to have watched them, or claim to control the game. You can only use the reviewed context supplied here.",
   ideas: "Offer a first draft and a question that helps the learner review it.",
   simpler: "Use shorter sentences and explain any specialist words.",
   challenge:
@@ -58,6 +63,23 @@ export async function POST(req: Request) {
       !Object.hasOwn(variants, b.variant)
     )
       throw new WonderlabError("Choose one of the guided creation options.");
+    let brief = mission.aiBrief;
+    if (b.variant === "coach-hint") {
+      const game = getAdventure(mission.slug);
+      if (!game || !Number.isSafeInteger(b.revision))
+        throw new WonderlabError("Open a game before asking for a hint.");
+      const saved = await loadAdventure(child.id, game);
+      if (saved.revision !== b.revision)
+        throw new WonderlabError(
+          "Your game changed. Ask again for a hint about the new step.",
+          409,
+        );
+      if (!game.levels[saved.state.round])
+        throw new WonderlabError(
+          "You have finished this game. Choose another game to keep learning.",
+        );
+      brief = coachContext(game, saved.state);
+    }
     const { data: request, error } = await db.rpc(
       "wonderlab_reserve_generation",
       { p_id: b.requestId, p_order: order.id, p_child: child.id },
@@ -65,7 +87,7 @@ export async function POST(req: Request) {
     if (error)
       throw new WonderlabError(
         error.message.includes("Allowance")
-          ? "Your 30 creations have been used. You can keep playing the authored activities."
+          ? "Your 30 guided AI responses for this game have been used. You can keep playing with the prepared guidance."
           : "Guided AI could not start. Try the authored example.",
         409,
       );
@@ -77,8 +99,8 @@ export async function POST(req: Request) {
         409,
       );
     reservation = b.requestId;
-    // Only reviewed curriculum and enumerated choices leave the server. Nicknames,
-    // free-text creations, profile identifiers and activity answers are never sent.
+    // Only reviewed curriculum, enumerated choices and coarse game facts leave
+    // the server. Names, identifiers, reflections and client context are excluded.
     const result = await openai("chat/completions", {
       model: process.env.WONDERLAB_AI_MODEL,
       store: false,
@@ -86,9 +108,9 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are an educational drafting tool for learners aged ${child.band === "creators" ? "11–13" : "14–16"}. Use British English and complete sentences. Explain unfamiliar terms for this age level. Stay strictly within the supplied fictional educational task. Do not request personal information, introduce real people, external links, sexual or violent content, or offer companionship. Give plain text without HTML. Keep the response under 250 words. Explain that the learner must check the draft.`,
+          content: `You are an educational game guide and drafting tool for learners aged ${child.band === "creators" ? "11–13" : "14–16"}. Use British English and complete sentences. Explain unfamiliar terms for this age level. Stay strictly within the supplied fictional educational task. Do not request personal information, introduce real people, external links, sexual or violent content, or offer companionship. Give plain text without HTML. Keep the response under 250 words. Encourage the learner to check the result.`,
         },
-        { role: "user", content: `${mission.aiBrief}\n${variants[b.variant]}` },
+        { role: "user", content: `${brief}\n${variants[b.variant]}` },
       ],
     });
     const { output, inputTokens, outputTokens } = readGeneration(result);

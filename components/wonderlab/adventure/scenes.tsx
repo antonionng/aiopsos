@@ -8,12 +8,10 @@ import {
   ArrowUp,
   BookOpen,
   Check,
-  Flag,
   Hammer,
   MapPin,
   Play,
   Radio,
-  RotateCcw,
   Search,
   Send,
   Sparkles,
@@ -26,11 +24,9 @@ import type {
   RoundState,
   SignalLevel,
 } from "@/lib/wonderlab/adventure/types";
-import {
-  neighbours,
-  predict,
-  walkable,
-} from "@/lib/wonderlab/adventure/engine";
+import { predict } from "@/lib/wonderlab/adventure/engine";
+import { CourierWorld } from "./courier-world";
+import { planRouteTest } from "@/lib/wonderlab/adventure/route-test";
 type SendAction = (action: Action) => Promise<boolean>;
 const directions = [
   { label: "left", dx: -1, dy: 0, Icon: ArrowLeft },
@@ -376,280 +372,255 @@ export function ForgeScene({
   state,
   send,
   busy,
-  colour,
+  coach,
+  onReflect,
 }: {
   level: ForgeLevel;
   state: RoundState;
   send: SendAction;
   busy: boolean;
   colour: string;
+  coach?: React.ReactNode;
+  onReflect?: () => void;
 }) {
-  const [playing, setPlaying] = useState(false);
-  const [path, setPath] = useState([level.start]);
+  const [running, setRunning] = useState(false);
+  const [position, setPosition] = useState(level.start);
+  const [gap, setGap] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
-  const position = path.at(-1)!;
-  const atDestination = level.goals.includes(position);
-  const movementDisabled = busy || atDestination || state.solved;
-  const board = useRef<HTMLDivElement>(null);
-  function move(dx: number, dy: number) {
-    if (!playing || movementDisabled) return;
-    const x = (position % level.width) + dx,
-      y = Math.floor(position / level.width) + dy,
-      next = y * level.width + x;
-    if (
-      x < 0 ||
-      x >= level.width ||
-      y < 0 ||
-      y >= level.height ||
-      !walkable(level, state, next) ||
-      level.rocks.includes(next)
-    ) {
+  const run = useRef(0);
+  const active = useRef(false);
+  useEffect(
+    () => () => {
+      run.current++;
+      active.current = false;
+    },
+    [],
+  );
+  const disabled = busy || running || state.solved;
+  async function testRoute() {
+    if (active.current || busy || state.solved) return;
+    active.current = true;
+    const token = ++run.current;
+    setRunning(true);
+    setGap(null);
+    setPosition(level.start);
+    setNotice(
+      "I am building your instructions. Then the courier will test each destination automatically.",
+    );
+    try {
+      if (!(await send({ type: "fabricate" }))) {
+        if (token === run.current)
+          setNotice(
+            "The route could not be saved. Your pieces are still here. Try sending the courier again.",
+          );
+        return;
+      }
+      if (token !== run.current) return;
+      const delay = window.matchMedia("(prefers-reduced-motion: reduce)")
+        .matches
+        ? 60
+        : 430;
+      for (const goal of level.goals) {
+        const result = planRouteTest(level, state.instructions, goal);
+        setPosition(level.start);
+        setNotice(
+          `The courier is testing the route to ${level.goalNames[level.goals.indexOf(goal)]}. Watch what your instructions make possible.`,
+        );
+        for (const cell of result.path) {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          if (token !== run.current) return;
+          setPosition(cell);
+        }
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        if (token !== run.current) return;
+        if (!result.reached) {
+          setGap(result.gap);
+          setNotice(
+            result.gap === null
+              ? "The rocks block this destination. Try a different route, then test again."
+              : level.water.includes(result.gap)
+                ? "The courier has stopped at the river. Your route needs a bridge here. Tap the glowing water to build it, then test again."
+                : "The courier has reached a gap. Tap the glowing space to connect your path, then test again.",
+          );
+          return;
+        }
+        if (
+          !(await send({ type: "walk", path: result.path })) ||
+          token !== run.current
+        ) {
+          if (token === run.current)
+            setNotice(
+              "The journey could not be saved. Your route is still here. Try testing it again.",
+            );
+          return;
+        }
+      }
       setNotice(
-        "That square has no safe path. Choose Change my route to add a path or bridge, then test again.",
+        "Delivery complete! Your instructions connected every destination. You checked the result instead of assuming the plan would work.",
       );
-      return;
-    }
-    const nextPath = [...path, next];
-    if (nextPath.length > 140) {
-      setNotice("Restart this journey to continue testing.");
-      return;
-    }
-    setPath(nextPath);
-    setNotice("");
-    if (level.goals.includes(next)) {
-      send({ type: "walk", path: nextPath });
+    } finally {
+      if (token === run.current) {
+        active.current = false;
+        setRunning(false);
+      }
     }
   }
-  const pieces = playing ? state.tiles : state.instructions;
+  async function place(cell: number) {
+    if (disabled) return;
+    if (await send({ type: "tile", cell })) {
+      setGap(null);
+      setNotice(
+        level.water.includes(cell)
+          ? state.instructions.includes(cell)
+            ? "You removed a bridge. Make sure the courier still has a way across before you send it."
+            : "You added a bridge. Now test the route to see whether it connects all the way to the destination."
+          : "You changed the route. Send the courier when you are ready to see what happens.",
+      );
+    }
+  }
   return (
-    <div className="wd-forge-layout">
-      <NextStep
-        steps={["Make your route", "Walk to the flags", "Explain your change"]}
-        current={state.solved ? 2 : playing ? 1 : 0}
-        title={
-          state.solved
-            ? "Your route works."
-            : playing
-              ? "Move your character from START to each flag."
-              : "Make a connected route from START to each flag."
-        }
-      >
-        {state.solved
-          ? "Write one sentence below about what you changed or checked. Then continue to the next step."
-          : playing
-            ? "Use the arrow buttons, your keyboard arrow keys or a neighbouring path square to move. If you get stuck, choose ‘Change my route’. This is the test of the route you just built."
-            : "Tap squares to add or remove path pieces. A piece on water becomes a bridge. When your route is ready, choose ‘Build and test my route’."}
-      </NextStep>
-      <div
-        className="wd-forge-main"
-        onKeyDown={(event) => {
-          if (playing) directionKey(event, move);
-        }}
-      >
-        <div className="wd-canvas-toolbar">
-          <span>
+    <div className="wd-forge-layout wd-delivery-game">
+      <div className="wd-forge-main">
+        <div className="wd-delivery-hud">
+          <div>
             <span className="wd-live-dot" />
-            {playing ? "WALK YOUR ROUTE" : "EDIT YOUR ROUTE"}
-          </span>
+            {state.solved
+              ? "DELIVERY COMPLETE"
+              : running
+                ? "COURIER ON THE MOVE"
+                : "YOUR DELIVERY WORLD"}
+          </div>
           <span>
-            {pieces.length}/{level.budget} pieces
+            {state.instructions.length} / {level.budget} pieces
           </span>
         </div>
+        <CourierWorld
+          level={level}
+          pieces={state.instructions}
+          position={position}
+          gap={gap}
+          running={running}
+          solved={state.solved}
+          testedGoals={state.testedGoals}
+          disabled={disabled}
+          onPlace={place}
+        />
         <div
-          className="wd-forge-board"
-          ref={board}
-          tabIndex={0}
-          role="group"
-          aria-label="Construction board. In playtest mode, use arrow keys or W A S D to move."
-          style={{ gridTemplateColumns: `repeat(${level.width},1fr)` }}
+          className={`wd-delivery-message ${gap !== null ? "needs-repair" : ""}`}
+          role="status"
         >
-          {Array.from({ length: level.width * level.height }, (_, cell) => {
-            const goal = level.goals.indexOf(cell),
-              water = level.water.includes(cell),
-              rock = level.rocks.includes(cell),
-              placed = pieces.includes(cell);
-            return (
+          <span aria-hidden="true">
+            {state.solved ? "✓" : gap !== null ? "!" : "↗"}
+          </span>
+          <p>
+            {notice ||
+              (state.solved
+                ? "You already checked this route. Your reflection is below."
+                : "Connect the depot to each destination. Tap the landscape to add paths and tap water to build bridges. Then send the courier.")}
+          </p>
+        </div>
+        <div className="wd-playtest-controls">
+          {state.solved && (
+            <button className="wd-primary" onClick={onReflect}>
+              Explain what worked <ArrowRight size={18} />
+            </button>
+          )}
+          {!state.solved &&
+            (running ? (
               <button
-                key={cell}
+                className="wd-secondary"
+                onClick={() => {
+                  run.current++;
+                  active.current = false;
+                  setRunning(false);
+                  setNotice(
+                    "The test has stopped. Change your route or send the courier again when you are ready.",
+                  );
+                }}
+              >
+                Stop the test
+              </button>
+            ) : (
+              <button
+                className="wd-primary"
                 disabled={
                   busy ||
-                  state.solved ||
-                  rock ||
-                  (playing ? atDestination : cell === level.start || goal >= 0)
+                  !state.instructions.length ||
+                  state.instructions.length > level.budget
                 }
-                aria-label={`Column ${(cell % level.width) + 1}, row ${Math.floor(cell / level.width) + 1}: ${rock ? "blocked machinery" : goal >= 0 ? level.goalNames[goal] : cell === level.start ? "arrival point" : placed ? (water ? "bridge instruction" : "path instruction") : water ? "water" : "empty ground"}`}
-                aria-pressed={playing ? undefined : placed}
-                aria-current={
-                  playing && cell === position ? "location" : undefined
-                }
-                className={`wd-world-cell ${water ? "water" : "ground"} ${placed ? (water ? "bridge" : "path") : ""} ${rock ? "rock" : ""} ${goal >= 0 ? "goal" : ""} ${cell === level.start ? "start" : ""}`}
-                onClick={() => {
-                  if (playing) {
-                    if (neighbours(level, position).includes(cell))
-                      move(
-                        (cell % level.width) - (position % level.width),
-                        Math.floor(cell / level.width) -
-                          Math.floor(position / level.width),
-                      );
-                    else setNotice("Tap a neighbouring path square to move.");
-                  } else send({ type: "tile", cell });
-                }}
+                onClick={testRoute}
               >
-                {rock ? (
-                  <span className="wd-rock-shape" />
-                ) : goal >= 0 ? (
-                  <span className="wd-goal-marker">
-                    <Flag />
-                    <b>{goal + 1}</b>
-                  </span>
-                ) : cell === level.start ? (
-                  <span className="wd-arrival">START</span>
-                ) : placed ? (
-                  <span className="wd-path-piece" />
-                ) : water ? (
-                  <span className="wd-water-ripple">≈</span>
-                ) : (
-                  <span className="wd-ground-mark">·</span>
-                )}
+                <Play size={18} /> Send the courier{" "}
+                <span className="wd-button-detail">Test my route</span>
               </button>
-            );
-          })}
-          <div
-            className="wd-walker"
-            style={{
-              left: `${((((playing ? position : level.start) % level.width) + 0.5) / level.width) * 100}%`,
-              top: `${((Math.floor((playing ? position : level.start) / level.width) + 0.5) / level.height) * 100}%`,
-            }}
-          >
-            <Avatar colour={colour} />
-          </div>
-        </div>
-        {playing ? (
-          <>
-            <Movement move={move} disabled={movementDisabled} />
-            <div className="wd-playtest-controls">
-              <button
-                className="wd-secondary"
-                disabled={busy || state.solved}
-                onClick={() => {
-                  setPath([level.start]);
-                  setNotice("");
-                  board.current?.focus();
-                }}
-              >
-                <RotateCcw size={16} /> Restart this journey
-              </button>
-              <button
-                className="wd-secondary"
-                disabled={busy || state.solved}
-                onClick={() => {
-                  setPlaying(false);
-                  setNotice("");
-                }}
-              >
-                Change my route
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="wd-playtest-controls">
-            <button
-              className="wd-primary"
-              disabled={
-                busy ||
-                !state.instructions.length ||
-                state.instructions.length > level.budget ||
-                state.solved
-              }
-              onClick={async () => {
-                const saved = await send({ type: "fabricate" });
-                if (!saved) return;
-                setPlaying(true);
-                setPath([level.start]);
-                setNotice("");
-                requestAnimationFrame(() => board.current?.focus());
-              }}
-            >
-              <Play size={18} />{" "}
-              {busy ? "Building your route…" : "Build and test my route"}
-            </button>
-          </div>
-        )}
-        {notice && (
-          <p role="status" className="wd-local-feedback">
-            {notice}
+            ))}
+          <p className="wd-caption">
+            {state.instructions.length > level.budget
+              ? `Remove ${state.instructions.length - level.budget} pieces before testing. You can use up to ${level.budget}.`
+              : state.solved
+                ? "Your delivery reached every destination. Explain what you checked below."
+                : "The courier moves automatically. You design the route and repair anything that stops it."}
           </p>
-        )}
-        <p className="wd-caption" role="status">
-          {state.solved
-            ? "You have tested every destination. Write your reflection below to continue to the next step."
-            : playing
-              ? atDestination
-                ? busy
-                  ? "You reached a destination. Your journey is being saved."
-                  : state.testedGoals.includes(position)
-                    ? "You tested this destination. Restart this journey to test another route from START."
-                    : "Your journey has not been saved yet. Choose ‘Try saving this move again’, or restart this journey to test it again."
-                : position === level.start
-                  ? "Your character is at START. Use the arrow buttons, your keyboard arrow keys or a neighbouring path square to start moving. Walk onto the flag to test your route."
-                  : `You are at column ${(position % level.width) + 1}, row ${Math.floor(position / level.width) + 1}. Use the arrow buttons, your keyboard arrow keys or a neighbouring path square to move. You can tap a neighbouring flag to enter your destination.`
-              : state.instructions.length > level.budget
-                ? `Remove ${state.instructions.length - level.budget} pieces before testing. Your route can use up to ${level.budget} pieces.`
-                : !state.instructions.length
-                  ? "Add a path piece to begin building your route."
-                  : `Your route uses ${state.instructions.length} of ${level.budget} available pieces.`}
-        </p>
-      </div>
-      <aside className="wd-blueprint">
-        <span className="wd-kicker">YOUR GOAL</span>
-        <h3>Your route must follow these rules.</h3>
-        <ul>
-          {level.rules.map((r) => (
-            <li key={r}>{r}</li>
-          ))}
-        </ul>
-        <div className="wd-destination-list">
-          {level.goals.map((g, i) => (
-            <div key={g}>
-              <span>{state.testedGoals.includes(g) ? "✓" : i + 1}</span>
-              <p>
-                {level.goalNames[i]}
-                <small>
-                  {state.testedGoals.includes(g)
-                    ? "You tested this journey."
-                    : "This journey needs testing."}
-                </small>
-              </p>
-            </div>
-          ))}
         </div>
-        <details className="wd-build-details">
-          <summary>See the instructions your route creates.</summary>
-          <div className="wd-build-tickets">
-            {state.instructions.length ? (
-              state.instructions.map((cell, i) => (
-                <button
-                  key={cell}
-                  disabled={playing || busy || state.solved}
-                  onClick={() => send({ type: "tile", cell })}
-                >
-                  <span>{i + 1}</span>Put a{" "}
-                  {level.water.includes(cell) ? "bridge" : "path"} at{" "}
-                  {(cell % level.width) + 1},{" "}
-                  {Math.floor(cell / level.width) + 1}.
-                  <b aria-hidden="true">×</b>
-                </button>
-              ))
-            ) : (
-              <p>Tap the board to write your first instruction.</p>
-            )}
+      </div>
+      <div className="wd-mission-side">
+        {coach}
+        <aside className="wd-blueprint">
+          <span className="wd-kicker">YOUR DELIVERY BRIEF</span>
+          <h3>
+            {state.solved
+              ? "Your world is connected."
+              : "Give the courier a route that works."}
+          </h3>
+          <ul>
+            {level.rules.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+          <div className="wd-destination-list">
+            {level.goals.map((goal, i) => (
+              <div key={goal}>
+                <span>{state.testedGoals.includes(goal) ? "✓" : i + 1}</span>
+                <p>
+                  {level.goalNames[i]}
+                  <small>
+                    {state.testedGoals.includes(goal)
+                      ? "The courier reached this destination."
+                      : "Waiting for a successful delivery."}
+                  </small>
+                </p>
+              </div>
+            ))}
           </div>
-        </details>
-        <p className="wd-caption">
-          This builder follows fixed instructions. Real AI may interpret a
-          request differently, so its output also needs testing.
-        </p>
-      </aside>
+          <details className="wd-build-details">
+            <summary>See the instructions your route creates.</summary>
+            <div className="wd-build-tickets">
+              {state.instructions.length ? (
+                state.instructions.map((cell, i) => (
+                  <button
+                    key={cell}
+                    disabled={disabled}
+                    onClick={() => place(cell)}
+                  >
+                    <span>{i + 1}</span>Put a{" "}
+                    {level.water.includes(cell) ? "bridge" : "path"} at{" "}
+                    {(cell % level.width) + 1},{" "}
+                    {Math.floor(cell / level.width) + 1}.
+                    <b aria-hidden="true">×</b>
+                  </button>
+                ))
+              ) : (
+                <p>Tap the landscape to place your first path.</p>
+              )}
+            </div>
+          </details>
+          <p className="wd-caption">
+            The courier follows connected paths using fixed rules. This
+            simulation helps you practise checking instructions; it does not use
+            live AI to find a route.
+          </p>
+        </aside>
+      </div>
     </div>
   );
 }

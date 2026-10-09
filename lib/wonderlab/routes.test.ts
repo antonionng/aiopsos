@@ -1,5 +1,6 @@
 import * as adventureCatalog from "./adventure/catalog.ts";
 import * as adventureEngine from "./adventure/engine.ts";
+import * as adventureCoaching from "./adventure/coaching.ts";
 import * as adventureTypes from "./adventure/types.ts";
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -305,6 +306,7 @@ async function fixture() {
   mocks["@/lib/wonderlab/adventure/catalog"] = adventureCatalog;
   mocks["@/lib/wonderlab/adventure/engine"] = adventureEngine;
   mocks["@/lib/wonderlab/adventure/types"] = adventureTypes;
+  mocks["@/lib/wonderlab/adventure/coaching"] = adventureCoaching;
   mocks["@/lib/wonderlab/adventure/server"] = {
     loadAdventure: async (childId: string, game: adventureTypes.Adventure) => {
       const rows = await pg.query(
@@ -1230,6 +1232,83 @@ test("game API validates actions, saves checkpoints once, restores progress and 
       ).rows[0].revision,
       1,
     );
+  } finally {
+    await f.pg.close();
+  }
+});
+
+test("in-game AI hints read the owned checkpoint, reject stale steps and exclude learner writing", async () => {
+  const f = await fixture();
+  try {
+    const child = await f.createChild();
+    const mission = catalogue.getMission("prompt-repair-shop")!;
+    await f.pg.query(
+      "insert into wonderlab_orders(parent_id,child_id,mission_slug,content_version,terms_version,state,expires_at) values($1,$2,$3,$4,'test','paid',now()+interval '1 month')",
+      [parent, child, mission.slug, mission.version],
+    );
+    await f.pg.exec(
+      "update wonderlab_children set band='creators', ai_enabled=true",
+    );
+    await f.post("session", { action: "play", childId: child });
+    const move = await f.post("adventure", {
+      slug: mission.slug,
+      revision: 0,
+      action: { type: "tile", cell: 17 },
+    });
+    assert.equal(move.status, 200);
+    await f.pg.query(
+      "update wonderlab_adventure_progress set state=jsonb_set(state,'{rounds,0,reflection}',to_jsonb($1::text))",
+      ["PRIVATE-REFLECTION"],
+    );
+    Object.assign(f.env, {
+      OPENAI_API_KEY: "test-only",
+      WONDERLAB_AI_MODEL: "test-model",
+      WONDERLAB_AI_INPUT_USD_PER_MILLION: "2",
+      WONDERLAB_AI_OUTPUT_USD_PER_MILLION: "8",
+    });
+    f.mocks["@/lib/wonderlab/flags"] = { launchStatus: () => ({ ai: true }) };
+    let calls = 0;
+    f.mocks["test:fetch"] = async (url: string, options: { body: string }) => {
+      calls++;
+      assert.ok(!options.body.includes("PRIVATE"));
+      assert.ok(!options.body.includes(child));
+      if (url.endsWith("/moderations"))
+        return Response.json({ results: [{ flagged: false }] });
+      const body = JSON.parse(options.body);
+      assert.equal(body.store, false);
+      assert.match(body.messages[1].content, /connects all destinations/);
+      assert.match(body.messages[1].content, /one short hint/);
+      return Response.json({
+        choices: [
+          {
+            finish_reason: "stop",
+            message: {
+              content:
+                "Your paths connect the destination. What happens when you send the courier?",
+            },
+          },
+        ],
+        usage: { prompt_tokens: 100, completion_tokens: 20 },
+      });
+    };
+    const request = {
+      slug: mission.slug,
+      variant: "coach-hint",
+      revision: 0,
+      requestId: crypto.randomUUID(),
+      state: "PRIVATE-CLIENT-CONTEXT",
+      prompt: "PRIVATE-PROMPT",
+    };
+    assert.equal((await f.post("generate", request)).status, 409);
+    assert.equal(calls, 0);
+    request.revision = 1;
+    assert.equal((await f.post("generate", request)).status, 200);
+    assert.equal((await f.post("generate", request)).status, 200);
+    assert.equal(calls, 2);
+    const used = await f.pg.query<{ generations_used: number }>(
+      "select generations_used from wonderlab_orders",
+    );
+    assert.equal(used.rows[0].generations_used, 1);
   } finally {
     await f.pg.close();
   }

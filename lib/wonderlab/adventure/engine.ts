@@ -342,7 +342,7 @@ export function transition(
         : [];
     s.feedback =
       s.failures[0] ??
-      "The builder followed your fixed instructions. Now walk through the construction to check each destination.";
+      "The builder followed your fixed instructions. The courier will now test each destination.";
     return state;
   }
   if (a.type === "walk" && level.kind === "forge") {
@@ -366,7 +366,7 @@ export function transition(
     s.solved = !s.failures.length;
     s.feedback = s.solved
       ? level.finished
-      : `You reached ${level.goalNames[level.goals.indexOf(goal)]}. Return to the start and test the other destination.`;
+      : `You reached ${level.goalNames[level.goals.indexOf(goal)]}. The courier will test the remaining destination from the depot.`;
     return state;
   }
   if (a.type === "schedule" && level.kind === "launch") {

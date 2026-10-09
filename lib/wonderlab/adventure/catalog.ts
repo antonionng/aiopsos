@@ -165,7 +165,7 @@ export const adventures: Adventure[] = [
     band: "creators",
     zone: "forge",
     subtitle:
-      "Build a route across the river, then walk it to check that your instructions work.",
+      "Design a delivery route, send the courier and repair any gaps it discovers.",
     learning:
       "Break a request into precise instructions, test what is built and repair missing requirements. This builder follows fixed commands; it is a simulation, not live AI.",
     reward: "Blueprint pilot",
@@ -173,7 +173,7 @@ export const adventures: Adventure[] = [
     levels: [
       forge(
         "Reconnect the workshop.",
-        "The delivery route must reach the workshop on the east bank. Write a build instruction by tapping each square where you need a path. Water needs a bridge. Choose Build and test my route, then walk your character to the flag.",
+        "The workshop needs a delivery, but the suggested route has a gap. Tap the landscape to add paths and bridges. Choose Send the courier to watch your design in action. If the courier stops, use what you see to repair the route.",
         [3, 10, 17, 24, 31],
         [9, 23],
         [20],
@@ -187,7 +187,7 @@ export const adventures: Adventure[] = [
       ),
       forge(
         "Deliver to the observatory.",
-        "The new brief sends you to the north-east observatory. The direct route is blocked by machinery. Clear the old instructions and build a route that fits the changed destination.",
+        "The new brief sends you to the north-east observatory. The direct route is blocked by rocks. Clear the old instructions and build a route that fits the changed destination.",
         [3, 10, 17, 24, 31],
         [16, 18, 9],
         [6],
@@ -195,7 +195,7 @@ export const adventures: Adventure[] = [
         [
           "Reach the north-east observatory.",
           "Use no more than ten path pieces.",
-          "Avoid the machinery.",
+          "Avoid the rocks.",
         ],
         ["Observatory"],
       ),
@@ -213,7 +213,7 @@ export const adventures: Adventure[] = [
     levels: [
       forge(
         "Connect the floating islands.",
-        "An example world has beautiful islands but no usable route to its garden. Build paths and bridges, then explore your design.",
+        "An example world has beautiful islands but no usable route to its garden. Build paths and bridges, then send the courier to test your design.",
         [2, 9, 16, 23, 30, 4, 11, 18, 25, 32],
         [10],
         [13],
@@ -455,7 +455,7 @@ export const adventures: Adventure[] = [
     levels: [
       forge(
         "Make both endings playable.",
-        "The example level promises two endings but its routes are unfinished. Build a branch to each door, then playtest each journey from the start.",
+        "The example level promises two endings but its routes are unfinished. Build a branch to each door, then send the courier to test both journeys automatically.",
         [3, 10, 17, 24, 31],
         [2, 32],
         [6, 34],
@@ -477,7 +477,7 @@ export const adventures: Adventure[] = [
         [
           "Reach both endings from the start.",
           "Use at most twelve pieces.",
-          "Avoid the blocked machinery.",
+          "Avoid the rocks.",
         ],
         ["Rescue ending", "Discovery ending"],
       ),

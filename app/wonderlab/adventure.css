@@ -2114,3 +2114,364 @@
 .wd-player > .wd-caption {
   margin-top: 10px;
 }
+
+/* The delivery world uses an illustrated landscape; the invisible hit areas
+   keep keyboard and touch controls equivalent. */
+.wd-delivery-game {
+  align-items: start;
+}
+.wd-delivery-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  color: #f6efd9;
+  background: #183c40;
+  border-radius: 22px 22px 0 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+}
+.wd-delivery-hud > span {
+  color: #b5d7cd;
+  white-space: nowrap;
+}
+.wd-courier-world {
+  position: relative;
+  border-radius: 0 0 22px 22px;
+  overflow: hidden;
+  background: #16463e;
+  isolation: isolate;
+  box-shadow: 0 8px 0 #1c32331a;
+}
+.wd-courier-world > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.wd-world-hotspots {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+}
+.wd-world-hotspots button {
+  position: relative;
+  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  min-width: 0;
+  padding: 0;
+  cursor: crosshair;
+}
+.wd-world-hotspots button > span {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 20%;
+  color: white;
+  font-size: 23px;
+  border: 2px dashed #d8f6e5;
+  border-radius: 14px;
+  background: #25514a70;
+  opacity: 0;
+}
+.wd-world-hotspots button:not(:disabled):hover > span,
+.wd-world-hotspots button:focus-visible > span {
+  opacity: 1;
+}
+.wd-world-hotspots button:focus-visible {
+  outline: 3px solid #fff0ba;
+  outline-offset: -5px;
+}
+.wd-world-hotspots button:disabled {
+  cursor: default;
+}
+.wd-courier {
+  transition: transform 0.4s cubic-bezier(0.22, 0.6, 0.3, 1);
+}
+.wd-courier-body {
+  animation: wd-hover-courier 2.2s ease-in-out infinite;
+}
+.is-running .wd-courier-body {
+  animation-duration: 0.7s;
+}
+.wd-current {
+  animation: wd-current-flow 3s ease-in-out infinite alternate;
+}
+.wd-world-gap {
+  animation: wd-gap-glow 1.2s ease-in-out infinite alternate;
+}
+.wd-world-build {
+  animation: wd-place-piece 0.22s ease-out;
+}
+.wd-world-fireflies {
+  animation: wd-gap-glow 3s ease-in-out infinite alternate;
+}
+.wd-delivery-message {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 1px solid #c6dfd3;
+  border-radius: 16px;
+  background: #eaf3eb;
+  min-height: 80px;
+}
+.wd-delivery-message > span {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: #fff;
+  background: #32695e;
+  border-radius: 50%;
+  font-weight: 800;
+}
+.wd-delivery-message p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.wd-delivery-message.needs-repair {
+  background: #fff2d9;
+  border-color: #e2b76c;
+}
+.wd-delivery-message.needs-repair > span {
+  background: #785414;
+}
+.wd-button-detail {
+  font-size: 11px;
+  opacity: 0.85;
+  border-left: 1px solid #ffffff55;
+  padding-left: 12px;
+}
+.wd-delivery-game .wd-playtest-controls {
+  align-items: center;
+}
+.wd-delivery-game .wd-playtest-controls > .wd-caption {
+  flex: 1 1 200px;
+}
+.wd-delivery-game .wd-blueprint {
+  background: #f6f3eb;
+}
+.wd-companion {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 22px 25px;
+  border: 1px solid #cbc0e5;
+  border-radius: 20px;
+  background: linear-gradient(120deg, #f1eafa, #fffaf1);
+  margin: 22px 0;
+}
+.wd-companion-avatar {
+  flex: 0 0 62px;
+  text-align: center;
+}
+.wd-companion-avatar .wl-pip.small {
+  width: 62px;
+  height: 70px;
+}
+.wd-companion-avatar > span {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: #6b4ba1;
+}
+.wd-companion-body {
+  min-width: 0;
+  flex: 1;
+}
+.wd-companion-heading {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.wd-companion-heading strong {
+  font-size: 15px;
+}
+.wd-companion-heading > span {
+  font-size: 10px;
+  color: #73657f;
+}
+.wd-companion-body > p {
+  margin: 8px 0 14px;
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 950px;
+}
+.wd-companion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wd-companion-actions button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  border: 1px solid #cfc1e2;
+  background: #fffdf7;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #443453;
+}
+.wd-companion-actions button:hover {
+  background: #e9e0f7;
+}
+.wd-companion-actions button:focus-visible {
+  outline: 3px solid #6f45cf;
+  outline-offset: 2px;
+}
+.wd-companion-actions button:disabled {
+  opacity: 0.55;
+}
+.wd-companion-body > small {
+  display: block;
+  margin-top: 10px;
+  color: #73657f;
+  font-size: 11px;
+}
+.wd-coach-response {
+  position: relative;
+  margin-top: 15px;
+  padding: 17px 42px 17px 17px;
+  border: 1px solid #b6d5cc;
+  border-radius: 12px;
+  background: #edf6ef;
+}
+.wd-coach-response strong {
+  display: block;
+  font-size: 11px;
+  color: #3f655b;
+}
+.wd-coach-response p {
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.wd-coach-response > button {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  padding: 12px;
+}
+@keyframes wd-hover-courier {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes wd-current-flow {
+  to {
+    transform: translateY(6px);
+    opacity: 0.6;
+  }
+}
+@keyframes wd-gap-glow {
+  to {
+    opacity: 0.5;
+  }
+}
+@keyframes wd-place-piece {
+  from {
+    opacity: 0.2;
+    scale: 0.8;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@media (max-width: 640px) {
+  .wd-companion {
+    padding: 16px;
+    gap: 12px;
+  }
+  .wd-companion-avatar {
+    flex-basis: 42px;
+  }
+  .wd-companion-avatar .wl-pip.small {
+    width: 42px;
+    height: 50px;
+  }
+  .wd-companion-heading > span {
+    font-size: 9px;
+  }
+  .wd-companion-body > p {
+    font-size: 14px;
+  }
+  .wd-companion-actions {
+    margin-left: -54px;
+    padding-top: 6px;
+  }
+  .wd-delivery-hud {
+    font-size: 9px;
+    padding: 15px;
+  }
+  .wd-delivery-message p {
+    font-size: 14px;
+  }
+  .wd-button-detail {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wd-courier {
+    transition: none;
+  }
+  .wd-courier-body,
+  .wd-current,
+  .wd-world-gap,
+  .wd-world-build,
+  .wd-world-fireflies {
+    animation: none;
+  }
+}
+.wd-mission-side {
+  display: grid;
+  gap: 16px;
+  align-self: start;
+}
+.wd-mission-side .wd-companion {
+  margin: 0;
+  padding: 18px;
+  gap: 12px;
+}
+.wd-mission-side .wd-companion-avatar {
+  flex-basis: 38px;
+}
+.wd-mission-side .wd-companion-avatar .wl-pip.small {
+  width: 38px;
+  height: 46px;
+}
+.wd-mission-side .wd-companion-actions {
+  margin-left: -50px;
+}
+.wd-mission-side .wd-companion-heading {
+  gap: 5px;
+}
+.wd-mission-side .wd-companion-body > p {
+  font-size: 14px;
+}
+.wd-mission-side .wd-blueprint {
+  padding: 22px;
+}
+.wd-mission-side .wd-blueprint h3 {
+  font-size: 21px;
+}
+@media (min-width: 1000px) {
+  .wd-mission-side {
+    position: sticky;
+    top: 18px;
+  }
+}
+.wd-mission-side .wd-blueprint {
+  order: 0;
+}

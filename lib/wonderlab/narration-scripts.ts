@@ -1,3 +1,4 @@
+import { coachLines } from "./adventure/coaching.ts";
 import { adventures } from "./adventure/catalog.ts";
 import { arcadeCoaching, finalDiscoveries } from "./arcade-coaching.ts";
 import { rescueCoaching } from "./rescue-coach.ts";
@@ -116,6 +117,10 @@ export function narrationScripts() {
     }
     add(mission.band, mission.project.prompt);
   }
-  for (const game of adventures) for (const level of game.levels) add(game.band, level.mission);
+  for (const band of ["creators", "studio"] as const)
+    for (const lines of Object.values(coachLines))
+      for (const line of Object.values(lines)) add(band, line);
+  for (const game of adventures)
+    for (const level of game.levels) add(game.band, level.mission);
   return [...scripts.values()];
 }

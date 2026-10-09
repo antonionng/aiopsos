@@ -45,6 +45,8 @@ export default async function Page({
         <AdventurePlayer
           game={adventure}
           initial={await loadAdventure(child.id, adventure)}
+          aiEnabled={child.ai_enabled && launchStatus().ai && !!mission.aiBrief}
+          remaining={generationRemaining(order)}
         />
       );
     const { data, error } = await db
