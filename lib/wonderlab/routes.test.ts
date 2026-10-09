@@ -1,3 +1,6 @@
+import * as adventureCatalog from "./adventure/catalog.ts";
+import * as adventureEngine from "./adventure/engine.ts";
+import * as adventureTypes from "./adventure/types.ts";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -176,7 +179,7 @@ type Server = {
   requireMission(slug: string): Promise<{ mission: { version: string } }>;
 };
 type Route = {
-  GET(): Promise<Response>;
+  GET(req?: Request): Promise<Response>;
   POST(request: Request): Promise<Response>;
 };
 
@@ -207,6 +210,15 @@ async function fixture() {
     readFileSync(
       new URL(
         "../../supabase/migrations/20261008182925_wonderlab_lifetime_access.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  await pg.exec(
+    readFileSync(
+      new URL(
+        "../../supabase/migrations/20261009111033_wonderlab_adventure_checkpoints.sql",
         import.meta.url,
       ),
       "utf8",
@@ -290,6 +302,23 @@ async function fixture() {
   };
   const server = load<Server>("lib/wonderlab/server.ts", mocks, env);
   mocks["@/lib/wonderlab/server"] = server;
+  mocks["@/lib/wonderlab/adventure/catalog"] = adventureCatalog;
+  mocks["@/lib/wonderlab/adventure/engine"] = adventureEngine;
+  mocks["@/lib/wonderlab/adventure/types"] = adventureTypes;
+  mocks["@/lib/wonderlab/adventure/server"] = {
+    loadAdventure: async (childId: string, game: adventureTypes.Adventure) => {
+      const rows = await pg.query(
+        "select * from wonderlab_adventure_progress where child_id=$1 and mission_slug=$2 and game_version=$3",
+        [childId, game.slug, adventureTypes.ADVENTURE_VERSION],
+      );
+      return (
+        rows.rows[0] ?? {
+          revision: 0,
+          state: adventureEngine.initialAdventure(game),
+        }
+      );
+    },
+  };
   const route = (name: string) =>
     load<Route>(`app/api/wonderlab/${name}/route.ts`, mocks, env);
   const post = (name: string, body: Row, requestOrigin = origin) =>
@@ -1127,6 +1156,79 @@ test("complimentary lifetime access is idempotent, private and saves progress wi
     assert.equal(
       (await f.post("session", { action: "play", childId: child })).status,
       404,
+    );
+  } finally {
+    await f.pg.close();
+  }
+});
+
+test("game API validates actions, saves checkpoints once, restores progress and isolates family insights", async () => {
+  const f = await fixture();
+  try {
+    const child = await f.createChild();
+    const game = adventureCatalog.getAdventure("prompt-repair-shop")!;
+    await f.pg.query("select wonderlab_grant_lifetime_access($1,$2,$3)", [
+      parent,
+      child,
+      JSON.stringify(
+        catalogue.missions.map((m) => ({ slug: m.slug, version: m.version })),
+      ),
+    ]);
+    await f.post("session", { action: "play", childId: child });
+    const move = {
+      slug: game.slug,
+      revision: 0,
+      action: { type: "fabricate" },
+    };
+    assert.equal(
+      (
+        await f.post("adventure", {
+          ...move,
+          action: { type: "next" },
+          completed: true,
+        })
+      ).status,
+      400,
+    );
+    assert.equal(
+      (await f.post("adventure", move, "https://other.example")).status,
+      403,
+    );
+    const first = await f.post("adventure", move);
+    assert.equal(first.status, 200, await first.clone().text());
+    const saved = await first.json();
+    assert.equal(saved.revision, 1);
+    assert.equal(saved.completed, false);
+    assert.equal((await f.post("adventure", move)).status, 409);
+    const restored = await f
+      .route("adventure")
+      .GET(new Request(`${origin}/api/wonderlab/adventure?slug=${game.slug}`));
+    assert.equal(restored.status, 200);
+    assert.equal((await restored.json()).state.rounds[0].attempts, 1);
+    await f.post("session", { action: "unlock", password: "correct-password" });
+    const insight = (await (await f.route("family").GET()).json()).insights[
+      child
+    ];
+    assert.equal(insight.started, 1);
+    assert.equal(insight.gameEvidence[0].rounds[0].attempts, 1);
+    f.setUser({ id: other, email: "other@example.test" });
+    await f.server.issueSession("parent", other);
+    assert.equal(
+      (await f.post("adventure", { ...move, revision: 1, childId: child }))
+        .status,
+      401,
+    );
+    assert.deepEqual(
+      (await (await f.route("family").GET()).json()).insights,
+      {},
+    );
+    assert.equal(
+      (
+        await f.pg.query<{ revision: number }>(
+          "select revision from wonderlab_adventure_progress",
+        )
+      ).rows[0].revision,
+      1,
     );
   } finally {
     await f.pg.close();

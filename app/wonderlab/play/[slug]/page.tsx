@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { getMission } from "@/lib/wonderlab/catalog";
 import { requireMission, db, WonderlabError } from "@/lib/wonderlab/server";
 import { launchStatus } from "@/lib/wonderlab/flags";
+import { AdventurePlayer } from "@/components/wonderlab/adventure/player";
+import { getAdventure } from "@/lib/wonderlab/adventure/catalog";
+import { loadAdventure } from "@/lib/wonderlab/adventure/server";
 import { Arcade } from "@/components/wonderlab/arcade";
 import { getArcadeGame } from "@/lib/wonderlab/games";
 import { Player } from "@/components/wonderlab/player";
@@ -20,11 +23,15 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ demo?: string }>;
+  searchParams: Promise<{ demo?: string; classic?: string }>;
 }) {
   const slug = (await params).slug;
   const m = getMission(slug);
-  const demo = (await searchParams).demo === "1";
+  const query = await searchParams;
+  const demo = query.demo === "1";
+  const adventure = getAdventure(slug);
+  if (demo && adventure?.free && query.classic !== "1")
+    return <AdventurePlayer game={adventure} demo />;
   if (demo && (!m || m.number !== 2)) notFound();
   if (demo && m) {
     const game = getArcadeGame(slug);
@@ -33,6 +40,13 @@ export default async function Page({
   }
   try {
     const { mission, child, order } = await requireMission(slug);
+    if (adventure && query.classic !== "1")
+      return (
+        <AdventurePlayer
+          game={adventure}
+          initial={await loadAdventure(child.id, adventure)}
+        />
+      );
     const { data, error } = await db
       .from("wonderlab_progress")
       .select("*")

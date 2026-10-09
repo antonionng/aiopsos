@@ -30,19 +30,28 @@ export async function GET() {
       .order("created_at", { ascending: false });
     if (membershipError) throw membershipError;
     const ids = (children ?? []).map((c) => c.id);
-    const [{ data: orders, error: oe }, { data: progress, error: pe }] =
-      await Promise.all([
-        db
-          .from("wonderlab_orders")
-          .select(
-            "id,child_id,mission_slug,content_version,state,expires_at,generations_used",
-          )
-          .eq("parent_id", user.id),
-        ids.length
-          ? db.from("wonderlab_progress").select("*").in("child_id", ids)
-          : Promise.resolve({ data: [], error: null }),
-      ]);
-    if (oe || pe) throw oe || pe;
+    const [
+      { data: orders, error: oe },
+      { data: progress, error: pe },
+      { data: games, error: ge },
+    ] = await Promise.all([
+      db
+        .from("wonderlab_orders")
+        .select(
+          "id,child_id,mission_slug,content_version,state,expires_at,generations_used",
+        )
+        .eq("parent_id", user.id),
+      ids.length
+        ? db.from("wonderlab_progress").select("*").in("child_id", ids)
+        : Promise.resolve({ data: [], error: null }),
+      ids.length
+        ? db
+            .from("wonderlab_adventure_progress")
+            .select("*")
+            .in("child_id", ids)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+    if (oe || pe || ge) throw oe || pe || ge;
     return NextResponse.json(
       {
         children,
@@ -75,6 +84,7 @@ export async function GET() {
               child.band,
               progress ?? [],
               orders ?? [],
+              games ?? [],
             ),
           ]),
         ),

@@ -222,15 +222,18 @@ export function Arcade({ game }: { game: ArcadeGame }) {
         <p role="status">{voiceMessage || audioMessage}</p>
       )}
       {!done && round < 3 && (
-        <GameGuide
-          type={game.type}
-          young={game.band === "explorers" || game.band === "inventors"}
-          narrate={(text, onEnd) => {
-            setVoice(true);
-            speak(text, onEnd);
-          }}
-          stop={stop}
-        />
+        <details className="wg-optional-guide">
+          <summary>Show me how this game works.</summary>
+          <GameGuide
+            type={game.type}
+            young={game.band === "explorers" || game.band === "inventors"}
+            narrate={(text, onEnd) => {
+              setVoice(true);
+              speak(text, onEnd);
+            }}
+            stop={stop}
+          />
+        </details>
       )}
       {done ? (
         <section

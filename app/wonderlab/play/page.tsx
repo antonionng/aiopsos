@@ -1,3 +1,4 @@
+import { District } from "@/components/wonderlab/adventure/district";
 import { withSiteShareImages } from "@/lib/social-image";
 import { wonderlabShare } from "@/lib/wonderlab/share";
 import Image from "next/image";
@@ -64,6 +65,7 @@ export default async function Page() {
           Your creations are private. Your grown-up can see your saved work and
           progress.
         </p>
+        {["creators","studio"].includes(child.band) && <District owned />}
         <Image
           src={`/images/wonderlab/${child.band}.png`}
           alt="Your illustrated mission world"

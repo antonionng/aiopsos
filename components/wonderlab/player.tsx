@@ -240,26 +240,29 @@ export function Player({
       >
         <span style={{ width: `${(passed / activities.length) * 100}%` }} />
       </div>
-      <aside className="wg-learning-guide">
-        <div className="wg-guide-heading">
-          <h2>This game helps you practise useful AI skills.</h2>
-          <button
-            className="wg-narrate"
-            onClick={() => {
-              setVoice(true);
-              speak(missionPurpose(mission));
-            }}
-          >
-            <Volume2 size={18} /> Hear why
-          </button>
-        </div>
-        <p>{missionPurpose(mission)}</p>
-      </aside>
-      <MissionArtwork
-        className="wg-mission-panorama"
-        band={mission.band}
-        number={mission.number}
-      />
+      <details className="wg-optional-guide">
+        <summary>How does this mission help me use AI?</summary>
+        <aside className="wg-learning-guide">
+          <div className="wg-guide-heading">
+            <h2>This game helps you practise useful AI skills.</h2>
+            <button
+              className="wg-narrate"
+              onClick={() => {
+                setVoice(true);
+                speak(missionPurpose(mission));
+              }}
+            >
+              <Volume2 size={18} /> Hear why
+            </button>
+          </div>
+          <p>{missionPurpose(mission)}</p>
+        </aside>
+        <MissionArtwork
+          className="wg-mission-panorama"
+          band={mission.band}
+          number={mission.number}
+        />
+      </details>
       <div className="wl-game-layout wg-mission-layout">
         <aside className="wl-chapters" aria-label="Adventure checkpoints">
           {activities.map((a, i) => (

@@ -89,6 +89,49 @@ export function LearningInsightsPanel({
           .
         </p>
       ) : null}
+      {insights.gameEvidence?.map((game) => (
+        <details key={game.slug} className="wl-learning-game-evidence">
+          <summary>
+            See {nickname}’s work in {game.title}
+          </summary>
+          <p className="wl-caption">
+            {game.completed
+              ? "Both challenges were completed and a creation was kept."
+              : "This game is in progress."}
+          </p>
+          {game.rounds.map((round) => (
+            <div key={round.title}>
+              <h4>{round.title}</h4>
+              <p className="wl-caption">
+                {round.action}{" "}
+                {round.checked
+                  ? "The game checks were met."
+                  : "There are still checks to explore."}
+              </p>
+              {round.reflection && <blockquote>{round.reflection}</blockquote>}
+            </div>
+          ))}
+          {game.creation && (
+            <button
+              className="wl-button wl-button-small wl-outline"
+              onClick={() => {
+                const url = URL.createObjectURL(
+                  new Blob([game.creation!], {
+                    type: "text/plain;charset=utf-8",
+                  }),
+                );
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `wonderlab-${game.slug}.txt`;
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+              }}
+            >
+              Download this creation
+            </button>
+          )}
+        </details>
+      ))}
       <details>
         <summary>Explore the skills they are practising</summary>
         <ul className="wl-learning-skills">
@@ -129,8 +172,8 @@ export function LearningInsightsPanel({
         </div>
       )}
       <p className="wl-caption">
-        Free games played outside a child’s mission map stay in that browser and
-        do not appear in these insights.
+        Free games played outside a child’s mission map are practice activities
+        and do not appear in these insights.
       </p>
     </section>
   );

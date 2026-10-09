@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Wordmark } from "@/components/wordmark";
 import "./wonderlab.css";
 import "./games.css";
+import "./adventure.css";
 import "./illustrations.css";
 export const metadata: Metadata = {
   ...wonderlabShare,

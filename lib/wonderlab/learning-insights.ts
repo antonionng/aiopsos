@@ -1,3 +1,6 @@
+import { getAdventure } from "./adventure/catalog.ts";
+import { adventureEvidence } from "./adventure/engine.ts";
+import { ADVENTURE_VERSION, type AdventureRecord } from "./adventure/types.ts";
 import { missions } from "./catalog.ts";
 import { getMissionForVersion } from "./versions.ts";
 import { checkActivity, isEntitled } from "./engine.ts";
@@ -19,6 +22,7 @@ export function learningInsights(
   band: Band,
   records: Progress[],
   orders: Order[],
+  games: AdventureRecord[] = [],
 ) {
   const work = records
     .filter((p) => p.child_id === childId)
@@ -30,6 +34,45 @@ export function learningInsights(
       ).length;
       return [{ ...p, mission, passed }];
     });
+  const gameWork = games
+    .filter(
+      (p) =>
+        p.child_id === childId &&
+        p.game_version === ADVENTURE_VERSION &&
+        p.revision > 0,
+    )
+    .flatMap((p) => {
+      const game = getAdventure(p.mission_slug);
+      const mission = missions.find((m) => m.slug === p.mission_slug);
+      return game && mission
+        ? [{ ...p, game, mission, evidence: adventureEvidence(game, p.state) }]
+        : [];
+    });
+  // Merge mission totals while retaining the original workspace and its saved creations.
+  for (const p of gameWork) {
+    const existing = work.find((w) => w.mission_slug === p.mission_slug);
+    if (existing) {
+      existing.completed ||= p.completed;
+      existing.passed += p.state.rounds.filter((r) => r.solved).length;
+      existing.updated_at = [existing.updated_at ?? "", p.updated_at]
+        .sort()
+        .at(-1);
+      if (!existing.creation && p.state.collection.length)
+        existing.creation = "Saved game creation";
+      existing.answers = { ...existing.answers, adventure: ["played"] };
+    } else
+      work.push({
+        child_id: childId,
+        mission_slug: p.mission_slug,
+        content_version: p.mission.version,
+        answers: { adventure: ["played"] },
+        creation: p.state.collection.length ? "Saved game creation" : "",
+        completed: p.completed,
+        updated_at: p.updated_at,
+        mission: p.mission,
+        passed: p.state.rounds.filter((r) => r.solved).length,
+      });
+  }
   const started = work.filter(
     (p) =>
       Object.values(p.answers ?? {}).some((a) => a.length) || p.creation.trim(),
@@ -56,6 +99,13 @@ export function learningInsights(
       (Date.parse(a.updated_at ?? "") || 0),
   )[0];
   return {
+    gameEvidence: gameWork.map((p) => ({
+      slug: p.mission_slug,
+      title: p.game.name,
+      completed: p.completed,
+      rounds: p.evidence,
+      creation: p.state.collection[0] ?? null,
+    })),
     started: started.length,
     completed: completed.length,
     activitiesChecked: work.reduce((n, p) => n + p.passed, 0),
@@ -89,13 +139,15 @@ export function learningInsights(
           skill: m.skill,
           title: m.title,
           outcome: saved?.mission.outcome ?? m.outcome,
-          status: saved?.completed
-            ? "Mission and project checks completed"
-            : saved?.passed
-              ? `${saved.passed} of ${saved.mission.activities.length} activities checked`
-              : started.some((p) => p.mission_slug === m.slug)
-                ? "Exploring this skill"
-                : "Ready to explore",
+          status: gameWork.some((p) => p.mission_slug === m.slug)
+            ? `${gameWork.find((p) => p.mission_slug === m.slug)!.state.rounds.filter((r) => r.solved).length} of 2 game challenges checked`
+            : saved?.completed
+              ? "Mission and project checks completed"
+              : saved?.passed
+                ? `${saved.passed} of ${saved.mission.activities.length} activities checked`
+                : started.some((p) => p.mission_slug === m.slug)
+                  ? "Exploring this skill"
+                  : "Ready to explore",
         };
       }),
   };

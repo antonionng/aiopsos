@@ -1830,3 +1830,8 @@
 }
 
 .wg-activity-controls { border: 0; margin: 0; padding: 0; min-width: 0; }
+
+.wg-optional-guide { margin: 18px 0 25px; border: 1px solid #d9cde6; border-radius: 16px; background: #fffaf0; padding: 0 20px; }
+.wg-optional-guide > summary { cursor: pointer; padding: 18px 0; font-size: 14px; font-weight: 700; min-height: 48px; }
+.wg-optional-guide[open] { padding-bottom: 18px; }
+.wg-optional-guide .wg-learning-guide { margin-top: 0; }
