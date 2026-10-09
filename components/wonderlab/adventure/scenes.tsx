@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { NextStep } from "../next-step";
 import {
   ArrowDown,
   ArrowLeft,
@@ -30,7 +31,7 @@ import {
   predict,
   walkable,
 } from "@/lib/wonderlab/adventure/engine";
-type SendAction = (action: Action) => void;
+type SendAction = (action: Action) => Promise<boolean>;
 const directions = [
   { label: "left", dx: -1, dy: 0, Icon: ArrowLeft },
   { label: "up", dx: 0, dy: -1, Icon: ArrowUp },
@@ -121,19 +122,38 @@ export function SignalScene({
   );
   return (
     <div className="wd-signal">
+      <NextStep
+        steps={["Find the clues", "Check the draft", "Explain your change"]}
+        current={state.solved ? 2 : tab === "casebook" ? 1 : 0}
+        title={
+          state.solved
+            ? "You checked the draft."
+            : tab === "explore"
+              ? `Collect the clues: ${state.visited.length} of ${level.sources.length} saved.`
+              : "Match each statement to a clue, then decide what to change."
+        }
+      >
+        {state.solved
+          ? "Write one sentence below about a change you made and why it helped."
+          : tab === "explore"
+            ? state.visited.length === level.sources.length
+              ? "You have all the clues. Choose ‘Check the draft’ to use them."
+              : "Tap a building to visit it. Read its note, then choose ‘Collect this evidence’. Each note is a clue you will use to check the draft."
+            : "Choose a clue on the left, then connect it to the statement it checks. Keep, repair or remove that statement. Repeat for every statement, then test your edits."}
+      </NextStep>
       <div className="wd-scene-tabs">
         <button
           aria-pressed={tab === "explore"}
           onClick={() => setTab("explore")}
         >
-          <MapPin size={16} /> Explore the district
+          <MapPin size={16} /> Find the clues
         </button>
         <button
           aria-pressed={tab === "casebook"}
+          disabled={state.visited.length < level.sources.length}
           onClick={() => setTab("casebook")}
         >
-          <BookOpen size={16} /> Casebook{" "}
-          <span>{state.visited.length}/3 sources</span>
+          <BookOpen size={16} /> Check the draft
         </button>
       </div>
       {tab === "explore" ? (
@@ -254,7 +274,7 @@ export function SignalScene({
                 className="wd-secondary"
                 onClick={() => setTab("casebook")}
               >
-                Connect the evidence <ArrowRight size={18} />
+                Check the draft <ArrowRight size={18} />
               </button>
             )}
           </aside>
@@ -385,7 +405,7 @@ export function ForgeScene({
       level.rocks.includes(next)
     ) {
       setNotice(
-        "That route is blocked. Return to the builder and change your instructions.",
+        "That square has no safe path. Choose Change my route to add a path or bridge, then test again.",
       );
       return;
     }
@@ -403,6 +423,23 @@ export function ForgeScene({
   const pieces = playing ? state.tiles : state.instructions;
   return (
     <div className="wd-forge-layout">
+      <NextStep
+        steps={["Make your route", "Walk to the flags", "Explain your change"]}
+        current={state.solved ? 2 : playing ? 1 : 0}
+        title={
+          state.solved
+            ? "Your route works."
+            : playing
+              ? "Move your character from START to each flag."
+              : "Make a connected route from START to each flag."
+        }
+      >
+        {state.solved
+          ? "Write one sentence below about what you changed or checked. Then continue to the next step."
+          : playing
+            ? "Use the arrow buttons, your keyboard arrow keys or a neighbouring path square to move. If you get stuck, choose ‘Change my route’. This is the test of the route you just built."
+            : "Tap squares to add or remove path pieces. A piece on water becomes a bridge. When your route is ready, choose ‘Build and test my route’."}
+      </NextStep>
       <div
         className="wd-forge-main"
         onKeyDown={(event) => {
@@ -412,7 +449,7 @@ export function ForgeScene({
         <div className="wd-canvas-toolbar">
           <span>
             <span className="wd-live-dot" />
-            {playing ? "PLAYTEST MODE" : "BUILD MODE"}
+            {playing ? "WALK YOUR ROUTE" : "EDIT YOUR ROUTE"}
           </span>
           <span>
             {pieces.length}/{level.budget} pieces
@@ -510,7 +547,7 @@ export function ForgeScene({
                   setNotice("");
                 }}
               >
-                Return to the builder
+                Change my route
               </button>
             </div>
           </>
@@ -518,30 +555,23 @@ export function ForgeScene({
           <div className="wd-playtest-controls">
             <button
               className="wd-primary"
-              disabled={busy || state.solved}
-              onClick={() => {
-                send({ type: "fabricate" });
-                setNotice("");
-              }}
-            >
-              <Hammer size={18} /> Fabricate my instructions
-            </button>
-            <button
-              className="wd-secondary"
               disabled={
                 busy ||
-                !state.tiles.length ||
-                state.tiles.length > level.budget ||
+                !state.instructions.length ||
+                state.instructions.length > level.budget ||
                 state.solved
               }
-              onClick={() => {
+              onClick={async () => {
+                const saved = await send({ type: "fabricate" });
+                if (!saved) return;
                 setPlaying(true);
                 setPath([level.start]);
                 setNotice("");
                 requestAnimationFrame(() => board.current?.focus());
               }}
             >
-              <Play size={18} /> Step inside my world
+              <Play size={18} />{" "}
+              {busy ? "Building your route…" : "Build and test my route"}
             </button>
           </div>
         )}
@@ -559,16 +589,20 @@ export function ForgeScene({
                   ? "You reached a destination. Your journey is being saved."
                   : state.testedGoals.includes(position)
                     ? "You tested this destination. Restart this journey to test another route from START."
-                    : "Your journey has not been saved yet. Retry the save below, or restart this journey to test it again."
+                    : "Your journey has not been saved yet. Choose ‘Try saving this move again’, or restart this journey to test it again."
                 : position === level.start
                   ? "Your character is at START. Use the arrow buttons, your keyboard arrow keys or a neighbouring path square to start moving. Walk onto the flag to test your route."
                   : `You are at column ${(position % level.width) + 1}, row ${Math.floor(position / level.width) + 1}. Use the arrow buttons, your keyboard arrow keys or a neighbouring path square to move. You can tap a neighbouring flag to enter your destination.`
-              : "Tap a square to add a path instruction. Tap it again to remove it. A water square becomes a bridge. Choose ‘Fabricate my instructions’ to build your route, then ‘Step inside my world’ to start testing it."}
+              : state.instructions.length > level.budget
+                ? `Remove ${state.instructions.length - level.budget} pieces before testing. Your route can use up to ${level.budget} pieces.`
+                : !state.instructions.length
+                  ? "Add a path piece to begin building your route."
+                  : `Your route uses ${state.instructions.length} of ${level.budget} available pieces.`}
         </p>
       </div>
       <aside className="wd-blueprint">
-        <span className="wd-kicker">YOUR CLIENT’S BRIEF</span>
-        <h3>Build something that works.</h3>
+        <span className="wd-kicker">YOUR GOAL</span>
+        <h3>Your route must follow these rules.</h3>
         <ul>
           {level.rules.map((r) => (
             <li key={r}>{r}</li>
@@ -589,25 +623,28 @@ export function ForgeScene({
             </div>
           ))}
         </div>
-        <h4>Your build instructions</h4>
-        <div className="wd-build-tickets">
-          {state.instructions.length ? (
-            state.instructions.map((cell, i) => (
-              <button
-                key={cell}
-                disabled={playing || busy || state.solved}
-                onClick={() => send({ type: "tile", cell })}
-              >
-                <span>{i + 1}</span>Put a{" "}
-                {level.water.includes(cell) ? "bridge" : "path"} at{" "}
-                {(cell % level.width) + 1}, {Math.floor(cell / level.width) + 1}
-                .<b aria-hidden="true">×</b>
-              </button>
-            ))
-          ) : (
-            <p>Tap the board to write your first instruction.</p>
-          )}
-        </div>
+        <details className="wd-build-details">
+          <summary>See the instructions your route creates.</summary>
+          <div className="wd-build-tickets">
+            {state.instructions.length ? (
+              state.instructions.map((cell, i) => (
+                <button
+                  key={cell}
+                  disabled={playing || busy || state.solved}
+                  onClick={() => send({ type: "tile", cell })}
+                >
+                  <span>{i + 1}</span>Put a{" "}
+                  {level.water.includes(cell) ? "bridge" : "path"} at{" "}
+                  {(cell % level.width) + 1},{" "}
+                  {Math.floor(cell / level.width) + 1}.
+                  <b aria-hidden="true">×</b>
+                </button>
+              ))
+            ) : (
+              <p>Tap the board to write your first instruction.</p>
+            )}
+          </div>
+        </details>
         <p className="wd-caption">
           This builder follows fixed instructions. Real AI may interpret a
           request differently, so its output also needs testing.
@@ -646,10 +683,23 @@ export function LaunchScene({
   }
   return (
     <div className="wd-launch-layout">
+      <NextStep
+        steps={["Arrange the jobs", "Test your plan", "Explain your change"]}
+        current={state.solved ? 2 : tick >= 0 ? 1 : 0}
+        title={
+          state.solved
+            ? "Your plan passed its rehearsal."
+            : "Repair the starting plan so every job can happen."
+        }
+      >
+        {state.solved
+          ? "Write one sentence below about a decision you made and why it helped."
+          : `Choose a job, choose its helper, then tap a square in the timetable to place it. Each column is one time slot. You are placing ‘${task.name}’. When you have arranged all the jobs, choose ‘Run my rehearsal’ to check the plan.`}
+      </NextStep>
       <aside className="wd-jobs">
         <span className="wd-kicker">THE JOBS IN YOUR BRIEF</span>
-        <h3>Build your running order.</h3>
-        {level.tasks.map((t) => (
+        <h3>1. Choose a job to place.</h3>
+        {level.tasks.map((t, index) => (
           <button
             key={t.id}
             className="wd-job"
@@ -659,7 +709,9 @@ export function LaunchScene({
               setHelper(state.schedule[t.id]?.helper ?? "ai");
             }}
           >
-            <strong>{t.name}</strong>
+            <strong>
+              {index + 1}. {t.name}
+            </strong>
             <span>
               {t.duration} time slot{t.duration > 1 ? "s" : ""} ·{" "}
               {level.resources[t.resource]}
@@ -673,7 +725,7 @@ export function LaunchScene({
           </button>
         ))}
         <label className="wd-helper-label">
-          Choose the helper for “{task.name}”.
+          2. Choose the helper for “{task.name}”.
           <select value={helper} onChange={(e) => setHelper(e.target.value)}>
             <option value="ai">AI drafting helper</option>
             <option value="calculator">Calculator</option>
@@ -722,6 +774,7 @@ export function LaunchScene({
           </div>
         </div>
         <div className="wd-timetable-scroll">
+          <h3>3. Tap a starting slot for “{task.name}”.</h3>
           <div
             className="wd-timetable"
             style={{
@@ -812,6 +865,21 @@ export function LabScene({
   const predictions = predict(level, state.examples);
   return (
     <div className="wd-lab-layout">
+      <NextStep
+        steps={["Choose examples", "Test the sorter", "Explain your change"]}
+        current={state.solved ? 2 : state.feedback ? 1 : 0}
+        title={
+          state.solved
+            ? "You checked the sorter's guesses."
+            : state.attempts
+              ? "Change the examples and test the sorter again."
+              : "Test the sorter with its starting examples."
+        }
+      >
+        {state.solved
+          ? "Write one sentence below about which examples helped and why."
+          : "The selected cards are the examples the sorter learns from. Choose ‘Test the unfamiliar examples’ to see its guesses. Compare them with the field notes, then add or remove cards and test again."}
+      </NextStep>
       <div className="wd-specimen-bank">
         <span className="wd-kicker">EXAMPLES WITH KNOWN LABELS</span>
         <h3>Feed the sorter varied examples.</h3>

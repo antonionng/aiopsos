@@ -1,4 +1,5 @@
 "use client";
+import { NextStep } from "./next-step";
 import {
   useCallback,
   useEffect,
@@ -483,9 +484,9 @@ export function GameStage({
     >
       <div className="wg-stage-top">
         <span className="wg-stage-label">
-          {number === total
+          {total > 1 && number === total
             ? "FINAL CHALLENGE"
-            : `MISSION ${number} / ${total}`}
+            : `CHALLENGE ${number} OF ${total}`}
         </span>
         <button className="wg-narrate" onClick={narrate}>
           <Volume2 size={18} /> Hear the mission
@@ -494,12 +495,21 @@ export function GameStage({
       <h2>{activity.title}</h2>
       <div className="wg-brief">
         <Pip small />
-        <p>
-          {specialRescue
-            ? rescueLevels[0].instruction
-            : `${activity.intro} ${activity.instruction}`}
-        </p>
+        <p>{specialRescue ? rescueLevels[0].instruction : activity.intro}</p>
       </div>
+      {!specialRescue && (
+        <NextStep
+          title={
+            solved ? "You finished this challenge." : "Here is what to do now."
+          }
+        >
+          {solved
+            ? number === total
+              ? "Choose ‘Create my keepsake’ below to make something you can keep."
+              : "Choose ‘Next challenge’ below to try your next task."
+            : activity.instruction}
+        </NextStep>
+      )}
       {specialRescue ? (
         <RescueBoard
           onResult={(won, message) => {
@@ -768,7 +778,7 @@ export function GameStage({
         <div className="wg-win-actions">
           <span>★ You completed this challenge.</span>
           <button className="wg-launch" onClick={onNext}>
-            {number === total ? "Create my keepsake" : "Next adventure"}{" "}
+            {number === total ? "Create my keepsake" : "Next challenge"}{" "}
             <ArrowRight size={18} />
           </button>
         </div>

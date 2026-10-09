@@ -149,7 +149,8 @@ export const adventures: Adventure[] = [
     name: "The creature signal",
     band: "creators",
     zone: "launch",
-    subtitle: "Train a sorter. Challenge its guesses.",
+    subtitle:
+      "Choose examples for a sorter, then test whether it can recognise new ones.",
     learning:
       "Examples can contain misleading patterns. Test unfamiliar cases before trusting a prediction.",
     reward: "Pattern scout",
@@ -163,7 +164,8 @@ export const adventures: Adventure[] = [
     name: "Bridgeworks",
     band: "creators",
     zone: "forge",
-    subtitle: "Give the builder a brief. Walk through the result.",
+    subtitle:
+      "Build a route across the river, then walk it to check that your instructions work.",
     learning:
       "Break a request into precise instructions, test what is built and repair missing requirements. This builder follows fixed commands; it is a simulation, not live AI.",
     reward: "Blueprint pilot",
@@ -171,7 +173,7 @@ export const adventures: Adventure[] = [
     levels: [
       forge(
         "Reconnect the workshop.",
-        "The delivery route must reach the workshop on the east bank. Write a build instruction by tapping each square where you need a path. Water needs a bridge. Fabricate your instructions, then walk the route.",
+        "The delivery route must reach the workshop on the east bank. Write a build instruction by tapping each square where you need a path. Water needs a bridge. Choose Build and test my route, then walk your character to the flag.",
         [3, 10, 17, 24, 31],
         [9, 23],
         [20],
@@ -244,7 +246,8 @@ export const adventures: Adventure[] = [
     name: "Signal Hunt",
     band: "creators",
     zone: "signal",
-    subtitle: "Find the evidence. Repair the city's broadcast.",
+    subtitle:
+      "Collect clues around the city and use them to correct an unreliable broadcast.",
     learning:
       "AI can produce confident claims without evidence. Trace each claim to a source before sharing it.",
     reward: "Signal detective",
@@ -422,7 +425,8 @@ export const adventures: Adventure[] = [
     name: "Launch Control",
     band: "studio",
     zone: "launch",
-    subtitle: "Turn a messy request into a working launch.",
+    subtitle:
+      "Arrange the jobs for a launch, choose who should help and test whether your plan works.",
     learning:
       "A useful brief includes resources, order, limits and checks. Test an AI-suggested plan against these requirements.",
     reward: "Launch director",

@@ -15,7 +15,6 @@ import {
   VolumeX,
 } from "lucide-react";
 import {
-  arcadeGames,
   checkCreature,
   checkEvidence,
   checkPrompt,
@@ -39,7 +38,6 @@ import { rescueCoaching } from "@/lib/wonderlab/rescue-coach";
 import { Creature, RescueBoard, clearRescueDrafts } from "./game-stage";
 import { Pip } from "./art";
 import { useNarration } from "./use-narration";
-import { MissionArtwork } from "./mission-artwork";
 import { GameGuide } from "./game-guide";
 import { gameGuides, guideNarration } from "@/lib/wonderlab/learning-guide";
 const eventName = "wonderlab-game-progress";
@@ -222,8 +220,7 @@ export function Arcade({ game }: { game: ArcadeGame }) {
         <p role="status">{voiceMessage || audioMessage}</p>
       )}
       {!done && round < 3 && (
-        <details className="wg-optional-guide">
-          <summary>Show me how this game works.</summary>
+        <div className="wg-optional-guide">
           <GameGuide
             type={game.type}
             young={game.band === "explorers" || game.band === "inventors"}
@@ -233,7 +230,7 @@ export function Arcade({ game }: { game: ArcadeGame }) {
             }}
             stop={stop}
           />
-        </details>
+        </div>
       )}
       {done ? (
         <section
@@ -408,7 +405,7 @@ export function Arcade({ game }: { game: ArcadeGame }) {
                   ? game.type === "route"
                     ? "Check an AI answer →"
                     : "Try a new challenge →"
-                  : "Next adventure"}
+                  : "Next challenge"}
                 <ArrowRight size={18} />
               </button>
             </div>
@@ -756,29 +753,6 @@ function EvidenceGame({
       >
         Check my edits →
       </button>
-    </div>
-  );
-}
-export function GameCards() {
-  return (
-    <div className="wg-game-cards">
-      {arcadeGames.map((game) => (
-        <Link key={game.slug} href={`/wonderlab/play/${game.slug}?demo=1`}>
-          <MissionArtwork
-            band={game.band}
-            number={2}
-            className="wg-card-illustration"
-          />
-          <span>AGES {game.ages}</span>
-          <div>
-            <h3>{game.name}</h3>
-            <p>{game.pitch}</p>
-            <strong>
-              Play free <ArrowRight size={17} />
-            </strong>
-          </div>
-        </Link>
-      ))}
     </div>
   );
 }

@@ -22,6 +22,18 @@ export default async function Page() {
       .eq("child_id", child.id)
       .eq("parent_id", child.parent_id);
     if (error) throw error;
+    if (child.band === "creators" || child.band === "studio") {
+      return (
+        <District
+          owned
+          preferredBand={child.band}
+          nickname={child.nickname}
+          availableSlugs={(orders ?? [])
+            .filter((order) => isEntitled(order))
+            .map((order) => order.mission_slug)}
+        />
+      );
+    }
     const { data: progress, error: pe } = await db
       .from("wonderlab_progress")
       .select("mission_slug,completed")
@@ -65,7 +77,6 @@ export default async function Page() {
           Your creations are private. Your grown-up can see your saved work and
           progress.
         </p>
-        {["creators","studio"].includes(child.band) && <District owned />}
         <Image
           src={`/images/wonderlab/${child.band}.png`}
           alt="Your illustrated mission world"

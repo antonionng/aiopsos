@@ -68,6 +68,7 @@ export function Player({
   const [aiError, setAiError] = useState("");
   const [allowance, setAllowance] = useState(remaining);
   const revision = useRef(initial?.revision ?? 0);
+  const stage = useRef<HTMLElement>(null);
   const queue = useRef(Promise.resolve());
   const conflict = useRef(false);
   const signature = JSON.stringify({ answers, creation, checks });
@@ -145,6 +146,9 @@ export function Player({
   const passed = activities.filter((a) =>
     checkActivity(a, answers[a.id] ?? []),
   ).length;
+  const firstUnfinished = activities.findIndex(
+    (a) => !checkActivity(a, answers[a.id] ?? []),
+  );
   function change(next: Answer) {
     setAnswers((old) => ({ ...old, [activity.id]: next }));
     setFeedback(null);
@@ -153,6 +157,7 @@ export function Player({
     setStep(index);
     setFeedback(null);
     stop();
+    requestAnimationFrame(() => stage.current?.focus());
   }
   function narrate() {
     setVoice(true);
@@ -265,10 +270,12 @@ export function Player({
       </details>
       <div className="wl-game-layout wg-mission-layout">
         <aside className="wl-chapters" aria-label="Adventure checkpoints">
+          <p className="wl-caption">Finish a challenge to open the next one.</p>
           {activities.map((a, i) => (
             <button
               key={a.id}
               aria-current={step === i ? "step" : undefined}
+              disabled={firstUnfinished >= 0 && i > firstUnfinished}
               onClick={() => navigate(i)}
             >
               <span>
@@ -279,10 +286,10 @@ export function Player({
                 )}
               </span>
               {checkActivity(a, answers[a.id] ?? [])
-                ? "Discovery earned"
+                ? `Challenge ${i + 1} complete`
                 : i === 3
                   ? "Final challenge"
-                  : `Adventure ${i + 1}`}
+                  : `Challenge ${i + 1}`}
             </button>
           ))}
           <button
@@ -291,10 +298,15 @@ export function Player({
             aria-current={step === activities.length ? "step" : undefined}
           >
             <span>✳</span>
-            {demo ? "Collect my discovery" : "My making space"}
+            {demo ? "Collect my discovery" : "Make my keepsake"}
           </button>
         </aside>
-        <section className="wl-stage">
+        <section
+          className="wl-stage"
+          ref={stage}
+          tabIndex={-1}
+          aria-label="Your current challenge"
+        >
           {activity ? (
             <GameStage
               key={activity.id}

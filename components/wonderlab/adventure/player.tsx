@@ -52,6 +52,13 @@ export function AdventurePlayer({
   const round = state.rounds[state.round];
   const reflection = reflectionDraft ?? round?.reflection ?? "";
   const heading = useRef<HTMLHeadingElement>(null);
+  const reflectionPanel = useRef<HTMLElement>(null);
+  const previouslySolved = useRef(round?.solved ?? false);
+  useEffect(() => {
+    if (round?.solved && !previouslySolved.current)
+      reflectionPanel.current?.focus();
+    previouslySolved.current = round?.solved ?? false;
+  }, [round?.solved]);
   const previousRound = useRef(state.round);
   useEffect(() => {
     if (previousRound.current !== state.round) {
@@ -60,7 +67,7 @@ export function AdventurePlayer({
     }
   }, [state.round]);
   async function send(action: Action) {
-    if (pending.current) return;
+    if (pending.current) return false;
     pending.current = true;
     setBusy(true);
     setError("");
@@ -73,7 +80,7 @@ export function AdventurePlayer({
           setReflection(null);
           narration.stop();
         }
-        return;
+        return true;
       }
       const response = await fetch("/api/wonderlab/adventure", {
         method: "POST",
@@ -99,7 +106,7 @@ export function AdventurePlayer({
         setError(
           "This game changed in another tab. Your latest saved checkpoint is open. Please make your next move again.",
         );
-        return;
+        return false;
       }
       if (!response.ok)
         throw new Error(
@@ -110,6 +117,7 @@ export function AdventurePlayer({
         setReflection(null);
         narration.stop();
       }
+      return true;
     } catch (e) {
       setError(
         e instanceof Error
@@ -117,6 +125,7 @@ export function AdventurePlayer({
           : "Your move could not be saved. Please try again.",
       );
       setRetry(action);
+      return false;
     } finally {
       pending.current = false;
       setBusy(false);
@@ -137,8 +146,8 @@ export function AdventurePlayer({
   return (
     <div className={`wd-player ${game.band} ${game.zone}`}>
       <div className="wd-player-top">
-        <Link href={demo ? "/wonderlab/district" : "/wonderlab/play"}>
-          <Compass size={18} /> Back to my district
+        <Link href={demo ? "/wonderlab/games" : "/wonderlab/play"}>
+          <Compass size={18} /> Choose another game
         </Link>
         <span role="status">
           {busy
@@ -153,12 +162,7 @@ export function AdventurePlayer({
       <header className="wd-mission-header">
         <div>
           <span className="wd-kicker">
-            {game.zone === "signal"
-              ? "SIGNAL HUNT"
-              : game.zone === "forge"
-                ? "WORLD FORGE"
-                : "LAUNCH CONTROL"}{" "}
-            · AGES {game.band === "creators" ? "11–13" : "14–16"}
+            WONDERLAB GAME · AGES {game.band === "creators" ? "11–13" : "14–16"}
           </span>
           <h1 ref={heading} tabIndex={-1}>
             {game.name}
@@ -259,35 +263,45 @@ export function AdventurePlayer({
               <LabScene level={level} state={round} send={send} busy={busy} />
             )}
           </div>
-          {round.feedback && (
-            <section
-              className={`wd-result ${round.solved ? "success" : ""}`}
-              aria-live="polite"
-            >
-              <div className="wd-result-symbol">
-                {round.solved ? <Check /> : <RotateCcw />}
-              </div>
-              <div>
-                <span className="wd-kicker">WHAT HAPPENED</span>
-                <h3>
-                  {round.solved
-                    ? "Your work meets this challenge."
-                    : "Your test gives you something to investigate."}
-                </h3>
-                <p>{round.feedback}</p>
-                {round.failures.length > 1 && (
-                  <ul>
-                    {round.failures.slice(1).map((f) => (
-                      <li key={f}>{f}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </section>
-          )}
+          {round.feedback &&
+            (level.kind !== "forge" ||
+              round.testedGoals.length > 0 ||
+              round.failures.length > 0) && (
+              <section
+                className={`wd-result ${round.solved ? "success" : ""}`}
+                aria-live="polite"
+              >
+                <div className="wd-result-symbol">
+                  {round.solved ? <Check /> : <RotateCcw />}
+                </div>
+                <div>
+                  <span className="wd-kicker">WHAT HAPPENED</span>
+                  <h3>
+                    {round.solved
+                      ? "Your work meets this challenge."
+                      : level.kind === "forge" && round.testedGoals.length
+                        ? "You reached a destination."
+                        : "Your test found something to change."}
+                  </h3>
+                  <p>{round.feedback}</p>
+                  {round.failures.length > 1 && (
+                    <ul>
+                      {round.failures.slice(1).map((f) => (
+                        <li key={f}>{f}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            )}
           {round.solved && (
-            <section className="wd-reflection">
-              <label htmlFor="game-reflection">
+            <section
+              className="wd-reflection"
+              ref={reflectionPanel}
+              tabIndex={-1}
+              aria-labelledby="game-reflection-label"
+            >
+              <label id="game-reflection-label" htmlFor="game-reflection">
                 What did you change or check, and why did it help?
               </label>
               <p>
@@ -374,9 +388,9 @@ export function AdventurePlayer({
             </button>
             <Link
               className="wd-quiet"
-              href={demo ? "/wonderlab/district" : "/wonderlab/play"}
+              href={demo ? "/wonderlab/games" : "/wonderlab/play"}
             >
-              Explore the district
+              Choose another game
             </Link>
           </div>
           <p className="wd-caption">
@@ -390,19 +404,6 @@ export function AdventurePlayer({
         <p role="status" className="wd-caption">
           {narration.message}
         </p>
-      )}
-      {!demo && (
-        <details className="wd-learning-note">
-          <summary>Open the original lesson workspace.</summary>
-          <p>
-            Your earlier work is still available. The original workspace also
-            contains the lesson’s guided writing tools where enabled by your
-            parent.
-          </p>
-          <Link href={`/wonderlab/play/${game.slug}?classic=1`}>
-            Open my original workspace →
-          </Link>
-        </details>
       )}
     </div>
   );

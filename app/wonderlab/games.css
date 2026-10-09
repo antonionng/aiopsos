@@ -1835,3 +1835,29 @@
 .wg-optional-guide > summary { cursor: pointer; padding: 18px 0; font-size: 14px; font-weight: 700; min-height: 48px; }
 .wg-optional-guide[open] { padding-bottom: 18px; }
 .wg-optional-guide .wg-learning-guide { margin-top: 0; }
+.wl-next-step {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 0 0 22px;
+  padding: 20px 24px;
+  border: 1px solid #c9bae6;
+  border-left: 5px solid #6940d6;
+  border-radius: 16px;
+  background: #f3edff;
+  color: #29243f;
+}
+.wl-next-step h3 { margin: 0 0 8px; font-size: 20px; line-height: 1.35; }
+.wl-next-step p { margin: 0; font-size: 16px; line-height: 1.6; max-width: 85ch; }
+.wl-next-step ol { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 0 0 18px; padding: 0; list-style: none; }
+.wl-next-step li { display: flex; align-items: center; gap: 7px; color: #675b76; font-size: 13px; }
+.wl-next-step li[aria-current="step"] { color: #432586; font-weight: 800; }
+.wl-next-step li span { display: inline-grid; place-items: center; width: 24px; height: 24px; border: 1px solid #b3a0d3; border-radius: 50%; }
+.wl-next-step li[aria-current="step"] span { background: #6940d6; border-color: #6940d6; color: white; }
+.wd-build-details { margin: 20px 0; }
+.wd-build-details summary { cursor: pointer; padding: 12px 0; font-weight: 700; line-height: 1.5; }
+.wd-timetable-scroll > h3 { margin: 0 0 16px; font-size: 17px; }
+@media (max-width: 600px) {
+  .wl-next-step { padding: 16px; }
+  .wl-next-step h3 { font-size: 18px; }
+  .wl-next-step ol { gap: 8px 12px; }
+}

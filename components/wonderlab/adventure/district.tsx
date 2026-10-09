@@ -36,7 +36,21 @@ const zones = [
     slug: "brief-builder",
   },
 ];
-export function District({ owned = false }: { owned?: boolean }) {
+export function District({
+  owned = false,
+  preferredBand,
+  nickname,
+  availableSlugs,
+}: {
+  owned?: boolean;
+  preferredBand?: "creators" | "studio";
+  nickname?: string;
+  availableSlugs?: string[];
+}) {
+  const firstGame =
+    preferredBand === "studio" ? "brief-builder" : "prompt-repair-shop";
+  const canStart =
+    !owned || !availableSlugs || availableSlugs.includes(firstGame);
   return (
     <div className="wd-district">
       <header className="wd-district-heading">
@@ -44,31 +58,45 @@ export function District({ owned = false }: { owned?: boolean }) {
           <Compass size={16} /> WONDERLAB DISTRICT · AGES 11–16
         </span>
         <h1>
-          Your ideas bring
-          <br />
-          <em>this district to life.</em>
+          {nickname ? (
+            <>Choose your next game, {nickname}.</>
+          ) : (
+            <>
+              Your ideas bring
+              <br />
+              <em>this district to life.</em>
+            </>
+          )}
         </h1>
         <p>
-          Explore a city of mysteries, build worlds you can play and run a
-          launch of your own. Your ideas change what happens next.
+          Choose one game below. You will see your goal, play a challenge and
+          test your idea. Each game explains the next step as you go.
         </p>
         <div className="wd-district-actions">
+          {canStart && (
+            <Link
+              href={
+                owned
+                  ? `/wonderlab/play/${firstGame}`
+                  : "/wonderlab/play/prompt-repair-shop?demo=1"
+              }
+              className="wd-primary"
+            >
+              {owned
+                ? preferredBand === "studio"
+                  ? "Play Launch Control"
+                  : "Play Bridgeworks"
+                : "Play free Bridgeworks"}{" "}
+              <ArrowUpRight size={19} />
+            </Link>
+          )}
           <Link
-            href={
-              owned
-                ? "/wonderlab/play/prompt-repair-shop"
-                : "/wonderlab/play/prompt-repair-shop?demo=1"
-            }
-            className="wd-primary"
-          >
-            {owned ? "Enter World Forge" : "Enter a free game"}{" "}
-            <ArrowUpRight size={19} />
-          </Link>
-          <Link
-            href={owned ? "/wonderlab/play" : "/wonderlab/family"}
+            href={owned ? "/wonderlab/family" : "/wonderlab/games"}
             className="wd-quiet"
           >
-            {owned ? "Open my mission map" : "Open my family space"}
+            {owned
+              ? "Back to my family space"
+              : "Find a free game for another age"}
           </Link>
         </div>
       </header>
@@ -124,7 +152,13 @@ export function District({ owned = false }: { owned?: boolean }) {
               .map((g) => (
                 <Link
                   key={g.slug}
-                  href={`/wonderlab/play/${g.slug}${g.free && !owned ? "?demo=1" : ""}`}
+                  href={
+                    owned && availableSlugs && !availableSlugs.includes(g.slug)
+                      ? "/wonderlab/family"
+                      : !owned && !g.free
+                        ? "/wonderlab/family"
+                        : `/wonderlab/play/${g.slug}${g.free && !owned ? "?demo=1" : ""}`
+                  }
                   className="wd-mission-card"
                 >
                   <MissionArtwork
@@ -135,16 +169,24 @@ export function District({ owned = false }: { owned?: boolean }) {
                   <div className="wd-card-body">
                     <span className="wd-kicker">
                       AGES {g.band === "creators" ? "11–13" : "14–16"} ·{" "}
-                      {g.free ? "FREE GAME" : "MEMBERSHIP GAME"}
+                      {owned
+                        ? availableSlugs && !availableSlugs.includes(g.slug)
+                          ? "NOT OPEN ON THIS PROFILE"
+                          : "IN YOUR COLLECTION"
+                        : g.free
+                          ? "FREE GAME"
+                          : "MEMBERSHIP GAME"}
                     </span>
                     <h3>{g.name}</h3>
                     <p>{g.subtitle}</p>
                     <span className="wd-card-link">
                       {owned
-                        ? "Open this mission"
+                        ? availableSlugs && !availableSlugs.includes(g.slug)
+                          ? "Ask your grown-up to open this game"
+                          : "Play this game"
                         : g.free
                           ? "Play the free game"
-                          : "Open this mission"}
+                          : "Open family space to play"}
                       <ArrowUpRight size={18} />
                     </span>
                   </div>

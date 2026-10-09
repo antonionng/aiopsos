@@ -37,7 +37,7 @@ export function GameGuide({
             setOpen(!open);
           }}
         >
-          {open ? "Close demonstration" : "Show me how to play"}
+          {open ? "Close the example" : "Watch an example"}
         </button>
       </div>
       {open && (
@@ -51,7 +51,7 @@ export function GameGuide({
               document.getElementById("wonderlab-game-board")?.focus();
             }}
           >
-            I’m ready to play →
+            Back to my game →
           </button>
         </>
       )}

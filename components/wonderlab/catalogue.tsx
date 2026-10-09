@@ -18,7 +18,7 @@ import type { Band, Mission } from "@/lib/wonderlab/types";
 import { launchStatus } from "@/lib/wonderlab/flags";
 import { Pip } from "./art";
 import { MissionArtwork } from "./mission-artwork";
-import { GameCards } from "./arcade";
+import { GameCards } from "./game-cards";
 export function WorldCard({ band }: { band: Band }) {
   const b = bands[band];
   return (

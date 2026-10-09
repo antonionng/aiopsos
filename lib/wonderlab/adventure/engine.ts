@@ -337,7 +337,7 @@ export function transition(
     s.failures =
       s.tiles.length > level.budget
         ? [
-            `The brief allows ${level.budget} pieces. Remove ${s.tiles.length - level.budget} and fabricate again.`,
+            `Your route can use ${level.budget} pieces. Remove ${s.tiles.length - level.budget}, then build and test it again.`,
           ]
         : [];
     s.feedback =

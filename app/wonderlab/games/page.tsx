@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { withSiteShareImages } from "@/lib/social-image";
 import { wonderlabShare } from "@/lib/wonderlab/share";
-import { GameCards } from "@/components/wonderlab/arcade";
+import { GameCards } from "@/components/wonderlab/game-cards";
 export const metadata = withSiteShareImages({
   ...wonderlabShare,
   title: "Choose your game world",
@@ -23,18 +23,11 @@ export default function Page() {
         you test your ideas and helps you learn from mistakes. Complete the
         game’s challenges and explain what you discovered to earn your sticker.
       </p>
-      <div className="wl-notice">
-        <h2>Explore the new district for ages 11–16.</h2>
-        <p>
-          Investigate a city, build worlds you can walk through and run a launch
-          rehearsal. Each mission gives you a problem to solve and a result you
-          can test.
-        </p>
-        <Link className="wl-button" href="/wonderlab/district">
-          Enter the game district →
-        </Link>
-      </div>
       <GameCards />
+      <p className="wl-caption">
+        For more games for ages 11–16,{" "}
+        <Link href="/wonderlab/district">browse the full game collection</Link>.
+      </p>
       <div className="wl-notice">
         Little Explorers play with a grown-up. Every game has written
         instructions, optional read-aloud, unlimited retries and no timer. These
