@@ -23,6 +23,31 @@ export default function Page() {
         you test your ideas and helps you learn from mistakes. Complete the
         game’s challenges and explain what you discovered to earn your sticker.
       </p>
+      <aside className="wl-notice" aria-label="Try our new game about how AI learns">
+        <h2>Teach an AI with examples, then watch it get tested.</h2>
+        <p>
+          In Creature Crossing, you choose which creatures the Wonder Gate
+          learns from. Then a herd of new creatures charges through it. If
+          your examples were lopsided, you will see the gate make mistakes,
+          and you can find out why and fix them. For ages 7 to 13, with no
+          live AI.
+        </p>
+        <Link className="wl-button" href="/wonderlab/creature-crossing">
+          Play Creature Crossing
+        </Link>
+      </aside>
+      <aside className="wl-notice" aria-label="Try our new first-person adventure">
+        <h2>Create a game and step inside it.</h2>
+        <p>
+          In our new Arcade Apprentice playtest, you can choose an avatar,
+          describe a collection game and explore the world you create. Change
+          your instructions to change the treasure, colours and goal. This is
+          one early adventure, with picture choices for younger players.
+        </p>
+        <Link className="wl-button" href="/wonderlab/arcade-preview">
+          Play the new arcade adventure
+        </Link>
+      </aside>
       <GameCards />
       <p className="wl-caption">
         For more games for ages 11–16,{" "}
@@ -31,7 +56,7 @@ export default function Page() {
       <div className="wl-notice">
         Little Explorers play with a grown-up. Every game has written
         instructions, optional read-aloud, unlimited retries and no timer. These
-        free games use examples written in advance to help you understand AI.
+        four free games use examples written in advance to help you understand AI.
         They do not use live AI. Free-game progress is not saved to a child’s
         profile. Download your creation before leaving.
       </div>
