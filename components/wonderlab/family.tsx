@@ -7,6 +7,8 @@ import { PictureTile } from "./art";
 import { downloadWork } from "./player";
 import { isEntitled } from "@/lib/wonderlab/engine";
 import { LearningInsightsPanel, LearningWelcomeArt } from "./learning-insights";
+import { FamilyArcadeProjectCard } from "./family-arcade-project";
+import { ARCADE_PROJECT_MISSION, type FamilyArcadeProject } from "@/lib/wonderlab/arcade-project";
 import type { LearningInsights } from "@/lib/wonderlab/learning-insights";
 import type {
   Band,
@@ -18,6 +20,7 @@ import type {
 type Lesson = { slug: string; title: string; band: Band; outcome: string };
 type FamilyData = {
   insights: Record<string, LearningInsights>;
+  arcadeProjects?: FamilyArcadeProject[];
   children: Child[];
   memberships: {
     id: string;
@@ -333,6 +336,18 @@ export function Family({ lessons }: { lessons: Lesson[] }) {
                           router.refresh();
                         })
                 }
+              />
+            )}
+            {(data.arcadeProjects?.some((project) => project.childId === child.id) || data.orders.some((order) => order.child_id === child.id && order.mission_slug === ARCADE_PROJECT_MISSION && isEntitled(order))) && (
+              <FamilyArcadeProjectCard
+                saved={data.arcadeProjects?.find((project) => project.childId === child.id)}
+                nickname={child.nickname}
+                busy={busy}
+                onOpen={!child.deletion_requested_at && data.orders.some((order) => order.child_id === child.id && order.mission_slug === ARCADE_PROJECT_MISSION && isEntitled(order)) ? () => void action(async () => {
+                  await post("session", { action: "play", childId: child.id });
+                  router.push("/wonderlab/arcade-preview?family=1");
+                  router.refresh();
+                }) : undefined}
               />
             )}
             <details style={{ marginTop: 24 }}>

@@ -46,3 +46,9 @@ scripts/.lms-demo-manifest.json
 # Private recording review copies and machine transcript drafts
 output/course-introductions/
 output/media-pilot/
+
+# Local build scratch, browser automation dumps and generated media
+/output/
+/.deck-build/
+/tmp/
+/.playwright-mcp/

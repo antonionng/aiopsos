@@ -15,6 +15,9 @@ import * as engine from "./engine.ts";
 import * as membershipRules from "./membership-rules.ts";
 import * as generationRules from "./generation-rules.ts";
 import * as insightRules from "./learning-insights.ts";
+import * as arcadeProjectRules from "./arcade-project.ts";
+import { DEFAULT_DESIGN } from "./first-person.ts";
+import { NEW_ADVENTURE } from "./arcade-adventure.ts";
 import type Stripe from "stripe";
 
 type Row = Record<string, unknown>;
@@ -116,10 +119,13 @@ function database(pg: PGlite) {
             if (operation === "delete")
               sql = `delete from ${quote(table)}${where} returning *`;
             const result = await pg.query(sql, params);
+            // PostgREST returns JSON date strings, while PGlite's direct SQL
+            // driver exposes Date objects. Match the real HTTP boundary.
+            const rows = JSON.parse(JSON.stringify(result.rows)) as Row[];
             return resolve({
-              data: single ? (result.rows[0] ?? null) : result.rows,
+              data: single ? (rows[0] ?? null) : rows,
               error: null,
-              count: count ? result.rows.length : null,
+              count: count ? rows.length : null,
             });
           } catch (error) {
             return resolve({ data: null, error });
@@ -286,6 +292,8 @@ async function fixture() {
     "@/lib/wonderlab/engine": engine,
     "@/lib/wonderlab/generation-rules": generationRules,
     "@/lib/wonderlab/learning-insights": insightRules,
+    "@/lib/wonderlab/arcade-project": arcadeProjectRules,
+    "./arcade-project": arcadeProjectRules,
     "@/lib/wonderlab/flags": {
       launchStatus: () => ({ commerce: true, ai: false, terms: "test-v1" }),
     },
@@ -303,6 +311,10 @@ async function fixture() {
   };
   const server = load<Server>("lib/wonderlab/server.ts", mocks, env);
   mocks["@/lib/wonderlab/server"] = server;
+  mocks["./server"] = server;
+  mocks["@/lib/wonderlab/arcade-project-server"] = load(
+    "lib/wonderlab/arcade-project-server.ts", mocks, env,
+  );
   mocks["@/lib/wonderlab/adventure/catalog"] = adventureCatalog;
   mocks["@/lib/wonderlab/adventure/engine"] = adventureEngine;
   mocks["@/lib/wonderlab/adventure/types"] = adventureTypes;
@@ -1235,6 +1247,62 @@ test("game API validates actions, saves checkpoints once, restores progress and 
   } finally {
     await f.pg.close();
   }
+});
+
+test("arcade project routes save private practice separately and keep family exports available after expiry", async () => {
+  const f = await fixture();
+  try {
+    const child = await f.createChild();
+    const mission = catalogue.getMission(arcadeProjectRules.ARCADE_PROJECT_MISSION)!;
+    await f.pg.query(
+      "insert into wonderlab_orders(parent_id,child_id,mission_slug,content_version,terms_version,state,expires_at) values($1,$2,$3,$4,'test','paid',now()+interval '1 month')",
+      [parent, child, mission.slug, mission.version],
+    );
+    await f.post("session", { action: "play", childId: child });
+    const initial = await f.route("arcade-project").GET();
+    assert.equal(initial.headers.get("cache-control"), "private, no-store");
+    const initialData = await initial.json();
+    assert.equal(initialData.child.id, child);
+    assert.equal(initialData.revision, 0);
+    const snapshot = {
+      project: { version: 1, band: "creators", avatar: { kind: "robot", colour: "#55aabb" }, design: DEFAULT_DESIGN, revisions: 1, playtests: 1 },
+      adventure: { ...NEW_ADVENTURE, creations: [{ chapter: "first-game", design: DEFAULT_DESIGN }] },
+    };
+    const body = { childId: child, revision: 0, snapshot };
+    assert.equal((await f.post("arcade-project", body, "https://other.example")).status, 403);
+    assert.equal((await f.post("arcade-project", { ...body, completed: true })).status, 400);
+    const first = await f.post("arcade-project", body);
+    assert.equal(first.status, 200, await first.clone().text());
+    assert.equal((await first.json()).revision, 1);
+    assert.equal((await f.post("arcade-project", body)).status, 409);
+    assert.deepEqual((await (await f.route("arcade-project").GET()).json()).snapshot, snapshot);
+    await f.post("session", { action: "unlock", password: "correct-password" });
+    const family = await (await f.route("family").GET()).json();
+    assert.equal(family.arcadeProjects.length, 1);
+    assert.equal(family.arcadeProjects[0].childId, child);
+    assert.equal(family.arcadeProjects[0].summary.length, 1);
+    assert.equal(family.insights[child].completed, 0);
+    assert.equal(family.insights[child].activitiesChecked, 0);
+    assert.equal(family.insights[child].gameEvidence.length, 0);
+    assert.equal((await f.pg.query("select * from wonderlab_progress")).rows.length, 0);
+    f.setUser({ id: other, email: "other@example.test" });
+    await f.server.issueSession("parent", other);
+    assert.deepEqual((await (await f.route("family").GET()).json()).arcadeProjects, []);
+    assert.equal((await f.post("arcade-project", { ...body, revision: 1 })).status, 401);
+    f.setUser({ id: parent, email: "parent@example.test" });
+    await f.server.issueSession("parent", parent);
+    await f.post("session", { action: "play", childId: child });
+    await f.pg.exec("update wonderlab_orders set expires_at=now()-interval '1 second'");
+    assert.equal((await f.post("arcade-project", { ...body, revision: 1 })).status, 403);
+    assert.equal((await (await f.route("arcade-project").GET()).json()).mode, "local");
+    await f.post("session", { action: "unlock", password: "correct-password" });
+    const expired = await (await f.route("family").GET()).json();
+    assert.deepEqual(expired.arcadeProjects[0].snapshot, snapshot);
+    assert.equal(expired.insights[child].completed, 0);
+    await f.post("family", { action: "delete-request", childId: child });
+    const paused = await (await f.route("family").GET()).json();
+    assert.deepEqual(paused.arcadeProjects[0].snapshot, snapshot);
+  } finally { await f.pg.close(); }
 });
 
 test("in-game AI hints read the owned checkpoint, reject stale steps and exclude learner writing", async () => {

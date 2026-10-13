@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { spawn } from "node:child_process";
 import ffmpeg from "ffmpeg-static";
 import { narrationScripts } from "../lib/wonderlab/narration-scripts.ts";
+import { arcadeNarrationScripts } from "../lib/wonderlab/arcade-adventure.ts";
 import { NARRATION_MODEL, NARRATION_VOICE } from "../lib/wonderlab/narration.ts";
 import { recordNarration } from "./wonderlab-realtime-voice.mts";
 
@@ -28,7 +29,9 @@ function encodeMp3(pcm: Buffer): Promise<Buffer> {
 const root = process.cwd();
 const directory = resolve(root, "public/audio/wonderlab");
 const manifestFile = resolve(root, "lib/wonderlab/narration-manifest.json");
-const scripts = narrationScripts();
+const scope = process.argv.find((arg) => arg.startsWith("--scope="))?.slice("--scope=".length) ?? "all";
+if (scope !== "all" && scope !== "arcade") throw new Error("Use --scope=all or --scope=arcade.");
+const scripts = scope === "arcade" ? arcadeNarrationScripts() : narrationScripts();
 const dryRun = process.argv.includes("--dry-run");
 const limitFlag = process.argv.find((arg) => arg.startsWith("--limit="));
 const limit = limitFlag ? Number(limitFlag.split("=")[1]) : scripts.length;
@@ -55,6 +58,7 @@ for (const script of scripts) {
 console.log(
   JSON.stringify({
     scripts: scripts.length,
+    scope,
     pending: pending.length,
     characters: pending.reduce((sum, script) => sum + script.text.length, 0),
     dryRun,

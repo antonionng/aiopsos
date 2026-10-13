@@ -12,6 +12,7 @@ import { getMissionForVersion } from "@/lib/wonderlab/versions";
 import { bands } from "@/lib/wonderlab/catalog";
 import { launchStatus } from "@/lib/wonderlab/flags";
 import { learningInsights } from "@/lib/wonderlab/learning-insights";
+import { familyArcadeProjects } from "@/lib/wonderlab/arcade-project";
 export async function GET() {
   try {
     const user = await requireParent();
@@ -76,6 +77,7 @@ export async function GET() {
           };
         }),
         progress,
+        arcadeProjects: familyArcadeProjects(games ?? [], ids),
         insights: Object.fromEntries(
           (children ?? []).map((child) => [
             child.id,

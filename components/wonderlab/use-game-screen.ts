@@ -98,9 +98,11 @@ export function useGameScreen(ref: RefObject<HTMLElement | null>) {
     };
   }, [ref]);
 
-  const enter = useCallback(async () => {
+  const enter = useCallback(async (retryNative = false) => {
     const element = ref.current as GameScreenElement | null;
-    if (!mounted.current || requested.current) return;
+    // A deliberate second click can request native fullscreen after Escape.
+    // Ordinary enter calls still avoid duplicate browser requests.
+    if (!mounted.current || (requested.current && !retryNative)) return;
     if (!element) {
       setMessage("The game is still loading. Try again in a moment.");
       return;
