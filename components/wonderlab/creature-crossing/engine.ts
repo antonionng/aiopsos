@@ -847,6 +847,42 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
   let pendingArrivals = 0;
   let held: string | null = null;
   let heldScan: (() => void) | null = null;
+  // The herd lines up along the path; only the front creature steps up to the gate.
+  type Queued = { actor: Actor; atGate: () => void };
+  let toSpawn: Queued[] = [];
+  let waiting: Queued[] = [];
+  let gateBusy = false;
+  let sinceSpawn = 0;
+  const QUEUE_START = HOLLOW.add(new Vector3(0.4, 0, -0.4));
+  const GATE_SPOT = new Vector3(0, 0, -1.7);
+  const QUEUE_GAP = 1.6;
+  const queueSlot = (index: number) => {
+    const length = Vector3.Distance(GATE_SPOT, QUEUE_START);
+    return Vector3.Lerp(GATE_SPOT, QUEUE_START, Math.min(1, (index * QUEUE_GAP) / length));
+  };
+  const maxQueue = Math.floor(Vector3.Distance(GATE_SPOT, QUEUE_START) / QUEUE_GAP);
+  const stepQueue = (dt: number) => {
+    sinceSpawn += dt;
+    if (toSpawn.length && waiting.length < maxQueue && sinceSpawn >= 0.9) {
+      const next = toSpawn.shift()!;
+      next.actor.root.position.copyFrom(QUEUE_START);
+      next.actor.root.setEnabled(true);
+      waiting.push(next);
+      sinceSpawn = 0;
+    }
+    // While a creature stands under the gate, the line waits one place further back.
+    waiting.forEach((entry, index) => {
+      const slot = queueSlot(index + (gateBusy ? 1 : 0));
+      const goal = entry.actor.path[entry.actor.path.length - 1] ?? entry.actor.root.position;
+      if (Vector3.Distance(goal, slot) > 0.05) entry.actor.path = [slot];
+    });
+    const front = waiting[0];
+    if (!gateBusy && front && !front.actor.path.length && Vector3.Distance(front.actor.root.position, GATE_SPOT) < 0.05) {
+      waiting.shift();
+      gateBusy = true;
+      front.atGate();
+    }
+  };
   let holding = new Set<string>();
   // Frames the gate and the training pen together, so the player can compare a creature with the examples.
   const predictView = () => {
@@ -907,6 +943,10 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     held = null;
     heldScan = null;
     holding = new Set();
+    toSpawn = [];
+    waiting = [];
+    gateBusy = false;
+    sinceSpawn = 0;
     for (const key of Object.keys(homeSlots) as Array<Home | "unsure">) homeSlots[key] = 0;
     clearTrails();
   };
@@ -922,84 +962,82 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     setCrystal("idle");
     holding = new Set(hold);
     viewGoal = holding.size ? predictView() : runView();
-    const spacing = 1.25;
-    decisions.forEach((decision, index) => {
+    decisions.forEach((decision) => {
       const actor = buildCreature(decision.creature);
-      actor.root.position.copyFrom(HOLLOW.add(new Vector3(0.4, 0, -0.4)));
+      actor.root.position.copyFrom(QUEUE_START);
       actor.root.setEnabled(false);
       actors.set(actor.id, actor);
       herdActors.push(actor);
       pendingArrivals += 1;
       const outcome: "home" | "lost" | "unsure" = decision.sentTo === "unsure" ? "unsure" : decision.correct ? "home" : "lost";
-      timeline.push({
-        at: index * spacing,
-        run: () => {
-          actor.root.setEnabled(true);
-          actor.path = [new Vector3(0, 0, -1.7)];
-          actor.onArrive = () => {
-            actor.path = [];
-            if (holding.has(actor.id)) {
-              // Freeze the herd so the player can predict before the gate decides.
-              held = actor.id;
-              heldScan = () => scan(true);
-              actor.facing = Math.PI;
-              events.onHold(actor.id);
-            } else scan(false);
-          };
-          const scan = (predicted: boolean) => {
-            // Show which examples the gate compared this creature with, and make them hop.
-            drawTrails(actor.id, decision.nearest.map((example) => example.id));
-            decision.nearest.forEach((example) => {
-              const match = actors.get(example.id);
-              if (match) match.celebrate = 0.6;
-            });
-            // Pause under the gate while the crystal decides.
-            scanRing.setEnabled(true);
-            scanRing.position.set(GATE.x, 3.4, GATE.z);
-            crystalPulse = 1;
-            setCrystal(decision.sentTo);
-            events.onScan(actor.id);
-            const scanAt = clock;
-            timeline.push({
-              // A predicted creature waits longer so the player can see the gate's answer.
-              at: scanAt + (predicted ? 1.6 : 0.7),
-              run: () => {
-                scanRing.setEnabled(false);
-                clearTrails();
-                const target = destination(decision.sentTo);
-                const exit = new Vector3(0, 0, 2.3);
-                if (decision.sentTo === "unsure") actor.path = [new Vector3(1.6, 0, -1.2), target];
-                else if (decision.sentTo === "sky") actor.path = [exit, SKY_LIFT.clone(), new Vector3(SKY_LIFT.x, SKY_NEST.y + 0.15, SKY_LIFT.z + 0.5), target];
-                else if (decision.sentTo === "river") actor.path = [exit, RIVER.add(new Vector3(2.4, 0, -1.6)), target];
-                else actor.path = [exit, WOODS.add(new Vector3(-2.4, 0, -1.6)), target];
-                actor.onArrive = () => {
-                  actor.onArrive = null;
-                  pendingArrivals -= 1;
-                  const where = actor.root.position.add(new Vector3(0, 1, 0));
-                  if (outcome === "home") {
-                    actor.celebrate = 1.2;
-                    burst(where, "#ffe066", 16, 3.2);
-                  } else if (outcome === "lost") {
-                    actor.sad = true;
-                    burst(where, decision.sentTo === "river" ? "#9fe0ff" : decision.sentTo === "sky" ? "#ffffff" : "#8fdc7a", 12, 2.4);
-                  } else {
-                    actor.sad = true;
-                  }
-                  setBadge(actor, outcome, actor.creature.shape === "tall" ? 2.35 : 1.95);
-                  actor.root.rotation.y = Math.PI;
-                  actor.facing = Math.PI;
-                  events.onArrive(actor.id, outcome);
-                  setCrystal("idle");
-                  if (pendingArrivals === 0) {
-                    running = false;
-                    events.onRunComplete();
-                  }
-                };
-              },
-            });
-          };
+      toSpawn.push({
+        actor,
+        // Called once this creature is at the front of the queue and the gate is free.
+        atGate: () => {
+          actor.path = [];
+          if (holding.has(actor.id)) {
+            // Freeze the herd so the player can predict before the gate decides.
+            held = actor.id;
+            heldScan = () => scan(true);
+            actor.facing = Math.PI;
+            events.onHold(actor.id);
+          } else scan(false);
         },
       });
+      function scan(predicted: boolean) {
+        // Show which examples the gate compared this creature with, and make them hop.
+        drawTrails(actor.id, decision.nearest.map((example) => example.id));
+        decision.nearest.forEach((example) => {
+          const match = actors.get(example.id);
+          if (match) match.celebrate = 0.6;
+        });
+        // Pause under the gate while the crystal decides.
+        scanRing.setEnabled(true);
+        scanRing.position.set(GATE.x, 3.4, GATE.z);
+        crystalPulse = 1;
+        setCrystal(decision.sentTo);
+        events.onScan(actor.id);
+        const scanAt = clock;
+        timeline.push({
+          // A predicted creature waits longer so the player can see the gate's answer.
+          at: scanAt + (predicted ? 1.6 : 0.7),
+          run: () => {
+            scanRing.setEnabled(false);
+            clearTrails();
+            const target = destination(decision.sentTo);
+            const exit = new Vector3(0, 0, 2.3);
+            if (decision.sentTo === "unsure") actor.path = [new Vector3(1.6, 0, -1.2), target];
+            else if (decision.sentTo === "sky") actor.path = [exit, SKY_LIFT.clone(), new Vector3(SKY_LIFT.x, SKY_NEST.y + 0.15, SKY_LIFT.z + 0.5), target];
+            else if (decision.sentTo === "river") actor.path = [exit, RIVER.add(new Vector3(2.4, 0, -1.6)), target];
+            else actor.path = [exit, WOODS.add(new Vector3(-2.4, 0, -1.6)), target];
+            // Let the next creature step up once this one has walked clear of the arch.
+            timeline.push({ at: clock + 0.8, run: () => (gateBusy = false) });
+            actor.onArrive = () => {
+              actor.onArrive = null;
+              pendingArrivals -= 1;
+              const where = actor.root.position.add(new Vector3(0, 1, 0));
+              if (outcome === "home") {
+                actor.celebrate = 1.2;
+                burst(where, "#ffe066", 16, 3.2);
+              } else if (outcome === "lost") {
+                actor.sad = true;
+                burst(where, decision.sentTo === "river" ? "#9fe0ff" : decision.sentTo === "sky" ? "#ffffff" : "#8fdc7a", 12, 2.4);
+              } else {
+                actor.sad = true;
+              }
+              setBadge(actor, outcome, actor.creature.shape === "tall" ? 2.35 : 1.95);
+              actor.root.rotation.y = Math.PI;
+              actor.facing = Math.PI;
+              events.onArrive(actor.id, outcome);
+              setCrystal("idle");
+              if (pendingArrivals === 0) {
+                running = false;
+                events.onRunComplete();
+              }
+            };
+          },
+        });
+      }
     });
   };
 
@@ -1172,6 +1210,7 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     time += realDt;
     const dt = realDt * (running ? speed : 1);
     if (running && !held) {
+      stepQueue(dt);
       clock += dt;
       const due = timeline.filter((item) => item.at <= clock);
       timeline = timeline.filter((item) => item.at > clock);
