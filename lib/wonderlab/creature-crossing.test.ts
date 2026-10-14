@@ -12,7 +12,7 @@ import {
   homeOf,
   readCrossingSave,
   runHerd,
-  spotlight,
+  missingHomes,
   starsFor,
   unlocked,
   type Creature,
@@ -124,13 +124,10 @@ test("the tutorial points at creatures that exist and teach both homes", () => {
   assert.equal(runHerd(first, targets.map((c) => c.id)).stars, 3);
 });
 
-test("mind-reader moments favour the gate's mistakes and include one correct crossing", () => {
+test("homes without an example are reported, because the gate can never send anything there", () => {
   const level = CROSSING_LEVELS.find((l) => l.id === "colour-trap")!;
-  const { decisions } = runHerd(level, level.obvious);
-  const ids = spotlight(decisions);
-  assert.equal(ids.length, 3);
-  const picked = decisions.filter((d) => ids.includes(d.creature.id));
-  assert.equal(picked.filter((d) => !d.correct).length, 2);
-  assert.equal(picked.filter((d) => d.correct).length, 1);
-  assert.deepEqual(spotlight(decisions, true), [decisions[0].creature.id]);
+  const riverOnly = ["p2-1", "p2-2", "p2-3", "p2-7"];
+  assert.deepEqual(missingHomes(level, riverOnly), ["woods"]);
+  assert.ok(runHerd(level, riverOnly).decisions.every((d) => d.sentTo === "river"));
+  assert.deepEqual(missingHomes(level, level.obvious), []);
 });

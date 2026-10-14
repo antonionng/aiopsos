@@ -69,6 +69,7 @@ export const PIP = {
   openGate: "Brilliant. Now open the gate and watch the herd!",
   memoryFull: "The gate can only remember a few examples. Tap one you chose to swap it out.",
   predict: "Stop! Where will the gate send this one? Think like the gate. Which of your examples does it look most like?",
+  next: "Where will this one go?",
   predictRight: "You read the gate's mind!",
   predictWrong: "Not this time. Watch where the gate sends it.",
   allHome: "Every creature got home. You taught the gate well!",
@@ -309,16 +310,10 @@ export function runHerd(level: CrossingLevel, exampleIds: string[]) {
   return { decisions, home, total: level.herd.length, stars: starsFor(home, level.herd.length) };
 }
 
-/**
- * Creatures that pause at the gate so the player can predict the gate's choice. Mistakes are the
- * interesting moments, so they come first; one correct crossing keeps the prediction honest.
- */
-export function spotlight(decisions: Decision[], tutorial = false) {
-  if (tutorial) return decisions.slice(0, 1).map((decision) => decision.creature.id);
-  const surprising = decisions.filter((decision) => !decision.correct).slice(0, 2);
-  const ordinary = decisions.find((decision) => decision.correct);
-  const chosen = new Set([...surprising, ...(ordinary ? [ordinary] : [])].map((decision) => decision.creature.id));
-  return decisions.filter((decision) => chosen.has(decision.creature.id)).map((decision) => decision.creature.id);
+/** Homes in this level that none of the chosen examples come from. The gate can never send a creature there. */
+export function missingHomes(level: CrossingLevel, exampleIds: string[]) {
+  const taught = new Set(level.pen.filter((creature) => exampleIds.includes(creature.id)).map(homeOf));
+  return level.homes.filter((home) => !taught.has(home));
 }
 
 /** Every line Pip can say, for recording in the shared narration voice. */

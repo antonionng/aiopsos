@@ -12,8 +12,8 @@ import {
   explain,
   homeOf,
   readCrossingSave,
+  missingHomes,
   runHerd,
-  spotlight,
   unlocked,
   type CrossingSave,
   type Decision,
@@ -70,6 +70,9 @@ export function CreatureCrossing() {
   const [tutorial, setTutorial] = useState<number | null>(null);
   const [predicting, setPredicting] = useState<string | null>(null);
   const [predictions, setPredictions] = useState({ right: 0, total: 0 });
+  // The gate's answer, shown briefly after each prediction.
+  const [reveal, setReveal] = useState<{ decision: Decision; guess: Guess } | null>(null);
+  const holdsThisRun = useRef(0);
   const [streak, setStreak] = useState<{ count: number; key: number } | null>(null);
   const [answer, setAnswer] = useState<{ index: number; correct: boolean } | null>(null);
   const level = CROSSING_LEVELS[levelIndex];
@@ -177,12 +180,20 @@ export function CreatureCrossing() {
 
   const onHold = useCallback(
     (id: string) => {
+      setReveal(null);
       setPredicting(id);
       sfx.unsure();
-      say(PIP.predict);
+      say(holdsThisRun.current === 0 ? PIP.predict : PIP.next);
+      holdsThisRun.current += 1;
     },
     [say],
   );
+
+  useEffect(() => {
+    if (!reveal) return;
+    const timer = window.setTimeout(() => setReveal(null), 2200);
+    return () => window.clearTimeout(timer);
+  }, [reveal]);
 
   // The 3D world is created once; its events reach the latest handlers through refs.
   const handlers = useRef({ pickInWorld, onHold });
@@ -309,7 +320,10 @@ export function CreatureCrossing() {
     worldRef.current?.setPointer(null);
     worldRef.current?.setSpeed(fast ? 2.6 : 1);
     worldRef.current?.resetView();
-    worldRef.current?.run(outcome.decisions, spotlight(outcome.decisions, tutorial !== null));
+    holdsThisRun.current = 0;
+    setReveal(null);
+    // Every creature stops at the gate for a prediction; "Let the rest go" ends that.
+    worldRef.current?.run(outcome.decisions, outcome.decisions.map((decision) => decision.creature.id));
     setTutorial(null);
     stopVoice();
     sfx.gate();
@@ -322,9 +336,16 @@ export function CreatureCrossing() {
     setPredictions((previous) => ({ right: previous.right + (right ? 1 : 0), total: previous.total + 1 }));
     if (right) sfx.win();
     say(right ? PIP.predictRight : PIP.predictWrong);
-    setNotice(right ? "🔮 You read the gate's mind!" : `The gate chose ${GUESS_LABEL[decision.sentTo]}. Watch!`);
+    setReveal({ decision, guess });
     setPredicting(null);
     worldRef.current?.release();
+  };
+
+  const letTheRestGo = () => {
+    setPredicting(null);
+    setReveal(null);
+    stopVoice();
+    worldRef.current?.releaseAll();
   };
 
   const changeExamples = () => {
@@ -384,6 +405,7 @@ export function CreatureCrossing() {
   const options = level.question.options.map((option, index) => ({ ...option, index }));
   const rotated = [...options.slice(levelIndex % options.length), ...options.slice(0, levelIndex % options.length)];
   const examples = level.pen.filter((creature) => selected.includes(creature.id));
+  const missing = missingHomes(level, selected);
 
   const pipBubble = (
     <div className="cc-pip" aria-live="polite">
@@ -527,7 +549,7 @@ export function CreatureCrossing() {
                     aria-label={`${creature.colour} ${creature.pattern} ${creature.shape} creature with ${creature.limbs}, lives in ${HOMES[homeOf(creature)].place}${chosen ? ", chosen" : ""}`}
                   >
                     <CreatureIcon creature={creature} size={46} title="" />
-                    {labels && <span className="cc-chip-home">{HOME_GLYPH[homeOf(creature)]}</span>}
+                    {labels && <span className={`cc-chip-home cc-home-${homeOf(creature)}`}>{HOMES[homeOf(creature)].name}</span>}
                   </button>
                 );
               })}
@@ -543,10 +565,26 @@ export function CreatureCrossing() {
                 return (
                   <span key={index} className={`cc-slot${creature ? " filled" : ""}`}>
                     {creature ? <CreatureIcon creature={creature} size={34} /> : null}
+                    {creature && <small>{HOME_GLYPH[homeOf(creature)]}</small>}
                   </span>
                 );
               })}
             </div>
+            <div className="cc-taught" aria-label="Examples for each home">
+              {level.homes.map((home) => {
+                const count = examples.filter((example) => homeOf(example) === home).length;
+                return (
+                  <span key={home} className={count ? "" : "cc-none"}>
+                    {HOME_GLYPH[home]} {HOMES[home].name} {count}
+                  </span>
+                );
+              })}
+            </div>
+            {selected.length > 0 && missing.length > 0 && (
+              <p className="cc-warning" role="status">
+                The gate has not seen any {missing.map((home) => HOMES[home].name).join(" or ")} creatures yet, so it cannot send anything there.
+              </p>
+            )}
             <button
               type="button"
               className={`cc-go${tutorial === TUTORIAL.length ? " cc-guide" : ""}`}
@@ -572,35 +610,49 @@ export function CreatureCrossing() {
               🔥 {streak.count} in a row!
             </div>
           )}
-          {heldDecision ? (
+          {heldDecision || reveal ? (
             <section className="cc-predict" aria-labelledby="cc-predict-heading">
               {pipBubble}
               <div className="cc-predict-body">
                 <div className="cc-predict-who">
-                  <CreatureIcon creature={heldDecision.creature} size={72} />
+                  <CreatureIcon creature={(heldDecision ?? reveal!.decision).creature} size={72} />
                   <span>This creature</span>
                 </div>
                 <div className="cc-predict-memory">
-                  <span className="cc-label">Your examples</span>
+                  <span className="cc-label">{reveal ? "The gate thinks it looks like" : "Your examples"}</span>
                   <div>
-                    {examples.map((example) => (
-                      <span key={example.id} className="cc-example">
-                        <CreatureIcon creature={example} size={40} />
+                    {(reveal ? reveal.decision.nearest : examples).map((example) => (
+                      <span key={example.id} className={`cc-example${reveal ? " cc-match" : ""}`}>
+                        <CreatureIcon creature={example} size={reveal ? 52 : 40} />
                         <small>{HOME_GLYPH[homeOf(example)]}</small>
                       </span>
                     ))}
                   </div>
                 </div>
               </div>
-              <h2 id="cc-predict-heading">Where will the gate send it?</h2>
-              <div className="cc-guesses">
-                {guesses.map((guess) => (
-                  <button key={guess} type="button" className="cc-guess" onClick={() => predict(guess)}>
-                    <span aria-hidden="true">{GUESS_GLYPH[guess]}</span>
-                    {GUESS_LABEL[guess]}
-                  </button>
-                ))}
-              </div>
+              {reveal ? (
+                <div className={`cc-reveal ${reveal.guess === reveal.decision.sentTo ? "right" : "wrong"}`} role="status">
+                  <strong>
+                    Gate says: {GUESS_GLYPH[reveal.decision.sentTo]} {GUESS_LABEL[reveal.decision.sentTo]}
+                  </strong>
+                  <span>{reveal.guess === reveal.decision.sentTo ? "🔮 You read its mind!" : `You guessed ${GUESS_LABEL[reveal.guess]}`}</span>
+                </div>
+              ) : (
+                <>
+                  <h2 id="cc-predict-heading">Where will the gate send it?</h2>
+                  <div className="cc-guesses">
+                    {guesses.map((guess) => (
+                      <button key={guess} type="button" className="cc-guess" onClick={() => predict(guess)}>
+                        <span aria-hidden="true">{GUESS_GLYPH[guess]}</span>
+                        {GUESS_LABEL[guess]}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              <button type="button" className="cc-skip" onClick={letTheRestGo}>
+                Let the rest go <FastForward size={14} />
+              </button>
             </section>
           ) : (
             <button type="button" className={`cc-fast${fast ? " on" : ""}`} onClick={toggleFast} aria-pressed={fast}>

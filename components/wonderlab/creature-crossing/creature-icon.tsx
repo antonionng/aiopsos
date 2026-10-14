@@ -42,6 +42,26 @@ export function CreatureIcon({ creature, size = 64, title }: { creature: Creatur
           <ellipse cx="32" cy={bodyY - ry - 1} rx="3" ry="6" />
         </g>
       )}
+      {creature.limbs === "legs" && (
+        <g>
+          <path d={`M${32 + rx - 4} ${bodyY + 2} q12 -4 10 -16 q-8 2 -10 10Z`} fill="#fff5df" stroke={dark} strokeWidth="1.5" />
+          <path d={`M21 ${bodyY - ry + 6} L19 ${bodyY - ry - 7} L28 ${bodyY - ry + 1}Z`} fill={dark} />
+          <path d={`M43 ${bodyY - ry + 6} L45 ${bodyY - ry - 7} L36 ${bodyY - ry + 1}Z`} fill={dark} />
+          <path d={`M22 ${bodyY - ry + 4} L21 ${bodyY - ry - 3} L26 ${bodyY - ry + 1}Z`} fill="#ffb3c7" />
+          <path d={`M42 ${bodyY - ry + 4} L43 ${bodyY - ry - 3} L38 ${bodyY - ry + 1}Z`} fill="#ffb3c7" />
+        </g>
+      )}
+      {creature.limbs === "fins" && (
+        <g fill="#7fe0ff" stroke="#4fbfe6" strokeWidth="1">
+          <path d={`M${32 - rx + 2} ${bodyY + 4} L${32 - rx - 9} ${bodyY - 4} L${32 - rx - 6} ${bodyY + 5} L${32 - rx - 9} ${bodyY + 14}Z`} />
+        </g>
+      )}
+      {creature.limbs === "wings" && (
+        <g fill="#fffaf0" stroke="#e7dccb" strokeWidth="1">
+          <ellipse cx="27" cy={bodyY + ry - 1} rx="2.5" ry="6" transform={`rotate(30 27 ${bodyY + ry - 1})`} />
+          <ellipse cx="37" cy={bodyY + ry - 1} rx="2.5" ry="6" transform={`rotate(-30 37 ${bodyY + ry - 1})`} />
+        </g>
+      )}
       {creature.shape === "spiky" && (
         <g fill={dark}>
           {[-14, -7, 0, 7, 14].map((dx) => (
@@ -68,7 +88,24 @@ export function CreatureIcon({ creature, size = 64, title }: { creature: Creatur
         <circle cx="26.8" cy={bodyY - ry + 11.6} r="2.4" fill="#1c2333" />
         <circle cx="38.8" cy={bodyY - ry + 11.6} r="2.4" fill="#1c2333" />
       </g>
-      {creature.limbs === "wings" && <path d={`M29 ${bodyY - ry + 17} L35 ${bodyY - ry + 17} L32 ${bodyY - ry + 21}Z`} fill="#ffb23f" />}
+      {creature.limbs === "wings" && (
+        <>
+          <path d={`M29 ${bodyY - ry + 17} L35 ${bodyY - ry + 17} L32 ${bodyY - ry + 21}Z`} fill="#ffb23f" />
+          <g fill="#fff5df" stroke={dark} strokeWidth="1">
+            <ellipse cx="29" cy={bodyY - ry - 2} rx="1.8" ry="4.5" transform={`rotate(-25 29 ${bodyY - ry - 2})`} />
+            <ellipse cx="32" cy={bodyY - ry - 3} rx="1.8" ry="5" />
+            <ellipse cx="35" cy={bodyY - ry - 2} rx="1.8" ry="4.5" transform={`rotate(25 35 ${bodyY - ry - 2})`} />
+          </g>
+        </>
+      )}
+      {creature.limbs === "legs" && <ellipse cx="32" cy={bodyY - ry + 18} rx="2.6" ry="2" fill="#1c2333" />}
+      {creature.limbs === "fins" && (
+        <>
+          <circle cx="32" cy={bodyY - ry + 19} r="2" fill="none" stroke="#1c2333" strokeWidth="1.4" />
+          <circle cx="46" cy={bodyY - ry - 2} r="2.4" fill="#dff7ff" stroke="#9fdcf2" />
+          <circle cx="50" cy={bodyY - ry - 8} r="1.6" fill="#dff7ff" stroke="#9fdcf2" />
+        </>
+      )}
     </svg>
   );
 }

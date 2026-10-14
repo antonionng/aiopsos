@@ -55,7 +55,7 @@ type Actor = {
   body: TransformNode;
   wings: TransformNode[];
   legs: Mesh[];
-  fins: Mesh[];
+  fins: TransformNode[];
   path: Vector3[];
   speed: number;
   flying: boolean;
@@ -137,7 +137,11 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     materials.set(key, result);
     return result;
   };
-  const shade = (hex: string, amount: number) => Color3.FromHexString(hex).scale(amount).toHexString();
+  // Below 1 darkens; above 1 blends towards white (scaling past 1 overflows the hex colour).
+  const shade = (hex: string, amount: number) => {
+    const colour = Color3.FromHexString(hex);
+    return (amount <= 1 ? colour.scale(amount) : Color3.Lerp(colour, Color3.White(), Math.min(1, amount - 1))).toHexString();
+  };
 
   const statics: AbstractMesh[] = [];
   const keep = <T extends AbstractMesh>(mesh: T, receive = true, cast = false) => {
@@ -604,52 +608,119 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     }
     const wings: Mesh[] = [];
     const legs: Mesh[] = [];
-    const fins: Mesh[] = [];
+    const fins: TransformNode[] = [];
+    const fluff = material(shade(BODY_COLOURS[creature.colour], 1.35));
     if (creature.limbs === "legs") {
+      // A little woodland animal: legs and paws, ears, a nose and a bushy tail.
       for (const [x, z] of [[-0.24, 0.18], [0.24, 0.18], [-0.24, -0.2], [0.24, -0.2]]) {
         const leg = add(CreateCylinder("leg", { diameter: 0.16, height: 0.42, tessellation: 8 }, scene), root);
         leg.position.set(x, 0.21, z);
         leg.material = dark;
-        const foot = add(CreateSphere("foot", { diameter: 0.24, segments: 6 }, scene), leg);
-        foot.position.set(0, -0.2, 0.05);
+        const foot = add(CreateSphere("paw", { diameter: 0.26, segments: 6 }, scene), leg);
+        foot.position.set(0, -0.2, 0.06);
         foot.scaling.y = 0.5;
         foot.material = dark;
         legs.push(leg);
       }
+      for (const side of [-1, 1]) {
+        const ear = add(CreateCylinder("ear", { diameterTop: 0, diameterBottom: 0.3, height: 0.38, tessellation: 10 }, scene));
+        ear.position.set(side * 0.24, top + 0.08, 0);
+        ear.rotation.z = -side * 0.35;
+        ear.scaling.z = 0.5;
+        ear.material = dark;
+        const inner = add(CreateCylinder("inner-ear", { diameterTop: 0, diameterBottom: 0.16, height: 0.24, tessellation: 8 }, scene));
+        inner.position.set(side * 0.24, top + 0.05, 0.05);
+        inner.rotation.z = -side * 0.35;
+        inner.scaling.z = 0.3;
+        inner.material = material("#ffb3c7");
+      }
+      const nose = add(CreateSphere("nose", { diameter: 0.14, segments: 8 }, scene));
+      nose.position.set(0, top - 0.48, bodyRadius + 0.04);
+      nose.material = pupil;
+      const tail = add(CreateSphere("bushy-tail", { diameter: 0.55, segments: 10 }, scene));
+      tail.position.set(0, centreY + 0.12, -bodyRadius - 0.18);
+      tail.scaling.set(0.8, 1.15, 0.8);
+      tail.material = fluff;
       body.position.y = 0.28;
     } else if (creature.limbs === "fins") {
+      // A river creature: fish-shaped body, side fins, a forked tail, a back fin, a mouth and bubbles.
+      body.scaling.z = 1.2;
+      const water = material("#7fe0ff", { glow: 0.15, specular: 0.4 });
       for (const side of [-1, 1]) {
         const fin = add(CreateSphere("fin", { diameter: 0.6, segments: 8 }, scene));
         fin.position.set(side * (bodyRadius + 0.12), centreY - 0.1, 0);
         fin.scaling.set(0.25, 0.75, 1.1);
         fin.rotation.z = side * 0.5;
-        fin.material = material("#7fe0ff", { glow: 0.15, specular: 0.3 });
+        fin.material = water;
         fins.push(fin);
       }
-      const tail = add(CreateSphere("tail", { diameter: 0.7, segments: 8 }, scene));
-      tail.position.set(0, centreY - 0.05, -bodyRadius - 0.22);
-      tail.scaling.set(1.1, 0.75, 0.22);
-      tail.material = material("#7fe0ff", { glow: 0.15, specular: 0.3 });
+      const tail = new TransformNode("tail", scene);
+      tail.parent = body;
+      tail.position.set(0, centreY, -bodyRadius - 0.1);
+      for (const side of [-1, 1]) {
+        const lobe = add(CreateSphere("tail-lobe", { diameter: 0.6, segments: 8 }, scene), tail);
+        lobe.position.set(0, side * 0.2, -0.22);
+        lobe.rotation.x = side * 0.7;
+        lobe.scaling.set(0.16, 0.9, 0.5);
+        lobe.material = water;
+      }
       fins.push(tail);
-      const crest = add(CreateSphere("crest", { diameter: 0.5, segments: 8 }, scene));
-      crest.position.set(0, top + 0.02, -0.08);
-      crest.scaling.set(0.18, 0.7, 1);
-      crest.material = material("#7fe0ff", { glow: 0.15, specular: 0.3 });
+      const dorsal = add(CreateCylinder("back-fin", { diameterTop: 0, diameterBottom: 0.5, height: 0.42, tessellation: 3 }, scene));
+      dorsal.position.set(0, top + 0.08, -0.12);
+      dorsal.scaling.x = 0.25;
+      dorsal.material = water;
+      const mouth = add(CreateTorus("mouth", { diameter: 0.12, thickness: 0.04, tessellation: 12 }, scene));
+      mouth.position.set(0, top - 0.55, bodyRadius + 0.02);
+      mouth.rotation.x = Math.PI / 2;
+      mouth.material = pupil;
+      for (const [x, y, size] of [[0.12, 0.35, 0.12], [0.2, 0.62, 0.08]]) {
+        const bubble = add(CreateSphere("bubble", { diameter: size, segments: 8 }, scene));
+        bubble.position.set(x, top + y, bodyRadius - 0.1);
+        bubble.material = material("#dff7ff", { glow: 0.4, alpha: 0.7, specular: 0.8 });
+      }
     } else {
+      // A sky creature: big feathered wings, a beak, a crest and tail feathers.
+      const feather = material("#fffaf0", { glow: 0.2 });
       for (const side of [-1, 1]) {
         const pivot = new TransformNode("wing-pivot", scene);
         pivot.parent = body;
         pivot.position.set(side * (bodyRadius - 0.05), centreY + 0.1, -0.05);
-        const wing = add(CreateSphere("wing", { diameter: 1, segments: 10 }, scene), pivot);
-        wing.position.set(side * 0.45, 0.05, 0);
-        wing.scaling.set(1, 0.14, 0.62);
-        wing.material = material("#fffaf0", { glow: 0.2 });
+        const wing = add(CreateSphere("wing", { diameter: 1.3, segments: 10 }, scene), pivot);
+        wing.position.set(side * 0.58, 0.05, 0);
+        wing.scaling.set(1, 0.13, 0.6);
+        wing.material = feather;
+        for (let tip = 0; tip < 3; tip += 1) {
+          const quill = add(CreateSphere("wing-feather", { diameter: 0.5, segments: 6 }, scene), pivot);
+          quill.position.set(side * (0.95 + tip * 0.05), 0.02, -0.18 + tip * 0.18);
+          quill.scaling.set(1, 0.12, 0.3);
+          quill.rotation.y = side * (tip - 1) * 0.35;
+          quill.material = fluff;
+        }
         wings.push(wing);
       }
-      const beak = add(CreateCylinder("beak", { diameterTop: 0, diameterBottom: 0.18, height: 0.24, tessellation: 6 }, scene));
+      const beak = add(CreateCylinder("beak", { diameterTop: 0, diameterBottom: 0.2, height: 0.28, tessellation: 6 }, scene));
       beak.rotation.x = Math.PI / 2;
-      beak.position.set(0, top - 0.5, bodyRadius + 0.08);
+      beak.position.set(0, top - 0.5, bodyRadius + 0.1);
       beak.material = material("#ffb23f");
+      for (let index = 0; index < 3; index += 1) {
+        const crest = add(CreateSphere("crest-feather", { diameter: 0.36, segments: 6 }, scene));
+        crest.position.set((index - 1) * 0.08, top + 0.12, -0.05 - index * 0.05);
+        crest.rotation.z = (index - 1) * 0.4;
+        crest.scaling.set(0.2, 1, 0.35);
+        crest.material = fluff;
+      }
+      for (let index = 0; index < 3; index += 1) {
+        const plume = add(CreateSphere("tail-feather", { diameter: 0.6, segments: 6 }, scene));
+        plume.position.set((index - 1) * 0.16, centreY - 0.1, -bodyRadius - 0.2);
+        plume.rotation.set(0.9, 0, (index - 1) * 0.45);
+        plume.scaling.set(0.3, 1, 0.12);
+        plume.material = feather;
+      }
+      for (const side of [-1, 1]) {
+        const foot = add(CreateCylinder("bird-foot", { diameter: 0.07, height: 0.25, tessellation: 6 }, scene));
+        foot.position.set(side * 0.15, centreY - bodyRadius - 0.05, 0.05);
+        foot.material = material("#ffb23f");
+      }
       body.position.y = 0.15;
     }
     const shadowBlob = add(CreateDisc("shadow", { radius: 0.55, tessellation: 20 }, scene), root);
@@ -776,6 +847,20 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
   let pendingArrivals = 0;
   let held: string | null = null;
   let heldScan: (() => void) | null = null;
+  let holding = new Set<string>();
+  // Frames the gate and the training pen together, so the player can compare a creature with the examples.
+  const predictView = () => {
+    const portrait = engine.getRenderWidth() < engine.getRenderHeight();
+    return portrait
+      ? { alpha: -Math.PI / 2 + 0.2, beta: 0.82, radius: 19, target: new Vector3(-2.6, 0, -3.6) }
+      : { alpha: -Math.PI / 2 + 0.15, beta: 0.86, radius: 21, target: new Vector3(-1.4, 0, -2.4) };
+  };
+  const runView = () => {
+    const portrait = engine.getRenderWidth() < engine.getRenderHeight();
+    return portrait
+      ? { alpha: -Math.PI / 2, beta: 0.8, radius: 15.5, target: new Vector3(0.6, 0, -1.4) }
+      : { alpha: -Math.PI / 2, beta: 0.82, radius: 27, target: new Vector3(0.6, 0, -0.6) };
+  };
 
   const placePen = () => {
     for (const actor of penActors) disposeActor(actor);
@@ -821,6 +906,7 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     pendingArrivals = 0;
     held = null;
     heldScan = null;
+    holding = new Set();
     for (const key of Object.keys(homeSlots) as Array<Home | "unsure">) homeSlots[key] = 0;
     clearTrails();
   };
@@ -834,10 +920,8 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     running = true;
     clock = 0;
     setCrystal("idle");
-    const portrait = engine.getRenderWidth() < engine.getRenderHeight();
-    viewGoal = portrait
-      ? { alpha: -Math.PI / 2, beta: 0.8, radius: 15.5, target: new Vector3(0.6, 0, -1.4) }
-      : { alpha: -Math.PI / 2, beta: 0.82, radius: 27, target: new Vector3(0.6, 0, -0.6) };
+    holding = new Set(hold);
+    viewGoal = holding.size ? predictView() : runView();
     const spacing = 1.25;
     decisions.forEach((decision, index) => {
       const actor = buildCreature(decision.creature);
@@ -854,17 +938,21 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
           actor.path = [new Vector3(0, 0, -1.7)];
           actor.onArrive = () => {
             actor.path = [];
-            if (hold.includes(actor.id)) {
+            if (holding.has(actor.id)) {
               // Freeze the herd so the player can predict before the gate decides.
               held = actor.id;
-              heldScan = scan;
+              heldScan = () => scan(true);
               actor.facing = Math.PI;
-              const portrait = engine.getRenderWidth() < engine.getRenderHeight();
-              viewGoal = { alpha: -Math.PI / 2, beta: 0.95, radius: portrait ? 12.5 : 14, target: new Vector3(GATE.x, 1, GATE.z - 1.5) };
               events.onHold(actor.id);
-            } else scan();
+            } else scan(false);
           };
-          const scan = () => {
+          const scan = (predicted: boolean) => {
+            // Show which examples the gate compared this creature with, and make them hop.
+            drawTrails(actor.id, decision.nearest.map((example) => example.id));
+            decision.nearest.forEach((example) => {
+              const match = actors.get(example.id);
+              if (match) match.celebrate = 0.6;
+            });
             // Pause under the gate while the crystal decides.
             scanRing.setEnabled(true);
             scanRing.position.set(GATE.x, 3.4, GATE.z);
@@ -873,9 +961,11 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
             events.onScan(actor.id);
             const scanAt = clock;
             timeline.push({
-              at: scanAt + 0.55,
+              // A predicted creature waits longer so the player can see the gate's answer.
+              at: scanAt + (predicted ? 1.6 : 0.7),
               run: () => {
                 scanRing.setEnabled(false);
+                clearTrails();
                 const target = destination(decision.sentTo);
                 const exit = new Vector3(0, 0, 2.3);
                 if (decision.sentTo === "unsure") actor.path = [new Vector3(1.6, 0, -1.2), target];
@@ -913,9 +1003,8 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     });
   };
 
-  const showThinking = (herdId: string | null, nearestIds: string[]) => {
+  const drawTrails = (herdId: string, nearestIds: string[]) => {
     clearTrails();
-    if (!herdId) return;
     const from = actors.get(herdId);
     if (!from) return;
     for (const id of nearestIds) {
@@ -931,6 +1020,14 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
       }
       trails.push({ orbs, from: from.root.position.clone(), to: to.root.position.clone(), t: 0 });
     }
+  };
+
+  const showThinking = (herdId: string | null, nearestIds: string[]) => {
+    clearTrails();
+    if (!herdId) return;
+    const from = actors.get(herdId);
+    if (!from) return;
+    drawTrails(herdId, nearestIds);
     // Keep both creatures clear of the result panel: it sits on the right, or along the bottom on narrow screens.
     const target = Vector3.Lerp(from.root.position, actors.get(nearestIds[0])?.root.position ?? from.root.position, 0.5);
     const portrait = engine.getRenderWidth() < engine.getRenderHeight();
@@ -1220,10 +1317,16 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
       const scan = heldScan;
       held = null;
       heldScan = null;
-      const portrait = engine.getRenderWidth() < engine.getRenderHeight();
-      viewGoal = portrait
-        ? { alpha: -Math.PI / 2, beta: 0.8, radius: 15.5, target: new Vector3(0.6, 0, -1.4) }
-        : { alpha: -Math.PI / 2, beta: 0.82, radius: 27, target: new Vector3(0.6, 0, -0.6) };
+      scan();
+    },
+    /** Stop asking for predictions and let the rest of the herd cross. */
+    releaseAll() {
+      holding.clear();
+      viewGoal = runView();
+      if (!held || !heldScan) return;
+      const scan = heldScan;
+      held = null;
+      heldScan = null;
       scan();
     },
     setPointer,
