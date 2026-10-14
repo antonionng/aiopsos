@@ -2,26 +2,35 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, FastForward, Lock, RotateCcw, Sparkles, Star, Tag, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown, FastForward, Lock, RotateCcw, Sparkles, Star, Tag, Volume2, VolumeX } from "lucide-react";
 import {
   CROSSING_LEVELS,
   CROSSING_VERSION,
   HOMES,
+  PIP,
+  TUTORIAL,
   explain,
   homeOf,
   readCrossingSave,
   runHerd,
+  spotlight,
   unlocked,
   type CrossingSave,
   type Decision,
+  type Home,
 } from "@/lib/wonderlab/creature-crossing";
+import { Pip } from "@/components/wonderlab/art";
+import { useNarration } from "@/components/wonderlab/use-narration";
 import type { CrossingWorld } from "./engine";
 import { CreatureIcon, HOME_GLYPH } from "./creature-icon";
 import { setMuted, sfx } from "./sfx";
 
 type Phase = "title" | "teach" | "run" | "result" | "finale";
 type Outcome = "home" | "lost" | "unsure";
+type Guess = Home | "unsure";
 const SAVE_KEY = "wonderlab-creature-crossing";
+const GUESS_LABEL: Record<Guess, string> = { river: "River", woods: "Woods", sky: "Sky", unsure: "Can't decide" };
+const GUESS_GLYPH: Record<Guess, string> = { ...HOME_GLYPH, unsure: "❓" };
 
 function loadSave(): CrossingSave {
   try {
@@ -55,28 +64,40 @@ export function CreatureCrossing() {
   const [fast, setFast] = useState(false);
   const [labels, setLabels] = useState(true);
   const [notice, setNotice] = useState<string | null>(null);
-  const [briefOpen, setBriefOpen] = useState(true);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [pipLine, setPipLine] = useState<string>(PIP.welcome);
+  // Index into TUTORIAL while Pip is guiding the first moves; TUTORIAL.length means "open the gate".
+  const [tutorial, setTutorial] = useState<number | null>(null);
+  const [predicting, setPredicting] = useState<string | null>(null);
+  const [predictions, setPredictions] = useState({ right: 0, total: 0 });
+  const [streak, setStreak] = useState<{ count: number; key: number } | null>(null);
+  const [answer, setAnswer] = useState<{ index: number; correct: boolean } | null>(null);
   const level = CROSSING_LEVELS[levelIndex];
+  const { speak, stop: stopVoice, message: voiceMessage } = useNarration("inventors");
   const phaseRef = useRef(phase);
   const levelRef = useRef(level);
   const selectedRef = useRef(selected);
+  const tutorialRef = useRef(tutorial);
+  const mutedRef = useRef(muted);
+  const runStreak = useRef(0);
 
   useEffect(() => {
     phaseRef.current = phase;
     levelRef.current = level;
     selectedRef.current = selected;
-  }, [phase, level, selected]);
+    tutorialRef.current = tutorial;
+    mutedRef.current = muted;
+  }, [phase, level, selected, tutorial, muted]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setSave(loadSave());
-      setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    }, 0);
+    const timer = window.setTimeout(() => setSave(loadSave()), 0);
     return () => window.clearTimeout(timer);
   }, []);
 
-  useEffect(() => setMuted(muted), [muted]);
+  useEffect(() => {
+    setMuted(muted);
+    if (muted) stopVoice();
+  }, [muted, stopVoice]);
 
   useEffect(() => {
     if (!notice) return;
@@ -84,26 +105,67 @@ export function CreatureCrossing() {
     return () => window.clearTimeout(timer);
   }, [notice]);
 
-  const toggleExample = useCallback((id: string) => {
-    if (phaseRef.current !== "teach") return;
-    const current = selectedRef.current;
-    const limit = levelRef.current.slots;
-    if (current.includes(id)) {
-      const next = current.filter((item) => item !== id);
+  useEffect(() => {
+    if (!streak) return;
+    const timer = window.setTimeout(() => setStreak(null), 1600);
+    return () => window.clearTimeout(timer);
+  }, [streak]);
+
+  /** Pip's words always appear on screen; the recorded voice plays unless sound is off. */
+  const say = useCallback(
+    (text: string, then?: () => void) => {
+      setPipLine(text);
+      if (mutedRef.current) {
+        stopVoice();
+        then?.();
+        return;
+      }
+      speak(text, then);
+    },
+    [speak, stopVoice],
+  );
+
+  const toggleExample = useCallback(
+    (id: string) => {
+      if (phaseRef.current !== "teach") return;
+      const step = tutorialRef.current;
+      if (step !== null && step < TUTORIAL.length) {
+        // During the guided start only the creature Pip asked for can be chosen.
+        if (id !== TUTORIAL[step].target) {
+          say(TUTORIAL[step].say);
+          return;
+        }
+        const next = step + 1;
+        setTutorial(next);
+        if (next < TUTORIAL.length) {
+          worldRef.current?.setPointer(TUTORIAL[next].target);
+          say(TUTORIAL[next].say);
+        } else {
+          worldRef.current?.setPointer(null);
+          say(PIP.openGate);
+        }
+      }
+      const current = selectedRef.current;
+      const limit = levelRef.current.slots;
+      if (current.includes(id)) {
+        const next = current.filter((item) => item !== id);
+        setSelected(next);
+        worldRef.current?.setSelected(next);
+        sfx.unpick();
+        return;
+      }
+      if (current.length >= limit) {
+        setNotice(`The gate can remember ${limit} examples. Tap one you chose to swap it out.`);
+        say(PIP.memoryFull);
+        return;
+      }
+      const next = [...current, id];
       setSelected(next);
       worldRef.current?.setSelected(next);
-      sfx.unpick();
-      return;
-    }
-    if (current.length >= limit) {
-      setNotice(`The gate can remember ${limit} examples. Tap a chosen creature to swap it out.`);
-      return;
-    }
-    const next = [...current, id];
-    setSelected(next);
-    worldRef.current?.setSelected(next);
-    sfx.pick();
-  }, []);
+      sfx.pick();
+    },
+    [say],
+  );
 
   const pickInWorld = useCallback(
     (id: string) => {
@@ -112,6 +174,21 @@ export function CreatureCrossing() {
     },
     [toggleExample],
   );
+
+  const onHold = useCallback(
+    (id: string) => {
+      setPredicting(id);
+      sfx.unsure();
+      say(PIP.predict);
+    },
+    [say],
+  );
+
+  // The 3D world is created once; its events reach the latest handlers through refs.
+  const handlers = useRef({ pickInWorld, onHold });
+  useEffect(() => {
+    handlers.current = { pickInWorld, onHold };
+  }, [pickInWorld, onHold]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -126,20 +203,28 @@ export function CreatureCrossing() {
             {
               onReady: () => setReady(true),
               onError: setError,
-              onPick: (id) => pickInWorld(id),
+              onPick: (id) => handlers.current.pickInWorld(id),
               onScan: () => sfx.scan(),
+              onHold: (id) => handlers.current.onHold(id),
               onArrive: (id, outcome) => {
                 setArrivals((previous) => ({ ...previous, [id]: outcome }));
-                if (outcome === "home") sfx.home();
-                else if (outcome === "lost") sfx.lost();
-                else sfx.unsure();
+                if (outcome === "home") {
+                  sfx.home();
+                  runStreak.current += 1;
+                  if (runStreak.current >= 3) setStreak({ count: runStreak.current, key: Date.now() });
+                } else {
+                  runStreak.current = 0;
+                  if (outcome === "lost") sfx.lost();
+                  else sfx.unsure();
+                }
               },
               onRunComplete: () => window.setTimeout(() => setPhase("result"), 700),
             },
             { reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches },
           );
           worldRef.current.setLevel(levelRef.current);
-        } catch {
+        } catch (problem) {
+          console.error("creature-crossing:create", problem);
           setError("Your browser could not open this 3D world. Try a recent browser with 3D graphics turned on.");
         }
       })
@@ -149,7 +234,7 @@ export function CreatureCrossing() {
       worldRef.current?.dispose();
       worldRef.current = null;
     };
-  }, [pickInWorld]);
+  }, []);
 
   const result = useMemo(() => (decisions.length ? runHerd(level, selected) : null), [decisions, level, selected]);
   const counts = useMemo(() => {
@@ -157,7 +242,7 @@ export function CreatureCrossing() {
     return { home: values.filter((v) => v === "home").length, lost: values.filter((v) => v === "lost").length, unsure: values.filter((v) => v === "unsure").length };
   }, [arrivals]);
 
-  // Record stars once a run finishes.
+  // Record stars and let Pip react once a run finishes.
   useEffect(() => {
     if (phase !== "result" || !result) return;
     const timer = window.setTimeout(() => {
@@ -168,13 +253,14 @@ export function CreatureCrossing() {
         storeSave(next);
         return next;
       });
+      say(result.stars === 3 ? PIP.allHome : result.stars > 0 ? PIP.someLost : PIP.manyLost);
       if (result.stars > 0) {
         sfx.win();
         for (let index = 0; index < result.stars; index += 1) window.setTimeout(() => sfx.star(index), 500 + index * 260);
       }
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [phase, result, level.id]);
+  }, [phase, result, level.id, say]);
 
   useEffect(() => {
     if (!review) return;
@@ -182,33 +268,63 @@ export function CreatureCrossing() {
     if (decision) worldRef.current?.showThinking(review, decision.nearest.map((example) => example.id));
   }, [review, decisions]);
 
+  const openReview = (id: string) => {
+    if (!review) say(PIP.review);
+    setReview(id);
+  };
+
   const startLevel = (index: number) => {
+    const next = CROSSING_LEVELS[index];
+    const guided = index === 0 && !(save.stars[next.id] ?? 0);
     setLevelIndex(index);
     setSelected([]);
     setDecisions([]);
     setArrivals({});
     setReview(null);
-    // On phones the mission card would cover the island, so it starts folded.
-    setBriefOpen(window.innerWidth > 720);
+    setAnswer(null);
+    setMoreOpen(false);
+    setPredictions({ right: 0, total: 0 });
+    setTutorial(guided ? 0 : null);
     setPhase("teach");
-    levelRef.current = CROSSING_LEVELS[index];
-    worldRef.current?.setLevel(CROSSING_LEVELS[index]);
+    levelRef.current = next;
+    worldRef.current?.setLevel(next);
     worldRef.current?.setLabels(labels);
     worldRef.current?.resetView();
+    if (guided) {
+      worldRef.current?.setPointer(TUTORIAL[0].target);
+      say(next.pip, () => say(TUTORIAL[0].say));
+    } else say(next.pip);
   };
 
   const openGate = () => {
     if (!selected.length) return;
     const outcome = runHerd(level, selected);
+    runStreak.current = 0;
     setDecisions(outcome.decisions);
     setArrivals({});
     setReview(null);
-    setBriefOpen(false);
+    setAnswer(null);
+    setPredictions({ right: 0, total: 0 });
     setPhase("run");
+    worldRef.current?.setPointer(null);
     worldRef.current?.setSpeed(fast ? 2.6 : 1);
     worldRef.current?.resetView();
-    worldRef.current?.run(outcome.decisions);
+    worldRef.current?.run(outcome.decisions, spotlight(outcome.decisions, tutorial !== null));
+    setTutorial(null);
+    stopVoice();
     sfx.gate();
+  };
+
+  const predict = (guess: Guess) => {
+    const decision = decisions.find((item) => item.creature.id === predicting);
+    if (!decision) return;
+    const right = decision.sentTo === guess;
+    setPredictions((previous) => ({ right: previous.right + (right ? 1 : 0), total: previous.total + 1 }));
+    if (right) sfx.win();
+    say(right ? PIP.predictRight : PIP.predictWrong);
+    setNotice(right ? "🔮 You read the gate's mind!" : `The gate chose ${GUESS_LABEL[decision.sentTo]}. Watch!`);
+    setPredicting(null);
+    worldRef.current?.release();
   };
 
   const changeExamples = () => {
@@ -216,8 +332,10 @@ export function CreatureCrossing() {
     setDecisions([]);
     setArrivals({});
     setReview(null);
+    setAnswer(null);
     worldRef.current?.resetHerd();
     worldRef.current?.resetView();
+    say(level.pip);
   };
 
   const nextLevel = () => {
@@ -225,6 +343,18 @@ export function CreatureCrossing() {
     else {
       worldRef.current?.resetView();
       setPhase("finale");
+      say(PIP.finale);
+    }
+  };
+
+  const chooseAnswer = (index: number, correct: boolean) => {
+    setAnswer({ index, correct });
+    if (correct) {
+      sfx.win();
+      say(PIP.answerRight);
+    } else {
+      sfx.lost();
+      say(PIP.answerWrong);
     }
   };
 
@@ -243,10 +373,31 @@ export function CreatureCrossing() {
   };
 
   const reviewDecision = review ? decisions.find((item) => item.creature.id === review) : null;
+  const heldDecision = predicting ? decisions.find((item) => item.creature.id === predicting) : null;
   const misses = decisions.filter((decision) => !decision.correct);
   const totalStars = Object.values(save.stars).reduce((sum, value) => sum + value, 0);
   // The first level without three stars that is open to play.
   const nextPlayable = Math.max(0, CROSSING_LEVELS.findIndex((item, index) => unlocked(save, index) && (save.stars[item.id] ?? 0) < 3));
+  const guesses: Guess[] = [...level.homes, ...(level.homes.includes("sky") ? (["unsure"] as const) : [])];
+  const tutorialTarget = tutorial !== null && tutorial < TUTORIAL.length ? TUTORIAL[tutorial].target : null;
+  // Rotate answer order between levels so the right answer is not always first.
+  const options = level.question.options.map((option, index) => ({ ...option, index }));
+  const rotated = [...options.slice(levelIndex % options.length), ...options.slice(0, levelIndex % options.length)];
+  const examples = level.pen.filter((creature) => selected.includes(creature.id));
+
+  const pipBubble = (
+    <div className="cc-pip" aria-live="polite">
+      <span className="cc-pip-face" aria-hidden="true">
+        <Pip small />
+      </span>
+      <p>{pipLine}</p>
+      {!muted && (
+        <button type="button" className="cc-pip-replay" onClick={() => say(pipLine)} aria-label="Hear Pip again">
+          <Volume2 size={16} />
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div className={`cc-shell${phase === "title" || phase === "finale" ? " cc-dim" : ""}`}>
@@ -273,7 +424,7 @@ export function CreatureCrossing() {
               <Tag size={18} />
             </button>
           )}
-          <button type="button" className="cc-round" onClick={() => setMutedState((value) => !value)} aria-label={muted ? "Turn sound on" : "Turn sound off"}>
+          <button type="button" className="cc-round" onClick={() => setMutedState((value) => !value)} aria-label={muted ? "Turn sound and voice on" : "Turn sound and voice off"}>
             {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
         </div>
@@ -300,29 +451,16 @@ export function CreatureCrossing() {
             <h1 id="cc-title-heading">
               Creature <em>Crossing</em>
             </h1>
-            <p className="cc-lede">
-              The Wonder Gate sends every creature on the island to its home. The gate is a simple kind of AI: it has never met a creature before, so it learns from the examples you show it. Choose your examples, open the gate and watch the herd find out whether it learned the right thing.
-            </p>
+            <p className="cc-lede">Teach the magic gate where creatures live. Then open it and watch the stampede. Can you make it smart enough to get everyone home?</p>
             {ready && (
               <button type="button" className="cc-go cc-play" onClick={() => startLevel(nextPlayable)}>
                 {totalStars ? `Play level ${nextPlayable + 1}` : "Start playing"} <ArrowRight size={18} />
               </button>
             )}
-            <div className="cc-how">
-              <div>
-                <b>1</b>Teach the gate with creatures from the pen
-              </div>
-              <div>
-                <b>2</b>Open the gate and watch the stampede
-              </div>
-              <div>
-                <b>3</b>Find out why creatures got lost and fix it
-              </div>
-            </div>
             <details className="cc-grownups">
               <summary>For grown-ups: what your child is learning</summary>
               <p>
-                Many AI systems learn from examples instead of following rules a person wrote. In this game the gate compares each new creature with the examples your child chose and copies the home of the closest one. Your child will see that an AI is only as good as its examples: lopsided examples teach the wrong clue, and an AI cannot recognise something it has never been shown. The gate runs entirely in this browser. There is no live AI, no account and nothing your child types.
+                Many AI systems learn from examples instead of following rules a person wrote. The Wonder Gate is a simple AI of this kind: it compares each new creature with the examples your child chose and copies the home of the closest one. Your child will discover that an AI is only as good as its examples. Lopsided examples teach it the wrong clue, and it cannot recognise something it has never been shown. During each stampede the game pauses so your child can predict what the gate will do, which is a good way to check they understand how it decides. Pip&apos;s voice is a recording made with an AI voice. The gate itself runs entirely in this browser, with no live AI, no account and nothing your child types.
               </p>
             </details>
           </div>
@@ -356,23 +494,26 @@ export function CreatureCrossing() {
 
       {phase === "teach" && (
         <section className="cc-dock" aria-label="Teach the gate">
-          <div className={`cc-brief${briefOpen ? " open" : ""}`}>
-            <button type="button" className="cc-brief-toggle" onClick={() => setBriefOpen((value) => !value)} aria-expanded={briefOpen}>
-              <span>Your mission</span>
-              {briefOpen ? <X size={16} /> : <ArrowRight size={16} />}
-            </button>
-            {briefOpen && (
+          <div className="cc-brief">
+            {pipBubble}
+            {tutorial === null && (
               <>
-                <h2>{level.title}</h2>
-                <p>{level.brief}</p>
-                <p className="cc-hint">
-                  <Sparkles size={14} /> {level.hint}
-                </p>
+                <button type="button" className="cc-more" onClick={() => setMoreOpen((value) => !value)} aria-expanded={moreOpen}>
+                  {moreOpen ? "Less" : "Tell me more"} <ChevronDown size={14} className={moreOpen ? "cc-flip" : ""} />
+                </button>
+                {moreOpen && (
+                  <div className="cc-more-text">
+                    <p>{level.brief}</p>
+                    <p className="cc-hint">
+                      <Sparkles size={14} /> {level.hint}
+                    </p>
+                  </div>
+                )}
               </>
             )}
           </div>
           <div className="cc-pen">
-            <p className="cc-label">Training pen: tap a creature to teach the gate with it</p>
+            <p className="cc-label">Training pen: tap a creature to teach the gate</p>
             <div className="cc-roster">
               {level.pen.map((creature) => {
                 const chosen = selected.includes(creature.id);
@@ -380,7 +521,7 @@ export function CreatureCrossing() {
                   <button
                     key={creature.id}
                     type="button"
-                    className={`cc-chip${chosen ? " chosen" : ""}`}
+                    className={`cc-chip${chosen ? " chosen" : ""}${tutorialTarget === creature.id ? " cc-guide" : ""}`}
                     aria-pressed={chosen}
                     onClick={() => toggleExample(creature.id)}
                     aria-label={`${creature.colour} ${creature.pattern} ${creature.shape} creature with ${creature.limbs}, lives in ${HOMES[homeOf(creature)].place}${chosen ? ", chosen" : ""}`}
@@ -406,7 +547,12 @@ export function CreatureCrossing() {
                 );
               })}
             </div>
-            <button type="button" className="cc-go" onClick={openGate} disabled={!selected.length}>
+            <button
+              type="button"
+              className={`cc-go${tutorial === TUTORIAL.length ? " cc-guide" : ""}`}
+              onClick={openGate}
+              disabled={!selected.length || (tutorial !== null && tutorial < TUTORIAL.length)}
+            >
               Open the gate <ArrowRight size={18} />
             </button>
           </div>
@@ -416,14 +562,51 @@ export function CreatureCrossing() {
       {phase === "run" && (
         <>
           <div className="cc-scoreboard" role="status" aria-live="polite">
-            <span className="cc-score home">🏠 {counts.home} home</span>
-            <span className="cc-score lost">❗ {counts.lost} lost</span>
-            <span className="cc-score unsure">❓ {counts.unsure} unsure</span>
+            <span className="cc-score home">🏠 {counts.home}</span>
+            <span className="cc-score lost">❗ {counts.lost}</span>
+            <span className="cc-score unsure">❓ {counts.unsure}</span>
             <span className="cc-score left">{decisions.length - counts.home - counts.lost - counts.unsure} to go</span>
           </div>
-          <button type="button" className={`cc-fast${fast ? " on" : ""}`} onClick={toggleFast} aria-pressed={fast}>
-            <FastForward size={18} /> {fast ? "Normal speed" : "Speed up"}
-          </button>
+          {streak && (
+            <div key={streak.key} className="cc-streak" aria-hidden="true">
+              🔥 {streak.count} in a row!
+            </div>
+          )}
+          {heldDecision ? (
+            <section className="cc-predict" aria-labelledby="cc-predict-heading">
+              {pipBubble}
+              <div className="cc-predict-body">
+                <div className="cc-predict-who">
+                  <CreatureIcon creature={heldDecision.creature} size={72} />
+                  <span>This creature</span>
+                </div>
+                <div className="cc-predict-memory">
+                  <span className="cc-label">Your examples</span>
+                  <div>
+                    {examples.map((example) => (
+                      <span key={example.id} className="cc-example">
+                        <CreatureIcon creature={example} size={40} />
+                        <small>{HOME_GLYPH[homeOf(example)]}</small>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <h2 id="cc-predict-heading">Where will the gate send it?</h2>
+              <div className="cc-guesses">
+                {guesses.map((guess) => (
+                  <button key={guess} type="button" className="cc-guess" onClick={() => predict(guess)}>
+                    <span aria-hidden="true">{GUESS_GLYPH[guess]}</span>
+                    {GUESS_LABEL[guess]}
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : (
+            <button type="button" className={`cc-fast${fast ? " on" : ""}`} onClick={toggleFast} aria-pressed={fast}>
+              <FastForward size={18} /> {fast ? "Normal speed" : "Speed up"}
+            </button>
+          )}
         </>
       )}
 
@@ -435,11 +618,14 @@ export function CreatureCrossing() {
             ))}
           </div>
           <h2 id="cc-result-heading">
-            {result.home} of {result.total} creatures found their way home
+            {result.home} of {result.total} got home
           </h2>
-          {result.stars === 0 && <p>The gate needs better examples before the herd can cross safely. Tap a lost creature below to find out what the gate was thinking.</p>}
-          {result.stars > 0 && result.stars < 3 && <p>Some creatures were sent to the wrong home. Tap one to see which of your examples it was compared with, then change your examples and try again.</p>}
-          {result.stars === 3 && <p>Every creature reached the right home. The gate learned the clue that really matters.</p>}
+          {predictions.total > 0 && (
+            <p className="cc-mind">
+              🔮 Mind reader: you predicted {predictions.right} of {predictions.total}
+            </p>
+          )}
+          {pipBubble}
 
           {misses.length > 0 && (
             <div className="cc-misses">
@@ -448,8 +634,9 @@ export function CreatureCrossing() {
                   key={decision.creature.id}
                   type="button"
                   className={`cc-miss${review === decision.creature.id ? " active" : ""}`}
-                  onClick={() => setReview(decision.creature.id)}
+                  onClick={() => openReview(decision.creature.id)}
                   aria-pressed={review === decision.creature.id}
+                  aria-label={`See why this ${decision.creature.colour} creature with ${decision.creature.limbs} got lost`}
                 >
                   <CreatureIcon creature={decision.creature} size={44} />
                   <span>{decision.sentTo === "unsure" ? "❓" : "❗"}</span>
@@ -480,9 +667,23 @@ export function CreatureCrossing() {
           )}
 
           {result.stars > 0 && (
-            <div className="cc-lesson">
-              <p className="cc-label">What you discovered</p>
-              <p>{level.lesson}</p>
+            <div className="cc-question">
+              <p className="cc-label">Pip&apos;s question</p>
+              <h3>{level.question.ask}</h3>
+              <div className="cc-answers">
+                {rotated.map((option) => (
+                  <button
+                    key={option.index}
+                    type="button"
+                    className={`cc-answer${answer?.index === option.index ? (option.correct ? " right" : " wrong") : ""}`}
+                    onClick={() => chooseAnswer(option.index, option.correct)}
+                    disabled={answer?.correct === true}
+                  >
+                    {option.text}
+                  </button>
+                ))}
+              </div>
+              {answer?.correct && <p className="cc-lesson-text">{level.lesson}</p>}
             </div>
           )}
 
@@ -539,7 +740,7 @@ export function CreatureCrossing() {
           {notice}
         </div>
       )}
-      {reducedMotion && <span className="cc-sr">Reduced motion is on. Animations are shortened.</span>}
+      {voiceMessage && !muted && <span className="cc-sr">{voiceMessage}</span>}
     </div>
   );
 }

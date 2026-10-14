@@ -1,13 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import {
   CROSSING_LEVELS,
+  PIP,
+  TUTORIAL,
+  crossingNarrationScripts,
   decide,
   exampleSets,
   explain,
   homeOf,
   readCrossingSave,
   runHerd,
+  spotlight,
   starsFor,
   unlocked,
   type Creature,
@@ -91,4 +96,41 @@ test("learner-facing copy avoids em dashes", () => {
   for (const level of CROSSING_LEVELS) {
     for (const text of [level.title, level.brief, level.hint, level.lesson]) assert.doesNotMatch(text, /—/);
   }
+});
+
+test("every line Pip says has a recorded clip", () => {
+  const manifest = JSON.parse(readFileSync(new URL("./narration-manifest.json", import.meta.url), "utf8"));
+  const scripts = crossingNarrationScripts();
+  assert.ok(scripts.length >= Object.keys(PIP).length);
+  for (const script of scripts) {
+    assert.equal(manifest[script.id], `/audio/wonderlab/${script.id}.mp3`, script.text);
+    const bytes = readFileSync(new URL(`../../public${manifest[script.id]}`, import.meta.url));
+    assert.ok(bytes.length > 1000, script.text);
+  }
+});
+
+test("each level asks one question with exactly one right answer", () => {
+  for (const level of CROSSING_LEVELS) {
+    assert.equal(level.question.options.filter((option) => option.correct).length, 1, level.id);
+    assert.ok(level.pip.length < 160, `${level.id} intro should be short enough to follow by ear`);
+  }
+});
+
+test("the tutorial points at creatures that exist and teach both homes", () => {
+  const [first] = CROSSING_LEVELS;
+  const targets = TUTORIAL.map((step) => first.pen.find((c) => c.id === step.target)!);
+  assert.ok(targets.every(Boolean));
+  assert.deepEqual(new Set(targets.map(homeOf)), new Set(["river", "woods"]));
+  assert.equal(runHerd(first, targets.map((c) => c.id)).stars, 3);
+});
+
+test("mind-reader moments favour the gate's mistakes and include one correct crossing", () => {
+  const level = CROSSING_LEVELS.find((l) => l.id === "colour-trap")!;
+  const { decisions } = runHerd(level, level.obvious);
+  const ids = spotlight(decisions);
+  assert.equal(ids.length, 3);
+  const picked = decisions.filter((d) => ids.includes(d.creature.id));
+  assert.equal(picked.filter((d) => !d.correct).length, 2);
+  assert.equal(picked.filter((d) => d.correct).length, 1);
+  assert.deepEqual(spotlight(decisions, true), [decisions[0].creature.id]);
 });

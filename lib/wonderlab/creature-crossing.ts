@@ -4,6 +4,8 @@
  * every mistake can be traced back to the examples the child chose.
  */
 
+import { narrationId } from "./narration.ts";
+
 export const CROSSING_VERSION = "creature-crossing-2026-10-13.1";
 
 export const COLOURS = ["blue", "orange", "green", "pink"] as const;
@@ -53,7 +55,36 @@ export type CrossingLevel = {
   herd: Creature[];
   /** The examples a hurried player is likely to choose first. Used to check the level teaches something. */
   obvious: string[];
+  /** What Pip says aloud when the level opens. Short enough to follow without reading. */
+  pip: string;
+  /** One check at the end of the level, so a grown-up can see whether the idea landed. */
+  question: { ask: string; options: Array<{ text: string; correct: boolean }> };
 };
+
+/** Fixed lines Pip speaks. Each one has a recorded clip in the shared Wonderlab voice. */
+export const PIP = {
+  welcome: "Hi, I'm Pip! This is the Wonder Gate. It sends every creature to its home, but it has never seen a creature before. Let's teach it.",
+  tapFish: "Tap the blue stripy fish in the pen. It lives in the river.",
+  tapWalker: "The gate remembers it! Now tap the orange spotty creature with legs. It lives in the woods.",
+  openGate: "Brilliant. Now open the gate and watch the herd!",
+  memoryFull: "The gate can only remember a few examples. Tap one you chose to swap it out.",
+  predict: "Stop! Where will the gate send this one? Think like the gate. Which of your examples does it look most like?",
+  predictRight: "You read the gate's mind!",
+  predictWrong: "Not this time. Watch where the gate sends it.",
+  allHome: "Every creature got home. You taught the gate well!",
+  someLost: "Some creatures got lost. Tap one to see what the gate was thinking.",
+  manyLost: "Uh oh. The gate learned the wrong thing. Tap a lost creature to find out why.",
+  review: "Look. The gate thought it looked like this example.",
+  answerRight: "Yes! That's exactly how it works.",
+  answerWrong: "Not quite. Have another think.",
+  finale: "You did it! You're a Gate Keeper. You taught an AI by choosing its examples.",
+} as const;
+
+/** The guided first moves of level one: which creature Pip asks for, and what Pip says. */
+export const TUTORIAL = [
+  { target: "p1-1", say: PIP.tapFish },
+  { target: "p1-3", say: PIP.tapWalker },
+] as const;
 
 function parse(prefix: string, codes: string[]): Creature[] {
   return codes.map((code, index) => {
@@ -96,6 +127,15 @@ export const CROSSING_LEVELS: CrossingLevel[] = [
       "green plain spiky fins",
     ]),
     obvious: ["p1-1", "p1-3"],
+    pip: PIP.welcome,
+    question: {
+      ask: "How did the gate decide where each creature lives?",
+      options: [
+        { text: "It compared them with my examples", correct: true },
+        { text: "Someone told it the rules", correct: false },
+        { text: "It guessed at random", correct: false },
+      ],
+    },
   },
   {
     id: "colour-trap",
@@ -131,6 +171,15 @@ export const CROSSING_LEVELS: CrossingLevel[] = [
       "blue stripes round legs",
     ]),
     obvious: ["p2-1", "p2-2", "p2-4", "p2-5"],
+    pip: "Watch out! In this pen, most river creatures are blue and most woods creatures are orange. Can you teach the gate what really matters?",
+    question: {
+      ask: "Why did orange fish get lost when the gate had only seen blue fish?",
+      options: [
+        { text: "The gate thought orange meant woods", correct: true },
+        { text: "Orange fish cannot swim", correct: false },
+        { text: "The gate was tired", correct: false },
+      ],
+    },
   },
   {
     id: "sky-visitors",
@@ -167,6 +216,15 @@ export const CROSSING_LEVELS: CrossingLevel[] = [
       "orange stripes spiky wings",
     ]),
     obvious: ["p3-1", "p3-2", "p3-4", "p3-6"],
+    pip: "A new home has opened in the sky! The gate has never seen a creature with wings. Can you help it?",
+    question: {
+      ask: "Why did the gate get stuck on creatures with wings?",
+      options: [
+        { text: "It had never been shown wings", correct: true },
+        { text: "Wings are too fast to see", correct: false },
+        { text: "The sky nests were closed", correct: false },
+      ],
+    },
   },
   {
     id: "great-stampede",
@@ -206,6 +264,15 @@ export const CROSSING_LEVELS: CrossingLevel[] = [
       "green spots spiky legs",
     ]),
     obvious: ["p4-1", "p4-2", "p4-3", "p4-4", "p4-5"],
+    pip: "Here comes the whole valley! You only have five examples, so make every one count.",
+    question: {
+      ask: "What makes a good set of examples for an AI?",
+      options: [
+        { text: "Lots of different kinds", correct: true },
+        { text: "All the same colour", correct: false },
+        { text: "Only the cutest ones", correct: false },
+      ],
+    },
   },
 ];
 
@@ -240,6 +307,24 @@ export function runHerd(level: CrossingLevel, exampleIds: string[]) {
   const decisions = level.herd.map((creature) => decide(creature, examples));
   const home = decisions.filter((decision) => decision.correct).length;
   return { decisions, home, total: level.herd.length, stars: starsFor(home, level.herd.length) };
+}
+
+/**
+ * Creatures that pause at the gate so the player can predict the gate's choice. Mistakes are the
+ * interesting moments, so they come first; one correct crossing keeps the prediction honest.
+ */
+export function spotlight(decisions: Decision[], tutorial = false) {
+  if (tutorial) return decisions.slice(0, 1).map((decision) => decision.creature.id);
+  const surprising = decisions.filter((decision) => !decision.correct).slice(0, 2);
+  const ordinary = decisions.find((decision) => decision.correct);
+  const chosen = new Set([...surprising, ...(ordinary ? [ordinary] : [])].map((decision) => decision.creature.id));
+  return decisions.filter((decision) => chosen.has(decision.creature.id)).map((decision) => decision.creature.id);
+}
+
+/** Every line Pip can say, for recording in the shared narration voice. */
+export function crossingNarrationScripts() {
+  const lines = new Set<string>([...Object.values(PIP), ...CROSSING_LEVELS.flatMap((level) => [level.pip, level.question.ask])]);
+  return [...lines].map((text) => ({ id: narrationId("inventors", text), band: "inventors" as const, text }));
 }
 
 export function starsFor(home: number, total: number) {

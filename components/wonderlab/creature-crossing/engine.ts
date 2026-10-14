@@ -31,6 +31,8 @@ export type CrossingEvents = {
   onError: (message: string) => void;
   onPick: (id: string) => void;
   onScan: (id: string) => void;
+  /** A spotlighted creature has stopped under the gate and waits for release(). */
+  onHold: (id: string) => void;
   onArrive: (id: string, outcome: "home" | "lost" | "unsure") => void;
   onRunComplete: () => void;
 };
@@ -656,7 +658,7 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     shadowBlob.material = material("#000000", { alpha: 0.18, unlit: true });
     shadowBlob.isPickable = false;
     for (const part of parts) if (part !== shadowBlob) shadows.addShadowCaster(part);
-    root.scaling.setAll(0.82);
+    root.scaling.setAll(baseScale());
     return {
       id: creature.id,
       creature,
@@ -679,6 +681,7 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     };
   };
 
+  const baseScale = () => (engine.getRenderWidth() < engine.getRenderHeight() ? 1.05 : 0.82);
   const actors = new Map<string, Actor>();
   const penActors: Actor[] = [];
   const herdActors: Actor[] = [];
@@ -732,6 +735,19 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     return spots;
   };
 
+  // A bouncing arrow that points at the creature Pip asks for.
+  let pointer: { id: string; mesh: Mesh } | null = null;
+  const setPointer = (id: string | null) => {
+    pointer?.mesh.dispose();
+    pointer = null;
+    if (!id || !actors.has(id)) return;
+    const mesh = CreateCylinder("pip-pointer", { diameterTop: 0.7, diameterBottom: 0, height: 0.9, tessellation: 4 }, scene);
+    mesh.material = material("#ffd23f", { glow: 0.9, unlit: true });
+    mesh.isPickable = false;
+    glow.addIncludedOnlyMesh(mesh);
+    pointer = { id, mesh };
+  };
+
   let level: CrossingLevel | null = null;
   let selected: string[] = [];
   let showLabels = true;
@@ -758,6 +774,8 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
   let speed = 1;
   let running = false;
   let pendingArrivals = 0;
+  let held: string | null = null;
+  let heldScan: (() => void) | null = null;
 
   const placePen = () => {
     for (const actor of penActors) disposeActor(actor);
@@ -801,6 +819,8 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     timeline = [];
     running = false;
     pendingArrivals = 0;
+    held = null;
+    heldScan = null;
     for (const key of Object.keys(homeSlots) as Array<Home | "unsure">) homeSlots[key] = 0;
     clearTrails();
   };
@@ -809,7 +829,7 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     crystalGoal = Color3.FromHexString(key === "idle" ? "#8f73ff" : HOME_COLOURS[key]);
   };
 
-  const run = (decisions: Decision[]) => {
+  const run = (decisions: Decision[], hold: string[] = []) => {
     clearHerd();
     running = true;
     clock = 0;
@@ -833,8 +853,19 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
           actor.root.setEnabled(true);
           actor.path = [new Vector3(0, 0, -1.7)];
           actor.onArrive = () => {
-            // Pause under the gate while the crystal decides.
             actor.path = [];
+            if (hold.includes(actor.id)) {
+              // Freeze the herd so the player can predict before the gate decides.
+              held = actor.id;
+              heldScan = scan;
+              actor.facing = Math.PI;
+              const portrait = engine.getRenderWidth() < engine.getRenderHeight();
+              viewGoal = { alpha: -Math.PI / 2, beta: 0.95, radius: portrait ? 12.5 : 14, target: new Vector3(GATE.x, 1, GATE.z - 1.5) };
+              events.onHold(actor.id);
+            } else scan();
+          };
+          const scan = () => {
+            // Pause under the gate while the crystal decides.
             scanRing.setEnabled(true);
             scanRing.position.set(GATE.x, 3.4, GATE.z);
             crystalPulse = 1;
@@ -958,7 +989,7 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
   camera.alpha = homeView.alpha;
   camera.beta = homeView.beta;
   camera.radius = homeView.radius;
-  camera.target = homeView.target.clone();
+  camera.target.copyFrom(homeView.target);
 
   const onContextLost = (event: Event) => {
     event.preventDefault();
@@ -1012,7 +1043,7 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
       actor.body.rotation.y = (1.2 - actor.celebrate) * Math.PI * 2 * motion;
     } else actor.body.rotation.y = 0;
     if (actor.sad && !moving) actor.body.rotation.z = Math.sin(t * 3) * 0.12 * motion;
-    const target = actor.id === hovered ? 1.0 : 0.82;
+    const target = baseScale() * (actor.id === hovered ? 1.2 : 1);
     const scale = actor.root.scaling.x + (target - actor.root.scaling.x) * Math.min(1, dt * 12);
     actor.root.scaling.setAll(scale);
     if (actor.ring) actor.ring.rotation.y += dt * 2;
@@ -1043,13 +1074,18 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
     const realDt = Math.min(engine.getDeltaTime() / 1000, 0.05);
     time += realDt;
     const dt = realDt * (running ? speed : 1);
-    if (running) {
+    if (running && !held) {
       clock += dt;
       const due = timeline.filter((item) => item.at <= clock);
       timeline = timeline.filter((item) => item.at > clock);
       due.forEach((item) => item.run());
     }
-    for (const actor of actors.values()) if (actor.root.isEnabled()) step(actor, dt);
+    for (const actor of actors.values()) if (actor.root.isEnabled()) step(actor, held && herdActors.includes(actor) ? 0 : dt);
+    if (pointer) {
+      const owner = actors.get(pointer.id);
+      if (owner) pointer.mesh.position.set(owner.root.position.x, owner.root.position.y + 2.9 + Math.abs(Math.sin(time * 4)) * 0.45, owner.root.position.z);
+      pointer.mesh.rotation.y += realDt * 3;
+    }
     // Crystal, memory orbs and scan ring.
     crystalTint = Color3.Lerp(crystalTint, crystalGoal, Math.min(1, realDt * 6));
     crystalColour.emissiveColor = crystalTint.scale(0.8 + crystalPulse * 0.8);
@@ -1119,7 +1155,8 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
       camera.alpha += (viewGoal.alpha - camera.alpha) * k;
       camera.beta += (viewGoal.beta - camera.beta) * k;
       camera.radius += (viewGoal.radius - camera.radius) * k;
-      camera.target = Vector3.Lerp(camera.target, viewGoal.target, k);
+      // Move the target in place: assigning camera.target recalculates the radius from the old position.
+      camera.target.copyFrom(Vector3.Lerp(camera.target, viewGoal.target, k));
       if (Math.abs(viewGoal.radius - camera.radius) < 0.05 && Vector3.Distance(camera.target, viewGoal.target) < 0.05) viewGoal = null;
     }
     scene.render();
@@ -1133,6 +1170,7 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
 
   return {
     setLevel(next: CrossingLevel) {
+      setPointer(null);
       clearHerd();
       memories.forEach((memory) => memory.orb.dispose());
       memories = [];
@@ -1177,6 +1215,18 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
       clearHerd();
       setCrystal("idle");
     },
+    release() {
+      if (!held || !heldScan) return;
+      const scan = heldScan;
+      held = null;
+      heldScan = null;
+      const portrait = engine.getRenderWidth() < engine.getRenderHeight();
+      viewGoal = portrait
+        ? { alpha: -Math.PI / 2, beta: 0.8, radius: 15.5, target: new Vector3(0.6, 0, -1.4) }
+        : { alpha: -Math.PI / 2, beta: 0.82, radius: 27, target: new Vector3(0.6, 0, -0.6) };
+      scan();
+    },
+    setPointer,
     setSpeed(value: number) {
       speed = value;
     },
@@ -1193,8 +1243,12 @@ export function createCrossingWorld(canvas: HTMLCanvasElement, events: CrossingE
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("webglcontextlost", onContextLost);
       engine.stopRenderLoop();
+      // Release the GPU context now rather than waiting for garbage collection, so leaving and
+      // reopening the game cannot run out of WebGL contexts.
+      const context = engine._gl as WebGLRenderingContext | null;
       scene.dispose();
       engine.dispose();
+      context?.getExtension("WEBGL_lose_context")?.loseContext();
     },
   };
 }
