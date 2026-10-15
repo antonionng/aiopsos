@@ -35,7 +35,8 @@ export function ArcadePreview() {
   const [adventure, setAdventure] = useState<ArcadeAdventure>(NEW_ADVENTURE);
   const [advanced, setAdvanced] = useState(false);
   const [keyFound, setKeyFound] = useState(false);
-  const [voice, setVoice] = useState(false);
+  // Pip speaks by default: children should not need to read to follow the adventure.
+  const [voice, setVoice] = useState(true);
   const [restored, setRestored] = useState(false);
   const [saveMessage, setSaveMessage] = useState("Your progress stays on this device.");
   const [view, setView] = useState<View>("welcome");
@@ -44,7 +45,9 @@ export function ArcadePreview() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [guided, setGuided] = useState(false);
-  const [request, setRequest] = useState(suggestions[0]);
+  // Each chapter starts with an empty prompt, so the child makes the choices.
+  const [request, setRequest] = useState("");
+  const [writeOwn, setWriteOwn] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [changes, setChanges] = useState<string[]>([]);
   const [previous, setPrevious] = useState<ArcadeDesign | null>(null);
@@ -71,7 +74,7 @@ export function ArcadePreview() {
           if (old) {
             setProject(old); setGuided(old.band === "explorers");
             const journey = restoreArcadeAdventure(parsed.adventure) ?? NEW_ADVENTURE;
-            setAdventure(journey); setRequest(arcadeBrief(journey, old.band).hint);
+            setAdventure(journey);
           }
           else setSaveMessage("Your old preview could not be opened. You can begin a new creation.");
         }
@@ -174,6 +177,10 @@ export function ArcadePreview() {
   }
 
   const isPlaying = view === "play";
+  // Younger players build their prompt from picture choices; 7 to 10 year olds can switch to writing it.
+  const pictureMode = project.band === "explorers" || (project.band === "inventors" && !writeOwn);
+  // The preview card shows what the current prompt would build, so each choice visibly changes it.
+  const preview = request.trim() ? applyPracticeRequest(request, project.design).design : project.design;
   const TreasureIcon = project.design.collectible === "crystal" ? Gem : project.design.collectible === "star" ? Star : Sparkles;
   const overlay = view === "welcome" || view === "create" || view === "complete";
   const portalOpen = collected >= project.design.target && (project.design.challenge === "collect" || keyFound);
@@ -190,7 +197,7 @@ export function ArcadePreview() {
   }, [voice, guide, view, menuOpen, speak, stop]);
 
   function nextChapter() {
-    setRequest(brief.hint); setFeedback(""); setChanges([]); setPrevious(null); openWorkshop();
+    setRequest(""); setFeedback(""); setChanges([]); setPrevious(null); openWorkshop();
   }
 
   function downloadLearning() {
@@ -246,7 +253,7 @@ export function ArcadePreview() {
         <span className="fp-source-tag">{narration.message || "Prepared game helper · Optional AI-generated voice"}</span>
       </>}
 
-      {view === "create" && !worldError && <section className={`fp-workshop ${project.band === "explorers" ? "fp-workshop-young" : ""}`} aria-labelledby="fp-workshop-title">
+      {view === "create" && !worldError && <section className={`fp-workshop ${project.band === "explorers" ? "fp-workshop-young" : ""} ${pictureMode ? "fp-workshop-picture" : ""}`} aria-labelledby="fp-workshop-title">
         <div className="fp-workshop-heading"><div><span className="fp-kicker">{chapter === "opened" ? "YOUR OPEN ARCADE" : `CHAPTER ${brief.number} OF 3`}</span><h1 id="fp-workshop-title" tabIndex={-1}>{brief.title}</h1></div><button className="fp-icon-button" disabled={aiBusy} onClick={() => setView("explore")} aria-label="Return to exploring"><X size={22} /></button></div>
         <div className="fp-chapter-progress" aria-label={`${adventure.creations.length} of three festival games completed`}>{["Make a game", "Add a key quest", "Design for a visitor"].map((title, i) => <span key={title} aria-current={adventure.creations.length === i ? "step" : undefined}>{adventure.creations.length > i ? <Check size={15} /> : <b>{i + 1}</b>}{title}</span>)}</div>
         <div className="fp-story-brief"><AvatarPortrait avatar={{ kind: chapter === "key-quest" ? "sprite" : "explorer", colour: chapter === "key-quest" ? "#a78bfa" : "#fbbf24" }} small /><div><span>{brief.speaker}</span><p>{brief.story}</p><strong>{brief.goal}</strong></div></div>
@@ -254,8 +261,9 @@ export function ArcadePreview() {
         <div className="fp-workshop-grid">
           <div className="fp-maker">
             <div className="fp-tutor"><AvatarPortrait avatar={{ kind: "robot", colour: "#a78bfa" }} small /><div><p>{guide}</p>{voiceButton}{narration.message && <p role="status">{narration.message}</p>}</div></div>
-            {project.band === "explorers" && <PicturePrompt showRules={chapter !== "first-game"} showSpeed={chapter === "visitor-game" || chapter === "opened"} current={project.design} request={request} disabled={aiBusy} onRequest={setRequest} />}
-            {project.band !== "explorers" && <>
+            {project.band === "inventors" && <button type="button" className="fp-text-button fp-prompt-mode" onClick={() => { setWriteOwn((value) => !value); setRequest(""); }}>{writeOwn ? <><Sparkles size={16} /> Use picture choices instead</> : <><WandSparkles size={16} /> Write the prompt myself</>}</button>}
+            {pictureMode && <PicturePrompt showRules={chapter !== "first-game"} showSpeed={chapter === "visitor-game" || chapter === "opened"} current={project.design} request={request} disabled={aiBusy} onRequest={setRequest} />}
+            {!pictureMode && <>
             <label className="fp-prompt-label" htmlFor="arcade-prompt">Describe the game you want to make.</label>
             <textarea disabled={aiBusy} id="arcade-prompt" ref={promptInput} value={request} maxLength={350} rows={3} onChange={(e) => setRequest(e.target.value)} placeholder="Make a forest game with five crystals." />
             <div className="fp-prompt-meta"><span><span className="fp-status-dot" /> Practice helper · Prepared responses</span><span>{request.length}/350</span></div>
@@ -266,8 +274,8 @@ export function ArcadePreview() {
             {(project.band === "creators" || project.band === "studio") && <LiveDesignHelper current={project.design} request={request} band={project.band} onApply={applyAiDesign} onBusyChange={setAiBusy} />}
             {feedback && <div className={`fp-feedback ${changes.length ? "fp-feedback-success" : ""}`} role="status">{changes.length ? <><strong><Check size={17} /> Your game has changed.</strong><ul>{changes.map((change) => <li key={change}>{change}</li>)}</ul><p>{feedback}</p></> : feedback}</div>}
           </div>
-          {project.band !== "explorers" && <div className={`fp-design-card fp-design-${project.design.palette}`}>
-            <div className="fp-design-art" aria-hidden="true"><div className="fp-design-moon" /><div className="fp-design-orbit" /><div className="fp-design-island"><div className="fp-design-portal" />{Array.from({ length: 3 }, (_, i) => <span key={i} className={`fp-mini-treasure fp-mini-${i}`}>{project.design.collectible === "crystal" ? <Gem /> : project.design.collectible === "star" ? <Star /> : <Sparkles />}</span>)}</div><span className="fp-build-badge">YOUR PLAYABLE CREATION</span></div>
+          {project.band !== "explorers" && <div className={`fp-design-card fp-design-${preview.palette}`}>
+            <div className="fp-design-art" aria-hidden="true"><div className="fp-design-moon" /><div className="fp-design-orbit" /><div className="fp-design-island"><div className="fp-design-portal" />{Array.from({ length: 3 }, (_, i) => <span key={i} className={`fp-mini-treasure fp-mini-${i}`}>{preview.collectible === "crystal" ? <Gem /> : preview.collectible === "star" ? <Star /> : <Sparkles />}</span>)}</div><span className="fp-build-badge">{preview === project.design ? "YOUR PLAYABLE CREATION" : "PREVIEW OF YOUR PROMPT"}</span></div>
             <div className="fp-design-content"><label htmlFor="arcade-title">Name your game.</label><input disabled={aiBusy} id="arcade-title" key={project.design.title} defaultValue={project.design.title} maxLength={60} onBlur={(event) => {
               const typed = event.currentTarget.value.replace(/[<>\x00-\x1f]/g, "").trim();
               const hasPrivateDetails = containsPrivateDetails(typed);
@@ -277,10 +285,10 @@ export function ArcadePreview() {
               }
               const title = (hasPrivateDetails ? "" : typed) || "My Arcade Adventure";
               setProject((p) => ({ ...p, design: { ...p.design, title } }));
-            }} /><ul>{getDesignInstructions(project.design).slice(1, 5).map((line) => <li key={line}><Check size={15} /> {line}</li>)}</ul>{project.design.bonus && <span className="fp-bonus-note"><Star size={15} /> You added a golden bonus treasure.</span>}<button className="fp-text-button" onClick={download}><Download size={16} /> Download a lightweight playable copy</button></div>
+            }} /><ul>{getDesignInstructions(preview).slice(1, 5).map((line) => <li key={line}><Check size={15} /> {line}</li>)}</ul>{preview.bonus && <span className="fp-bonus-note"><Star size={15} /> You added a golden bonus treasure.</span>}<button className="fp-text-button" onClick={download}><Download size={16} /> Download a lightweight playable copy</button></div>
           </div>}
         </div>
-        {project.band === "explorers" && <div className="fp-young-start"><p aria-live="polite">Your words: “{request}”</p><button className="fp-primary" disabled={aiBusy || !request.trim()} onClick={buildAndPlay}><Play size={19} fill="currentColor" /> Build and play my game</button><small>This helper uses prepared game choices. You are practising how to ask AI to make something.</small></div>}
+        {pictureMode && <div className="fp-young-start"><p aria-live="polite">{request ? <>Your prompt: “{request}”</> : "Tap your choices above. Pip will turn them into a prompt."}</p><button className="fp-primary" disabled={aiBusy || !request.trim()} onClick={buildAndPlay}><Play size={19} fill="currentColor" /> Build and play my game</button><small>This helper uses prepared game choices. You are practising how to ask AI to make something.</small></div>}
       </section>}
 
       {view === "complete" && !worldError && <section className="fp-finished" aria-labelledby="fp-finish-title">
@@ -294,7 +302,7 @@ export function ArcadePreview() {
         <button className="fp-text-button" onClick={() => setMenuOpen(true)}><Download size={16} /> Save to my family space</button><small>{saveMessage}</small>
       </section>}
 
-      <dialog className="fp-menu" ref={menuDialog} onCancel={() => setMenuOpen(false)} onClose={() => setMenuOpen(false)} aria-labelledby="fp-menu-title"><header><h2 id="fp-menu-title">Your adventure</h2><button className="fp-icon-button" aria-label="Close game menu" onClick={() => setMenuOpen(false)}><X size={21} /></button></header><p>This is the first playable version of a new Wonderlab world. Your avatar, games and adventure are saved on this device.</p>{voiceButton}<label className="fp-setting"><span><Footprints size={20} /> Help me move around.</span><input type="checkbox" checked={guided} onChange={(e) => setGuided(e.target.checked)} /></label><label className="fp-setting"><span><Sparkles size={20} /> Use less animation.</span><input type="checkbox" checked={reducedMotion} onChange={(e) => setReducedMotion(e.target.checked)} /></label><button className="fp-secondary" onClick={() => { setMenuOpen(false); void gameScreen.enter(true); }}><Expand size={18} /> Fill the screen</button><button className="fp-secondary" onClick={() => { setMenuOpen(false); openWorkshop(); }}><WandSparkles size={18} /> Open my workshop</button><button className="fp-secondary" onClick={() => { setMenuOpen(false); setView("welcome"); }}><AvatarPortrait avatar={project.avatar} small /> Change my character</button><button className="fp-secondary" onClick={download}><Download size={18} /> Download my game</button><Link className="fp-text-button" href="/wonderlab/games"><ArrowLeft size={17} /> Return to Wonderlab</Link><FamilyProject snapshot={{ project, adventure }} onLoad={(saved) => { setProject(saved.project); setAdventure(saved.adventure); setRequest(arcadeBrief(saved.adventure, saved.project.band).hint); setPrevious(null); setFeedback(""); setChanges([]); setGuided(saved.project.band === "explorers"); setCollected(0); setKeyFound(false); setRunId((id) => id + 1); setView("create"); setMenuOpen(false); }} /><small>{saveMessage} Optional narration uses an AI-generated voice. Your learning story records practice, not assessed skills.</small>{gameScreen.message && <small>{gameScreen.message}</small>}</dialog>
+      <dialog className="fp-menu" ref={menuDialog} onCancel={() => setMenuOpen(false)} onClose={() => setMenuOpen(false)} aria-labelledby="fp-menu-title"><header><h2 id="fp-menu-title">Your adventure</h2><button className="fp-icon-button" aria-label="Close game menu" onClick={() => setMenuOpen(false)}><X size={21} /></button></header><p>This is the first playable version of a new Wonderlab world. Your avatar, games and adventure are saved on this device.</p>{voiceButton}<label className="fp-setting"><span><Footprints size={20} /> Help me move around.</span><input type="checkbox" checked={guided} onChange={(e) => setGuided(e.target.checked)} /></label><label className="fp-setting"><span><Sparkles size={20} /> Use less animation.</span><input type="checkbox" checked={reducedMotion} onChange={(e) => setReducedMotion(e.target.checked)} /></label><button className="fp-secondary" onClick={() => { setMenuOpen(false); void gameScreen.enter(true); }}><Expand size={18} /> Fill the screen</button><button className="fp-secondary" onClick={() => { setMenuOpen(false); openWorkshop(); }}><WandSparkles size={18} /> Open my workshop</button><button className="fp-secondary" onClick={() => { setMenuOpen(false); setView("welcome"); }}><AvatarPortrait avatar={project.avatar} small /> Change my character</button><button className="fp-secondary" onClick={download}><Download size={18} /> Download my game</button><Link className="fp-text-button" href="/wonderlab/games"><ArrowLeft size={17} /> Return to Wonderlab</Link><FamilyProject snapshot={{ project, adventure }} onLoad={(saved) => { setProject(saved.project); setAdventure(saved.adventure); setRequest(""); setPrevious(null); setFeedback(""); setChanges([]); setGuided(saved.project.band === "explorers"); setCollected(0); setKeyFound(false); setRunId((id) => id + 1); setView("create"); setMenuOpen(false); }} /><small>{saveMessage} Optional narration uses an AI-generated voice. Your learning story records practice, not assessed skills.</small>{gameScreen.message && <small>{gameScreen.message}</small>}</dialog>
     </div>
   );
 }

@@ -132,8 +132,11 @@
 .fp-picture-check { position: absolute; right: 5px; top: 5px; }
 .fp-workshop-young { max-width: 650px; padding-bottom: 0; }
 .fp-workshop-young .fp-workshop-grid { display: block; }
+/* The prompt bar sticks to the bottom of the panel, so nothing may show beneath it. */
+.fp-workshop-picture { padding-bottom: 0; }
+.fp-prompt-mode { margin: 4px 0 12px; }
 .fp-young-start { position: sticky; bottom: 0; z-index: 2; background: #f5f3e9; border-top: 1px solid #c6d0bb; padding: 12px 0 18px; }
-.fp-young-start p { margin: 0 0 10px; color: #436047; font-size: 13px; line-height: 1.6; }
+.fp-young-start p { margin: 0 0 10px; color: #24403b; font-size: 15px; font-weight: 650; line-height: 1.5; }
 .fp-young-start button { width: 100%; color: #f1f5e3; background: #355d43; }
 .fp-young-start small { display: block; color: #697a60; font-size: 10px; line-height: 1.6; margin-top: 8px; }
 .fp-feedback { padding: 15px 17px; background: #fff0d6; border: 1px solid #d9c39a; border-radius: 12px; font-size: 12px; line-height: 1.6; margin-top: 16px; }
@@ -143,8 +146,8 @@
 .fp-feedback p { margin-bottom: 0; }
 .fp-design-card { overflow: hidden; background: #e6ece0; border: 1px solid #c6d2be; border-radius: 18px; }
 .fp-design-art { height: 190px; position: relative; overflow: hidden; background: radial-gradient(ellipse at top,#677496,#263b54); }
-.fp-design-forest .fp-design-art { background: radial-gradient(ellipse at top,#7d9980,#274e4b); }
-.fp-design-sunset .fp-design-art { background: radial-gradient(ellipse at top,#e3b997,#85617a); }
+.fp-design-forest .fp-design-art { background: radial-gradient(ellipse at top,#bfe8ff,#4f9d4a); }
+.fp-design-sunset .fp-design-art { background: radial-gradient(ellipse at top,#ffd0a3,#d4566b); }
 .fp-design-moon { position: absolute; width: 47px; height: 47px; background: #e8e8c4; border-radius: 100%; top: 22px; right: 48px; box-shadow: 0 0 70px #dfffdb50; }
 .fp-design-orbit { position: absolute; width: 260px; height: 90px; border: 1px solid #e5edcd30; border-radius: 100%; top: 80px; left: calc(50% - 130px); transform: rotate(-15deg); }
 .fp-design-island { position: absolute; width: 200px; height: 80px; background: #567b66; border-radius: 50%; border-bottom: 24px solid #354c45; top: 90px; left: calc(50% - 100px); transform: rotate(-8deg); }
@@ -250,6 +253,13 @@
   .fp-workshop h1 { font-size: 28px; max-width: 250px; }
   .fp-workshop-heading .fp-icon-button { height: 38px; min-width: 38px; }
   .fp-workshop-grid { display: flex; flex-direction: column; gap: 24px; }
+  /* Phones: keep the goal and the picture choices in view; Pip speaks the rest. */
+  .fp-workshop-picture .fp-story-brief p { display: none; }
+  .fp-workshop-picture .fp-story-brief strong { display: block; margin-top: 4px; font-size: 14px; }
+  .fp-workshop-picture .fp-tutor { display: none; }
+  .fp-young-start { padding: 8px 0 12px; }
+  .fp-young-start p { font-size: 13px; margin-bottom: 8px; }
+  .fp-young-start small { display: none; }
   .fp-maker, .fp-design-card { width: 100%; }
   .fp-tutor { gap: 9px; padding-bottom: 18px; }
   .fp-tutor p { font-size: 12px; }

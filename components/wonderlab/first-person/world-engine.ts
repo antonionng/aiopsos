@@ -433,10 +433,10 @@ export function createArcadeWorld(canvas: HTMLCanvasElement, initial: WorldState
   }
   function applyPalette() {
     const palette = state.design.palette === "forest"
-      ? { sky: "#15362eff", fog: "#28513f", moss: "#35704c", garden: "#57965a", stone: "#d0d0a8", roof: "#2e7761", trim: "#b69955", glow: "#a7e87d", edge: "#36695d", rock: "#253d35", ambient: "#9bc9b8", sun: "#e7f4cb", mineral: "#53716b" }
+      ? { sky: "#8fd4ffff", fog: "#bfe6d2", moss: "#4f9d4a", garden: "#79c85f", stone: "#ece4c8", roof: "#3f8f4e", trim: "#c99a4b", glow: "#c8f57d", edge: "#4a7d55", rock: "#5b4a36", ambient: "#f2fff0", sun: "#fff6d8", mineral: "#6f9a6a", light: 1.05, sunPower: 1.05 }
       : state.design.palette === "sunset"
-        ? { sky: "#573649ff", fog: "#865064", moss: "#947762", garden: "#b89b6b", stone: "#eed0ad", roof: "#b55466", trim: "#da926c", glow: "#ffb56b", edge: "#775563", rock: "#482f49", ambient: "#c9a1c0", sun: "#ffbf7d", mineral: "#8a697e" }
-        : { sky: "#111b35ff", fog: "#1f2946", moss: "#365c76", garden: "#4e8894", stone: "#d6cdbb", roof: "#8670be", trim: "#419caa", glow: "#62dfd2", edge: "#4d657f", rock: "#293b54", ambient: "#b7c9ff", sun: "#ffe3b8", mineral: "#677098" };
+        ? { sky: "#ff9a6bff", fog: "#f7a982", moss: "#b0874f", garden: "#d9a75e", stone: "#ffe0bd", roof: "#d4566b", trim: "#f2a25c", glow: "#ffd06b", edge: "#9a5f64", rock: "#6b3a4a", ambient: "#ffd2c2", sun: "#ffb46b", mineral: "#b27c84", light: 0.9, sunPower: 1.1 }
+        : { sky: "#111b35ff", fog: "#1f2946", moss: "#365c76", garden: "#4e8894", stone: "#d6cdbb", roof: "#8670be", trim: "#419caa", glow: "#62dfd2", edge: "#4d657f", rock: "#293b54", ambient: "#b7c9ff", sun: "#ffe3b8", mineral: "#677098", light: 0.62, sunPower: 0.7 };
     scene.clearColor = Color4.FromHexString(palette.sky);
     scene.fogColor = Color3.FromHexString(palette.fog);
     grass.diffuseColor = Color3.FromHexString(palette.moss);
@@ -450,6 +450,9 @@ export function createArcadeWorld(canvas: HTMLCanvasElement, initial: WorldState
     cyanLight.emissiveColor = Color3.FromHexString(palette.glow).scale(0.85);
     ambient.diffuse = Color3.FromHexString(palette.ambient);
     sunlight.diffuse = Color3.FromHexString(palette.sun);
+    // Each world has its own time of day, so a child can see their words change the place.
+    ambient.intensity = palette.light;
+    sunlight.intensity = palette.sunPower;
     avatarMaterial.diffuseColor = Color3.FromHexString(state.avatar.colour);
     const isSprite = state.avatar.kind === "sprite";
     sleeve.setEnabled(!isSprite);
