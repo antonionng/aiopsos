@@ -80,6 +80,26 @@ export function FeaturedGames({ showHowItPlays = true }: { showHowItPlays?: bool
           </div>
         </Link>
 
+        <Link href="/wonderlab/autocomplete-oracle" className="wgl-card wgl-card-night">
+          <div className="wgl-card-shot">
+            <Image
+              src="/images/wonderlab/games/autocomplete-oracle-orb.webp"
+              alt="The Autocomplete Oracle, a glowing orb, writing a sentence word by word with bars showing how likely each next word is"
+              fill
+              sizes="(max-width: 900px) 100vw, 600px"
+              className="wgl-shot"
+            />
+            <span className="wgl-badge">New · Ages 11 to 16</span>
+          </div>
+          <div className="wgl-card-copy">
+            <h3>Autocomplete Oracle</h3>
+            <p>Train a tiny text generator, catch it writing confident nonsense and decide when it should say “I don’t know”.</p>
+            <span className="wgl-play wgl-play-small">
+              <Play size={16} fill="currentColor" /> Play
+            </span>
+          </div>
+        </Link>
+
         {showHowItPlays && (
           <div className="wgl-card wgl-how">
             <div className="wgl-card-shot">
