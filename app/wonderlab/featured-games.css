@@ -22,7 +22,8 @@
 .wgl-sticker { position: absolute; top: 22px; right: 24px; width: 104px; height: 104px; display: grid; place-items: center; border-radius: 50%; border: 3px solid var(--ink); background: #ff6fb5; color: #fff; font-family: var(--font-space-grotesk), sans-serif; font-size: 25px; font-weight: 800; letter-spacing: -.5px; box-shadow: 4px 5px 0 var(--ink); transform: rotate(12deg); animation: wgl-wobble 3s ease-in-out infinite; }
 @keyframes wgl-wobble { 50% { transform: rotate(-4deg) scale(1.06); } }
 
-.wgl-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.wgl-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+.wgl-card.wgl-card-picnic { background: #eaf8dd; }
 .wgl-card { display: grid; grid-template-rows: auto 1fr; border: 3px solid var(--ink); border-radius: 28px; overflow: hidden; background: #fff; color: var(--ink); text-decoration: none; box-shadow: 6px 8px 0 var(--ink); transition: transform .2s, box-shadow .2s; }
 a.wgl-card:hover, a.wgl-card:focus-visible { transform: translate(-2px, -3px) rotate(.3deg); box-shadow: 9px 12px 0 var(--ink); }
 a.wgl-card:hover .wgl-shot { transform: scale(1.05); }

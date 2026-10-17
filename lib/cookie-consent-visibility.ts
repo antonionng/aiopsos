@@ -10,7 +10,7 @@
  * covered a child's main game button. Without a stored choice, only essential
  * cookies apply, so the choice is offered again on the next ordinary page.
  */
-const FULL_SCREEN_GAMES = ["/wonderlab/creature-crossing", "/wonderlab/arcade-preview"];
+const FULL_SCREEN_GAMES = ["/wonderlab/creature-crossing", "/wonderlab/arcade-preview", "/wonderlab/snack-sorter"];
 
 export function shouldShowCookieBanner(
   pathname: string | null | undefined,

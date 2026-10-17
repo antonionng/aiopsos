@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Play } from "lucide-react";
 
-/** The two newest games, shown with real gameplay images. */
+/** The newest games, shown with real gameplay images. */
 export function FeaturedGames({ showHowItPlays = true }: { showHowItPlays?: boolean }) {
   return (
     <div className="wgl-featured">
@@ -54,6 +54,26 @@ export function FeaturedGames({ showHowItPlays = true }: { showHowItPlays?: bool
           <div className="wgl-card-copy">
             <h3>Arcade Apprentice</h3>
             <p>Describe a game, step inside it and play what you made. Then change your words and watch the game change.</p>
+            <span className="wgl-play wgl-play-small">
+              <Play size={16} fill="currentColor" /> Play
+            </span>
+          </div>
+        </Link>
+
+        <Link href="/wonderlab/snack-sorter" className="wgl-card wgl-card-picnic">
+          <div className="wgl-card-shot">
+            <Image
+              src="/images/wonderlab/games/snack-sorter-belt.webp"
+              alt="Pip the robot at a picnic, sorting fruit and a rock from a conveyor belt into a yummy basket and a yucky basket"
+              fill
+              sizes="(max-width: 900px) 100vw, 600px"
+              className="wgl-shot"
+            />
+            <span className="wgl-badge">New · Ages 4 to 6</span>
+          </div>
+          <div className="wgl-card-copy">
+            <h3>Pip&apos;s Snack Sorter</h3>
+            <p>Teach Pip the robot which things are yummy and which are yucky, then watch Pip sort the lunch belt. Play together with a grown-up.</p>
             <span className="wgl-play wgl-play-small">
               <Play size={16} fill="currentColor" /> Play
             </span>

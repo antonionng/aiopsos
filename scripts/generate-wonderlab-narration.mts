@@ -5,6 +5,7 @@ import ffmpeg from "ffmpeg-static";
 import { narrationScripts } from "../lib/wonderlab/narration-scripts.ts";
 import { arcadeNarrationScripts } from "../lib/wonderlab/arcade-adventure.ts";
 import { crossingNarrationScripts } from "../lib/wonderlab/creature-crossing.ts";
+import { sorterNarrationScripts } from "../lib/wonderlab/snack-sorter.ts";
 import { NARRATION_MODEL, NARRATION_VOICE } from "../lib/wonderlab/narration.ts";
 import { recordNarration } from "./wonderlab-realtime-voice.mts";
 
@@ -31,8 +32,8 @@ const root = process.cwd();
 const directory = resolve(root, "public/audio/wonderlab");
 const manifestFile = resolve(root, "lib/wonderlab/narration-manifest.json");
 const scope = process.argv.find((arg) => arg.startsWith("--scope="))?.slice("--scope=".length) ?? "all";
-if (scope !== "all" && scope !== "arcade" && scope !== "crossing") throw new Error("Use --scope=all, --scope=arcade or --scope=crossing.");
-const scripts = scope === "arcade" ? arcadeNarrationScripts() : scope === "crossing" ? crossingNarrationScripts() : narrationScripts();
+if (!["all", "arcade", "crossing", "sorter"].includes(scope)) throw new Error("Use --scope=all, --scope=arcade, --scope=crossing or --scope=sorter.");
+const scripts = scope === "arcade" ? arcadeNarrationScripts() : scope === "crossing" ? crossingNarrationScripts() : scope === "sorter" ? sorterNarrationScripts() : narrationScripts();
 const dryRun = process.argv.includes("--dry-run");
 const limitFlag = process.argv.find((arg) => arg.startsWith("--limit="));
 const limit = limitFlag ? Number(limitFlag.split("=")[1]) : scripts.length;
