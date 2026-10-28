@@ -26,3 +26,10 @@ test("a stored choice suppresses it everywhere", () => {
 test("a route that merely mentions dashboard is still public", () => {
   assert.equal(shouldShowCookieBanner("/insights/dashboard-metrics", null), true);
 });
+
+test("never covers a full-screen Wonderlab game, but still shows on Wonderlab pages", () => {
+  assert.equal(shouldShowCookieBanner("/wonderlab/creature-crossing", null), false);
+  assert.equal(shouldShowCookieBanner("/wonderlab/arcade-preview", null), false);
+  assert.equal(shouldShowCookieBanner("/wonderlab/games", null), true);
+  assert.equal(shouldShowCookieBanner("/wonderlab/creature-crossing-guide", null), true);
+});

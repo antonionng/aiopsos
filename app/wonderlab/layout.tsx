@@ -6,6 +6,7 @@ import "./wonderlab.css";
 import "./games.css";
 import "./adventure.css";
 import "./illustrations.css";
+import "./featured-games.css";
 export const metadata: Metadata = {
   ...wonderlabShare,
   title: {

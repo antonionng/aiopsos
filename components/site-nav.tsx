@@ -31,7 +31,6 @@ const NAV_LINKS = [
   { href: "#capabilities", label: "AI LMS" },
   { href: "/learn", label: "Online courses" },
   { href: "/courses", label: "Academy" },
-  { href: "/wonderlab", label: "Kids & Teens" },
   { href: "#enterprise", label: "For teams & providers" },
   { href: "/insights", label: "Insights" },
   { href: "/ai-labs", label: "AI Labs" },

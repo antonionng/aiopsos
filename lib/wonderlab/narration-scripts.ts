@@ -2,6 +2,7 @@ import { coachLines } from "./adventure/coaching.ts";
 import { questNarration } from "./quest.ts";
 import { adventures } from "./adventure/catalog.ts";
 import { arcadeCoaching, finalDiscoveries } from "./arcade-coaching.ts";
+import { arcadeNarrationScripts } from "./arcade-adventure.ts";
 import { rescueCoaching } from "./rescue-coach.ts";
 import { missions } from "./catalog.ts";
 import { demonstrations } from "./game-demonstrations.ts";
@@ -36,6 +37,7 @@ export function narrationScripts() {
     scripts.set(id, { id, band, text });
   }
   for (const text of Object.values(rescueCoaching)) add("explorers", text);
+  for (const script of arcadeNarrationScripts()) add(script.band, script.text);
   for (const band of ["explorers", "inventors", "creators", "studio"] as const)
     for (const text of questNarration(band)) add(band, text);
   for (const game of arcadeGames) {

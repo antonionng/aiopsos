@@ -1,0 +1,68 @@
+/* Featured games: big, image-led cards with chunky, playful controls. */
+.wgl-featured { display: grid; gap: 22px; margin: 34px 0 48px; }
+.wgl-shot { object-fit: cover; transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+
+.wgl-hero-card { position: relative; display: block; min-height: clamp(420px, 52vw, 620px); border: 3px solid var(--ink); border-radius: 32px; overflow: hidden; color: #fff; text-decoration: none; box-shadow: 8px 10px 0 var(--ink); transition: transform .2s, box-shadow .2s; isolation: isolate; }
+.wgl-hero-shot { position: absolute; inset: 0; z-index: -2; overflow: hidden; }
+.wgl-hero-card .wgl-shot { object-position: 50% 35%; }
+.wgl-hero-card::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, #1b1338e6 0%, #1b1338a8 34%, transparent 64%), linear-gradient(0deg, #1b133899, transparent 40%); }
+.wgl-hero-card:hover, .wgl-hero-card:focus-visible { transform: translate(-3px, -4px) rotate(-.3deg); box-shadow: 12px 15px 0 var(--ink); }
+.wgl-hero-card:hover .wgl-shot { transform: scale(1.04); }
+.wgl-hero-copy { position: absolute; left: clamp(20px, 4vw, 52px); bottom: clamp(22px, 4vw, 48px); max-width: 520px; display: grid; gap: 14px; justify-items: start; }
+.wgl-hero-copy h2 { font-size: clamp(46px, 7vw, 92px); line-height: .92; letter-spacing: -3px; color: #fff; text-shadow: 0 4px 0 #29213c80; }
+.wgl-hero-copy p { font-size: clamp(16px, 1.6vw, 20px); line-height: 1.45; color: #f3eeff; font-weight: 550; }
+.wgl-tags { display: flex; gap: 7px; flex-wrap: wrap; }
+.wgl-tags span { color: #fff; background: #ffffff26; border: 1px solid #ffffff55; backdrop-filter: blur(6px); border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 800; letter-spacing: .4px; }
+.wgl-play { display: inline-flex; align-items: center; gap: 10px; min-height: 58px; padding: 14px 28px; border: 3px solid var(--ink); border-radius: 18px; background: #ffd23f; color: var(--ink); font-family: var(--font-space-grotesk), sans-serif; font-size: 22px; font-weight: 800; box-shadow: 0 6px 0 var(--ink); transition: transform .12s, box-shadow .12s; }
+.wgl-hero-card:hover .wgl-play, .wgl-card:hover .wgl-play { transform: translateY(-2px); box-shadow: 0 8px 0 var(--ink); }
+.wgl-hero-card:active .wgl-play, .wgl-card:active .wgl-play { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
+.wgl-play-small { min-height: 46px; padding: 10px 20px; font-size: 17px; border-radius: 14px; box-shadow: 0 4px 0 var(--ink); }
+.wgl-perks { list-style: none; margin: 4px 0 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+.wgl-perks li { background: #fffaf0; color: var(--ink); border-radius: 12px; padding: 6px 11px; font-size: 13px; font-weight: 750; }
+.wgl-sticker { position: absolute; top: 22px; right: 24px; width: 104px; height: 104px; display: grid; place-items: center; border-radius: 50%; border: 3px solid var(--ink); background: #ff6fb5; color: #fff; font-family: var(--font-space-grotesk), sans-serif; font-size: 25px; font-weight: 800; letter-spacing: -.5px; box-shadow: 4px 5px 0 var(--ink); transform: rotate(12deg); animation: wgl-wobble 3s ease-in-out infinite; }
+@keyframes wgl-wobble { 50% { transform: rotate(-4deg) scale(1.06); } }
+
+.wgl-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+.wgl-card.wgl-card-picnic { background: #eaf8dd; }
+.wgl-card { display: grid; grid-template-rows: auto 1fr; border: 3px solid var(--ink); border-radius: 28px; overflow: hidden; background: #fff; color: var(--ink); text-decoration: none; box-shadow: 6px 8px 0 var(--ink); transition: transform .2s, box-shadow .2s; }
+a.wgl-card:hover, a.wgl-card:focus-visible { transform: translate(-2px, -3px) rotate(.3deg); box-shadow: 9px 12px 0 var(--ink); }
+a.wgl-card:hover .wgl-shot { transform: scale(1.05); }
+.wgl-card-shot { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 3px solid var(--ink); }
+.wgl-card-copy { padding: 20px 22px 24px; display: grid; gap: 10px; align-content: start; justify-items: start; }
+.wgl-card-copy h3 { font-size: clamp(26px, 2.6vw, 34px); letter-spacing: -1px; line-height: 1; }
+.wgl-card-copy p { font-size: 15px; line-height: 1.55; }
+/* A single card in the row (home page) runs the full width with the image beside the words. */
+.wgl-row > .wgl-card:only-child { grid-column: 1 / -1; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); grid-template-rows: auto; }
+.wgl-row > .wgl-card:only-child .wgl-card-shot { border-bottom: 0; border-right: 3px solid var(--ink); }
+.wgl-row > .wgl-card:only-child .wgl-card-copy { align-content: center; padding: 28px; }
+.wgl-card-night { background: #1c2541; color: #fffaf0; }
+.wgl-card-night h3 { color: #fffaf0; }
+.wgl-card-night .wgl-card-copy p { color: #d5dcef; }
+.wgl-badge { position: absolute; top: 14px; left: 14px; background: #cff1df; color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 800; }
+.wgl-how { background: #fff3c4; }
+.wgl-how ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.wgl-how li { display: flex; align-items: center; gap: 12px; font-weight: 750; font-size: 16px; }
+.wgl-how li b { width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; border: 2px solid var(--ink); background: #7242d5; color: #fff; display: grid; place-items: center; font-size: 14px; }
+
+.wgl-lobby-head { display: grid; gap: 14px; max-width: 880px; }
+.wgl-lobby-head h1 em { font-style: normal; color: #7242d5; }
+.wgl-lobby-head > p { font-size: 19px; line-height: 1.55; }
+.wgl-more { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 6px 0 18px; }
+.wgl-more h2 { font-size: clamp(30px, 3.4vw, 44px); letter-spacing: -1.5px; }
+
+@media (max-width: 900px) {
+  .wgl-row { grid-template-columns: 1fr; }
+  .wgl-row > .wgl-card:only-child { grid-template-columns: 1fr; }
+  .wgl-row > .wgl-card:only-child .wgl-card-shot { border-right: 0; border-bottom: 3px solid var(--ink); }
+  /* Phones: the game image sits above the words so both can be seen. */
+  .wgl-hero-card { min-height: 0; display: grid; background: #1b1338; box-shadow: 5px 7px 0 var(--ink); }
+  .wgl-hero-card::before { display: none; }
+  .wgl-hero-shot { position: relative; inset: auto; z-index: 0; aspect-ratio: 4 / 3; border-bottom: 3px solid var(--ink); }
+  .wgl-hero-copy { position: static; padding: 20px 18px 24px; max-width: none; }
+  .wgl-hero-copy h2 { font-size: 44px; letter-spacing: -1.5px; }
+  .wgl-sticker { width: 80px; height: 80px; font-size: 19px; top: 14px; right: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wgl-sticker { animation: none; }
+  .wgl-shot, .wgl-hero-card, .wgl-card, .wgl-play { transition: none; }
+}

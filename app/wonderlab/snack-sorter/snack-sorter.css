@@ -1,0 +1,37 @@
+/* Snack Sorter builds on the Creature Crossing game styles, with bigger pictures for younger players. */
+.ss-shell { background: linear-gradient(#9ad8ff, #c8f0b4); }
+.ss-dock { grid-template-columns: minmax(240px, 320px) minmax(0, 1fr) 280px; }
+.ss-tray { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 8px; }
+.ss-card { position: relative; flex-shrink: 0; width: 86px; height: 104px; border-radius: 20px; border: 3px solid transparent; background: #eef3fb; display: grid; justify-items: center; align-content: center; gap: 4px; transition: transform .12s; }
+.ss-card:hover { transform: translateY(-3px); }
+.ss-card.chosen { border-color: var(--cc-sun); background: #fff4c2; box-shadow: 0 0 0 3px #ffd23f55; }
+.ss-card.cc-guide { border-color: var(--cc-sun); box-shadow: 0 0 0 5px #ffd23f99; }
+.ss-emoji { font-size: 46px; line-height: 1; }
+.ss-tag { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 3px 8px; color: #fff; white-space: nowrap; }
+.ss-yummy .ss-tag { background: #2f9e4b; }
+.ss-yucky .ss-tag { background: #d6455f; }
+.ss-memory { display: grid; gap: 6px; margin-bottom: 10px; }
+.ss-basket { display: flex; align-items: center; gap: 8px; border-radius: 14px; padding: 6px 10px; min-height: 44px; font-size: 22px; }
+.ss-basket.ss-yummy { background: #e6f8e8; }
+.ss-basket.ss-yucky { background: #ffe9ee; }
+.ss-basket.empty { outline: 2px dashed #d6455f; }
+.ss-basket-items { font-size: 24px; letter-spacing: 2px; color: #5b6880; }
+.ss-big { font-size: 56px; line-height: 1.1; }
+.ss-match { font-size: 34px; padding: 4px 6px; }
+.ss-guesses .cc-guess span { font-size: 34px; }
+.ss-guess-unsure { opacity: .85; }
+.ss-miss > span:first-child { position: static; font-size: 30px; }
+.ss-compare { gap: 12px; }
+.ss-answer { display: flex; align-items: center; gap: 10px; }
+.ss-answer span { font-size: 24px; }
+@media (max-width: 980px) {
+  .ss-dock { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  /* Little fingers should not have to scroll: every item stays in view. */
+  .ss-tray { flex-wrap: wrap; overflow: visible; justify-content: center; gap: 8px; }
+  .ss-card { width: 70px; height: 86px; }
+  .ss-emoji { font-size: 34px; }
+  .ss-tag { font-size: 10px; padding: 2px 6px; }
+  .ss-big { font-size: 44px; }
+}

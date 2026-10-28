@@ -18,6 +18,7 @@ import type { Band, Mission } from "@/lib/wonderlab/types";
 import { launchStatus } from "@/lib/wonderlab/flags";
 import { Pip } from "./art";
 import { MissionArtwork } from "./mission-artwork";
+import { FeaturedGames } from "./featured-games";
 import { GameCards } from "./game-cards";
 export function WorldCard({ band }: { band: Band }) {
   const b = bands[band];
@@ -341,10 +342,11 @@ export function Home() {
         <span className="wl-eyebrow">YOUR CHILD CAN LEARN BY PLAYING.</span>
         <h2>Let them play.</h2>
         <p>
-          There is a free game for each of the four age levels. Your child can
-          try ideas, learn from what happens and earn a sticker by completing a
-          new challenge.
+          In our newest game, your child teaches an AI with examples, predicts
+          what it will do and fixes its mistakes. There is also a free game for
+          each of the four age levels.
         </p>
+        <FeaturedGames showHowItPlays={false} />
         <GameCards />
       </section>
       <section className="wl-pip-section">
