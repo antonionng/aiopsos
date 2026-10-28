@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { CreatureCrossingLoader } from "./loader";
 import "./creature-crossing.css";
+import { withSiteShareImages } from "@/lib/social-image";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withSiteShareImages({
   title: "Creature Crossing | Teach an AI with examples",
   description:
     "Teach the Wonder Gate with examples, then watch a stampede of new creatures test what it learned. A free Wonderlab game about how AI learns.",
   robots: { index: false, follow: false },
-};
+});
 
 export const viewport: Viewport = {
   width: "device-width",
