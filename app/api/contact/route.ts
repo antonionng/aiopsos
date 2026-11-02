@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { contactSchema, formatContactEnquiry } from "@/lib/contact-enquiry";
-import { sendContactAlert } from "@/lib/email";
+import { sendContactAlert, sendContactReceivedEmail } from "@/lib/email";
 import { captureInbound } from "@/lib/inbound-capture";
 import { rateLimit, RATE_LIMITS, getRateLimitHeaders } from "@/lib/rate-limit";
 import { assessSubmission, HONEYPOT_FIELD, FORM_TIMESTAMP_FIELD } from "@/lib/spam-defence";
@@ -21,6 +21,8 @@ export async function POST(req: NextRequest) {
     if (result.created) after(async () => {
       try { await sendContactAlert({ name: input.name, email: input.email, message: `${input.organisation_name ? `Organisation: ${input.organisation_name}\n\n` : ""}${message}` }); }
       catch { console.error("[contact] enquiry saved; notification failed", input.request_id); }
+      try { await sendContactReceivedEmail(input.email, input.name); }
+      catch { console.error("[contact] enquiry saved; acknowledgement failed", input.request_id); }
     });
     return NextResponse.json({ success: true });
   } catch {

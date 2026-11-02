@@ -41,6 +41,8 @@ export const AUDIT_ACTIONS = {
   MEMBER_RECORD_VIEWED: "member_record.viewed",
   /** Staff exported an individual's training record as PDF. */
   MEMBER_RECORD_EXPORTED: "member_record.exported",
+  /** One trial-ending email already went to this org for this phase. */
+  TRIAL_ENDING_NOTIFIED: "email.trial_ending",
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
